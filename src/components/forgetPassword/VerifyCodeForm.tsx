@@ -90,7 +90,7 @@ export default function VerifyCodeForm({ email, onCodeComplete, onResendCode, on
         {code.map((digit, index) => (
           <input
             key={index}
-            ref={(el) => (inputRefs.current[index] = el)}
+            ref={(el) => { inputRefs.current[index] = el; }}
             type="text"
             inputMode="numeric"
             maxLength={1}
@@ -138,4 +138,3 @@ export default function VerifyCodeForm({ email, onCodeComplete, onResendCode, on
     </form>
   );
 }
-
