@@ -36,44 +36,13 @@ export default function LeftIllustrationPanel() {
           Generate invoices, manage clients, and handle VAT/WHT effortlessly.
         </p>
 
-        {/* Illustration: Desk with laptop and printer */}
-        <div className="relative mt-8">
-          <div className="relative h-64 xl:h-80">
-            {/* Desk surface */}
-            <div className="absolute bottom-0 left-0 w-full h-24 xl:h-32 bg-gray-300 rounded-t-lg"></div>
-            
-            {/* Laptop */}
-            <div className="absolute bottom-24 xl:bottom-32 left-1/3 w-32 xl:w-40 h-20 xl:h-24 bg-gray-800 rounded-lg">
-              <div className="absolute top-1 left-1 right-1 bottom-2 bg-gray-900 rounded">
-                <div className="p-2 text-white text-xs font-bold">INVOICE</div>
-                <div className="h-1 bg-gray-700 mb-1 mx-2"></div>
-                <div className="h-1 bg-gray-700 mb-1 mx-2 w-3/4"></div>
-              </div>
-            </div>
-            
-            {/* Printer */}
-            <div className="absolute bottom-24 xl:bottom-32 left-1/4 w-20 xl:w-24 h-16 xl:h-20 bg-gray-700 rounded-lg">
-              <div className="absolute top-2 left-2 w-16 xl:w-20 h-2 bg-gray-500 rounded"></div>
-            </div>
-            
-            {/* Invoice document coming out of printer */}
-            <div className="absolute bottom-24 xl:bottom-32 left-1/3 w-28 xl:w-32 h-36 xl:h-40 bg-blue-200 rounded-sm transform rotate-6 shadow-lg">
-              <div className="p-2 xl:p-3 text-gray-800">
-                <div className="text-xs font-bold mb-2">INVOICE</div>
-                <div className="h-1 bg-gray-400 mb-1"></div>
-                <div className="h-1 bg-gray-300 mb-1 w-3/4"></div>
-                <div className="h-1 bg-gray-300 mb-1 w-2/3"></div>
-              </div>
-            </div>
-            
-            {/* Windows in background */}
-            <div className="absolute top-0 right-0 w-20 xl:w-24 h-28 xl:h-32 border-2 border-blue-300 rounded opacity-30">
-              <div className="h-full flex flex-col">
-                <div className="h-1/3 border-b border-blue-300"></div>
-                <div className="h-1/3 border-b border-blue-300"></div>
-              </div>
-            </div>
-          </div>
+        {/* Illustration */}
+        <div className="flex justify-center items-center">
+          <img 
+            src="/assets/automated_invoice.svg" 
+            alt="Automated Invoice Illustration" 
+            className="w-full max-w-md xl:max-w-lg"
+          />
         </div>
       </div>
     </div>
