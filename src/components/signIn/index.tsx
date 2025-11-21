@@ -1,18 +1,10 @@
-/**
- * SignIn Component (Main Container)
- * 
- * Main component that displays the sign-in page with:
- * - Left illustration panel (desktop only)
- * - Sign-in form with email/password and social login
- * 
- * Fully responsive for mobile and desktop devices.
- */
 'use client';
 
 import { useState } from 'react';
-import Logo from './Logo';
 import LeftIllustrationPanel from './LeftIllustrationPanel';
 import SignInForm from './SignInForm';
+import Image from "next/image";
+import invoiceLogo from './../../../public/assets/invoice logo.svg';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({
@@ -39,7 +31,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-gray-100 p-[16px] flex flex-col lg:flex-row">
       {/* Left Side - Illustration Panel (Desktop only) */}
       <LeftIllustrationPanel />
 
@@ -47,7 +39,10 @@ export default function SignIn() {
       <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-4 sm:p-6 lg:p-12">
         <div className="w-full max-w-md">
           {/* Logo */}
-          <Logo />
+          <div className="flex items-center">
+            <Image src={invoiceLogo} alt={'invoice logo'} />
+            <p className="text-[#000000] font-bold text-[26px]">Original Invoice</p>
+          </div>
 
           {/* Sign In Form */}
           <SignInForm
