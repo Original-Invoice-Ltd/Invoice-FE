@@ -5,7 +5,7 @@ import BlueButton from "@/components/blueButton";
 const Header = () => {
     return (
         <div className="w-full items-center flex justify-center mt-[30px]">
-            <div className="w-[1224px] h-[80px] border border-[#E4E7EC] justify-between rounded-full flex items-center px-8 bg-white">
+            <div className="w-[1224px] mx-[108px] h-[80px] border border-[#E4E7EC] justify-between rounded-full flex items-center px-8 bg-white">
                 <div className="flex items-center gap-[3.05px]">
                     <Image src={logo} height={32} width={32} alt="headerLogo" className="w-[32px] h-[32px]" />
                     <p className="font-semibold text-[18px]">Original Invoice</p>
