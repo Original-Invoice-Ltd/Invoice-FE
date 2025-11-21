@@ -76,7 +76,7 @@ const  Home =()=> {
             </div>
 
             {/*Section below the macbook */}
-            <div className="flex flex-col ml-[80px] w-[1280px] h-[2356px] gap-[34px] mt-[40px]">
+            <div className="flex flex-col ml-[80px] w-[1280px] h-[2356px] gap-[24px] mt-[40px]">
                 <div className="w-[775px] h-[304px] gap-[24px] flex flex-col">
                     <span className="w-[106px] h-[28px] rounded-[16px] text-[14px] font-medium bg-[#EFF8FF] flex items-center justify-center text-[#2F80ED]">
                         How it works
@@ -92,7 +92,7 @@ const  Home =()=> {
                     </div>
                 </div>
                 {/* section with color palette */}
-                <div className="w-full h-[1998px] gap-[40px] flex flex-col">
+                <div className="w-full h-[1998px] flex flex-col">
                     <div className="flex h-[626px] gap-[30px] w-full items-center">
                         <div className="flex flex-col gap-[26px]">
                             <div className="flex flex-col gap-[20px]">
