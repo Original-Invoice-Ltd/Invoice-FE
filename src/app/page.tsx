@@ -122,7 +122,7 @@ const  Home =()=> {
                             <div className="flex flex-col gap-[20px]">
                                 <p className="text-[32px] text-[#000] font-medium">Send to your client</p>
                                 <p className="text-[18px] leading-tight max-w-[553px] text-[#333436]">
-                                    Send your invoice with one click, choose the format that fits your client, and deliver a professional experience every time. Whether you share a link, attach a PDF, or print a copy, everything stays neatly organized on your dashboard.
+                                    Send your invoice with one click, choose the format that fits your client, and deliver a professional experience every time.Whether you share a link, attach a PDF, or print a copy, everything stays neatly organized on your dashboard.
                                 </p>
                             </div>
                             <button className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] ">
