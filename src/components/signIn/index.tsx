@@ -10,8 +10,8 @@
 'use client';
 
 import { useState } from 'react';
-import Logo from './Logo';
-import LeftIllustrationPanel from './LeftIllustrationPanel';
+import Logo from '../signUp/Logo';
+import LeftIllustrationPanel from '../signUp/LeftIllustrationPanel';
 import SignInForm from './SignInForm';
 
 export default function SignIn() {
