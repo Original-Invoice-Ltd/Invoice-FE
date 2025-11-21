@@ -1,8 +1,15 @@
+"use client";
+
 import Image from "next/image";
 import logo from "./../../../public/assets/invoice logo.svg";
 import BlueButton from "@/components/blueButton";
+import { useState } from "react";
 
 const Header = () => {
+    const [activeTab, setActiveTab] = useState("Home");
+
+    const navItems = ["Home", "Features", "About Us", "Pricing", "Contact Us"];
+
     return (
         <div className="w-full items-center flex justify-center mt-[30px]">
             <div className="w-[1224px] mx-[108px] h-[80px] border border-[#E4E7EC] justify-between rounded-full flex items-center px-8 bg-white">
@@ -13,14 +20,18 @@ const Header = () => {
 
                 {/* Navigation */}
                 <div className="flex gap-6 items-center text-[15px]">
-                    <span className="relative cursor-pointer">
-                        Home
-                    <span className="absolute bottom-[-4px] left-0 w-full h-[2px] bg-[#2F80ED]"></span>
-                    </span>
-                    <span className="cursor-pointer">Features</span>
-                    <span className="cursor-pointer">About Us</span>
-                    <span className="cursor-pointer">Pricing</span>
-                    <span className="cursor-pointer">Contact Us</span>
+                    {navItems.map((item) => (
+                        <span
+                            key={item}
+                            className="relative cursor-pointer"
+                            onClick={() => setActiveTab(item)}
+                        >
+                            {item}
+                            {activeTab === item && (
+                                <span className="absolute bottom-[-4px] left-0 w-full h-[2px] bg-[#2F80ED]"></span>
+                            )}
+                        </span>
+                    ))}
                 </div>
 
                 {/* Button */}
