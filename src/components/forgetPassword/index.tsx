@@ -13,8 +13,8 @@
 'use client';
 
 import { useState } from 'react';
-import Logo from './Logo';
-import LeftIllustrationPanel from './LeftIllustrationPanel';
+import Logo from '../signUp/Logo';
+import LeftIllustrationPanel from '../signUp/LeftIllustrationPanel';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import VerifyCodeForm from './VerifyCodeForm';
 import CreateNewPasswordForm from './CreateNewPasswordForm';

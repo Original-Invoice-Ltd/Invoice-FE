@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import LeftIllustrationPanel from './LeftIllustrationPanel';
+import LeftIllustrationPanel from '../signUp/LeftIllustrationPanel';
 import SignInForm from './SignInForm';
 import Image from "next/image";
 import invoiceLogo from './../../../public/assets/invoice logo.svg';
