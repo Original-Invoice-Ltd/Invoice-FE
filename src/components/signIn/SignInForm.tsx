@@ -1,16 +1,4 @@
-/**
- * SignInForm Component
- * 
- * Sign-in form containing:
- * - Email and password input fields
- * - Remember me checkbox
- * - Forgot password link
- * - Sign In button
- * - Social login options (Google, Apple)
- * - Link to sign up for new users
- * 
- * Fully responsive for mobile and desktop.
- */
+
 'use client';
 
 import { useState } from 'react';
