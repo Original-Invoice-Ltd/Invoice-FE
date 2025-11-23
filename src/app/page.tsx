@@ -105,7 +105,7 @@ const  Home =()=> {
                                 src="/assets/Macbook Pro.svg"
                                 alt="Invoice Dashboard"
                                 width={1000}
-                                height={594}
+                                height={394}
                                 className="w-full max-w-[343px] h-auto lg:max-w-none"
                                 priority
                             />
@@ -147,9 +147,9 @@ const  Home =()=> {
                         </div>
                         <Image
                             src={palleteImg} alt={'pallete image'}
-                            width={603}
-                            height={626}
-                            className="w-full max-w-[343px] h-auto lg:h-[626px] lg:w-[603px]"
+                            width={500}
+                            height={420}
+                            className="w-full max-w-[500px] h-auto"
                         />
                     </div>
 
@@ -157,9 +157,9 @@ const  Home =()=> {
                     <div className="flex flex-col lg:flex-row gap-[30px] w-full items-center">
                         <Image
                             src={emailContent} alt={'email image'}
-                            width={603}
-                            height={620}
-                            className="w-full max-w-[343px] h-auto lg:h-[620px] lg:w-[603px] order-2 lg:order-1"
+                            width={500}
+                            height={420}
+                            className="w-full max-w-[500px] h-auto order-2 lg:order-1"
                         />
                         <div className="flex flex-col gap-[26px] justify-center order-1 lg:order-2">
                             <div className="flex flex-col gap-[20px]">
@@ -190,9 +190,9 @@ const  Home =()=> {
                         </div>
                         <Image
                             src="/assets/TrackPayment.svg" alt={'track payment image'}
-                            width={603}
-                            height={620}
-                            className="w-full max-w-[343px] h-auto lg:h-[620px] lg:w-[603px]"
+                            width={500}
+                            height={420}
+                            className="w-full max-w-[500px] h-auto"
                         />
                     </div>
                 </div>
