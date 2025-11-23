@@ -35,7 +35,19 @@ const testimonials = [
 
 export default function TestimonialsCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const testimonialsPerPage = 3;
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if mobile on mount and resize
+  useState(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  });
+
+  const testimonialsPerPage = isMobile ? 1 : 3;
   const maxIndex = Math.max(0, testimonials.length - testimonialsPerPage);
 
   const goToPrevious = () => {
@@ -49,11 +61,11 @@ export default function TestimonialsCarousel() {
   const visibleTestimonials = testimonials.slice(currentIndex, currentIndex + testimonialsPerPage);
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between gap-[16px] lg:gap-0">
       <button 
         onClick={goToPrevious}
         disabled={currentIndex === 0}
-        className={`w-[48px] h-[48px] rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F9FAFB] ${
+        className={`w-[40px] h-[40px] lg:w-[48px] lg:h-[48px] rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F9FAFB] flex-shrink-0 ${
           currentIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''
         }`}
       >
@@ -62,14 +74,14 @@ export default function TestimonialsCarousel() {
         </svg>
       </button>
 
-      <div className="flex gap-[32px] max-w-[1000px] transition-all duration-300">
+      <div className="flex gap-[16px] lg:gap-[32px] max-w-[343px] lg:max-w-[1000px] transition-all duration-300 overflow-hidden">
         {visibleTestimonials.map((testimonial) => (
-          <div key={testimonial.id} className="bg-white p-[32px] rounded-[12px] shadow-sm max-w-[300px]">
-            <p className="text-[16px] text-[#333436] mb-[24px] leading-relaxed">
+          <div key={testimonial.id} className="bg-white p-[24px] lg:p-[32px] rounded-[12px] shadow-sm w-full lg:max-w-[300px] flex-shrink-0">
+            <p className="text-[14px] lg:text-[16px] text-[#333436] mb-[20px] lg:mb-[24px] leading-relaxed">
               "{testimonial.text}"
             </p>
             <div className="flex items-center gap-[12px]">
-              <div className="w-[48px] h-[48px] rounded-full overflow-hidden">
+              <div className="w-[40px] h-[40px] lg:w-[48px] lg:h-[48px] rounded-full overflow-hidden flex-shrink-0">
                 <img 
                   src={testimonial.profileIcon}
                   alt={testimonial.name}
@@ -77,8 +89,8 @@ export default function TestimonialsCarousel() {
                 />
               </div>
               <div>
-                <p className="text-[16px] font-medium text-[#000]">{testimonial.name}</p>
-                <p className="text-[14px] text-[#6B7280]">{testimonial.role}</p>
+                <p className="text-[14px] lg:text-[16px] font-medium text-[#000]">{testimonial.name}</p>
+                <p className="text-[12px] lg:text-[14px] text-[#6B7280]">{testimonial.role}</p>
               </div>
             </div>
           </div>
@@ -88,7 +100,7 @@ export default function TestimonialsCarousel() {
       <button 
         onClick={goToNext}
         disabled={currentIndex >= maxIndex}
-        className={`w-[48px] h-[48px] rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F9FAFB] ${
+        className={`w-[40px] h-[40px] lg:w-[48px] lg:h-[48px] rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F9FAFB] flex-shrink-0 ${
           currentIndex >= maxIndex ? 'opacity-50 cursor-not-allowed' : ''
         }`}
       >
