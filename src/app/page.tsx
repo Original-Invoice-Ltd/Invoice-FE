@@ -199,10 +199,10 @@ const  Home =()=> {
             </div>
 
             {/* Features Section */}
-            <div className="w-full bg-[#eff8ff] py-[40px] lg:py-[80px] mt-[40px]">
+            <div className="w-full bg-[#EFF8FF] py-[40px] lg:py-[80px] mt-[40px]">
                 <div className="max-w-[1280px] mx-auto lg:px-[80px]">
                     <div className="text-left lg:text-center mb-[40px] lg:mb-[60px] px-4">
-                        <span className="inline-block px-[16px] py-[6px] bg-[#EFF8FF] text-[#2F80ED] text-[14px] font-medium rounded-[16px] mb-[24px]">
+                        <span className="inline-block px-[16px] py-[6px] bg-[#e0f1ff] text-[#2F80ED] text-[14px] font-medium rounded-[16px] mb-[24px]">
                             Features
                         </span>
                         <h2 className="text-[24px] lg:text-[38px] font-medium text-[#000] mb-[16px] leading-tight">
@@ -217,59 +217,146 @@ const  Home =()=> {
                     <div className="flex overflow-x-auto gap-[16px] px-4 lg:grid lg:grid-cols-4 lg:gap-[24px] lg:px-0 snap-x snap-mandatory"
                          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                         <div className="group bg-white p-[24px] lg:p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer min-w-[280px] lg:min-w-0 lg:max-w-none snap-start flex-shrink-0">
-                            <div className="w-[48px] h-[48px] bg-[#EFF8FF] group-hover:bg-white rounded-[8px] flex items-center justify-center mb-[24px] transition-all duration-300">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M14 2V8H20" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M16 13H8" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M16 17H8" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M10 9H9H8" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
+                            <div className="w-[48px] h-[48px] flex items-center justify-center mb-[24px] transition-all duration-300">
+                                <Image
+                                    src="/assets/icons/SmartInvoceCreation.svg"
+                                    alt="Smart Invoice Creation"
+                                    width={24}
+                                    height={24}
+                                    className="transition-all duration-300"
+                                    style={{ 
+                                        filter: 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(187deg) brightness(97%) contrast(91%)'
+                                    }}
+                                />
                             </div>
-                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Smart Invoice<br />Creation</h3>
+                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] whitespace-nowrap group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Smart Invoice Creation</h3>
                             <p className="text-[14px] lg:text-[16px] text-[#333436] group-hover:text-white leading-relaxed transition-colors duration-300">
                                 Create invoices with client details, items, taxes, and notes in a clean editor that updates instantly as you work.
                             </p>
                         </div>
 
                         <div className="group bg-white p-[24px] lg:p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer min-w-[280px] lg:min-w-0 snap-start flex-shrink-0">
-                            <div className="w-[48px] h-[48px] bg-[#EFF8FF] group-hover:bg-white rounded-[8px] flex items-center justify-center mb-[24px] transition-all duration-300">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <circle cx="12" cy="7" r="4" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
+                            <div className="w-[48px] h-[48px] flex items-center justify-center mb-[24px] transition-all duration-300">
+                                <Image
+                                    src="/assets/icons/ClientManagement.svg"
+                                    alt="Client Management"
+                                    width={24}
+                                    height={24}
+                                    className="group-hover:brightness-0 group-hover:invert transition-all duration-300"
+                                />
                             </div>
-                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Client<br />Management</h3>
+                            <h3 className="text-[16px] lg:text-[20px] font-medium text-[#000] whitespace-nowrap group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Client Management</h3>
                             <p className="text-[14px] lg:text-[16px] text-[#333436] group-hover:text-white leading-relaxed transition-colors duration-300">
                                 Keep your client information organized with profiles that store balances, contacts, and the invoices you've shared.
                             </p>
                         </div>
 
                         <div className="group bg-white p-[24px] lg:p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer min-w-[280px] lg:min-w-0 snap-start flex-shrink-0">
-                            <div className="w-[48px] h-[48px] bg-[#EFF8FF] group-hover:bg-white rounded-[8px] flex items-center justify-center mb-[24px] transition-all duration-300">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="1" y="3" width="15" height="13" rx="2" ry="2" stroke="#2F80ED" strokeWidth="2"/>
-                                    <path d="M16 8L20 12L16 16" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
+                            <div className="w-[48px] h-[48px] flex items-center justify-center mb-[24px] transition-all duration-300">
+                                <Image
+                                    src="/assets/icons/PaymentTracking.svg"
+                                    alt="Payment Tracking"
+                                    width={24}
+                                    height={24}
+                                    className="group-hover:brightness-0 group-hover:invert transition-all duration-300"
+                                />
                             </div>
-                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Payment<br />Tracking</h3>
+                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] whitespace-nowrap group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Payment Tracking</h3>
                             <p className="text-[14px] lg:text-[16px] text-[#333436] group-hover:text-white leading-relaxed transition-colors duration-300">
                                 Follow every invoice from draft to paid with clear status indicators that help you stay aware of what's outstanding.
                             </p>
                         </div>
 
                         <div className="group bg-white p-[24px] lg:p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer min-w-[280px] lg:min-w-0 snap-start flex-shrink-0">
-                            <div className="w-[48px] h-[48px] bg-[#EFF8FF] group-hover:bg-white rounded-[8px] flex items-center justify-center mb-[24px] transition-all duration-300">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M9 11H15" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M9 15H15" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M16 3H8C6.89543 3 6 3.89543 6 5V19L10 17L14 19V5C14 3.89543 14.8954 3 16 3Z" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
+                            <div className="w-[48px] h-[48px] flex items-center justify-center mb-[24px] transition-all duration-300">
+                                <Image
+                                    src="/assets/icons/ReportsAndHistory.svg"
+                                    alt="Reports & History"
+                                    width={24}
+                                    height={24}
+                                    className="group-hover:brightness-0 group-hover:invert transition-all duration-300"
+                                />
                             </div>
-                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Reports &<br />History</h3>
+                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] whitespace-nowrap group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Reports & History</h3>
                             <p className="text-[14px] lg:text-[16px] text-[#333436] group-hover:text-white leading-relaxed transition-colors duration-300">
                                 Review your invoices, payments, and client activity in simple summaries that help you understand your business.
                             </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Why Choose Original Invoice Section */}
+            <div className="w-full py-[60px] lg:py-[80px]">
+                <div className="max-w-[1280px] mx-auto px-[16px] md:px-[40px] lg:px-[80px]">
+                    <div className="mb-[40px] lg:mb-[60px]">
+                        <h2 className="text-[32px] md:text-[38px] font-medium text-[#000] mb-[16px] leading-tight">
+                            Why Choose Original Invoice
+                        </h2>
+                        <p className="text-[16px] md:text-[18px] text-[#333436] max-w-[600px] leading-relaxed">
+                            Built for simplicity, tax compliance, and fast payments, everything you need to run your business with confidence.
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col lg:flex-row gap-[40px] lg:gap-[60px] items-center">
+                        {/* Left Side - Features List */}
+                        <div className="w-full lg:w-1/2 space-y-[32px]">
+                            <div className="flex gap-[16px]">
+                                <div className="flex-shrink-0 w-[48px] h-[48px] bg-[#EFF8FF] rounded-[8px] flex items-center justify-center">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 11L12 14L22 4" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-[18px] md:text-[20px] font-medium text-[#000] mb-[8px]">Tax Compliance Made Easy</h3>
+                                    <p className="text-[14px] md:text-[16px] text-[#333436] leading-relaxed">
+                                        Automatically apply VAT, WHT, and PAYE accurately with a clear breakdown on every invoice.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-[16px]">
+                                <div className="flex-shrink-0 w-[48px] h-[48px] bg-[#EFF8FF] rounded-[8px] flex items-center justify-center">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M2 17L12 22L22 17" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M2 12L12 17L22 12" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-[18px] md:text-[20px] font-medium text-[#000] mb-[8px]">Smart Automation</h3>
+                                    <p className="text-[14px] md:text-[16px] text-[#333436] leading-relaxed">
+                                        Your invoices follow up themselves: reminders, overdue alerts, recurring billing, and real-time status updates.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-[16px]">
+                                <div className="flex-shrink-0 w-[48px] h-[48px] bg-[#EFF8FF] rounded-[8px] flex items-center justify-center">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M14 2V8H20" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-[18px] md:text-[20px] font-medium text-[#000] mb-[8px]">Professional Templates</h3>
+                                    <p className="text-[14px] md:text-[16px] text-[#333436] leading-relaxed">
+                                        Customizable, modern invoice templates with your branding and multilingual support.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Side - Image */}
+                        <div className="w-full lg:w-1/2 flex justify-center">
+                            <Image
+                                src="/assets/WhyChooseOriginalinvoice.svg"
+                                alt="Why Choose Original Invoice"
+                                width={600}
+                                height={500}
+                                className="w-full max-w-[600px] h-auto"
+                            />
                         </div>
                     </div>
                 </div>
