@@ -7,7 +7,7 @@ const FAQ = ()=>{
             <div className="w-full bg-[#eff8ff] py-[40px] lg:py-[60px]">
                 <div className="max-w-[1280px] mx-auto px-4 lg:px-[80px]">
                     <div className="text-center mb-[40px] lg:mb-[60px]">
-                        <span className="inline-block px-[16px] py-[6px] bg-[#EFF8FF] text-[#2F80ED] text-[14px] font-medium rounded-[16px] mb-[12px]">
+                        <span className=" inline-block px-[16px] py-[6px] bg-[#e0f1ff] text-[#2F80ED] text-[14px] font-medium rounded-[16px] mb-[12px]">
                             FAQ
                         </span>
                         <h2 className="text-[24px] lg:text-[38px] font-medium text-[#000] mb-[16px] leading-tight">
