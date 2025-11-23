@@ -1,52 +1,53 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
-    <footer className="w-full bg-[#5698f0] py-[48px]">
-      <div className="max-w-[1280px] mx-auto px-[80px]">
-        <div className="flex justify-between items-start mb-[40px]">
+    <footer className="w-full bg-[#5698f0] py-[32px] lg:py-[48px]">
+      <div className="max-w-[1280px] mx-auto px-4 lg:px-[80px]">
+        <div className="flex flex-col lg:flex-row justify-between items-start mb-[32px] lg:mb-[40px] gap-[32px] lg:gap-0">
           {/* Logo and Description */}
-          <div className="max-w-[380px]">
+          <div className="max-w-[358px] lg:max-w-[380px]">
             <div className="mb-[16px]">
               <img 
-                src="/assets/icons/OriginalInvoiceLogo.svg" 
+                src="/assets/header logo.svg" 
                 alt="Original Invoice" 
-                className="h-[40px]"
+                className="h-[28px] lg:h-[32px]"
               />
             </div>
             <p className="text-white text-[14px] leading-relaxed">
-              Nigeria's most trusted invoicing and tax-compliant billing platform.<br />
-              Create professional invoices, stay compliant, and get paid faster.
+              Nigeria's most trusted invoicing and tax-compliant billing platform. Create professional invoices, stay compliant, and get paid faster.
             </p>
           </div>
 
-          {/* Navigation Links */}
-          <div className="flex gap-[100px]">
+          {/* Navigation Links - 2 columns on mobile, 3 columns on desktop */}
+          <div className="grid grid-cols-2 lg:flex lg:flex-row gap-[16px] lg:gap-[100px] w-full lg:w-auto">
             <div>
-              <h3 className="text-white text-[14px] font-medium mb-[16px]">Product</h3>
+              <h3 className="text-white text-[14px] font-semibold mb-[16px]">Product</h3>
               <ul className="space-y-[8px]">
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Features</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Pricing</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Templates</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">About Us</a></li>
+                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Features</a></li>
+                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Pricing</a></li>
+                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Templates</a></li>
+                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">About Us</a></li>
               </ul>
             </div>
 
             <div>
-              <h3 className="text-white text-[14px] font-medium mb-[16px]">Solutions</h3>
+              <h3 className="text-white text-[14px] font-semibold mb-[16px]">Solutions</h3>
               <ul className="space-y-[8px]">
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Freelancers</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">SMEs</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Enterprises</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Agencies</a></li>
+                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Freelancers</a></li>
+                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">SMEs</a></li>
+                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Enterprises</a></li>
+                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Agencies</a></li>
               </ul>
             </div>
 
-            <div>
-              <h3 className="text-white text-[14px] font-medium mb-[16px]">Company</h3>
+            <div className="col-span-2 lg:col-span-1">
+              <h3 className="text-white text-[14px] font-semibold mb-[16px]">Company</h3>
               <ul className="space-y-[8px]">
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">About Us</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Contact Us</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Help Center</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Partners</a></li>
+                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">About Us</a></li>
+                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Contact Us</a></li>
+                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Help Center</a></li>
+                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Partners</a></li>
               </ul>
             </div>
           </div>
@@ -56,9 +57,9 @@ export default function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="border-t flex justify-between border-white border-opacity-20 pt-[24px]">
-          <p className="text-white text-[14px]">© 2025 Original Invoice. All rights reserved.</p>
-            <div className="flex justify-between w-[160px]">
+        <div className="border-t flex flex-col lg:flex-row justify-between items-start lg:items-center gap-[16px] lg:gap-0 border-white border-opacity-20 pt-[24px]">
+          <p className="text-white text-[12px] lg:text-[14px]">© 2025 Original Invoice. All rights reserved.</p>
+            <div className="flex justify-start lg:justify-between w-[160px] gap-[16px]">
             <a href="#" className="w-[32px] h-[32px] flex items-center justify-center hover:opacity-80">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
