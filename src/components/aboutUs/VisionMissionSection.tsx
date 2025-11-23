@@ -87,7 +87,7 @@ const VisionMissionSection: React.FC = () => {
           >
             <div className="relative w-full h-full p-12">
               <Image 
-                src="/assets/invoice-illustration.svg" 
+                src="/assets/invoicing.png" 
                 alt="Invoice with VAT, WHT, PAYE" 
                 fill
                 className="object-contain"
