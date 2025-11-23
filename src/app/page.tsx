@@ -126,7 +126,7 @@ const  Home =()=> {
                             <p className="text-[24px] lg:text-[38px] leading-tight font-medium text-[#000]">A simple workflow for every invoice you create</p>
                             <p className="text-[14px] lg:text-[16px] leading-tight text-[#333436]">Follow a simple flow that keeps your invoicing clear, organized, and easy to manage. Each step helps you stay focused while the system handles the details.</p>
                         </div>
-                        <button className="bg-[#2F80ED] px-[16px] text-white w-full max-w-[343px] lg:w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
+                        <button className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
                             Get Started
                         </button>
                     </div>
@@ -141,7 +141,7 @@ const  Home =()=> {
                                     Bring your invoice to life in a clean editor that guides your flow. Add products or services, apply VAT or WHT, and personalize notes—all without breaking your pace.Every change reflects immediately, giving you clarity and confidence in what you’re sending
                                 </p>
                             </div>
-                            <button className="bg-[#2F80ED] px-[16px] text-white w-full max-w-[343px] lg:w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
+                            <button className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
                                 Create Invoice
                             </button>
                         </div>
@@ -168,7 +168,7 @@ const  Home =()=> {
                                     Send your invoice with one click, choose the format that fits your client, and deliver a professional experience every time.Whether you share a link, attach a PDF, or print a copy, everything stays neatly organized on your dashboard.
                                 </p>
                             </div>
-                            <button className="bg-[#2F80ED] px-[16px] text-white w-full max-w-[343px] lg:w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
+                            <button className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
                                 Create Invoice
                             </button>
                         </div>
@@ -184,7 +184,7 @@ const  Home =()=> {
                                     Quickly mark payments, review outstanding totals, and keep everything organized without switching between tools.
                                 </p>
                             </div>
-                            <button className="bg-[#2F80ED] px-[16px] text-white w-full max-w-[343px] lg:w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
+                            <button className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
                                 Create Invoice
                             </button>
                         </div>
@@ -214,7 +214,7 @@ const  Home =()=> {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-[24px]">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-[16px] lg:gap-[24px]">
                         <div className="group bg-white p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer">
                             <div className="w-[48px] h-[48px] bg-[#EFF8FF] group-hover:bg-white rounded-[8px] flex items-center justify-center mb-[24px] transition-all duration-300">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
