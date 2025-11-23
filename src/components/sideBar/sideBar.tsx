@@ -16,7 +16,7 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
         if (pathname === "/") return "Home";
         if (pathname === "/pricing") return "Pricing";
         if (pathname === "/features") return "Features";
-        if (pathname === "/about") return "About Us";
+        if (pathname === "/aboutUs") return "About Us";
         if (pathname === "/contact") return "Contact Us";
         return "Home";
     };
@@ -31,7 +31,7 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
         } else if (item === "Features") {
             router.push("/features");
         } else if (item === "About Us") {
-            router.push("/about");
+            router.push("/aboutUs");
         } else if (item === "Contact Us") {
             router.push("/contact");
         }
