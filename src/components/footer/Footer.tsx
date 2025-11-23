@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <footer className="w-full bg-[#5698f0] py-[32px] lg:py-[48px]">
