@@ -1,10 +1,20 @@
 import TestimonialsCarousel from "@/components/testimonials/TestimonialsCarousel";
+import Image from "next/image";
 
 const Testimonials = ()=>{
     return (
         <>
-            <div className="w-full py-[40px] lg:py-[80px]">
-                <div className="max-w-[1280px] mx-auto px-4 lg:px-[80px]">
+            <div className="w-full py-[40px] lg:py-[80px] relative">
+                {/* Mid Right Eclipse - Bottom Left */}
+                <Image
+                    src="/assets/Mid Right Ellipse.svg"
+                    alt=""
+                    width={300}
+                    height={300}
+                    className="absolute bottom-0 left-0 pointer-events-none"
+                />
+                
+                <div className="max-w-[1280px] mx-auto px-4 lg:px-[80px] relative z-10">
                     <div className="text-center mb-[40px] lg:mb-[60px]">
                         <span className="inline-block px-[16px] py-[6px] bg-[#EFF8FF] text-[#2F80ED] text-[14px] font-medium rounded-[16px] mb-[24px]">
                             Testimonials
