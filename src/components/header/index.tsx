@@ -19,7 +19,7 @@ const Header = ({ currentPage }: HeaderProps) => {
         if (pathname === "/") return "Home";
         if (pathname === "/pricing") return "Pricing";
         if (pathname === "/features") return "Features";
-        if (pathname === "/about") return "About Us";
+        if (pathname === "/aboutUs") return "About Us";
         if (pathname === "/contact") return "Contact Us";
         return currentPage || "Home";
     };
@@ -29,7 +29,7 @@ const Header = ({ currentPage }: HeaderProps) => {
     const navItems = [
         { name: "Home", path: "/" },
         { name: "Features", path: "/features" },
-        { name: "About Us", path: "/about" },
+        { name: "About Us", path: "/aboutUs" },
         { name: "Pricing", path: "/pricing" },
         { name: "Contact Us", path: "/contact" }
     ];
