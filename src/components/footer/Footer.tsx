@@ -9,9 +9,10 @@ export default function Footer() {
           <div className="max-w-[358px] lg:max-w-[380px]">
             <div className="mb-[16px]">
               <img 
-                src="/assets/header logo.svg" 
+                src="/assets/OriginalInvoiceWhiteLogo.svg" 
                 alt="Original Invoice" 
                 className="h-[28px] lg:h-[32px]"
+                style={{ filter: 'brightness(0) invert(1)' }}
               />
             </div>
             <p className="text-white text-[14px] leading-relaxed">
