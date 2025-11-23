@@ -206,9 +206,9 @@ const  Home =()=> {
                             Features
                         </span>
                         <h2 className="text-[24px] lg:text-[38px] font-medium text-[#000] mb-[16px] leading-tight">
-                            Everything you need to manage your invoices<br className="hidden lg:block" />in one place
+                            Everything you need to manage your invoices<br className="hidden lg:block" /> in one place
                         </h2>
-                        <p className="text-[14px] lg:text-[18px] text-[#333436] max-w-[358px] lg:max-w-[600px] lg:mx-auto leading-relaxed">
+                        <p className="text-[14px] lg:text-[18px] text-[#333436] max-w-[358px] lg:max-w-[600px] mx-auto leading-relaxed">
                             A thoughtful set of tools that help you create invoices, stay organized, and keep track of payments.
                             Designed to support the everyday rhythm of your business.
                         </p>
