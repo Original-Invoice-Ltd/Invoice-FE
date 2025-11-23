@@ -60,8 +60,8 @@ export default function ContactUs() {
             <h1 className="text-[32px] md:text-[48px] lg:text-[60px] font-semibold text-[#000] mb-[12px] md:mb-[16px] leading-tight tracking-[-1px] md:tracking-[-2px] px-[16px]">
               Get in Touch
             </h1>
-            <p className="text-[16px] md:text-[18px] text-[#333436] max-w-[600px] mx-auto leading-relaxed mb-[24px] md:mb-[32px] px-[16px]">
-              Whether you have questions, feedback, partnership requests, or need support—our team is always ready to assist you.
+            <p className="text-[16px] md:text-[18px] text-[#333436] max-w-[800px] mx-auto leading-relaxed mb-[24px] md:mb-[32px] px-[16px]">
+              Whether you have questions, feedback, partnership requests, or need support—our team is always <br />ready to assist you.
             </p>
             <button className="bg-[#2F80ED] px-[20px] md:px-[24px] py-[12px] md:py-[14px] text-white rounded-[8px] font-medium text-[14px] md:text-[16px] hover:bg-[#2563EB]">
               Start Your Free Trial Today
