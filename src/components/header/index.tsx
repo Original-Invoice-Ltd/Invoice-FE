@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import logo from "./../../../public/assets/header logo.svg";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import SideBar from "../sideBar/sideBar";
 
@@ -11,7 +12,6 @@ interface HeaderProps {
 }
 
 const Header = ({ currentPage }: HeaderProps) => {
-    const router = useRouter();
     const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     
@@ -26,43 +26,35 @@ const Header = ({ currentPage }: HeaderProps) => {
 
     const activeTab = getActiveTab();
 
-    const navItems = ["Home", "Features", "About Us", "Pricing", "Contact Us"];
-
-    const handleNavClick = (item: string) => {
-        if (item === "Home") {
-            router.push("/");
-        } else if (item === "Pricing") {
-            router.push("/pricing");
-        } else if (item === "Features") {
-            router.push("/features");
-        } else if (item === "About Us") {
-            router.push("/about");
-        } else if (item === "Contact Us") {
-            router.push("/contact");
-        }
-    };
+    const navItems = [
+        { name: "Home", path: "/" },
+        { name: "Features", path: "/features" },
+        { name: "About Us", path: "/about" },
+        { name: "Pricing", path: "/pricing" },
+        { name: "Contact Us", path: "/contact" }
+    ];
 
     return (
         <>
             <div className="w-full items-center flex justify-center mt-[30px] px-4">
                 {/* Desktop Header */}
                 <div className="hidden lg:flex w-[1224px] mx-[108px] h-[80px] border border-[#E4E7EC] justify-between rounded-full items-center px-8 bg-white">
-                    <div className="flex items-center gap-[3.05px] cursor-pointer" onClick={() => router.push("/")}>
+                    <Link href="/" className="flex items-center gap-[3.05px] cursor-pointer">
                         <Image src={logo} height={32} width={84} alt="headerLogo" className="w-[84px] h-[32px]" />
-                    </div>
+                    </Link>
 
                     <div className="flex gap-6 items-center text-[15px]">
                         {navItems.map((item) => (
-                            <span
-                                key={item}
+                            <Link
+                                key={item.name}
+                                href={item.path}
                                 className="relative cursor-pointer"
-                                onClick={() => handleNavClick(item)}
                             >
-                                {item}
-                                {activeTab === item && (
+                                {item.name}
+                                {activeTab === item.name && (
                                     <span className="absolute bottom-[-4px] left-0 w-full h-[2px] bg-[#2F80ED]"></span>
                                 )}
-                            </span>
+                            </Link>
                         ))}
                     </div>
 
@@ -73,9 +65,9 @@ const Header = ({ currentPage }: HeaderProps) => {
 
                 {/* Mobile Header */}
                 <div className="flex lg:hidden w-full max-w-[390px] h-[60px] justify-between items-center px-4 bg-white">
-                    <div className="flex items-center cursor-pointer" onClick={() => router.push("/")}>
+                    <Link href="/" className="flex items-center cursor-pointer">
                         <Image src={logo} height={28} width={74} alt="headerLogo" />
-                    </div>
+                    </Link>
 
                     <button
                         onClick={() => setIsSidebarOpen(true)}

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <footer className="w-full bg-[#5698f0] py-[32px] lg:py-[48px]">
@@ -22,30 +24,30 @@ export default function Footer() {
             <div>
               <h3 className="text-white text-[14px] font-medium mb-[16px]">Product</h3>
               <ul className="space-y-[8px]">
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Features</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Pricing</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Templates</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">About Us</a></li>
+                <li><Link href="/features" className="text-white text-[14px] hover:text-gray-200">Features</Link></li>
+                <li><Link href="/pricing" className="text-white text-[14px] hover:text-gray-200">Pricing</Link></li>
+                <li><Link href="/templates" className="text-white text-[14px] hover:text-gray-200">Templates</Link></li>
+                <li><Link href="/about" className="text-white text-[14px] hover:text-gray-200">About Us</Link></li>
               </ul>
             </div>
 
             <div>
               <h3 className="text-white text-[14px] font-medium mb-[16px]">Solutions</h3>
               <ul className="space-y-[8px]">
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Freelancers</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">SMEs</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Enterprises</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Agencies</a></li>
+                <li><Link href="/freelancers" className="text-white text-[14px] hover:text-gray-200">Freelancers</Link></li>
+                <li><Link href="/smes" className="text-white text-[14px] hover:text-gray-200">SMEs</Link></li>
+                <li><Link href="/enterprises" className="text-white text-[14px] hover:text-gray-200">Enterprises</Link></li>
+                <li><Link href="/agencies" className="text-white text-[14px] hover:text-gray-200">Agencies</Link></li>
               </ul>
             </div>
 
             <div className="col-span-2 lg:col-span-1">
               <h3 className="text-white text-[14px] font-medium mb-[16px]">Company</h3>
               <ul className="space-y-[8px]">
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">About Us</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Contact Us</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Help Center</a></li>
-                <li><a href="#" className="text-white text-[14px] hover:text-gray-200">Partners</a></li>
+                <li><Link href="/about" className="text-white text-[14px] hover:text-gray-200">About Us</Link></li>
+                <li><Link href="/contact" className="text-white text-[14px] hover:text-gray-200">Contact Us</Link></li>
+                <li><Link href="/help" className="text-white text-[14px] hover:text-gray-200">Help Center</Link></li>
+                <li><Link href="/partners" className="text-white text-[14px] hover:text-gray-200">Partners</Link></li>
               </ul>
             </div>
           </div>
