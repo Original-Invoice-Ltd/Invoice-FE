@@ -14,6 +14,16 @@ export default function ContactUs() {
     message: '',
     agreeToComms: false
   });
+  
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
+  const subjectOptions = [
+    'General Inquiry',
+    'Billing',
+    'Sales',
+    'Technical Support',
+    'Feedback'
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +36,11 @@ export default function ContactUs() {
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }));
+  };
+  
+  const handleSubjectSelect = (subject: string) => {
+    setFormData(prev => ({ ...prev, subject }));
+    setIsDropdownOpen(false);
   };
 
   return (
@@ -51,19 +66,19 @@ export default function ContactUs() {
           className="hidden md:block absolute bottom-0 left-0 -translate-x-[5%] translate-y-[5%] pointer-events-none"
         />
         
-        <div className="relative py-[40px] md:py-[60px] lg:py-[80px]">
+        <div className="relative py-[250px] md:py-[40px] lg:py-[6   0px]">
         <div className="max-w-[1280px] mx-auto px-[16px] md:px-[40px] lg:px-[80px]">
-          <div className="text-center mb-[40px] md:mb-[50px] lg:mb-[60px]">
+          <div className="text-center mb-[40px] md:mb-[40px] lg:mb-[50px]">
             <span className="inline-block px-[16px] py-[6px] bg-[#EFF8FF] text-[#2F80ED] text-[14px] font-medium rounded-[16px] mb-[16px] md:mb-[24px]">
               Contact Us
             </span>
             <h1 className="text-[32px] md:text-[48px] lg:text-[60px] font-semibold text-[#000] mb-[12px] md:mb-[16px] leading-tight tracking-[-1px] md:tracking-[-2px] px-[16px]">
               Get in Touch
             </h1>
-            <p className="text-[16px] md:text-[18px] text-[#333436] max-w-[800px] mx-auto leading-relaxed mb-[24px] md:mb-[32px] px-[16px]">
-              Whether you have questions, feedback, partnership requests, or need support—our team is always <br />ready to assist you.
+            <p className="text-[16px] md:text-[18px] text-[#333436] max-w-[800px] mx-auto leading-relaxed mb-[24px] md:mb-[26px] px-[16px]">
+              Whether you have questions, feedback, partnership requests, or need support—our team is always <br />ready to assis you.
             </p>
-            <button className="bg-[#2F80ED] px-[20px] md:px-[24px] py-[12px] md:py-[14px] text-white rounded-[8px] font-medium text-[14px] md:text-[16px] hover:bg-[#2563EB]">
+            <button className="bg-[#2F80ED] px-[20px] md:px-[24px] py-[8px] md:py-[8px] text-white rounded-[8px] font-medium text-[14px] md:text-[16px] hover:bg-[#2563EB]">
               Start Your Free Trial Today
             </button>
           </div>
@@ -72,7 +87,7 @@ export default function ContactUs() {
             {/* Left Side - Form */}
             <div className="w-full lg:w-[600px] bg-white rounded-[16px] p-[24px] md:p-[32px] lg:p-[40px] shadow-sm">
               <form onSubmit={handleSubmit}>
-                <div className="mb-[24px]">
+                <div className="mb-[12px]">
                   <label className="block text-[14px] font-medium text-[#000] mb-[8px]">
                     Full Name
                   </label>
@@ -86,7 +101,7 @@ export default function ContactUs() {
                   />
                 </div>
 
-                <div className="mb-[24px]">
+                <div className="mb-[12px]">
                   <label className="block text-[14px] font-medium text-[#000] mb-[8px]">
                     Email Address
                   </label>
@@ -100,7 +115,7 @@ export default function ContactUs() {
                   />
                 </div>
 
-                <div className="mb-[24px]">
+                <div className="mb-[12px]">
                   <label className="block text-[14px] font-medium text-[#000] mb-[8px]">
                     Phone Number
                   </label>
@@ -114,27 +129,46 @@ export default function ContactUs() {
                   />
                 </div>
 
-                <div className="mb-[24px]">
+                <div className="mb-[12px] relative">
                   <label className="block text-[14px] font-medium text-[#000] mb-[8px]">
                     Subject <span className="text-[#6B7280]">(optional)</span>
                   </label>
-                  <select
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    className="w-full px-[16px] py-[12px] border border-[#E5E7EB] rounded-[8px] text-[14px] text-[#9CA3AF] focus:outline-none focus:border-[#2F80ED] appearance-none bg-white"
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'right 16px center'
-                    }}
-                  >
-                    <option value="">Select subject</option>
-                    <option value="general">General Inquiry</option>
-                    <option value="support">Technical Support</option>
-                    <option value="partnership">Partnership</option>
-                    <option value="feedback">Feedback</option>
-                  </select>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      className="w-full px-[16px] py-[12px] border border-[#E5E7EB] rounded-[8px] text-[14px] text-left focus:outline-none focus:border-[#2F80ED] bg-white flex items-center justify-between"
+                    >
+                      <span className={formData.subject ? 'text-[#000]' : 'text-[#9CA3AF]'}>
+                        {formData.subject || 'Select subject'}
+                      </span>
+                      <svg 
+                        width="12" 
+                        height="8" 
+                        viewBox="0 0 12 8" 
+                        fill="none" 
+                        xmlns="http://www.w3.org/2000/svg"
+                        className={`transform transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+                      >
+                        <path d="M1 1.5L6 6.5L11 1.5" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                    
+                    {isDropdownOpen && (
+                      <div className="absolute z-10 w-full mt-[4px] bg-white border border-[#E5E7EB] rounded-[8px] shadow-lg">
+                        {subjectOptions.map((option) => (
+                          <button
+                            key={option}
+                            type="button"
+                            onClick={() => handleSubjectSelect(option)}
+                            className="w-full px-[16px] py-[12px] text-[14px] text-left hover:bg-[#F9FAFB] first:rounded-t-[8px] last:rounded-b-[8px] text-[#000]"
+                          >
+                            {option}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="mb-[24px]">
