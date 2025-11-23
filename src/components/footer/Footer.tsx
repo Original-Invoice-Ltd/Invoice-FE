@@ -1,25 +1,24 @@
 export default function Footer() {
   return (
-    <footer className="w-full bg-[#5698f0] py-[48px]">
-      <div className="max-w-[1280px] mx-auto px-[80px]">
-        <div className="flex justify-between items-start mb-[40px]">
+    <footer className="w-full bg-[#5698f0] py-[32px] lg:py-[48px]">
+      <div className="max-w-[1280px] mx-auto px-4 lg:px-[80px]">
+        <div className="flex flex-col lg:flex-row justify-between items-start mb-[32px] lg:mb-[40px] gap-[32px] lg:gap-0">
           {/* Logo and Description */}
-          <div className="max-w-[380px]">
+          <div className="max-w-[358px] lg:max-w-[380px]">
             <div className="mb-[16px]">
               <img 
-                src="/assets/icons/OriginalInvoiceLogo.svg" 
+                src="/assets/header logo.svg" 
                 alt="Original Invoice" 
-                className="h-[40px]"
+                className="h-[28px] lg:h-[32px]"
               />
             </div>
             <p className="text-white text-[14px] leading-relaxed">
-              Nigeria's most trusted invoicing and tax-compliant billing platform.<br />
-              Create professional invoices, stay compliant, and get paid faster.
+              Nigeria's most trusted invoicing and tax-compliant billing platform. Create professional invoices, stay compliant, and get paid faster.
             </p>
           </div>
 
-          {/* Navigation Links */}
-          <div className="flex gap-[100px]">
+          {/* Navigation Links - 2 columns on mobile, 3 columns on desktop */}
+          <div className="grid grid-cols-2 lg:flex lg:flex-row gap-[24px] lg:gap-[100px] w-full lg:w-auto">
             <div>
               <h3 className="text-white text-[14px] font-medium mb-[16px]">Product</h3>
               <ul className="space-y-[8px]">
@@ -40,7 +39,7 @@ export default function Footer() {
               </ul>
             </div>
 
-            <div>
+            <div className="col-span-2 lg:col-span-1">
               <h3 className="text-white text-[14px] font-medium mb-[16px]">Company</h3>
               <ul className="space-y-[8px]">
                 <li><a href="#" className="text-white text-[14px] hover:text-gray-200">About Us</a></li>
@@ -56,8 +55,8 @@ export default function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="border-t flex justify-between border-white border-opacity-20 pt-[24px]">
-          <p className="text-white text-[14px]">© 2025 Original Invoice. All rights reserved.</p>
+        <div className="border-t flex flex-col lg:flex-row justify-between items-center gap-[16px] lg:gap-0 border-white border-opacity-20 pt-[24px]">
+          <p className="text-white text-[12px] lg:text-[14px]">© 2025 Original Invoice. All rights reserved.</p>
             <div className="flex justify-between w-[160px]">
             <a href="#" className="w-[32px] h-[32px] flex items-center justify-center hover:opacity-80">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
