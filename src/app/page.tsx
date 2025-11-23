@@ -126,7 +126,7 @@ const  Home =()=> {
                             <p className="text-[24px] lg:text-[38px] leading-tight font-medium text-[#000]">A simple workflow for every invoice you create</p>
                             <p className="text-[14px] lg:text-[16px] leading-tight text-[#333436]">Follow a simple flow that keeps your invoicing clear, organized, and easy to manage. Each step helps you stay focused while the system handles the details.</p>
                         </div>
-                        <button className="bg-[#2F80ED] px-[16px] text-white w-full max-w-[343px] lg:w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
+                        <button className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
                             Get Started
                         </button>
                     </div>
@@ -141,7 +141,7 @@ const  Home =()=> {
                                     Bring your invoice to life in a clean editor that guides your flow. Add products or services, apply VAT or WHT, and personalize notes—all without breaking your pace.Every change reflects immediately, giving you clarity and confidence in what you’re sending
                                 </p>
                             </div>
-                            <button className="bg-[#2F80ED] px-[16px] text-white w-full max-w-[343px] lg:w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
+                            <button className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
                                 Create Invoice
                             </button>
                         </div>
@@ -168,7 +168,7 @@ const  Home =()=> {
                                     Send your invoice with one click, choose the format that fits your client, and deliver a professional experience every time.Whether you share a link, attach a PDF, or print a copy, everything stays neatly organized on your dashboard.
                                 </p>
                             </div>
-                            <button className="bg-[#2F80ED] px-[16px] text-white w-full max-w-[343px] lg:w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
+                            <button className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
                                 Create Invoice
                             </button>
                         </div>
@@ -184,7 +184,7 @@ const  Home =()=> {
                                     Quickly mark payments, review outstanding totals, and keep everything organized without switching between tools.
                                 </p>
                             </div>
-                            <button className="bg-[#2F80ED] px-[16px] text-white w-full max-w-[343px] lg:w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
+                            <button className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
                                 Create Invoice
                             </button>
                         </div>
@@ -199,23 +199,24 @@ const  Home =()=> {
             </div>
 
             {/* Features Section */}
-            <div className="w-full bg-[#eff8ff] py-[80px] mt-[40px]">
-                <div className="max-w-[1280px] mx-auto px-[80px]">
-                    <div className="text-center mb-[60px]">
+            <div className="w-full bg-[#eff8ff] py-[40px] lg:py-[80px] mt-[40px]">
+                <div className="max-w-[1280px] mx-auto lg:px-[80px]">
+                    <div className="text-left lg:text-center mb-[40px] lg:mb-[60px] px-4">
                         <span className="inline-block px-[16px] py-[6px] bg-[#EFF8FF] text-[#2F80ED] text-[14px] font-medium rounded-[16px] mb-[24px]">
                             Features
                         </span>
-                        <h2 className="text-[38px] font-medium text-[#000] mb-[16px] leading-tight">
-                            Everything you need to manage your invoices<br />in one place
+                        <h2 className="text-[24px] lg:text-[38px] font-medium text-[#000] mb-[16px] leading-tight">
+                            Everything you need to manage your invoices<br className="hidden lg:block" />in one place
                         </h2>
-                        <p className="text-[18px] text-[#333436] max-w-[600px] mx-auto leading-relaxed">
+                        <p className="text-[14px] lg:text-[18px] text-[#333436] max-w-[358px] lg:max-w-[600px] lg:mx-auto leading-relaxed">
                             A thoughtful set of tools that help you create invoices, stay organized, and keep track of payments.
                             Designed to support the everyday rhythm of your business.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-[24px]">
-                        <div className="group bg-white p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer">
+                    <div className="flex overflow-x-auto gap-[16px] px-4 lg:grid lg:grid-cols-4 lg:gap-[24px] lg:px-0 snap-x snap-mandatory"
+                         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                        <div className="group bg-white p-[24px] lg:p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer min-w-[280px] lg:min-w-0 lg:max-w-none snap-start flex-shrink-0">
                             <div className="w-[48px] h-[48px] bg-[#EFF8FF] group-hover:bg-white rounded-[8px] flex items-center justify-center mb-[24px] transition-all duration-300">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -225,39 +226,39 @@ const  Home =()=> {
                                     <path d="M10 9H9H8" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                             </div>
-                            <h3 className="text-[20px] font-medium text-[#000] group-hover:text-white mb-[12px] transition-colors duration-300">Smart Invoice Creation</h3>
-                            <p className="text-[16px] text-[#333436] group-hover:text-white leading-relaxed transition-colors duration-300">
+                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Smart Invoice<br />Creation</h3>
+                            <p className="text-[14px] lg:text-[16px] text-[#333436] group-hover:text-white leading-relaxed transition-colors duration-300">
                                 Create invoices with client details, items, taxes, and notes in a clean editor that updates instantly as you work.
                             </p>
                         </div>
 
-                        <div className="group bg-white p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer">
+                        <div className="group bg-white p-[24px] lg:p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer min-w-[280px] lg:min-w-0 snap-start flex-shrink-0">
                             <div className="w-[48px] h-[48px] bg-[#EFF8FF] group-hover:bg-white rounded-[8px] flex items-center justify-center mb-[24px] transition-all duration-300">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                     <circle cx="12" cy="7" r="4" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                             </div>
-                            <h3 className="text-[20px] font-medium text-[#000] group-hover:text-white mb-[12px] transition-colors duration-300">Client Management</h3>
-                            <p className="text-[16px] text-[#333436] group-hover:text-white leading-relaxed transition-colors duration-300">
+                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Client<br />Management</h3>
+                            <p className="text-[14px] lg:text-[16px] text-[#333436] group-hover:text-white leading-relaxed transition-colors duration-300">
                                 Keep your client information organized with profiles that store balances, contacts, and the invoices you've shared.
                             </p>
                         </div>
 
-                        <div className="group bg-white p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer">
+                        <div className="group bg-white p-[24px] lg:p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer min-w-[280px] lg:min-w-0 snap-start flex-shrink-0">
                             <div className="w-[48px] h-[48px] bg-[#EFF8FF] group-hover:bg-white rounded-[8px] flex items-center justify-center mb-[24px] transition-all duration-300">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <rect x="1" y="3" width="15" height="13" rx="2" ry="2" stroke="#2F80ED" strokeWidth="2"/>
                                     <path d="M16 8L20 12L16 16" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                             </div>
-                            <h3 className="text-[20px] font-medium text-[#000] group-hover:text-white mb-[12px] transition-colors duration-300">Payment Tracking</h3>
-                            <p className="text-[16px] text-[#333436] group-hover:text-white leading-relaxed transition-colors duration-300">
+                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Payment<br />Tracking</h3>
+                            <p className="text-[14px] lg:text-[16px] text-[#333436] group-hover:text-white leading-relaxed transition-colors duration-300">
                                 Follow every invoice from draft to paid with clear status indicators that help you stay aware of what's outstanding.
                             </p>
                         </div>
 
-                        <div className="group bg-white p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer">
+                        <div className="group bg-white p-[24px] lg:p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer min-w-[280px] lg:min-w-0 snap-start flex-shrink-0">
                             <div className="w-[48px] h-[48px] bg-[#EFF8FF] group-hover:bg-white rounded-[8px] flex items-center justify-center mb-[24px] transition-all duration-300">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M9 11H15" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -265,8 +266,8 @@ const  Home =()=> {
                                     <path d="M16 3H8C6.89543 3 6 3.89543 6 5V19L10 17L14 19V5C14 3.89543 14.8954 3 16 3Z" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                             </div>
-                            <h3 className="text-[20px] font-medium text-[#000] group-hover:text-white mb-[12px] transition-colors duration-300">Reports & History</h3>
-                            <p className="text-[16px] text-[#333436] group-hover:text-white leading-relaxed transition-colors duration-300">
+                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Reports &<br />History</h3>
+                            <p className="text-[14px] lg:text-[16px] text-[#333436] group-hover:text-white leading-relaxed transition-colors duration-300">
                                 Review your invoices, payments, and client activity in simple summaries that help you understand your business.
                             </p>
                         </div>
