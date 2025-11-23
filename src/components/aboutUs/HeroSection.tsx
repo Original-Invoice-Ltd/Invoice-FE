@@ -17,24 +17,39 @@ const HeroSection: React.FC = () => {
           {/* Left Column */}
           <div className="flex flex-col">
             {/* About Us Badge */}
-            <span 
-              className="inline-block rounded-full text-white mb-6"
+            <div 
+              className="inline-flex items-center justify-center rounded-2xl mb-6"
               style={{
-                width: '59px',
-                height: '20px',
-                fontFamily: 'Inter Tight',
-                fontWeight: 500,
-                fontSize: '14px',
-                lineHeight: '140%',
-                letterSpacing: '1%',
-                background: '#2F80ED',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                width: '83px',
+                height: '28px',
+                gap: '8px',
+                borderRadius: '16px',
+                paddingTop: '4px',
+                paddingRight: '12px',
+                paddingBottom: '4px',
+                paddingLeft: '12px',
+                mixBlendMode: 'multiply',
+                backgroundColor: '#EFF8FF',
+                opacity: 1
               }}
             >
-              About Us
-            </span>
+              <span 
+                style={{
+                  width: '59px',
+                  height: '20px',
+                  gap: '4px',
+                  fontFamily: 'Inter Tight',
+                  fontWeight: 500,
+                  fontSize: '14px',
+                  lineHeight: '140%',
+                  letterSpacing: '1%',
+                  color: '#2F80ED',
+                  opacity: 1
+                }}
+              >
+                About Us
+              </span>
+            </div>
             
             {/* Main Headline */}
             <h1 
