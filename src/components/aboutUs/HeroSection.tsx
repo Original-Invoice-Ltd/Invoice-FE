@@ -16,7 +16,7 @@ const HeroSection: React.FC = () => {
             </div>
             
             {/* Main Headline - 3 lines, 60px, semibold */}
-            <h1 className="text-[60px] font-semibold leading-tight mb-6 text-black font-['Inter_Tight']">
+            <h1 className="text-[32px] md:text-[48px] lg:text-[60px] font-semibold leading-tight mb-6 text-black font-['Inter_Tight']">
               Nigeria's Most Trusted<br />
               Platform for Tax-<br />
               Compliant Invoicing.

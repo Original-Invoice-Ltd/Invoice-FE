@@ -61,22 +61,22 @@ const  Home =()=> {
       <>
         <div className="min-h-screen flex flex-col w-full overflow-hidden">
             <div className="relative overflow-hidden" style={{ backgroundImage: "url('/assets/Background pattern.svg')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                {/* Top Right Eclipse - 80% visible inside page */}
+                {/* Top Right Eclipse - 80% visible inside page - Hidden on mobile */}
                 <Image
                     src="/assets/top right eclipse.svg"
                     alt=""
                     width={600}
                     height={600}
-                    className="absolute top-0 right-0 translate-x-[20%] pointer-events-none"
+                    className="hidden lg:block absolute top-0 right-0 translate-x-[20%] pointer-events-none"
                 />
                 
-                {/* Mid Right Eclipse - 95% visible inside page */}
+                {/* Mid Right Eclipse - 95% visible inside page - Hidden on mobile */}
                 <Image
                     src="/assets/Mid Right Ellipse.svg"
                     alt=""
                     width={300}
                     height={300}
-                    className="absolute top-[737px] left-0 -translate-x-[5%] -translate-y-1/2 pointer-events-none"
+                    className="hidden lg:block absolute top-[737px] left-0 -translate-x-[5%] -translate-y-1/2 pointer-events-none"
                 />
                 
                 <Header/>
@@ -134,25 +134,38 @@ const  Home =()=> {
             </div>
 
             {/*Section below the macbook */}
-            <div className="flex flex-col px-4 lg:ml-[80px] w-full lg:w-[1280px] gap-[24px] mt-[40px]">
-                <div className="w-full lg:w-[775px] gap-[24px] flex flex-col">
-                    <span className="w-[106px] h-[28px] rounded-[16px] text-[14px] font-medium bg-[#EFF8FF] flex items-center justify-center text-[#2F80ED]">
-                        How it works
-                    </span>
-                    <div className="gap-[32px] flex flex-col w-full lg:w-[775px]">
-                        <div className="flex w-full flex-col gap-[20px]">
-                            <p className="text-[24px] lg:text-[38px] leading-tight font-medium text-[#000]">A simple workflow for every invoice you create</p>
-                            <p className="text-[14px] lg:text-[16px] leading-tight text-[#333436]">Follow a simple flow that keeps your invoicing clear, organized, and easy to manage. Each step helps you stay focused while the system handles the details.</p>
+            <div className="flex flex-col px-4 lg:px-[80px] w-full max-w-[1280px] mx-auto gap-[24px] mt-[40px] relative">
+                <div className="flex items-start justify-between w-full">
+                    <div className="w-full lg:w-[775px] gap-[24px] flex flex-col relative z-10">
+                        <span className="w-[106px] h-[28px] rounded-[16px] text-[14px] font-medium bg-[#EFF8FF] flex items-center justify-center text-[#2F80ED]">
+                            How it works
+                        </span>
+                        <div className="gap-[32px] flex flex-col w-full">
+                            <div className="flex w-full flex-col gap-[20px]">
+                                <p className="text-[24px] lg:text-[38px] leading-tight font-medium text-[#000]">A simple workflow for every invoice you create</p>
+                                <p className="text-[14px] lg:text-[16px] leading-tight text-[#333436]">Follow a simple flow that keeps your invoicing clear, organized, and easy to manage. Each step helps you stay focused while the system handles the details.</p>
+                            </div>
+                            <Link href="/signUp" className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] flex items-center justify-center cursor-pointer">
+                                Get Started
+                            </Link>
                         </div>
-                        <Link href="/signUp" className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] flex items-center justify-center cursor-pointer">
-                            Get Started
-                        </Link>
+                    </div>
+                    
+                    {/* Top Right Eclipse - in the empty space */}
+                    <div className="hidden lg:flex flex-1 items-start justify-end">
+                        <Image
+                            src="/assets/top right eclipse.svg"
+                            alt=""
+                            width={500}
+                            height={500}
+                            className="pointer-events-none opacity-80"
+                        />
                     </div>
                 </div>
                 {/* section with color palette */}
-                <div className="w-full flex flex-col gap-[5px]">
+                <div className="w-full flex flex-col gap-[5px] overflow-hidden">
                     <div className="flex flex-col lg:flex-row gap-[30px] w-full items-center">
-                        <div className="flex flex-col gap-[26px] justify-center">
+                        <div className="flex flex-col gap-[26px] justify-center w-full lg:w-auto">
                             <div className="flex flex-col gap-[20px]">
                                 <p className="text-[24px] lg:text-[32px] text-[#000] font-medium">Create your invoice</p>
                                 <p className="text-[14px] lg:text-[18px] leading-tight max-w-[358px] lg:max-w-[553px] text-[#333436]">
@@ -165,7 +178,7 @@ const  Home =()=> {
                         </div>
                         <div 
                             ref={palleteRef}
-                            className={`transition-all duration-700 ease-out ${
+                            className={`transition-all duration-700 ease-out w-full lg:w-auto ${
                                 isPalleteVisible 
                                     ? 'opacity-100 translate-x-0' 
                                     : 'opacity-0 translate-x-20'
@@ -175,7 +188,7 @@ const  Home =()=> {
                                 src={palleteImg} alt={'pallete image'}
                                 width={500}
                                 height={420}
-                                className="w-full max-w-[500px] h-auto"
+                                className="w-full lg:max-w-[500px] h-auto"
                             />
                         </div>
                     </div>
@@ -184,7 +197,7 @@ const  Home =()=> {
                     <div className="flex flex-col lg:flex-row gap-[30px] w-full items-center">
                         <div 
                             ref={emailRef}
-                            className={`transition-all duration-700 ease-out order-2 lg:order-1 ${
+                            className={`transition-all duration-700 ease-out order-2 lg:order-1 w-full lg:w-auto ${
                                 isEmailVisible 
                                     ? 'opacity-100 translate-x-0' 
                                     : 'opacity-0 -translate-x-20'
@@ -194,7 +207,7 @@ const  Home =()=> {
                                 src={emailContent} alt={'email image'}
                                 width={500}
                                 height={420}
-                                className="w-full max-w-[500px] h-auto"
+                                className="w-full lg:max-w-[500px] h-auto"
                             />
                         </div>
                         <div className="flex flex-col gap-[26px] justify-center order-1 lg:order-2">
@@ -226,7 +239,7 @@ const  Home =()=> {
                         </div>
                         <div 
                             ref={trackPaymentRef}
-                            className={`transition-all duration-700 ease-out ${
+                            className={`transition-all duration-700 ease-out w-full lg:w-auto ${
                                 isTrackPaymentVisible 
                                     ? 'opacity-100 translate-x-0' 
                                     : 'opacity-0 translate-x-20'
@@ -236,7 +249,7 @@ const  Home =()=> {
                                 src="/assets/TrackPayment.svg" alt={'track payment image'}
                                 width={500}
                                 height={420}
-                                className="w-full max-w-[500px] h-auto"
+                                className="w-full lg:max-w-[500px] h-auto"
                             />
                         </div>
                     </div>

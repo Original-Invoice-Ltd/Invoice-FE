@@ -8,49 +8,14 @@ interface ValueCardProps {
 
 const ValueCard: React.FC<ValueCardProps> = ({ icon, title, description }) => {
   return (
-    <div 
-      className="bg-white shadow-sm hover:shadow-md transition"
-      style={{
-        width: '286px',
-        height: '231px',
-        gap: '24px',
-        borderRadius: '8px',
-        padding: '16px',
-        opacity: 1
-      }}
-    >
+    <div className="bg-white shadow-sm hover:shadow-md transition rounded-lg p-4 md:p-6">
       <div className="text-blue-600 mb-4 flex items-center justify-center">
         {icon}
       </div>
-      <h3 
-        className="mb-3"
-        style={{
-          width: '254px',
-          height: '25px',
-          fontFamily: 'Inter Tight',
-          fontWeight: 600,
-          fontSize: '18px',
-          lineHeight: '140%',
-          letterSpacing: '1%',
-          color: '#000000',
-          opacity: 1
-        }}
-      >
+      <h3 className="text-[16px] md:text-[18px] font-semibold mb-3 text-black font-['Inter_Tight']">
         {title}
       </h3>
-      <p 
-        style={{
-          width: '254px',
-          height: '110px',
-          fontFamily: 'Inter Tight',
-          fontWeight: 400,
-          fontSize: '16px',
-          lineHeight: '140%',
-          letterSpacing: '1%',
-          color: '#333436',
-          opacity: 1
-        }}
-      >
+      <p className="text-[14px] md:text-[16px] leading-relaxed text-[#333436] font-['Inter_Tight']">
         {description}
       </p>
     </div>
@@ -59,63 +24,21 @@ const ValueCard: React.FC<ValueCardProps> = ({ icon, title, description }) => {
 
 const CoreValuesSection: React.FC = () => {
   return (
-    <section className="bg-blue-50 py-20 px-6">
+    <section className="bg-blue-50 py-10 md:py-20 px-4 md:px-6">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <div 
-          className="text-center mb-12 flex flex-col items-center"
-          style={{
-            width: '1280px',
-            height: '111px',
-            gap: '16px',
-            opacity: 1
-          }}
-        >
-          <h2 
-            style={{
-              width: '695px',
-              height: '41px',
-              fontFamily: 'Inter Tight',
-              fontWeight: 600,
-              fontSize: '34px',
-              lineHeight: '120%',
-              letterSpacing: '0%',
-              textAlign: 'center',
-              color: '#000000',
-              opacity: 1
-            }}
-          >
+        <div className="text-center mb-8 md:mb-12 flex flex-col items-center gap-4">
+          <h2 className="text-[24px] md:text-[34px] font-semibold text-center text-black font-['Inter_Tight']">
             Our Core Values
           </h2>
-          <p 
-            style={{
-              width: '788px',
-              height: '50px',
-              fontFamily: 'Inter Tight',
-              fontWeight: 400,
-              fontSize: '18px',
-              lineHeight: '140%',
-              letterSpacing: '1%',
-              textAlign: 'center',
-              color: '#333436',
-              opacity: 1
-            }}
-          >
+          <p className="text-[16px] md:text-[18px] leading-relaxed text-center text-[#333436] font-['Inter_Tight'] max-w-[788px]">
             We designed Original Invoice around the belief that financial compliance should empower, not 
             complicate. Our values reflect our commitment to the businesses and freelancers we serve.
           </p>
         </div>
         
         {/* Values Grid */}
-        <div 
-          className="flex"
-          style={{
-            width: '1280px',
-            height: '209px',
-            justifyContent: 'space-between',
-            opacity: 1
-          }}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <ValueCard 
             icon={
               <svg width="48" height="48" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
