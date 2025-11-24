@@ -75,8 +75,28 @@ const VisionMissionSection: React.FC = () => {
             opacity: 1
           }}
         >
-          {/* Left: Mission & Tax Transparency */}
-          <div className="space-y-8 flex-1 pr-8">
+          {/* Left: Illustration */}
+          <div 
+            className="bg-blue-600 flex items-center justify-center"
+            style={{
+              width: '540px',
+              height: '480px',
+              borderRadius: '12px',
+              opacity: 1
+            }}
+          >
+            <div className="relative w-full h-full p-12">
+              <Image 
+                src="/assets/invoicing.png" 
+                alt="Invoice with VAT, WHT, PAYE" 
+                fill
+                className="object-contain"
+              />
+            </div>
+          </div>
+          
+          {/* Right: Mission & Tax Transparency */}
+          <div className="space-y-8 flex-1 pl-8">
             <div>
               <h3 
                 className="mb-4"
@@ -164,26 +184,6 @@ const VisionMissionSection: React.FC = () => {
             >
               Create Invoice
             </button>
-          </div>
-          
-          {/* Right: Illustration */}
-          <div 
-            className="bg-blue-600 flex items-center justify-center"
-            style={{
-              width: '540px',
-              height: '480px',
-              borderRadius: '12px',
-              opacity: 1
-            }}
-          >
-            <div className="relative w-full h-full p-12">
-              <Image 
-                src="/assets/invoice-illustration.svg" 
-                alt="Invoice with VAT, WHT, PAYE" 
-                fill
-                className="object-contain"
-              />
-            </div>
           </div>
         </div>
       </div>
