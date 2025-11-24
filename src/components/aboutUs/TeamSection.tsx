@@ -111,17 +111,17 @@ const TeamSection: React.FC = () => {
           {/* Team Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <TeamMemberCard 
-              imageSrc="/assets/sunny1.svg"
+              imageSrc="/assets/sunny1.png"
               name="Sunny Segun-Tomoh"
               role="Creative Director"
             />
             <TeamMemberCard 
-              imageSrc="/assets/sunny2.svg"
+              imageSrc="/assets/sunny2.png"
               name="James Ishaku"
               role="Creative Director"
             />
             <TeamMemberCard 
-              imageSrc="/assets/sunny3.svg"
+              imageSrc="/assets/sunny3.png"
               name="Sunny Segun-Tomoh"
               role="Creative Director"
             />
