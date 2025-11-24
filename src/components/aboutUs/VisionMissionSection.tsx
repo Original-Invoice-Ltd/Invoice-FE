@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 const VisionMissionSection: React.FC = () => {
   return (
-    <section className="bg-gray-50 py-20 px-6">
+    <section className="py-20 px-6">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div 
@@ -87,7 +87,7 @@ const VisionMissionSection: React.FC = () => {
           >
             <div className="relative w-full h-full p-12">
               <Image 
-                src="/assets/invoicing.png" 
+                src="/assets/OurMission.svg" 
                 alt="Invoice with VAT, WHT, PAYE" 
                 fill
                 className="object-contain"
