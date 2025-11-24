@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import heroImage from './../../../public/assets/aboutHeroImage.svg';
 
 const HeroSection: React.FC = () => {
   return (
@@ -50,7 +51,7 @@ const HeroSection: React.FC = () => {
                 color: '#000000'
               }}
             >
-              Nigeria's Most Trusted Platform for Tax-Compliant Invoicing.
+              Nigeria&#39;s Most Trusted Platform for Tax-Compliant Invoicing.
             </h1>
             
             {/* Supporting Text */}
@@ -99,7 +100,7 @@ const HeroSection: React.FC = () => {
             }}
           >
             <Image 
-              src="/assets/team-collaboration.jpg" 
+              src={heroImage}
               alt="African professionals collaborating" 
               width={500} 
               height={500}
