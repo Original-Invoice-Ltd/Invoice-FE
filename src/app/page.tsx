@@ -3,6 +3,7 @@
 import Header from "@/components/header";
 import Footer from "@/components/footer/Footer";
 import Image from "next/image";
+import Link from "next/link";
 import arrowRight from './../../public/assets/arrow-right.svg';
 import palleteImg from './../../public/assets/Pallete Content.svg';
 import emailContent from './../../public/assets/Email Content.svg';
@@ -12,14 +13,29 @@ import { useEffect, useState, useRef } from "react";
 
 const  Home =()=> {
   const [isVisible, setIsVisible] = useState(false);
+  const [isPalleteVisible, setIsPalleteVisible] = useState(false);
+  const [isEmailVisible, setIsEmailVisible] = useState(false);
+  const [isTrackPaymentVisible, setIsTrackPaymentVisible] = useState(false);
+  
   const macbookRef = useRef<HTMLDivElement>(null);
+  const palleteRef = useRef<HTMLDivElement>(null);
+  const emailRef = useRef<HTMLDivElement>(null);
+  const trackPaymentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setIsVisible(true);
+            if (entry.target === macbookRef.current) {
+              setIsVisible(true);
+            } else if (entry.target === palleteRef.current) {
+              setIsPalleteVisible(true);
+            } else if (entry.target === emailRef.current) {
+              setIsEmailVisible(true);
+            } else if (entry.target === trackPaymentRef.current) {
+              setIsTrackPaymentVisible(true);
+            }
           }
         });
       },
@@ -29,14 +45,16 @@ const  Home =()=> {
       }
     );
 
-    if (macbookRef.current) {
-      observer.observe(macbookRef.current);
-    }
+    if (macbookRef.current) observer.observe(macbookRef.current);
+    if (palleteRef.current) observer.observe(palleteRef.current);
+    if (emailRef.current) observer.observe(emailRef.current);
+    if (trackPaymentRef.current) observer.observe(trackPaymentRef.current);
 
     return () => {
-      if (macbookRef.current) {
-        observer.unobserve(macbookRef.current);
-      }
+      if (macbookRef.current) observer.unobserve(macbookRef.current);
+      if (palleteRef.current) observer.unobserve(palleteRef.current);
+      if (emailRef.current) observer.unobserve(emailRef.current);
+      if (trackPaymentRef.current) observer.unobserve(trackPaymentRef.current);
     };
   }, []);
   return (
@@ -86,9 +104,9 @@ const  Home =()=> {
                         </div>
 
                         {/* CTA Button */}
-                        <button className="bg-[#2F80ED] px-[16px] text-white w-full max-w-[343px] lg:w-[221px] h-[56px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] transition-colors">
+                        <Link href="/signUp" className="bg-[#2F80ED] px-[16px] text-white w-full max-w-[343px] lg:w-[221px] h-[56px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] transition-colors flex items-center justify-center cursor-pointer">
                             Start Your Free Trial Today
-                        </button>
+                        </Link>
                     </div>
 
                     {/* Laptop Mockup */}
@@ -126,9 +144,9 @@ const  Home =()=> {
                             <p className="text-[24px] lg:text-[38px] leading-tight font-medium text-[#000]">A simple workflow for every invoice you create</p>
                             <p className="text-[14px] lg:text-[16px] leading-tight text-[#333436]">Follow a simple flow that keeps your invoicing clear, organized, and easy to manage. Each step helps you stay focused while the system handles the details.</p>
                         </div>
-                        <button className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
+                        <Link href="/signUp" className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] flex items-center justify-center cursor-pointer">
                             Get Started
-                        </button>
+                        </Link>
                     </div>
                 </div>
                 {/* section with color palette */}
@@ -141,26 +159,44 @@ const  Home =()=> {
                                     Bring your invoice to life in a clean editor that guides your flow. Add products or services, apply VAT or WHT, and personalize notes—all without breaking your pace.Every change reflects immediately, giving you clarity and confidence in what you’re sending
                                 </p>
                             </div>
-                            <button className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
+                            <Link href="/signUp" className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] flex items-center justify-center cursor-pointer">
                                 Create Invoice
-                            </button>
+                            </Link>
                         </div>
-                        <Image
-                            src={palleteImg} alt={'pallete image'}
-                            width={500}
-                            height={420}
-                            className="w-full max-w-[500px] h-auto"
-                        />
+                        <div 
+                            ref={palleteRef}
+                            className={`transition-all duration-700 ease-out ${
+                                isPalleteVisible 
+                                    ? 'opacity-100 translate-x-0' 
+                                    : 'opacity-0 translate-x-20'
+                            }`}
+                        >
+                            <Image
+                                src={palleteImg} alt={'pallete image'}
+                                width={500}
+                                height={420}
+                                className="w-full max-w-[500px] h-auto"
+                            />
+                        </div>
                     </div>
 
                     {/*second section after pallete*/}
                     <div className="flex flex-col lg:flex-row gap-[30px] w-full items-center">
-                        <Image
-                            src={emailContent} alt={'email image'}
-                            width={500}
-                            height={420}
-                            className="w-full max-w-[500px] h-auto order-2 lg:order-1"
-                        />
+                        <div 
+                            ref={emailRef}
+                            className={`transition-all duration-700 ease-out order-2 lg:order-1 ${
+                                isEmailVisible 
+                                    ? 'opacity-100 translate-x-0' 
+                                    : 'opacity-0 -translate-x-20'
+                            }`}
+                        >
+                            <Image
+                                src={emailContent} alt={'email image'}
+                                width={500}
+                                height={420}
+                                className="w-full max-w-[500px] h-auto"
+                            />
+                        </div>
                         <div className="flex flex-col gap-[26px] justify-center order-1 lg:order-2">
                             <div className="flex flex-col gap-[20px]">
                                 <p className="text-[24px] lg:text-[32px] text-[#000] font-medium">Send to your client</p>
@@ -168,9 +204,9 @@ const  Home =()=> {
                                     Send your invoice with one click, choose the format that fits your client, and deliver a professional experience every time.Whether you share a link, attach a PDF, or print a copy, everything stays neatly organized on your dashboard.
                                 </p>
                             </div>
-                            <button className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
+                            <Link href="/signUp" className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] flex items-center justify-center cursor-pointer">
                                 Create Invoice
-                            </button>
+                            </Link>
                         </div>
                     </div>
 
@@ -184,24 +220,33 @@ const  Home =()=> {
                                     Quickly mark payments, review outstanding totals, and keep everything organized without switching between tools.
                                 </p>
                             </div>
-                            <button className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB]">
+                            <Link href="/signUp" className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] flex items-center justify-center cursor-pointer">
                                 Create Invoice
-                            </button>
+                            </Link>
                         </div>
-                        <Image
-                            src="/assets/TrackPayment.svg" alt={'track payment image'}
-                            width={500}
-                            height={420}
-                            className="w-full max-w-[500px] h-auto"
-                        />
+                        <div 
+                            ref={trackPaymentRef}
+                            className={`transition-all duration-700 ease-out ${
+                                isTrackPaymentVisible 
+                                    ? 'opacity-100 translate-x-0' 
+                                    : 'opacity-0 translate-x-20'
+                            }`}
+                        >
+                            <Image
+                                src="/assets/TrackPayment.svg" alt={'track payment image'}
+                                width={500}
+                                height={420}
+                                className="w-full max-w-[500px] h-auto"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Features Section */}
-            <div className="w-full bg-[#EFF8FF] py-[40px] lg:py-[80px] mt-[40px]">
+            <div id="features-section" className="w-full bg-[#EFF8FF] py-[40px] lg:py-[80px] mt-[40px]">
                 <div className="max-w-[1280px] mx-auto lg:px-[80px]">
-                    <div className="text-left lg:text-center mb-[40px] lg:mb-[60px] px-4">
+                    <div className="text-center mb-[40px] lg:mb-[60px] px-4">
                         <span className="inline-block px-[16px] py-[6px] bg-[#e0f1ff] text-[#2F80ED] text-[14px] font-medium rounded-[16px] mb-[24px]">
                             Features
                         </span>
@@ -214,9 +259,9 @@ const  Home =()=> {
                         </p>
                     </div>
 
-                    <div className="flex overflow-x-auto gap-[16px] px-4 lg:grid lg:grid-cols-4 lg:gap-[24px] lg:px-0 snap-x snap-mandatory"
+                    <div className="flex overflow-x-auto gap-[16px] pl-4 lg:grid lg:grid-cols-4 lg:gap-[24px] lg:px-0 snap-x snap-mandatory"
                          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                        <div className="group bg-white p-[24px] lg:p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer min-w-[280px] lg:min-w-0 lg:max-w-none snap-start flex-shrink-0">
+                        <div className="group bg-white p-[16px] lg:p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer w-[286px] lg:w-auto lg:min-w-0 lg:max-w-none snap-start flex-shrink-0">
                             <div className="w-[48px] h-[48px] flex items-center justify-center mb-[24px] transition-all duration-300">
                                 <Image
                                     src="/assets/icons/SmartInvoceCreation.svg"
@@ -229,14 +274,14 @@ const  Home =()=> {
                                     }}
                                 />
                             </div>
-                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] whitespace-nowrap group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Smart Invoice Creation</h3>
+                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Smart Invoice Creation</h3>
                             <p className="text-[14px] lg:text-[16px] text-[#333436] group-hover:text-white leading-relaxed transition-colors duration-300">
                                 Create invoices with client details, items, taxes, and notes in a clean editor that updates instantly as you work.
                             </p>
                         </div>
 
-                        <div className="group bg-white p-[24px] lg:p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer min-w-[280px] lg:min-w-0 snap-start flex-shrink-0">
-                            <div className="w-[48px] h-[48px] flex items-center justify-center mb-[24px] transition-all duration-300">
+                        <div className="group bg-white p-[16px] lg:p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer w-[286px] lg:w-auto lg:min-w-0 snap-start flex-shrink-0">
+                            <div className="w-[48px] h-[48px] flex items-center justify-center mb-[16px] lg:mb-[24px] transition-all duration-300">
                                 <Image
                                     src="/assets/icons/ClientManagement.svg"
                                     alt="Client Management"
@@ -245,14 +290,14 @@ const  Home =()=> {
                                     className="group-hover:brightness-0 group-hover:invert transition-all duration-300"
                                 />
                             </div>
-                            <h3 className="text-[16px] lg:text-[20px] font-medium text-[#000] whitespace-nowrap group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Client Management</h3>
+                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Client Management</h3>
                             <p className="text-[14px] lg:text-[16px] text-[#333436] group-hover:text-white leading-relaxed transition-colors duration-300">
                                 Keep your client information organized with profiles that store balances, contacts, and the invoices you've shared.
                             </p>
                         </div>
 
-                        <div className="group bg-white p-[24px] lg:p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer min-w-[280px] lg:min-w-0 snap-start flex-shrink-0">
-                            <div className="w-[48px] h-[48px] flex items-center justify-center mb-[24px] transition-all duration-300">
+                        <div className="group bg-white p-[16px] lg:p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer w-[286px] lg:w-auto lg:min-w-0 snap-start flex-shrink-0">
+                            <div className="w-[48px] h-[48px] flex items-center justify-center mb-[16px] lg:mb-[24px] transition-all duration-300">
                                 <Image
                                     src="/assets/icons/PaymentTracking.svg"
                                     alt="Payment Tracking"
@@ -261,14 +306,14 @@ const  Home =()=> {
                                     className="group-hover:brightness-0 group-hover:invert transition-all duration-300"
                                 />
                             </div>
-                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] whitespace-nowrap group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Payment Tracking</h3>
+                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Payment Tracking</h3>
                             <p className="text-[14px] lg:text-[16px] text-[#333436] group-hover:text-white leading-relaxed transition-colors duration-300">
                                 Follow every invoice from draft to paid with clear status indicators that help you stay aware of what's outstanding.
                             </p>
                         </div>
 
-                        <div className="group bg-white p-[24px] lg:p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer min-w-[280px] lg:min-w-0 snap-start flex-shrink-0">
-                            <div className="w-[48px] h-[48px] flex items-center justify-center mb-[24px] transition-all duration-300">
+                        <div className="group bg-white p-[16px] lg:p-[32px] rounded-[12px] shadow-sm hover:bg-[#2F80ED] transition-all duration-300 cursor-pointer w-[286px] lg:w-auto lg:min-w-0 snap-start flex-shrink-0">
+                            <div className="w-[48px] h-[48px] flex items-center justify-center mb-[16px] lg:mb-[24px] transition-all duration-300">
                                 <Image
                                     src="/assets/icons/ReportsAndHistory.svg"
                                     alt="Reports & History"
@@ -277,7 +322,7 @@ const  Home =()=> {
                                     className="group-hover:brightness-0 group-hover:invert transition-all duration-300"
                                 />
                             </div>
-                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] whitespace-nowrap group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Reports & History</h3>
+                            <h3 className="text-[18px] lg:text-[20px] font-medium text-[#000] group-hover:text-white mb-[12px] transition-colors duration-300 leading-snug">Reports & History</h3>
                             <p className="text-[14px] lg:text-[16px] text-[#333436] group-hover:text-white leading-relaxed transition-colors duration-300">
                                 Review your invoices, payments, and client activity in simple summaries that help you understand your business.
                             </p>

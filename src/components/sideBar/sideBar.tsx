@@ -16,7 +16,7 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
         if (pathname === "/") return "Home";
         if (pathname === "/pricing") return "Pricing";
         if (pathname === "/features") return "Features";
-        if (pathname === "/about") return "About Us";
+        if (pathname === "/aboutUs") return "About Us";
         if (pathname === "/contact") return "Contact Us";
         return "Home";
     };
@@ -29,9 +29,17 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
         } else if (item === "Pricing") {
             router.push("/pricing");
         } else if (item === "Features") {
-            router.push("/features");
+            // If on home page, scroll to features section
+            if (pathname === "/") {
+                const featuresSection = document.getElementById("features-section");
+                if (featuresSection) {
+                    featuresSection.scrollIntoView({ behavior: "smooth" });
+                }
+            } else {
+                router.push("/features");
+            }
         } else if (item === "About Us") {
-            router.push("/about");
+            router.push("/aboutUs");
         } else if (item === "Contact Us") {
             router.push("/contact");
         }
@@ -102,23 +110,26 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
                             <span className="font-medium">Home</span>
                         </button>
 
-                        <button
-                            onClick={() => handleNavClick("Features")}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left ${
-                                activeTab === "Features"
-                                    ? "bg-[#2F80ED] text-white"
-                                    : "text-gray-700"
-                            }`}
-                        >
-                            <Image
+                        {/* Only show Features on home page */}
+                        {pathname === "/" && (
+                            <button
+                                onClick={() => handleNavClick("Features")}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left ${
+                                    activeTab === "Features"
+                                        ? "bg-[#2F80ED] text-white"
+                                        : "text-gray-700"
+                                }`}
+                            >
+                                   <Image
                                 src="/assets/icons/Features.svg"
                                 alt="Features"
                                 width={20}
                                 height={20}
                                 className={activeTab === "Features" ? "brightness-0 invert" : ""}
                             />
-                            <span className="font-medium">Features</span>
-                        </button>
+                                <span className="font-medium">Features</span>
+                            </button>
+                        )}
 
                         <button
                             onClick={() => handleNavClick("About Us")}
