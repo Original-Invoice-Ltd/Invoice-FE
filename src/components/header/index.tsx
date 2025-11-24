@@ -26,13 +26,28 @@ const Header = ({ currentPage }: HeaderProps) => {
 
     const activeTab = getActiveTab();
 
-    const navItems = [
+    const allNavItems = [
         { name: "Home", path: "/" },
         { name: "Features", path: "/features" },
         { name: "About Us", path: "/aboutUs" },
         { name: "Pricing", path: "/pricing" },
         { name: "Contact Us", path: "/contact" }
     ];
+
+    // Filter nav items based on current page - only show Features on home page
+    const navItems = pathname === "/" 
+        ? allNavItems 
+        : allNavItems.filter(item => item.name !== "Features");
+
+    const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, item: { name: string; path: string }) => {
+        if (item.name === "Features" && pathname === "/") {
+            e.preventDefault();
+            const featuresSection = document.getElementById("features-section");
+            if (featuresSection) {
+                featuresSection.scrollIntoView({ behavior: "smooth" });
+            }
+        }
+    };
 
     return (
         <>
@@ -48,6 +63,7 @@ const Header = ({ currentPage }: HeaderProps) => {
                             <Link
                                 key={item.name}
                                 href={item.path}
+                                onClick={(e) => handleNavClick(e, item)}
                                 className="relative cursor-pointer"
                             >
                                 {item.name}
