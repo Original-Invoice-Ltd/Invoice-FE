@@ -36,7 +36,7 @@ const HeroSection: React.FC = () => {
           <div className="flex-1 max-w-md lg:max-w-lg xl:max-w-xl">
             <div className="w-full aspect-square rounded-xl overflow-hidden">
               <Image 
-                src="/assets/trustedInvoicing.png" 
+                src="/assets/trustedstats.svg" 
                 alt="African professionals collaborating" 
                 width={500} 
                 height={500}
