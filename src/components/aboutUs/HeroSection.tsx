@@ -3,8 +3,8 @@ import Image from 'next/image';
 
 const HeroSection: React.FC = () => {
   return (
-    <section className="bg-white py-12 md:py-20 px-4 md:px-6">
-      <div className="max-w-7xl mx-auto">
+    <section className="bg-white py-4 md:py-2 px-4 md:px-6 relative">
+      <div className="max-w-7xl mx-auto relative">
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-8 lg:gap-12 mt-8 md:mt-16 lg:mt-24">
           {/* Left Column */}
           <div className="flex flex-col flex-1 max-w-2xl">
@@ -15,13 +15,15 @@ const HeroSection: React.FC = () => {
               </span>
             </div>
             
-            {/* Main Headline */}
-            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-semibold leading-tight mb-6 text-black font-['Inter_Tight']">
-              Nigeria's Most Trusted Platform for Tax-Compliant Invoicing.
+            {/* Main Headline - 3 lines, 60px, semibold */}
+            <h1 className="text-[32px] md:text-[48px] lg:text-[60px] font-semibold leading-tight mb-6 text-black font-['Inter_Tight']">
+              Nigeria's Most Trusted<br />
+              Platform for Tax-<br />
+              Compliant Invoicing.
             </h1>
             
             {/* Supporting Text */}
-            <p className="text-base md:text-lg lg:text-xl leading-relaxed mb-8 text-gray-700 font-['Inter_Tight']">
+            <p className="text-base md:text-lg leading-relaxed mb-8 text-gray-700 font-['Inter_Tight']">
               We transform complex financial and tax operations into a simple, reliable, 
               and effortless experience for Nigerian freelancers, SMEs, and enterprises.
             </p>
@@ -34,13 +36,13 @@ const HeroSection: React.FC = () => {
           
           {/* Right Column - Image */}
           <div className="flex-1 max-w-md lg:max-w-lg xl:max-w-xl">
-            <div className="w-full aspect-square rounded-xl overflow-hidden">
+            <div className="w-full rounded-xl overflow-hidden">
               <Image 
-                src="/assets/trustedstats.svg" 
+                src="/assets/aboutHeroImage.svg" 
                 alt="African professionals collaborating" 
                 width={500} 
-                height={500}
-                className="w-full h-full object-cover"
+                height={400}
+                className="w-full h-auto object-cover"
               />
             </div>
           </div>

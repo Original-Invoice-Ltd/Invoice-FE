@@ -49,8 +49,7 @@ export default function TestimonialsCarousel() {
     }
   }, []);
 
-  const testimonialsPerPage = isMobile ? 1 : 3;
-  const maxIndex = Math.max(0, testimonials.length - testimonialsPerPage);
+  const maxIndex = isMobile ? testimonials.length - 1 : testimonials.length - 1;
 
   const goToPrevious = () => {
     setCurrentIndex(prev => Math.max(0, prev - 1));
@@ -60,56 +59,65 @@ export default function TestimonialsCarousel() {
     setCurrentIndex(prev => Math.min(maxIndex, prev + 1));
   };
 
-  const visibleTestimonials = testimonials.slice(currentIndex, currentIndex + testimonialsPerPage);
+  // Show all testimonials starting from currentIndex
+  const visibleTestimonials = isMobile 
+    ? [testimonials[currentIndex]]
+    : testimonials.slice(currentIndex);
 
   return (
-    <div className="flex items-center justify-between gap-[16px] lg:gap-0">
-      <button 
-        onClick={goToPrevious}
-        disabled={currentIndex === 0}
-        className={`w-[40px] h-[40px] lg:w-[48px] lg:h-[48px] rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F9FAFB] flex-shrink-0 ${
-          currentIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''
-        }`}
-      >
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12.5 15L7.5 10L12.5 5" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
+    <div>
+      {/* Navigation Arrows - Top Right */}
+      <div className="flex justify-end gap-[24px] mb-[24px]">
+        <button 
+          onClick={goToPrevious}
+          disabled={currentIndex === 0}
+          className={`flex items-center justify-center hover:opacity-70 transition-opacity ${
+            currentIndex === 0 ? 'opacity-30 cursor-not-allowed' : ''
+          }`}
+        >
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M25 16H7M7 16L14 9M7 16L14 23" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
 
-      <div className="flex gap-[16px] lg:gap-[32px] max-w-[343px] lg:max-w-[1000px] transition-all duration-300 overflow-hidden">
-        {visibleTestimonials.map((testimonial) => (
-          <div key={testimonial.id} className="bg-white p-[24px] lg:p-[32px] rounded-[12px] shadow-sm w-full lg:max-w-[300px] flex-shrink-0">
-            <p className="text-[14px] lg:text-[16px] text-[#333436] mb-[20px] lg:mb-[24px] leading-relaxed">
-              "{testimonial.text}"
-            </p>
-            <div className="flex items-center gap-[12px]">
-              <div className="w-[40px] h-[40px] lg:w-[48px] lg:h-[48px] rounded-full overflow-hidden flex-shrink-0">
-                <img 
-                  src={testimonial.profileIcon}
-                  alt={testimonial.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div>
-                <p className="text-[14px] lg:text-[16px] font-medium text-[#000]">{testimonial.name}</p>
-                <p className="text-[12px] lg:text-[14px] text-[#6B7280]">{testimonial.role}</p>
-              </div>
-            </div>
-          </div>
-        ))}
+        <button 
+          onClick={goToNext}
+          disabled={currentIndex >= maxIndex}
+          className={`flex items-center justify-center hover:opacity-70 transition-opacity ${
+            currentIndex >= maxIndex ? 'opacity-30 cursor-not-allowed' : ''
+          }`}
+        >
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 16H25M25 16L18 9M25 16L18 23" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
       </div>
 
-      <button 
-        onClick={goToNext}
-        disabled={currentIndex >= maxIndex}
-        className={`w-[40px] h-[40px] lg:w-[48px] lg:h-[48px] rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F9FAFB] flex-shrink-0 ${
-          currentIndex >= maxIndex ? 'opacity-50 cursor-not-allowed' : ''
-        }`}
-      >
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M7.5 15L12.5 10L7.5 5" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
+      {/* Testimonials Cards */}
+      <div className="overflow-hidden">
+        <div className="flex gap-[16px] lg:gap-[24px] transition-all duration-300">
+          {visibleTestimonials.map((testimonial) => (
+            <div key={testimonial.id} className="bg-white p-[24px] lg:p-[32px] rounded-[12px] shadow-sm w-full lg:w-[calc(28.5%)] flex-shrink-0 border border-[#E5E7EB]">
+              <p className="text-[14px] lg:text-[16px] text-[#333436] mb-[20px] lg:mb-[24px] leading-relaxed">
+                "{testimonial.text}"
+              </p>
+              <div className="flex items-center gap-[12px]">
+                <div className="w-[40px] h-[40px] lg:w-[48px] lg:h-[48px] rounded-full overflow-hidden flex-shrink-0">
+                  <img 
+                    src={testimonial.profileIcon}
+                    alt={testimonial.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <p className="text-[14px] lg:text-[16px] font-medium text-[#000]">{testimonial.name}</p>
+                  <p className="text-[12px] lg:text-[14px] text-[#6B7280]">{testimonial.role}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

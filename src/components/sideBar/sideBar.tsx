@@ -100,21 +100,13 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
                                     : "text-gray-700"
                             }`}
                         >
-                            <svg
-                                width="20"
-                                height="20"
-                                viewBox="0 0 20 20"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M3 10L10 3L17 10V17C17 17.5304 16.7893 18.0391 16.4142 18.4142C16.0391 18.7893 15.5304 19 15 19H5C4.46957 19 3.96086 18.7893 3.58579 18.4142C3.21071 18.0391 3 17.5304 3 17V10Z"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
+                            <Image
+                                src="/assets/icons/Home.svg"
+                                alt="Home"
+                                width={20}
+                                height={20}
+                                className={activeTab === "Home" ? "brightness-0 invert" : ""}
+                            />
                             <span className="font-medium">Home</span>
                         </button>
 
@@ -128,19 +120,13 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
                                         : "text-gray-700"
                                 }`}
                             >
-                                <svg
-                                    width="20"
-                                    height="20"
-                                    viewBox="0 0 20 20"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        d="M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                    />
-                                </svg>
+                                   <Image
+                                src="/assets/icons/Features.svg"
+                                alt="Features"
+                                width={20}
+                                height={20}
+                                className={activeTab === "Features" ? "brightness-0 invert" : ""}
+                            />
                                 <span className="font-medium">Features</span>
                             </button>
                         )}
@@ -153,24 +139,13 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
                                     : "text-gray-700"
                             }`}
                         >
-                            <svg
-                                width="20"
-                                height="20"
-                                viewBox="0 0 20 20"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M10 11C12.2091 11 14 9.20914 14 7C14 4.79086 12.2091 3 10 3C7.79086 3 6 4.79086 6 7C6 9.20914 7.79086 11 10 11Z"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                />
-                                <path
-                                    d="M3 17C3 14.2386 5.68629 12 9 12H11C14.3137 12 17 14.2386 17 17"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                />
-                            </svg>
+                            <Image
+                                src="/assets/icons/AboutUs.svg"
+                                alt="About Us"
+                                width={20}
+                                height={20}
+                                className={activeTab === "About Us" ? "brightness-0 invert" : ""}
+                            />
                             <span className="font-medium">About Us</span>
                         </button>
 
@@ -182,21 +157,13 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
                                     : "text-gray-700"
                             }`}
                         >
-                            <svg
-                                width="20"
-                                height="20"
-                                viewBox="0 0 20 20"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M10 3V17M13 6H8.5C7.83696 6 7.20107 6.26339 6.73223 6.73223C6.26339 7.20107 6 7.83696 6 8.5C6 9.16304 6.26339 9.79893 6.73223 10.2678C7.20107 10.7366 7.83696 11 8.5 11H11.5C12.163 11 12.7989 11.2634 13.2678 11.7322C13.7366 12.2011 14 12.837 14 13.5C14 14.163 13.7366 14.7989 13.2678 15.2678C12.7989 15.7366 12.163 16 11.5 16H6"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
+                            <Image
+                                src="/assets/icons/Pricing.svg"
+                                alt="Pricing"
+                                width={20}
+                                height={20}
+                                className={activeTab === "Pricing" ? "brightness-0 invert" : ""}
+                            />
                             <span className="font-medium">Pricing</span>
                         </button>
 
@@ -208,21 +175,13 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
                                     : "text-gray-700"
                             }`}
                         >
-                            <svg
-                                width="20"
-                                height="20"
-                                viewBox="0 0 20 20"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M17 14.5C17 14.8978 16.842 15.2794 16.5607 15.5607C16.2794 15.842 15.8978 16 15.5 16H5.5L2 19V4.5C2 4.10218 2.15804 3.72064 2.43934 3.43934C2.72064 3.15804 3.10218 3 3.5 3H15.5C15.8978 3 16.2794 3.15804 16.5607 3.43934C16.842 3.72064 17 4.10218 17 4.5V14.5Z"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
+                            <Image
+                                src="/assets/icons/ContactUs.svg"
+                                alt="Contact Us"
+                                width={20}
+                                height={20}
+                                className={activeTab === "Contact Us" ? "brightness-0 invert" : ""}
+                            />
                             <span className="font-medium">Contact Us</span>
                         </button>
                     </nav>

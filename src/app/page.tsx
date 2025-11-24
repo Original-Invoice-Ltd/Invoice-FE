@@ -61,22 +61,22 @@ const  Home =()=> {
       <>
         <div className="min-h-screen flex flex-col w-full overflow-hidden">
             <div className="relative overflow-hidden" style={{ backgroundImage: "url('/assets/Background pattern.svg')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                {/* Top Right Eclipse - 80% visible inside page */}
+                {/* Top Right Eclipse - 80% visible inside page - Hidden on mobile */}
                 <Image
                     src="/assets/top right eclipse.svg"
                     alt=""
                     width={600}
                     height={600}
-                    className="absolute top-0 right-0 translate-x-[20%] pointer-events-none"
+                    className="hidden lg:block absolute top-0 right-0 translate-x-[20%] pointer-events-none"
                 />
                 
-                {/* Mid Right Eclipse - 95% visible inside page */}
+                {/* Mid Right Eclipse - 95% visible inside page - Hidden on mobile */}
                 <Image
                     src="/assets/Mid Right Ellipse.svg"
                     alt=""
                     width={300}
                     height={300}
-                    className="absolute top-[737px] left-0 -translate-x-[5%] -translate-y-1/2 pointer-events-none"
+                    className="hidden lg:block absolute top-[737px] left-0 -translate-x-[5%] -translate-y-1/2 pointer-events-none"
                 />
                 
                 <Header/>
@@ -134,25 +134,38 @@ const  Home =()=> {
             </div>
 
             {/*Section below the macbook */}
-            <div className="flex flex-col px-4 lg:ml-[80px] w-full lg:w-[1280px] gap-[24px] mt-[40px]">
-                <div className="w-full lg:w-[775px] gap-[24px] flex flex-col">
-                    <span className="w-[106px] h-[28px] rounded-[16px] text-[14px] font-medium bg-[#EFF8FF] flex items-center justify-center text-[#2F80ED]">
-                        How it works
-                    </span>
-                    <div className="gap-[32px] flex flex-col w-full lg:w-[775px]">
-                        <div className="flex w-full flex-col gap-[20px]">
-                            <p className="text-[24px] lg:text-[38px] leading-tight font-medium text-[#000]">A simple workflow for every invoice you create</p>
-                            <p className="text-[14px] lg:text-[16px] leading-tight text-[#333436]">Follow a simple flow that keeps your invoicing clear, organized, and easy to manage. Each step helps you stay focused while the system handles the details.</p>
+            <div className="flex flex-col px-4 lg:px-[80px] w-full max-w-[1280px] mx-auto gap-[24px] mt-[40px] relative">
+                <div className="flex items-start justify-between w-full">
+                    <div className="w-full lg:w-[775px] gap-[24px] flex flex-col relative z-10">
+                        <span className="w-[106px] h-[28px] rounded-[16px] text-[14px] font-medium bg-[#EFF8FF] flex items-center justify-center text-[#2F80ED]">
+                            How it works
+                        </span>
+                        <div className="gap-[32px] flex flex-col w-full">
+                            <div className="flex w-full flex-col gap-[20px]">
+                                <p className="text-[24px] lg:text-[38px] leading-tight font-medium text-[#000]">A simple workflow for every invoice you create</p>
+                                <p className="text-[14px] lg:text-[16px] leading-tight text-[#333436]">Follow a simple flow that keeps your invoicing clear, organized, and easy to manage. Each step helps you stay focused while the system handles the details.</p>
+                            </div>
+                            <Link href="/signUp" className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] flex items-center justify-center cursor-pointer">
+                                Get Started
+                            </Link>
                         </div>
-                        <Link href="/signUp" className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] flex items-center justify-center cursor-pointer">
-                            Get Started
-                        </Link>
+                    </div>
+                    
+                    {/* Top Right Eclipse - in the empty space */}
+                    <div className="hidden lg:flex flex-1 items-start justify-end">
+                        <Image
+                            src="/assets/top right eclipse.svg"
+                            alt=""
+                            width={500}
+                            height={500}
+                            className="pointer-events-none opacity-80"
+                        />
                     </div>
                 </div>
                 {/* section with color palette */}
-                <div className="w-full flex flex-col gap-[5px]">
+                <div className="w-full flex flex-col gap-[5px] overflow-hidden">
                     <div className="flex flex-col lg:flex-row gap-[30px] w-full items-center">
-                        <div className="flex flex-col gap-[26px] justify-center">
+                        <div className="flex flex-col gap-[26px] justify-center w-full lg:w-auto">
                             <div className="flex flex-col gap-[20px]">
                                 <p className="text-[24px] lg:text-[32px] text-[#000] font-medium">Create your invoice</p>
                                 <p className="text-[14px] lg:text-[18px] leading-tight max-w-[358px] lg:max-w-[553px] text-[#333436]">
@@ -165,7 +178,7 @@ const  Home =()=> {
                         </div>
                         <div 
                             ref={palleteRef}
-                            className={`transition-all duration-700 ease-out ${
+                            className={`transition-all duration-700 ease-out w-full lg:w-auto ${
                                 isPalleteVisible 
                                     ? 'opacity-100 translate-x-0' 
                                     : 'opacity-0 translate-x-20'
@@ -175,7 +188,7 @@ const  Home =()=> {
                                 src={palleteImg} alt={'pallete image'}
                                 width={500}
                                 height={420}
-                                className="w-full max-w-[500px] h-auto"
+                                className="w-full lg:max-w-[500px] h-auto"
                             />
                         </div>
                     </div>
@@ -184,7 +197,7 @@ const  Home =()=> {
                     <div className="flex flex-col lg:flex-row gap-[30px] w-full items-center">
                         <div 
                             ref={emailRef}
-                            className={`transition-all duration-700 ease-out order-2 lg:order-1 ${
+                            className={`transition-all duration-700 ease-out order-2 lg:order-1 w-full lg:w-auto ${
                                 isEmailVisible 
                                     ? 'opacity-100 translate-x-0' 
                                     : 'opacity-0 -translate-x-20'
@@ -194,7 +207,7 @@ const  Home =()=> {
                                 src={emailContent} alt={'email image'}
                                 width={500}
                                 height={420}
-                                className="w-full max-w-[500px] h-auto"
+                                className="w-full lg:max-w-[500px] h-auto"
                             />
                         </div>
                         <div className="flex flex-col gap-[26px] justify-center order-1 lg:order-2">
@@ -226,7 +239,7 @@ const  Home =()=> {
                         </div>
                         <div 
                             ref={trackPaymentRef}
-                            className={`transition-all duration-700 ease-out ${
+                            className={`transition-all duration-700 ease-out w-full lg:w-auto ${
                                 isTrackPaymentVisible 
                                     ? 'opacity-100 translate-x-0' 
                                     : 'opacity-0 translate-x-20'
@@ -236,7 +249,7 @@ const  Home =()=> {
                                 src="/assets/TrackPayment.svg" alt={'track payment image'}
                                 width={500}
                                 height={420}
-                                className="w-full max-w-[500px] h-auto"
+                                className="w-full lg:max-w-[500px] h-auto"
                             />
                         </div>
                     </div>
@@ -347,11 +360,13 @@ const  Home =()=> {
                         {/* Left Side - Features List */}
                         <div className="w-full lg:w-1/2 space-y-[32px]">
                             <div className="flex gap-[16px]">
-                                <div className="flex-shrink-0 w-[48px] h-[48px] bg-[#EFF8FF] rounded-[8px] flex items-center justify-center">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9 11L12 14L22 4" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
+                                <div className="flex-shrink-0">
+                                    <Image
+                                        src="/assets/icons/TaxCompliance.svg"
+                                        alt="Tax Compliance"
+                                        width={64}
+                                        height={64}
+                                    />
                                 </div>
                                 <div>
                                     <h3 className="text-[18px] md:text-[20px] font-medium text-[#000] mb-[8px]">Tax Compliance Made Easy</h3>
@@ -362,12 +377,13 @@ const  Home =()=> {
                             </div>
 
                             <div className="flex gap-[16px]">
-                                <div className="flex-shrink-0 w-[48px] h-[48px] bg-[#EFF8FF] rounded-[8px] flex items-center justify-center">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M2 17L12 22L22 17" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M2 12L12 17L22 12" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
+                                <div className="flex-shrink-0">
+                                    <Image
+                                        src="/assets/icons/SmartAutomation.svg"
+                                        alt="Smart Automation"
+                                        width={64}
+                                        height={64}
+                                    />
                                 </div>
                                 <div>
                                     <h3 className="text-[18px] md:text-[20px] font-medium text-[#000] mb-[8px]">Smart Automation</h3>
@@ -378,11 +394,13 @@ const  Home =()=> {
                             </div>
 
                             <div className="flex gap-[16px]">
-                                <div className="flex-shrink-0 w-[48px] h-[48px] bg-[#EFF8FF] rounded-[8px] flex items-center justify-center">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M14 2V8H20" stroke="#2F80ED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
+                                <div className="flex-shrink-0">
+                                    <Image
+                                        src="/assets/icons/ProfessionalTemplates.svg"
+                                        alt="Professional Templates"
+                                        width={64}
+                                        height={64}
+                                    />
                                 </div>
                                 <div>
                                     <h3 className="text-[18px] md:text-[20px] font-medium text-[#000] mb-[8px]">Professional Templates</h3>
