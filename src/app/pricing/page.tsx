@@ -65,9 +65,9 @@ const Pricing = ()=>{
                         </div>
                         
                         {/* Most Popular Arrow - positioned above cards - Desktop only */}
-                        <div className="hidden lg:block relative w-[1254px] flex justify-start mb-[-25px]">
-                            <div className="ml-[200px] flex flex-col items-center">
-                                <span className="text-[#2F80ED] ml-[130px] text-[14px] mb-[-5px] font-medium">
+                        <div className="hidden lg:block relative w-[1254px] mb-[40px]">
+                            <div className="absolute left-[280px] top-[-50px] flex flex-col items-end">
+                                <span className="text-[#2F80ED] text-[14px] mb-[8px] font-medium">
                                     Most popular!
                                 </span>
                                 <Image
