@@ -8,49 +8,14 @@ interface ValueCardProps {
 
 const ValueCard: React.FC<ValueCardProps> = ({ icon, title, description }) => {
   return (
-    <div 
-      className="bg-white shadow-sm hover:shadow-md transition"
-      style={{
-        width: '286px',
-        height: '231px',
-        gap: '24px',
-        borderRadius: '8px',
-        padding: '16px',
-        opacity: 1
-      }}
-    >
+    <div className="bg-white shadow-sm hover:shadow-md transition rounded-lg p-4 md:p-6">
       <div className="text-blue-600 mb-4 flex items-center justify-center">
         {icon}
       </div>
-      <h3 
-        className="mb-3"
-        style={{
-          width: '254px',
-          height: '25px',
-          fontFamily: 'Inter Tight',
-          fontWeight: 600,
-          fontSize: '18px',
-          lineHeight: '140%',
-          letterSpacing: '1%',
-          color: '#000000',
-          opacity: 1
-        }}
-      >
+      <h3 className="text-[16px] md:text-[18px] font-semibold mb-3 text-black font-['Inter_Tight']">
         {title}
       </h3>
-      <p 
-        style={{
-          width: '254px',
-          height: '110px',
-          fontFamily: 'Inter Tight',
-          fontWeight: 400,
-          fontSize: '16px',
-          lineHeight: '140%',
-          letterSpacing: '1%',
-          color: '#333436',
-          opacity: 1
-        }}
-      >
+      <p className="text-[14px] md:text-[16px] leading-relaxed text-[#333436] font-['Inter_Tight']">
         {description}
       </p>
     </div>
@@ -59,67 +24,25 @@ const ValueCard: React.FC<ValueCardProps> = ({ icon, title, description }) => {
 
 const CoreValuesSection: React.FC = () => {
   return (
-    <section className="bg-blue-50 py-20 px-6">
+    <section className="bg-blue-50 py-10 md:py-20 px-4 md:px-6">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <div 
-          className="text-center mb-12 flex flex-col items-center"
-          style={{
-            width: '1280px',
-            height: '111px',
-            gap: '16px',
-            opacity: 1
-          }}
-        >
-          <h2 
-            style={{
-              width: '695px',
-              height: '41px',
-              fontFamily: 'Inter Tight',
-              fontWeight: 600,
-              fontSize: '34px',
-              lineHeight: '120%',
-              letterSpacing: '0%',
-              textAlign: 'center',
-              color: '#000000',
-              opacity: 1
-            }}
-          >
+        <div className="text-center mb-8 md:mb-12 flex flex-col items-center gap-4">
+          <h2 className="text-[24px] md:text-[34px] font-semibold text-center text-black font-['Inter_Tight']">
             Our Core Values
           </h2>
-          <p 
-            style={{
-              width: '788px',
-              height: '50px',
-              fontFamily: 'Inter Tight',
-              fontWeight: 400,
-              fontSize: '18px',
-              lineHeight: '140%',
-              letterSpacing: '1%',
-              textAlign: 'center',
-              color: '#333436',
-              opacity: 1
-            }}
-          >
+          <p className="text-[16px] md:text-[18px] leading-relaxed text-center text-[#333436] font-['Inter_Tight'] max-w-[788px]">
             We designed Original Invoice around the belief that financial compliance should empower, not 
             complicate. Our values reflect our commitment to the businesses and freelancers we serve.
           </p>
         </div>
         
         {/* Values Grid */}
-        <div 
-          className="flex"
-          style={{
-            width: '1280px',
-            height: '209px',
-            justifyContent: 'space-between',
-            opacity: 1
-          }}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <ValueCard 
             icon={
               <svg width="48" height="48" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16.0007 2.95051C15.6331 2.76578 15.2237 2.6665 14.8031 2.6665H9.33398C7.12485 2.6665 5.33398 4.45736 5.33398 6.6665V25.3332C5.33398 27.5423 7.12485 29.3332 9.33398 29.3332H22.6673C24.8765 29.3332 26.6673 27.5423 26.6673 25.3332V15.6804C26.6673 15.3297 26.5982 14.9856 26.4671 14.6665M16.0007 2.95051C16.2989 3.10039 16.5696 3.30653 16.7962 3.56153L25.9937 13.9087C26.1947 14.1348 26.3539 14.3913 26.4671 14.6665M16.0007 2.95051V10.6665C16.0007 12.8756 17.7915 14.6665 20.0007 14.6665H26.4671" stroke="#2F80ED" stroke-width="1.5"/>
+                <path d="M16.0007 2.95051C15.6331 2.76578 15.2237 2.6665 14.8031 2.6665H9.33398C7.12485 2.6665 5.33398 4.45736 5.33398 6.6665V25.3332C5.33398 27.5423 7.12485 29.3332 9.33398 29.3332H22.6673C24.8765 29.3332 26.6673 27.5423 26.6673 25.3332V15.6804C26.6673 15.3297 26.5982 14.9856 26.4671 14.6665M16.0007 2.95051C16.2989 3.10039 16.5696 3.30653 16.7962 3.56153L25.9937 13.9087C26.1947 14.1348 26.3539 14.3913 26.4671 14.6665M16.0007 2.95051V10.6665C16.0007 12.8756 17.7915 14.6665 20.0007 14.6665H26.4671" stroke="#2F80ED" strokeWidth="1.5"/>
               </svg>
             }
             title="Simplicity"
@@ -130,8 +53,8 @@ const CoreValuesSection: React.FC = () => {
             icon={
              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M22.667 18.667C26.3487 18.6671 29.3328 21.6514 29.333 25.333V26.667C29.3328 27.4032 28.7363 28 28 28H23.832C23.9417 27.5739 24 27.1273 24 26.667V25.333C23.9999 22.8106 23.124 20.493 21.6602 18.667H22.667ZM21.333 4C24.2784 4 26.6668 6.38764 26.667 9.33301C26.667 12.2785 24.2785 14.667 21.333 14.667C20.8027 14.667 20.2911 14.5875 19.8076 14.4434C20.7706 12.975 21.333 11.2201 21.333 9.33301C21.3329 7.4458 20.7707 5.69102 19.8076 4.22266C20.291 4.07856 20.8028 4.00004 21.333 4Z" fill="#2F80ED"/>
-<path d="M13.3333 18.6667H10.6667C6.98477 18.6667 4 21.6514 4 25.3333V26.6667C4 27.403 4.59695 28 5.33333 28H18.6667C19.403 28 20 27.403 20 26.6667V25.3333C20 21.6514 17.0152 18.6667 13.3333 18.6667Z" stroke="#2F80ED" stroke-width="1.5"/>
-<path d="M12 14.6667C14.9455 14.6667 17.3333 12.2789 17.3333 9.33333C17.3333 6.38781 14.9455 4 12 4C9.05448 4 6.66667 6.38781 6.66667 9.33333C6.66667 12.2789 9.05448 14.6667 12 14.6667Z" stroke="#2F80ED" stroke-width="1.5"/>
+<path d="M13.3333 18.6667H10.6667C6.98477 18.6667 4 21.6514 4 25.3333V26.6667C4 27.403 4.59695 28 5.33333 28H18.6667C19.403 28 20 27.403 20 26.6667V25.3333C20 21.6514 17.0152 18.6667 13.3333 18.6667Z" stroke="#2F80ED" strokeWidth="1.5"/>
+<path d="M12 14.6667C14.9455 14.6667 17.3333 12.2789 17.3333 9.33333C17.3333 6.38781 14.9455 4 12 4C9.05448 4 6.66667 6.38781 6.66667 9.33333C6.66667 12.2789 9.05448 14.6667 12 14.6667Z" stroke="#2F80ED" strokeWidth="1.5"/>
 </svg>
 
             }
@@ -152,10 +75,10 @@ const CoreValuesSection: React.FC = () => {
           <ValueCard 
             icon={
               <svg width="48" height="48" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10.6667 4H6.66667C5.19391 4 4 5.19391 4 6.66667V10.6667C4 12.1394 5.19391 13.3333 6.66667 13.3333H10.6667C12.1394 13.3333 13.3333 12.1394 13.3333 10.6667V6.66667C13.3333 5.19391 12.1394 4 10.6667 4Z" stroke="#2F80ED" stroke-width="1.5"/>
-                <path d="M25.3333 4H21.3333C19.8606 4 18.6667 5.19391 18.6667 6.66667V10.6667C18.6667 12.1394 19.8606 13.3333 21.3333 13.3333H25.3333C26.8061 13.3333 28 12.1394 28 10.6667V6.66667C28 5.19391 26.8061 4 25.3333 4Z" stroke="#2F80ED" stroke-width="1.5"/>
-                <path d="M10.6667 18.6667H6.66667C5.19391 18.6667 4 19.8606 4 21.3333V25.3333C4 26.8061 5.19391 28 6.66667 28H10.6667C12.1394 28 13.3333 26.8061 13.3333 25.3333V21.3333C13.3333 19.8606 12.1394 18.6667 10.6667 18.6667Z" stroke="#2F80ED" stroke-width="1.5"/>
-                <path d="M25.3333 18.6667H21.3333C19.8606 18.6667 18.6667 19.8606 18.6667 21.3333V25.3333C18.6667 26.8061 19.8606 28 21.3333 28H25.3333C26.8061 28 28 26.8061 28 25.3333V21.3333C28 19.8606 26.8061 18.6667 25.3333 18.6667Z" stroke="#2F80ED" stroke-width="1.5"/>
+                <path d="M10.6667 4H6.66667C5.19391 4 4 5.19391 4 6.66667V10.6667C4 12.1394 5.19391 13.3333 6.66667 13.3333H10.6667C12.1394 13.3333 13.3333 12.1394 13.3333 10.6667V6.66667C13.3333 5.19391 12.1394 4 10.6667 4Z" stroke="#2F80ED" strokeWidth="1.5"/>
+                <path d="M25.3333 4H21.3333C19.8606 4 18.6667 5.19391 18.6667 6.66667V10.6667C18.6667 12.1394 19.8606 13.3333 21.3333 13.3333H25.3333C26.8061 13.3333 28 12.1394 28 10.6667V6.66667C28 5.19391 26.8061 4 25.3333 4Z" stroke="#2F80ED" strokeWidth="1.5"/>
+                <path d="M10.6667 18.6667H6.66667C5.19391 18.6667 4 19.8606 4 21.3333V25.3333C4 26.8061 5.19391 28 6.66667 28H10.6667C12.1394 28 13.3333 26.8061 13.3333 25.3333V21.3333C13.3333 19.8606 12.1394 18.6667 10.6667 18.6667Z" stroke="#2F80ED" strokeWidth="1.5"/>
+                <path d="M25.3333 18.6667H21.3333C19.8606 18.6667 18.6667 19.8606 18.6667 21.3333V25.3333C18.6667 26.8061 19.8606 28 21.3333 28H25.3333C26.8061 28 28 26.8061 28 25.3333V21.3333C28 19.8606 26.8061 18.6667 25.3333 18.6667Z" stroke="#2F80ED" strokeWidth="1.5"/>
               </svg>
             }
             title="Reliability"
