@@ -66,7 +66,7 @@ export default function ContactUs() {
           className="hidden md:block absolute bottom-0 left-0 -translate-x-[5%] translate-y-[5%] pointer-events-none"
         />
         
-        <div className="relative py-[250px] md:py-[40px] lg:py-[6   0px]">
+        <div className="relative py-[80px] md:py-[40px] lg:py-[60px]">
         <div className="max-w-[1280px] mx-auto px-[16px] md:px-[40px] lg:px-[80px]">
           <div className="text-center mb-[40px] md:mb-[40px] lg:mb-[50px]">
             <span className="inline-block px-[16px] py-[6px] bg-[#EFF8FF] text-[#2F80ED] text-[14px] font-medium rounded-[16px] mb-[16px] md:mb-[24px]">
