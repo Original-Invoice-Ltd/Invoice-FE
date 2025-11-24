@@ -29,7 +29,15 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
         } else if (item === "Pricing") {
             router.push("/pricing");
         } else if (item === "Features") {
-            router.push("/features");
+            // If on home page, scroll to features section
+            if (pathname === "/") {
+                const featuresSection = document.getElementById("features-section");
+                if (featuresSection) {
+                    featuresSection.scrollIntoView({ behavior: "smooth" });
+                }
+            } else {
+                router.push("/features");
+            }
         } else if (item === "About Us") {
             router.push("/aboutUs");
         } else if (item === "Contact Us") {
@@ -110,29 +118,32 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
                             <span className="font-medium">Home</span>
                         </button>
 
-                        <button
-                            onClick={() => handleNavClick("Features")}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left ${
-                                activeTab === "Features"
-                                    ? "bg-[#2F80ED] text-white"
-                                    : "text-gray-700"
-                            }`}
-                        >
-                            <svg
-                                width="20"
-                                height="20"
-                                viewBox="0 0 20 20"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
+                        {/* Only show Features on home page */}
+                        {pathname === "/" && (
+                            <button
+                                onClick={() => handleNavClick("Features")}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left ${
+                                    activeTab === "Features"
+                                        ? "bg-[#2F80ED] text-white"
+                                        : "text-gray-700"
+                                }`}
                             >
-                                <path
-                                    d="M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                />
-                            </svg>
-                            <span className="font-medium">Features</span>
-                        </button>
+                                <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 20 20"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        d="M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                    />
+                                </svg>
+                                <span className="font-medium">Features</span>
+                            </button>
+                        )}
 
                         <button
                             onClick={() => handleNavClick("About Us")}
