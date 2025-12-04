@@ -50,18 +50,20 @@ export default function SignUp() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col lg:flex-row">
-      {/* Left Side - Illustration Panel (Desktop only) */}
+    <div className="max-w-[1440px] h-[1024px] bg-[#000] flex flex-col lg:flex-row">
       <LeftIllustrationPanel />
 
       {/* Right Side - Form Section */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-4 sm:p-6 lg:p-12">
-        <div className="w-full max-w-md">
+      {/* <div className="w-full lg:w-1/2 bg-white flex items-start justify-center pt-[140px]"> */}
+        {/* Form Container with exact specifications */}
+        {/* <div 
+          className="w-[518px] flex flex-col gap-[32px] pt-[32px] pb-[32px] pl-[24px] pr-[24px]"
+        > */}
           {/* Logo */}
-          <Logo />
+          {/* <Logo /> */}
 
           {/* Conditional Rendering: Sign Up or Setup Account Form */}
-          {currentScreen === 'signup' ? (
+          {/* {currentScreen === 'signup' ? (
             <SignUpForm
               formData={{
                 email: formData.email,
@@ -81,9 +83,9 @@ export default function SignUp() {
               onInputChange={handleInputChange}
               onSubmit={handleSetup}
             />
-          )}
-        </div>
-      </div>
+          )} */}
+        {/* </div>
+      </div> */}
     </div>
   );
 }

@@ -74,9 +74,9 @@ const Header = ({ currentPage }: HeaderProps) => {
                         ))}
                     </div>
 
-                    <button className="text-white flex justify-center items-center bg-[#2F80ED] py-[12px] px-[16px] h-[46px] w-[150px] rounded-md font-medium">
+                    <Link href="/signUp" className="text-white flex justify-center items-center bg-[#2F80ED] py-[12px] px-[16px] h-[46px] w-[150px] rounded-md font-medium">
                         Get Started
-                    </button>
+                    </Link>
                 </div>
 
                 {/* Mobile Header */}

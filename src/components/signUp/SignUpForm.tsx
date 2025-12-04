@@ -24,10 +24,10 @@ export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUp
   return (
 
     <div
-      className="w-full max-w-[518px] mx-auto pt-8 px-6 pb-8 flex flex-col gap-8"
+      className="w-full max-w-[518px] h-[745px] mx-auto border border-red-500 py-[32px] px-[24px] flex flex-col gap-[32px]"
     >
-      <div className="w-[470px] h-[416px] rotate-0 opacity-100 gap-[32px]">
-        <div className="w-full max-w-[470px] mx-auto">
+      <div className="w-[470px] h-[416px] rotate-0 border border-green-500 opacity-100 gap-[32px]">
+        <div className="w-full max-w-[470px] h-[416px] gap-[32px]    mx-auto">
           <div
             className="w-full text-[#000000] font-['Inter_Tight'] font-medium 
             text-xl sm:text-2xl leading-[120%] tracking-[0] text-center mb-3"
@@ -56,7 +56,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUp
                 name="mail-01"
                 type="email"
                 placeholder="Enter your email address"
-                className="w-[470px] h-[40px] rotate-0 opacity-100 
+                className="w-[440px] h-[40px] rotate-0 opacity-100 
                 rounded-lg pl-[12px] pr-[40px] py-[8px] 
                 border border-[#E5E5E5] bg-white text-[16px] 
                 placeholder-gray-400 focus:outline-none focus:ring-2 
@@ -87,7 +87,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUp
                 name="password-01"
                 type="password"
                 placeholder="Enter your password"
-                className="w-[470px] h-[40px] rotate-0 opacity-100 
+                className="w-[440px] h-[40px] rotate-0 opacity-100 
                 rounded-lg pl-[12px] pr-[40px] py-[8px] 
                 border border-[#E5E5E5] bg-white text-[16px] 
                 placeholder-gray-400 focus:outline-none focus:ring-2 
