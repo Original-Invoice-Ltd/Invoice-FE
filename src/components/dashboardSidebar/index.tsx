@@ -29,12 +29,12 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
         <>
             {/* Mobile Overlay */}
             {isOpen && (
-                <div 
+                <div
                     className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
                     onClick={onClose}
                 />
             )}
-            
+
             {/* Sidebar */}
             <div className={`
                 fixed lg:relative inset-y-0 left-0 z-50
@@ -48,9 +48,9 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
                 <div className="flex flex-col gap-[32px]">
                     {/* Logo */}
                     <div className="flex items-center justify-between">
-                        <Image src={siderLogo} height={40} width={106} className="h-[40px] w-[106px]" alt="logo"/>
+                        <Image src={siderLogo} height={40} width={106} className="h-[40px] w-[106px]" alt="logo" />
                     </div>
-                    
+
                     {/* Main Menu Items */}
                     <div className="flex flex-col gap-[8px]">
                         {menuItems.map((item) => {
@@ -62,8 +62,8 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
                                     className={`
                                         flex items-center gap-[12px] px-[12px] py-[10px] rounded-[8px]
                                         transition-colors duration-200
-                                        ${item.active 
-                                            ? 'bg-[#2F80ED] text-white' 
+                                        ${item.active
+                                            ? 'bg-[#2F80ED] text-white'
                                             : 'text-[#667085] hover:bg-[#F9FAFB]'
                                         }
                                     `}
@@ -85,7 +85,9 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
                             <Link
                                 key={item.label}
                                 href={item.href}
-                                className="flex items-center gap-[12px] px-[12px] py-[10px] rounded-[8px] text-[#667085] hover:bg-[#F9FAFB] transition-colors duration-200"
+                                className="flex items-center gap-[12px] px-[12px] 
+                                py-[10px] rounded-[8px] text-[#667085] 
+                                hover:bg-[#F9FAFB] transition-colors duration-200"
                                 onClick={onClose}
                             >
                                 <Icon size={20} />

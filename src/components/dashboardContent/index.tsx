@@ -1,8 +1,8 @@
 "use client";
 
-import { Search, Bell, ChevronDown, Plus } from "lucide-react";
-import Image from "next/image";
+import { Search, ChevronDown, Plus } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import DashboardHeader from "../dashboardHeader";
 
 const DashboardContent = () => {
     // Sample data for charts
@@ -43,104 +43,81 @@ const DashboardContent = () => {
             case 'Overdue':
                 return 'bg-[#FEE2E2] text-[#EF4444]';
             default:
-                return 'bg-gray-100 text-gray-600';
+                return 'bg-[black] text-gray-600';
         }
     };
 
     return (
         <div className="flex-1 overflow-y-auto">
-            {/* Top Bar */}
-            <div className="bg-white border-b border-[#E4E7EC] px-4 lg:px-8 py-4">
-                <div className="flex items-center justify-between">
-                    {/* Search Bar - Hidden on mobile */}
-                    <div className="hidden lg:flex items-center gap-2 bg-[#F9FAFB] px-4 py-2 rounded-lg w-[400px]">
-                        <Search size={20} className="text-[#667085]" />
-                        <input
-                            type="text"
-                            placeholder="Search"
-                            className="bg-transparent outline-none text-sm flex-1"
-                        />
-                        <div className="flex items-center gap-1 text-xs text-[#667085]">
-                            <kbd className="px-2 py-1 bg-white rounded border">⌘</kbd>
-                            <kbd className="px-2 py-1 bg-white rounded border">K</kbd>
-                        </div>
-                    </div>
-
-                    <div className="flex-1 lg:hidden"></div>
-
-                    {/* Right Side Actions */}
-                    <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#667085] hover:bg-[#F9FAFB] rounded-lg">
-                            EN
-                            <ChevronDown size={16} />
-                        </button>
-                        <button className="p-2 hover:bg-[#F9FAFB] rounded-lg relative">
-                            <Bell size={20} className="text-[#667085]" />
-                            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                        </button>
-                        <div className="w-8 h-8 rounded-full bg-[#2F80ED] flex items-center justify-center text-white text-sm font-medium">
-                            V
-                        </div>
-                        <button className="hidden lg:block px-4 py-2 bg-[#EFF8FF] text-[#2F80ED] rounded-lg text-sm font-medium hover:bg-[#DBEAFE]">
-                            Upgrade Now
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <DashboardHeader />
 
             {/* Main Content */}
             <div className="p-4 lg:p-8">
-                {/* Welcome Section */}
-                <div className="mb-6">
-                    <h1 className="text-2xl lg:text-3xl font-semibold text-[#101828] mb-1">Welcome, Victor</h1>
-                    <p className="text-sm text-[#667085]">Here's your business performance at a glance</p>
-                </div>
+                {/* Welcome Section, Action Buttons, and Stats Cards Container */}
+                <div 
+                    style={{
+                        maxWidth: '1108px',
+                        gap: '20px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                    }}
+                    className="mb-6"
+                >
+                    {/* Welcome Section and Action Buttons Row */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        {/* Welcome Section */}
+                        <div>
+                            <h1 className="text-2xl lg:text-3xl font-semibold text-[#101828] mb-1">Welcome, Victor</h1>
+                            <p className="text-sm text-[#667085]">Here's your business performance at a glance</p>
+                        </div>
 
-                {/* Action Buttons - Mobile */}
-                <div className="flex gap-3 mb-6 lg:hidden">
-                    <button className="flex-1 px-4 py-3 border border-[#2F80ED] text-[#2F80ED] rounded-lg text-sm font-medium">
-                        Add Client
-                    </button>
-                    <button className="flex-1 px-4 py-3 bg-[#2F80ED] text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2">
-                        <Plus size={18} />
-                        Create Invoice
-                    </button>
-                </div>
-
-                {/* Action Buttons - Desktop */}
-                <div className="hidden lg:flex justify-end gap-3 mb-6">
-                    <button className="px-6 py-3 border border-[#2F80ED] text-[#2F80ED] rounded-lg text-sm font-medium hover:bg-[#EFF8FF]">
-                        Add Client
-                    </button>
-                    <button className="px-6 py-3 bg-[#2F80ED] text-white rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-[#2563EB]">
-                        <Plus size={18} />
-                        Create Invoice
-                    </button>
-                </div>
-
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
-                        <p className="text-sm text-[#667085] mb-2">Total Invoice Sent</p>
-                        <h3 className="text-3xl font-semibold text-[#101828]">₦900,000</h3>
-                    </div>
-                    <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
-                        <p className="text-sm text-[#667085] mb-2">Paid Invoices</p>
-                        <div className="flex items-end justify-between">
-                            <h3 className="text-3xl font-semibold text-[#101828]">₦890,000</h3>
-                            <span className="text-xs text-[#10B981] bg-[#ECFDF5] px-2 py-1 rounded">+5%</span>
+                        {/* Action Buttons - Desktop */}
+                        <div className="hidden lg:flex gap-3">
+                            <button className="px-6 py-3 border border-[#2F80ED] text-[#2F80ED] rounded-lg text-sm font-medium hover:bg-[#EFF8FF]">
+                                Add Client
+                            </button>
+                            <button className="px-6 py-3 bg-[#2F80ED] text-white rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-[#2563EB]">
+                                <Plus size={18} />
+                                Create Invoice
+                            </button>
                         </div>
                     </div>
-                    <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
-                        <p className="text-sm text-[#667085] mb-2">Pending Invoice</p>
-                        <div className="flex items-end justify-between">
-                            <h3 className="text-3xl font-semibold text-[#101828]">₦320,000</h3>
-                            <span className="text-xs text-[#EF4444] bg-[#FEE2E2] px-2 py-1 rounded">-3%</span>
-                        </div>
+
+                    {/* Action Buttons - Mobile */}
+                    <div className="flex gap-3 lg:hidden">
+                        <button className="flex-1 px-4 py-3 border border-[#2F80ED] text-[#2F80ED] rounded-lg text-sm font-medium">
+                            Add Client
+                        </button>
+                        <button className="flex-1 px-4 py-3 bg-[#2F80ED] text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2">
+                            <Plus size={18} />
+                            Create Invoice
+                        </button>
                     </div>
-                    <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
-                        <p className="text-sm text-[#667085] mb-2">Overdue Invoice</p>
-                        <h3 className="text-3xl font-semibold text-[#101828]">₦135,000</h3>
+
+                    {/* Stats Cards */}
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                        <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
+                            <p className="text-sm text-[#667085] mb-2">Total Invoice Sent</p>
+                            <h3 className="text-3xl font-semibold text-[#101828]">₦900,000</h3>
+                        </div>
+                        <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
+                            <p className="text-sm text-[#667085] mb-2">Paid Invoices</p>
+                            <div className="flex items-end justify-between">
+                                <h3 className="text-3xl font-semibold text-[#101828]">₦890,000</h3>
+                                <span className="text-xs text-[#10B981] bg-[#ECFDF5] px-2 py-1 rounded">+15%</span>
+                            </div>
+                        </div>
+                        <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
+                            <p className="text-sm text-[#667085] mb-2">Pending Invoice</p>
+                            <div className="flex items-end justify-between">
+                                <h3 className="text-3xl font-semibold text-[#101828]">₦320,000</h3>
+                                <span className="text-xs text-[#EF4444] bg-[#FEE2E2] px-2 py-1 rounded">-3%</span>
+                            </div>
+                        </div>
+                        <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
+                            <p className="text-sm text-[#667085] mb-2">Overdue Invoice</p>
+                            <h3 className="text-3xl font-semibold text-[#101828]">₦135,000</h3>
+                        </div>
                     </div>
                 </div>
 
