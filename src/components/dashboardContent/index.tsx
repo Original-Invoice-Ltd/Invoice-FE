@@ -121,23 +121,46 @@ const DashboardContent = () => {
                     </div>
                 </div>
 
-                {/* Charts Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                {/* Charts Section Container */}
+                <div 
+                    style={{
+                        maxWidth: '1108px',
+                        height: '342px',
+                        gap: '24px',
+                        display: 'flex',
+                        flexDirection: 'row',
+                    }}
+                    className="mb-6 flex-col lg:flex-row"
+                >
                     {/* Payment Trends */}
-                    <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-[#E4E7EC]">
-                        <div className="flex items-center justify-between mb-6">
+                    <div 
+                        style={{
+                            width: '692px',
+                            height: '342px',
+                            gap: '20px',
+                            borderRadius: '8px',
+                            borderWidth: '1px',
+                            padding: '16px',
+                            background: '#FFFFFF',
+                            border: '1px solid #EDEDED',
+                            display: 'flex',
+                            flexDirection: 'column',
+                        }}
+                        className="flex-1 lg:max-w-[692px]"
+                    >
+                        <div className="flex items-center justify-between">
                             <h3 className="text-lg font-semibold text-[#101828]">Payment Trends</h3>
                             <button className="flex items-center gap-2 text-sm text-[#667085]">
                                 This Month
                                 <ChevronDown size={16} />
                             </button>
                         </div>
-                        <ResponsiveContainer width="100%" height={300}>
+                        <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={paymentTrendsData}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+                                <CartesianGrid strokeDasharray="3 3" stroke="#E8E9ED" />
                                 <XAxis 
                                     dataKey="month" 
-                                    tick={{ fill: '#667085', fontSize: 12 }}
+                                    tick={{ fill: '#333436', fontSize: 12 }}
                                     axisLine={{ stroke: '#E4E7EC' }}
                                 />
                                 <YAxis 
@@ -161,16 +184,33 @@ const DashboardContent = () => {
                     </div>
 
                     {/* Status Distribution */}
-                    <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
-                        <div className="flex items-center justify-between mb-6">
+                    <div 
+                        style={{
+                            width: '392px',
+                            height: '342px',
+                            gap: '10px',
+                            borderRadius: '8px',
+                            borderWidth: '1px',
+                            padding: '16px',
+                            background: '#FFFFFF',
+                            border: '1px solid #EDEDED',
+                            display: 'flex',
+                            flexDirection: 'column',
+                        }}
+                        className="flex-1 lg:max-w-[392px]"
+                    >
+                        <div className="flex items-center justify-between">
                             <h3 className="text-lg font-semibold text-[#101828]">Status Distribution</h3>
                             <button className="flex items-center gap-2 text-sm text-[#667085]">
                                 This Month
-                                <ChevronDown size={16} />
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M13.354 6.35372L8.35403 11.3537C8.30759 11.4002 8.25245 11.4371 8.19175 11.4623C8.13105 11.4874 8.06599 11.5004 8.00028 11.5004C7.93457 11.5004 7.86951 11.4874 7.80881 11.4623C7.74811 11.4371 7.69296 11.4002 7.64653 11.3537L2.64653 6.35372C2.55271 6.2599 2.5 6.13265 2.5 5.99997C2.5 5.86729 2.55271 5.74004 2.64653 5.64622C2.74035 5.5524 2.8676 5.49969 3.00028 5.49969C3.13296 5.49969 3.26021 5.5524 3.35403 5.64622L8.00028 10.2931L12.6465 5.64622C12.693 5.59977 12.7481 5.56292 12.8088 5.53778C12.8695 5.51263 12.9346 5.49969 13.0003 5.49969C13.066 5.49969 13.131 5.51263 13.1917 5.53778C13.2524 5.56292 13.3076 5.59977 13.354 5.64622C13.4005 5.69268 13.4373 5.74783 13.4625 5.80852C13.4876 5.86922 13.5006 5.93428 13.5006 5.99997C13.5006 6.06567 13.4876 6.13072 13.4625 6.19142C13.4373 6.25212 13.4005 6.30727 13.354 6.35372Z" fill="#444444"/>
+</svg>
+
                             </button>
                         </div>
-                        <div className="flex items-center justify-center">
-                            <ResponsiveContainer width="100%" height={200}>
+                        <div className="flex items-center justify-center flex-1">
+                            <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
                                         data={statusDistributionData}
@@ -188,12 +228,12 @@ const DashboardContent = () => {
                                 </PieChart>
                             </ResponsiveContainer>
                         </div>
-                        <div className="mt-6 space-y-3">
+                        <div className="space-y-3">
                             {statusDistributionData.map((item) => (
                                 <div key={item.name} className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                                        <span className="text-sm text-[#667085]">{item.name}</span>
+                                        <span className="text-sm text-[#333436]">{item.name}</span>
                                     </div>
                                     <span className="text-sm font-medium text-[#101828]">₦{item.value.toLocaleString()}</span>
                                 </div>
@@ -203,23 +243,35 @@ const DashboardContent = () => {
                 </div>
 
                 {/* Recent Invoices */}
-                <div className="bg-white rounded-xl border border-[#E4E7EC]">
-                    <div className="p-6 border-b border-[#E4E7EC]">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold text-[#101828]">Recent Invoice</h3>
-                            <div className="flex items-center gap-2 bg-[#F9FAFB] px-4 py-2 rounded-lg">
-                                <Search size={18} className="text-[#667085]" />
-                                <input
-                                    type="text"
-                                    placeholder="Search invoice"
-                                    className="bg-transparent outline-none text-sm w-32 lg:w-auto"
-                                />
-                            </div>
+                <div 
+                    style={{
+                        maxWidth: '1108px',
+                        height: '336px',
+                        gap: '18px',
+                        borderRadius: '8px',
+                        paddingTop: '16px',
+                        paddingRight: '14px',
+                        paddingLeft: '14px',
+                        background: '#FFFFFF',
+                        display: 'flex',
+                        flexDirection: 'column',
+                    }}
+                    className="border border-[#E4E7EC]"
+                >
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-[#101828]">Recent Invoice</h3>
+                        <div className="flex items-center gap-2 bg-[#F9FAFB] px-4 py-2 rounded-lg">
+                            <Search size={18} className="text-[#667085]" />
+                            <input
+                                type="text"
+                                placeholder="Search invoice"
+                                className="bg-transparent outline-none text-sm w-32 lg:w-auto"
+                            />
                         </div>
                     </div>
                     
                     {/* Desktop Table */}
-                    <div className="hidden lg:block overflow-x-auto">
+                    <div className="hidden lg:block flex-1">
                         <table className="w-full">
                             <thead className="bg-[#F9FAFB]">
                                 <tr>
@@ -253,7 +305,7 @@ const DashboardContent = () => {
                     </div>
 
                     {/* Mobile List */}
-                    <div className="lg:hidden divide-y divide-[#E4E7EC]">
+                    <div className="lg:hidden divide-y divide-[#E4E7EC] flex-1">
                         {recentInvoices.map((invoice, index) => (
                             <div key={index} className="p-4">
                                 <div className="flex items-center justify-between mb-2">
@@ -278,12 +330,6 @@ const DashboardContent = () => {
                                 </div>
                             </div>
                         ))}
-                    </div>
-
-                    <div className="p-6 border-t border-[#E4E7EC]">
-                        <button className="w-full py-3 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB]">
-                            View More
-                        </button>
                     </div>
                 </div>
             </div>
