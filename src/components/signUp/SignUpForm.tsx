@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import MailIcon from "./mailIcon";
 import PasswordIcon from "./passwordIcon";
 import UserIcon from "./userIcon";
@@ -19,194 +20,160 @@ interface SignUpFormProps {
 
 export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUpFormProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
+  const handleSignInClick = () => {
+    router.push('/signIn');
+  };
 
   return (
+    <div className="w-full max-w-[470px] mx-auto flex flex-col gap-[16px]">
+      {/* Header */}
+      <div className="text-center mb-2">
+        <h2 className="text-[24px] font-medium text-[#000000] font-['Inter_Tight'] mb-2">
+          Sign Up
+        </h2>
+        <p className="text-[16px] text-[#666666] font-['Inter_Tight']">
+          Sign in with your email or social accounts
+        </p>
+      </div>
 
-    <div
-      className="w-full max-w-[518px] mx-auto pt-8 px-6 pb-8 flex flex-col gap-8"
-    >
-      <div className="w-[470px] h-[416px] rotate-0 opacity-100 gap-[32px]">
-        <div className="w-full max-w-[470px] mx-auto">
-          <div
-            className="w-full text-[#000000] font-['Inter_Tight'] font-medium 
-            text-xl sm:text-2xl leading-[120%] tracking-[0] text-center mb-3"
+      {/* Email Input */}
+      <div className="flex flex-col gap-1">
+        <label htmlFor="email" className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
+          Email Address
+        </label>
+        <div className="relative">
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="Enter your email address"
+            className="w-full h-[48px] rounded-lg pl-4 pr-12 border border-[#E5E5E5] 
+              bg-white text-[14px] placeholder-gray-400 focus:outline-none focus:ring-2 
+              focus:ring-[#2F80ED] font-['Inter_Tight']"
+          />
+          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            <MailIcon width={20} height={20} />
+          </div>
+        </div>
+      </div>
+
+      {/* Password Input */}
+      <div className="flex flex-col gap-1">
+        <label htmlFor="password" className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
+          Password
+        </label>
+        <div className="relative">
+          <input
+            id="password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            placeholder="Enter your password"
+            className="w-full h-[48px] rounded-lg pl-4 pr-12 border border-[#E5E5E5] 
+              bg-white text-[14px] placeholder-gray-400 focus:outline-none focus:ring-2 
+              focus:ring-[#2F80ED] font-['Inter_Tight']"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer"
           >
-            Sign Up
-          </div>
-          <div className="w-full font-['Inter_Tight'] font-normal text-base sm:text-lg leading-[140%] tracking-[0.01em] text-center text-[#444444]">
-            Sign in with your email or social accounts
-          </div>
-
-
-          <div className="w-[470px] opacity-100 rotate-0 flex flex-col">
-            {/* Label */}
-            <label
-              htmlFor="mail-01"
-              className="w-[102px] h-[22px] rotate-0 opacity-100 
-              flex items-center gap-1 text-sm font-medium text-[#444444] font-['Inter_Tight']"
-            >
-              Email address
-            </label>
-
-            {/* Input wrapper */}
-            <div className="h-[60px] relative flex items-center">
-              <input
-                id="mail-01"
-                name="mail-01"
-                type="email"
-                placeholder="Enter your email address"
-                className="w-[470px] h-[40px] rotate-0 opacity-100 
-                rounded-lg pl-[12px] pr-[40px] py-[8px] 
-                border border-[#E5E5E5] bg-white text-[16px] 
-                placeholder-gray-400 focus:outline-none focus:ring-2 
-                focus:ring-[#2F80ED] focus:border-transparent font-['Inter_Tight']"
-              />
-
-              {/* Right-side icon */}
-              <div className="absolute right-[12px] top-1/2 -translate-y-1/2 flex items-center">
-                <MailIcon width={20} height={20} />
-              </div>
-            </div>
-          </div>
-
-          <div className="w-[470px] opacity-100 rotate-0 flex flex-col">
-            {/* Label */}
-            <label
-              htmlFor="password-01"
-              className="w-[102px] h-[22px] rotate-0 opacity-100 
-              flex items-center gap-1 text-sm font-medium text-[#444444] font-['Inter_Tight']"
-            >
-              Password
-            </label>
-
-            {/* Input wrapper */}
-            <div className="h-[60px] relative flex items-center">
-              <input
-                id="password-01"
-                name="password-01"
-                type="password"
-                placeholder="Enter your password"
-                className="w-[470px] h-[40px] rotate-0 opacity-100 
-                rounded-lg pl-[12px] pr-[40px] py-[8px] 
-                border border-[#E5E5E5] bg-white text-[16px] 
-                placeholder-gray-400 focus:outline-none focus:ring-2 
-                focus:ring-[#2F80ED] focus:border-transparent font-['Inter_Tight']"
-              />
-
-              {/* Right-side icon */}
-              <div className="absolute right-[12px] top-1/2 -translate-y-1/2 flex items-center">
-                <PasswordIcon width={19} height={16} />
-              </div>
-            </div>
-          </div>
-
-          <div className="w-[470px] opacity-100 rotate-0 flex flex-col">
-            {/* Label */}
-            <label
-              htmlFor="fullname-01"
-              className="w-[102px] h-[22px] rotate-0 opacity-100 
-              flex items-center gap-1 text-sm font-medium text-[#444444] font-['Inter_Tight']"
-            >
-              Full Name
-            </label>
-
-            {/* Input wrapper */}
-            <div className="h-[60px] relative flex items-center">
-              <input
-                id="fullname-01"
-                name="fullname-01"
-                type="text"
-                placeholder="Enter your full name"
-                className="w-[470px] h-[40px] rotate-0 opacity-100 
-                rounded-lg pl-[12px] pr-[40px] py-[8px] border border-[#E5E5E5] 
-                bg-white text-[16px] placeholder-gray-400 focus:outline-none 
-                focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent font-['Inter_Tight']"
-              />
-
-              {/* Right-side icon */}
-              <div className="absolute right-[12px] top-1/2 -translate-y-1/2 flex items-center">
-                <UserIcon width={14} height={17} />
-              </div>
-            </div>
-          </div>
-            <div className="w-[470px] h-[40px] flex items-center justify-between rotate-0 opacity-100">
-  {/* Checkbox */}
-  <input
-    type="checkbox"
-    id="terms"
-    name="terms"
-    className="w-[20px] h-[20px] rounded-sm 
-    border border-[#E5E5E5] rotate-0 opacity-100 bg-[#FFFFFF]"
-  />
-
-  {/* Text */}
-  <label htmlFor="terms" className="ml-2 text-[16px] text-gray-700 font-['Inter_Tight']">
-    By creating an account you agree to the <span className="text-[#2F80ED]">
-      Terms and Conditions</span>, and our <span className="text-[#2F80ED]">Privacy Policy</span>
-  </label>
-          </div>
-
+            {showPassword ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5C5.63636 5 2 12 2 12C2 12 5.63636 19 12 19C18.3636 19 22 12 22 12C22 12 18.3636 5 12 5Z" stroke="#666666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#666666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            ) : (
+              <PasswordIcon width={19} height={16} />
+            )}
+          </button>
         </div>
-
-      </div>
-      <div className="flex justify-center">
-  <button
-    type="submit"
-    className="w-[470px] h-[46px] rotate-0 opacity-100 rounded-md px-[16px] 
-      py-[12px] flex items-center justify-center bg-[#2F80ED] 
-      text-white text-[16px] font-medium focus:outline-none hover:bg-[#2670d4] transition-colors"
-    onClick={onSubmit}
-  >
-    Sign Up
-  </button>
-      </div>
-      
-      
-      <div className="w-[470px] h-[44px] rotate-0 opacity-100 flex gap-4">
-  {/* Left child - Google */}
-  <button
-    className="w-[227px] h-[44px] rotate-0 opacity-100 rounded-[12px]
-      pt-[10px] pr-[16px] pb-[10px] pl-[16px] flex items-center gap-[8px] border border-[#E5E5E5]
-      bg-white"
-  >
-    <div className=" w-[24px] h-[24px]">
-      <GoogleIcon width={24} height={24} />
-    </div>
-    <span className="w-[146px] h-[22px] rotate-0 opacity-100 font-['Inter_Tight'] 
-    font-medium text-[16px] leading-[140%] tracking-[0.01em] text-[#000000]">
-      Continue with Google
-    </span>
-  </button>
-  
-  <button
-    className="w-[227px] h-[44px] rotate-0 opacity-100 rounded-[12px]
-      pt-[10px] pr-[16px] pb-[10px] pl-[16px] flex items-center gap-[8px] border
-      border-[#E5E5E5]
-      bg-white"
-  >
-    <div className=" w-[24px] h-[24px]">
-      <AppleIcon width={24} height={24} />
-    </div>
-    <span className="w-[146px] h-[22px] rotate-0 opacity-100 
-    font-['Inter_Tight'] font-medium text-[16px] leading-[140%] 
-    tracking-[0.01em] text-[#000000]">
-      Continue with Apple
-    </span>
-  </button>
       </div>
 
-      <div className="w-[470px] flex justify-center">
-        <div className="h-[25px] rotate-0 opacity-100 flex items-center justify-center 
-          text-[#222222] font-Roboto font-semibold text-[20px] leading-[120%] whitespace-nowrap
-        "
+      {/* Full Name Input */}
+      <div className="flex flex-col gap-1">
+        <label htmlFor="fullname" className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
+          Full Name
+        </label>
+        <div className="relative">
+          <input
+            id="fullname"
+            name="fullname"
+            type="text"
+            placeholder="Enter your full name"
+            className="w-full h-[48px] rounded-lg pl-4 pr-12 border border-[#E5E5E5] 
+              bg-white text-[14px] placeholder-gray-400 focus:outline-none focus:ring-2 
+              focus:ring-[#2F80ED] font-['Inter_Tight']"
+          />
+          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            <UserIcon width={14} height={17} />
+          </div>
+        </div>
+      </div>
+
+      {/* Terms Checkbox */}
+      <div className="flex items-start gap-2">
+        <input
+          type="checkbox"
+          id="terms"
+          name="terms"
+          className="w-5 h-5 mt-0.5 rounded border border-[#E5E5E5] bg-white"
+        />
+        <label htmlFor="terms" className="text-[13px] text-[#666666] font-['Inter_Tight'] leading-relaxed">
+          By creating an account means you agree to the{' '}
+          <span className="text-[#2F80ED]">Terms and Conditions</span>, and our{' '}
+          <span className="text-[#2F80ED]">Privacy Policy</span>
+        </label>
+      </div>
+
+      {/* Sign Up Button */}
+      <button
+        type="submit"
+        onClick={onSubmit}
+        className="w-full h-[48px] rounded-lg bg-[#2F80ED] text-white text-[16px] 
+          font-medium font-['Inter_Tight'] hover:bg-[#2670d4] transition-colors"
+      >
+        Sign Up
+      </button>
+
+      {/* Divider with lines */}
+      <div className="flex items-center gap-4 my-2">
+        <div className="flex-1 h-[1px] bg-[#E5E5E5]"></div>
+        <span className="text-[16px] font-semibold text-[#333333] font-['Inter_Tight']">Or</span>
+        <div className="flex-1 h-[1px] bg-[#E5E5E5]"></div>
+      </div>
+
+      {/* Social Login Buttons */}
+      <div className="flex gap-4">
+        <button className="flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
+          flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
+          <GoogleIcon width={20} height={20} />
+          <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
+            Continue with Google
+          </span>
+        </button>
+        
+        <button className="flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
+          flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
+          <AppleIcon width={20} height={20} />
+          <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
+            Continue with Apple
+          </span>
+        </button>
+      </div>
+
+      {/* Sign In Link */}
+      <div className="text-center text-[14px] font-['Inter_Tight']">
+        <span className="text-[#666666]">Have an account? </span>
+        <span 
+          onClick={handleSignInClick}
+          className="text-[#2F80ED] font-medium cursor-pointer hover:underline"
         >
-          Have an account? <span className="text-[#2F80ED] ml-1">Sign In</span>
-        </div>
+          Sign In
+        </span>
       </div>
-
     </div>
-
   );
 }
 
