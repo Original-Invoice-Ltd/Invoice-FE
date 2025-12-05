@@ -50,20 +50,22 @@ export default function SignUp() {
   };
 
   return (
-    <div className="max-w-[1440px] h-[1024px] bg-[#000] flex flex-col lg:flex-row">
-      <LeftIllustrationPanel />
+    <div className="max-w-[1440px] h-[1024px] bg-[#FFFFFF] flex flex-col lg:flex-row gap-0">
+      <div className="w-full lg:w-1/2 flex items-center justify-center">
+        <LeftIllustrationPanel />
+      </div>
 
       {/* Right Side - Form Section */}
-      {/* <div className="w-full lg:w-1/2 bg-white flex items-start justify-center pt-[140px]"> */}
-        {/* Form Container with exact specifications */}
-        {/* <div 
-          className="w-[518px] flex flex-col gap-[32px] pt-[32px] pb-[32px] pl-[24px] pr-[24px]"
-        > */}
-          {/* Logo */}
-          {/* <Logo /> */}
-
+      <div className="relative w-full lg:w-1/2 flex items-center justify-center px-8"> 
+        {/* Logo - Top left of right section */}
+        <div className="absolute top-8 left-8">
+          <Logo />
+        </div>
+        
+        {/* Form Container - Centered with equal top/bottom space */}
+        <div className="w-full max-w-[470px]">
           {/* Conditional Rendering: Sign Up or Setup Account Form */}
-          {/* {currentScreen === 'signup' ? (
+          {currentScreen === 'signup' ? (
             <SignUpForm
               formData={{
                 email: formData.email,
@@ -83,9 +85,9 @@ export default function SignUp() {
               onInputChange={handleInputChange}
               onSubmit={handleSetup}
             />
-          )} */}
-        {/* </div>
-      </div> */}
+          )}
+        </div>
+      </div>
     </div>
   );
 }
