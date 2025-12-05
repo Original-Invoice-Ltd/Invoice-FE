@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import MailIcon from "./mailIcon";
 import PasswordIcon from "./passwordIcon";
 import UserIcon from "./userIcon";
@@ -19,7 +20,11 @@ interface SignUpFormProps {
 
 export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUpFormProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
+  const handleSignInClick = () => {
+    router.push('/signIn');
+  };
 
   return (
     <div className="w-full max-w-[470px] mx-auto flex flex-col gap-[16px]">
@@ -161,7 +166,12 @@ export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUp
       {/* Sign In Link */}
       <div className="text-center text-[14px] font-['Inter_Tight']">
         <span className="text-[#666666]">Have an account? </span>
-        <span className="text-[#2F80ED] font-medium cursor-pointer">Sign In</span>
+        <span 
+          onClick={handleSignInClick}
+          className="text-[#2F80ED] font-medium cursor-pointer hover:underline"
+        >
+          Sign In
+        </span>
       </div>
     </div>
   );
