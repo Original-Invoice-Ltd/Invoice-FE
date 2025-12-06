@@ -50,16 +50,20 @@ export default function SignUp() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col lg:flex-row">
-      {/* Left Side - Illustration Panel (Desktop only) */}
-      <LeftIllustrationPanel />
+    <div className="max-w-[1440px] h-[1024px] bg-[#FFFFFF] flex flex-col lg:flex-row gap-0">
+      <div className="w-full lg:w-1/2 flex items-center justify-center">
+        <LeftIllustrationPanel />
+      </div>
 
       {/* Right Side - Form Section */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-4 sm:p-6 lg:p-12">
-        <div className="w-full max-w-md">
-          {/* Logo */}
+      <div className="relative w-full lg:w-1/2 flex items-center justify-center px-8"> 
+        {/* Logo - Top left of right section */}
+        <div className="absolute top-8 left-8">
           <Logo />
-
+        </div>
+        
+        {/* Form Container - Centered with equal top/bottom space */}
+        <div className="w-full max-w-[470px]">
           {/* Conditional Rendering: Sign Up or Setup Account Form */}
           {currentScreen === 'signup' ? (
             <SignUpForm
@@ -78,6 +82,7 @@ export default function SignUp() {
                 businessName: formData.businessName,
                 businessCategory: formData.businessCategory,
               }}
+              email={formData.email}
               onInputChange={handleInputChange}
               onSubmit={handleSetup}
             />
