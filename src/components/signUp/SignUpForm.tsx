@@ -49,6 +49,8 @@ export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUp
             name="email"
             type="email"
             placeholder="Enter your email address"
+            value={formData.email}
+            onChange={onInputChange}
             className="w-full h-[48px] rounded-lg pl-4 pr-12 border border-[#E5E5E5] 
               bg-white text-[14px] placeholder-gray-400 focus:outline-none focus:ring-2 
               focus:ring-[#2F80ED] font-['Inter_Tight']"
@@ -70,6 +72,8 @@ export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUp
             name="password"
             type={showPassword ? "text" : "password"}
             placeholder="Enter your password"
+            value={formData.password}
+            onChange={onInputChange}
             className="w-full h-[48px] rounded-lg pl-4 pr-12 border border-[#E5E5E5] 
               bg-white text-[14px] placeholder-gray-400 focus:outline-none focus:ring-2 
               focus:ring-[#2F80ED] font-['Inter_Tight']"
@@ -99,9 +103,10 @@ export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUp
         <div className="relative">
           <input
             id="fullname"
-            name="fullname"
+            name="fullName"
             type="text"
             placeholder="Enter your full name"
+            onChange={onInputChange}
             className="w-full h-[48px] rounded-lg pl-4 pr-12 border border-[#E5E5E5] 
               bg-white text-[14px] placeholder-gray-400 focus:outline-none focus:ring-2 
               focus:ring-[#2F80ED] font-['Inter_Tight']"

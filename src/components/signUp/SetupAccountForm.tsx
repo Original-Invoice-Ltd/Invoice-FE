@@ -1,6 +1,6 @@
 'use client';
 
-import MailIcon from './mailIcon';
+import { useState, useRef, useEffect } from 'react';
 
 interface SetupAccountFormProps {
   formData: {
@@ -8,103 +8,119 @@ interface SetupAccountFormProps {
     businessName: string;
     businessCategory: string;
   };
+  email: string;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
 
-export default function SetupAccountForm({ formData, onInputChange, onSubmit }: SetupAccountFormProps) {
-  // Business name icon
-  const businessIcon = <MailIcon width={20} height={20} />;
+export default function SetupAccountForm({ formData, email, onInputChange, onSubmit }: SetupAccountFormProps) {
+  const [code, setCode] = useState(['', '', '', '', '', '']);
+  const [timer, setTimer] = useState(40);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    if (timer > 0) {
+      const interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [timer]);
+
+  const handleCodeChange = (index: number, value: string) => {
+    if (value.length <= 1 && /^\d*$/.test(value)) {
+      const newCode = [...code];
+      newCode[index] = value;
+      setCode(newCode);
+
+      // Move to next input
+      if (value && index < 5) {
+        inputRefs.current[index + 1]?.focus();
+      }
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !code[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleResend = () => {
+    setTimer(40);
+    setCode(['', '', '', '', '', '']);
+  };
+
+  // Function to mask email
+  const maskEmail = (email: string) => {
+    if (!email) return 'chi****@g***.com';
+    const [localPart, domain] = email.split('@');
+    if (!domain) return email;
+    
+    const maskedLocal = localPart.substring(0, 3) + '****';
+    const [domainName, extension] = domain.split('.');
+    const maskedDomain = domainName.substring(0, 1) + '***';
+    
+    return `${maskedLocal}@${maskedDomain}.${extension}`;
+  };
 
   return (
-    <form 
-      onSubmit={onSubmit} 
-      className="w-full max-w-[518px] mx-auto pt-8 px-6 pb-8 flex flex-col gap-8"
-    >
+    <div className="w-full mt-[-40px] max-w-[470px] mx-auto flex flex-col gap-[24px]">
       {/* Header */}
-      <div>
-        <h2 className="w-[470px] h-[29px] rotate-0 opacity-100 font-['Inter_Tight'] font-medium text-[24px] leading-[120%] tracking-[0] text-center text-[#000000] mb-2">
-          Setup your account
+      <div className="text-center">
+        <h2 className="text-[24px] font-medium text-[#000000] font-['Inter_Tight'] mb-3">
+          Enter 6-digit verification code
         </h2>
-        <p className="w-[470px] h-[25px] rotate-0 opacity-100 font-['Inter_Tight'] font-normal text-[18px] leading-[140%] tracking-[0.01em] text-center text-[#444444]">
-          Set up your company's account
+        <p className="text-[16px] text-[#666666] font-['Inter_Tight']">
+          We have sent a verification code to the email address<br />
+          {maskEmail(email)}
         </p>
       </div>
 
-      {/* Business Name and Category Container */}
-      <div className="w-[470px] h-[164px] rotate-0 opacity-100 flex flex-col gap-[24px]">
-        {/* Business Name Input */}
-        <div className="w-[470px] h-[70px] rotate-0 opacity-100 flex flex-col gap-[8px]">
-          <label 
-            htmlFor="businessName"
-            className="font-['Inter_Tight'] font-medium text-[16px] leading-[140%] tracking-[0.01em] text-[#000000]"
-          >
-            Business Name
-          </label>
-          
-          <div className="relative w-[470px] h-[40px] flex items-center justify-between">
-            <input
-              id="businessName"
-              type="text"
-              name="businessName"
-              value={formData.businessName}
-              onChange={onInputChange as (e: React.ChangeEvent<HTMLInputElement>) => void}
-              placeholder="Enter business name"
-              className="w-[470px] h-[40px] rotate-0 opacity-100 rounded-lg pt-[8px] pr-[10px] pb-[8px] pl-[12px] border border-[#E5E5E5] bg-[#FFFFFF] font-['Inter_Tight'] text-[16px] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
-              required
-            />
-            
-            <div className="absolute right-[12px] top-1/2 -translate-y-1/2 flex items-center">
-              {businessIcon}
-            </div>
-          </div>
-        </div>
-
-        {/* Business Category Dropdown */}
-        <div className="w-[470px] h-[70px] rotate-0 opacity-100 flex flex-col gap-[8px]">
-          <label 
-            htmlFor="businessCategory"
-            className="font-['Inter_Tight'] font-medium text-[16px] leading-[140%] tracking-[0.01em] text-[#000000]"
-          >
-            Business Category
-          </label>
-          
-          <div className="relative w-[470px] h-[40px]">
-            <select
-              id="businessCategory"
-              name="businessCategory"
-              value={formData.businessCategory}
-              onChange={onInputChange}
-              className="w-[470px] h-[40px] rotate-0 opacity-100 rounded-lg pt-[8px] pr-[10px] pb-[8px] pl-[12px] border border-[#E5E5E5] bg-[#FFFFFF] font-['Inter_Tight'] text-[16px] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
-              required
-            >
-              <option value="">Select Business category</option>
-              <option value="freelancers">Freelancers</option>
-              <option value="business-owner">Business Owner</option>
-              <option value="agency">Agency</option>
-              <option value="vendor">Vendor</option>
-              <option value="service-providers">Service providers</option>
-              <option value="accountant">Accountant</option>
-              <option value="tax-consultants">Tax consultants</option>
-            </select>
-            
-            <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none">
-              <svg className="w-[20px] h-[20px]" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5 7.5L10 12.5L15 7.5" stroke="#333436" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-          </div>
-        </div>
+      {/* Verification Code Inputs */}
+      <div className="flex justify-center gap-4">
+        {code.map((digit, index) => (
+          <input
+            key={index}
+            ref={(el) => (inputRefs.current[index] = el)}
+            type="text"
+            maxLength={1}
+            value={digit}
+            onChange={(e) => handleCodeChange(index, e.target.value)}
+            onKeyDown={(e) => handleKeyDown(index, e)}
+            className="w-[60px] h-[60px] text-center text-[24px] font-medium border border-[#E5E5E5] 
+              rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
+          />
+        ))}
       </div>
 
-      {/* Get Started Button */}
+      {/* Resend Code */}
+      <div className="text-center">
+        {timer > 0 ? (
+          <p className="text-[14px] text-[#666666] font-['Inter_Tight']">
+            Resend code <span className="font-medium">{timer} seconds</span>
+          </p>
+        ) : (
+          <button
+            type="button"
+            onClick={handleResend}
+            className="text-[14px] text-[#2F80ED] font-['Inter_Tight'] hover:underline"
+          >
+            Resend code
+          </button>
+        )}
+      </div>
+
+      {/* Continue Button */}
       <button
         type="submit"
-        className="w-[470px] h-[46px] rotate-0 opacity-100 rounded-md pt-[12px] pr-[16px] pb-[12px] pl-[16px] gap-[8px] bg-[#2F80ED] text-white font-['Inter_Tight'] font-medium text-[16px] flex items-center justify-center focus:outline-none hover:bg-[#2670d4] transition-none duration-0"
+        onClick={onSubmit}
+        className="w-full h-[48px] rounded-lg bg-[#2F80ED] text-white text-[16px] 
+          font-medium font-['Inter_Tight'] hover:bg-[#2670d4] transition-colors"
       >
-        Get Started
+        Continue
       </button>
-    </form>
+    </div>
   );
 }
 

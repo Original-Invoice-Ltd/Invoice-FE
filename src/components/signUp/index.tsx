@@ -82,6 +82,7 @@ export default function SignUp() {
                 businessName: formData.businessName,
                 businessCategory: formData.businessCategory,
               }}
+              email={formData.email}
               onInputChange={handleInputChange}
               onSubmit={handleSetup}
             />
