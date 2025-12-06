@@ -1,10 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Logo from '../signUp/Logo';
 import LeftIllustrationPanel from '../signUp/LeftIllustrationPanel';
 import SignInForm from './SignInForm';
-import Image from "next/image";
-import invoiceLogo from './../../../public/assets/invoice logo.svg';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({
@@ -31,19 +30,20 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-[16px] flex flex-col lg:flex-row">
-      {/* Left Side - Illustration Panel (Desktop only) */}
-      <LeftIllustrationPanel />
+    <div className="max-w-[1440px]  h-[1024px] bg-[#FFFFFF] flex flex-col lg:flex-row gap-0">
+      <div className="w-full lg:w-1/2 flex items-center justify-center">
+        <LeftIllustrationPanel />
+      </div>
 
       {/* Right Side - Form Section */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-4 sm:p-6 lg:p-12">
-        <div className="w-full max-w-md">
-          {/* Logo */}
-          <div className="flex items-center">
-            <Image src={invoiceLogo} alt={'invoice logo'} />
-            <p className="text-[#000000] font-bold text-[26px]">Original Invoice</p>
-          </div>
-
+      <div className="relative w-full  lg:w-1/2 flex items-center justify-center px-8"> 
+        {/* Logo - Top left of right section */}
+        <div className="absolute top-8 left-8">
+          <Logo />
+        </div>
+        
+        {/* Form Container - Centered with equal top/bottom space */}
+        <div className="w-full max-w-[470px]">
           {/* Sign In Form */}
           <SignInForm
             formData={formData}
