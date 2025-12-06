@@ -38,13 +38,13 @@ export default function SignIn() {
 
       {/* Right Side - Form Section */}
       <div className="relative w-full lg:w-1/2 flex flex-col items-center px-4 sm:px-8 py-8 lg:justify-center"> 
-        {/* Logo - At top on mobile, top-left on desktop */}
-        <div className="w-full flex justify-center lg:absolute lg:top-8 lg:left-8 lg:justify-start mb-6 lg:mb-0">
+        {/* Logo - top-left on desktop, hidden on mobile (shown in form) */}
+        <div className="hidden lg:block lg:absolute lg:top-8 lg:left-8">
           <Logo />
         </div>
         
-        {/* Form Container - Below logo on mobile, centered on desktop */}
-        <div className="w-full max-w-[470px] mt-4 lg:mt-0">
+        {/* Form Container */}
+        <div className="w-full max-w-[470px]">
           {/* Sign In Form */}
           <SignInForm
             formData={formData}

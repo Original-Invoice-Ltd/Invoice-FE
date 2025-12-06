@@ -6,6 +6,7 @@ import MailIcon from '../signUp/mailIcon';
 import PasswordIcon from '../signUp/passwordIcon';
 import GoogleIcon from '../signUp/googleIcon';
 import AppleIcon from '../signUp/appleIcon';
+import Logo from '../signUp/Logo';
 
 interface SignInFormProps {
   formData: {
@@ -27,6 +28,11 @@ export default function SignInForm({ formData, onInputChange, onSubmit }: SignIn
 
   return (
     <div className="w-full max-w-[470px] mx-auto flex flex-col gap-[16px]">
+      {/* Logo - Centered with spacing (mobile only) */}
+      <div className="flex justify-center mb-6 lg:hidden">
+        <Logo/>
+      </div>
+      
       {/* Header */}
       <div className="text-center mb-2 relative">
         <h2 className="text-[24px] font-medium text-[#000000] font-['Inter_Tight'] mb-2">

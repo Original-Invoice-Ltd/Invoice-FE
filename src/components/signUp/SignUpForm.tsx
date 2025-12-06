@@ -7,6 +7,7 @@ import PasswordIcon from "./passwordIcon";
 import UserIcon from "./userIcon";
 import GoogleIcon from "./googleIcon";
 import AppleIcon from "./appleIcon";
+import Logo from './Logo';
 
 interface SignUpFormProps {
   formData: {
@@ -28,19 +29,17 @@ export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUp
 
   return (
     <div className="w-full max-w-[470px] mx-auto flex flex-col gap-[16px]">
+      {/* Logo - Centered with spacing (mobile only) */}
+      <div className="flex justify-center mb-6 lg:hidden">
+        <Logo/>
+      </div>
+      
       {/* Header */}
       <div className="text-center mb-2 relative">
         <h2 className="text-[24px] font-medium text-[#000000] font-['Inter_Tight'] mb-2">
           Sign Up
         </h2>
-        {/* Logo positioned between heading and subtitle on mobile */}
-        <div className="flex justify-center my-2 lg:hidden">
-          <img
-            src="/assets/header logo.svg"
-            alt="Original Invoice Logo"
-            className="h-[40px] w-auto object-contain"
-          />
-        </div>
+    
         <p className="text-[16px] text-[#666666] font-['Inter_Tight']">
           Sign in with your email or social accounts
         </p>
