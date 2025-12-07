@@ -6,6 +6,7 @@ import MailIcon from '../signUp/mailIcon';
 import PasswordIcon from '../signUp/passwordIcon';
 import GoogleIcon from '../signUp/googleIcon';
 import AppleIcon from '../signUp/appleIcon';
+import Logo from '../signUp/Logo';
 
 interface SignInFormProps {
   formData: {
@@ -26,12 +27,18 @@ export default function SignInForm({ formData, onInputChange, onSubmit }: SignIn
   };
 
   return (
-    <div className="w-full max-w-[470px]  mt-[-120px] mx-auto flex flex-col gap-[16px]">
+    <div className="w-full max-w-[470px] mx-auto flex flex-col gap-[16px]">
+      {/* Logo - Centered with spacing (mobile only) */}
+      <div className="flex justify-center mb-6 lg:hidden">
+        <Logo/>
+      </div>
+      
       {/* Header */}
-      <div className="text-center mb-2">
+      <div className="text-center mb-2 relative">
         <h2 className="text-[24px] font-medium text-[#000000] font-['Inter_Tight'] mb-2">
           Sign In
         </h2>
+       
         <p className="text-[16px] text-[#666666] font-['Inter_Tight']">
           Sign in with your email or social accounts
         </p>
@@ -129,8 +136,8 @@ export default function SignInForm({ formData, onInputChange, onSubmit }: SignIn
       </div>
 
       {/* Social Login Buttons */}
-      <div className="flex gap-4">
-        <button className="flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
+      <div className="flex flex-col sm:flex-row gap-4">
+        <button className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
           flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
           <GoogleIcon width={20} height={20} />
           <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
@@ -138,7 +145,7 @@ export default function SignInForm({ formData, onInputChange, onSubmit }: SignIn
           </span>
         </button>
         
-        <button className="flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
+        <button className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
           flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
           <AppleIcon width={20} height={20} />
           <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
