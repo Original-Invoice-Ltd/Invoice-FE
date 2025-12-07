@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Logo from './Logo';
 
 interface SetupAccountFormProps {
   formData: {
@@ -57,7 +58,7 @@ export default function SetupAccountForm({ formData, email, onInputChange, onSub
     const [localPart, domain] = email.split('@');
     if (!domain) return email;
     
-    const maskedLocal = localPart.substring(0, 3) + '****';
+    const maskedLocal = localPart.substring(0, 3) + '****';;
     const [domainName, extension] = domain.split('.');
     const maskedDomain = domainName.substring(0, 1) + '***';
     
@@ -65,7 +66,12 @@ export default function SetupAccountForm({ formData, email, onInputChange, onSub
   };
 
   return (
-    <div className="w-full mt-[-40px] max-w-[470px] mx-auto flex flex-col gap-[24px]">
+    <div className="w-full max-w-[470px] mx-auto flex flex-col gap-[24px]">
+      {/* Logo - Centered with spacing (mobile only) */}
+      <div className="flex justify-center mb-8 lg:hidden">
+        <Logo/>
+      </div>
+      
       {/* Header */}
       <div className="text-center">
         <h2 className="text-[24px] font-medium text-[#000000] font-['Inter_Tight'] mb-3">
