@@ -5,6 +5,55 @@ import { Search, Plus, ChevronDown } from "lucide-react";
 
 const ClientsPage = () => {
     const [searchQuery, setSearchQuery] = useState("");
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [clients, setClients] = useState<Client[]>([]);
+    const [showSortDropdown, setShowSortDropdown] = useState(false);
+    const [showActionMenu, setShowActionMenu] = useState<string | null>(null);
+
+    const [formData, setFormData] = useState({
+        customerType: "",
+        title: "Mr",
+        fullName: "",
+        businessName: "",
+        email: "",
+        phone: "",
+        country: "",
+        businessRegNumber: "",
+        taxId: "",
+    });
+
+    const handleSaveClient = () => {
+        const newClient: Client = {
+            id: `${clients.length + 1}`,
+            title: formData.title,
+            name: formData.fullName,
+            company: formData.businessName,
+            email: formData.email,
+            phone: formData.phone,
+            taxId: formData.taxId || "#000000000",
+            balance: "₦0",
+        };
+
+        setClients([...clients, newClient]);
+        setShowAddModal(false);
+        setShowSuccessModal(true);
+
+        setFormData({
+            customerType: "",
+            title: "Mr",
+            fullName: "",
+            businessName: "",
+            email: "",
+            phone: "",
+            country: "",
+            businessRegNumber: "",
+            taxId: "",
+        });
+    };
+
+    const totalPages = 99;
 
     return (
         <div className="w-full max-w-[1108px]">
