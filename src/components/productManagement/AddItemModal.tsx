@@ -134,16 +134,46 @@ export const AddItemModal = ({ isOpen, formData, onClose, onFormChange, onSave }
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-3 mt-6">
+                    <div className="flex justify-between mt-6" style={{ width: '652px', height: '42px' }}>
                         <button
                             onClick={onClose}
-                            className="px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors"
+                            className="rounded-lg"
+                            style={{
+                                width: '82px',
+                                height: '42px',
+                                padding: '10px 16px',
+                                gap: '8px',
+                                border: '1px solid #2F80ED',
+                                background: '#FFFFFF',
+                                color: '#2F80ED',
+                                fontFamily: 'Inter Tight',
+                                fontWeight: 500,
+                                fontSize: '16px',
+                                lineHeight: '140%',
+                                letterSpacing: '0.01em',
+                                textAlign: 'center'
+                            }}
                         >
                             Cancel
                         </button>
                         <button
                             onClick={onSave}
-                            className="px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
+                            className="rounded-lg"
+                            style={{
+                                width: '140px',
+                                height: '42px',
+                                padding: '10px 16px',
+                                gap: '8px',
+                                background: '#2F80ED',
+                                color: '#FFFFFF',
+                                fontFamily: 'Inter Tight',
+                                fontWeight: 500,
+                                fontSize: '16px',
+                                lineHeight: '140%',
+                                letterSpacing: '0.01em',
+                                textAlign: 'center',
+                                border: 'none'
+                            }}
                         >
                             Save Item
                         </button>
