@@ -86,9 +86,10 @@ const ProductManagement = () => {
                         onClick={() => setShowAddModal(true)}
                         className="flex items-center justify-center gap-2 w-full sm:w-auto sm:min-w-[139px] h-12 px-4 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
                     >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 12V7M12 12V17M12 12H17M12 12H7" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 12V7M12 12V17M12 12H17M12 12H7" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
 
                         Add Product
                     </button>
@@ -437,23 +438,28 @@ const ProductManagement = () => {
                                                 <span className="text-[#F04438]">*</span>
                                             </label>
                                             <div className="relative">
-                                                <input
-                                                    type="text"
-                                                    placeholder="0.00"
-                                                    value={formData.unitPrice}
-                                                    onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
-                                                    className="w-full px-4 py-2 pr-20 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                                />
                                                 <select
                                                     value={formData.currency}
                                                     onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm border-none focus:outline-none bg-transparent"
+                                                    className="absolute left-4 top-1/2 transform -translate-y-1/2 text-sm border-none focus:outline-none bg-transparent appearance-none pr-6"
+                                                    style={{
+                                                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23667085' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
+                                                        backgroundRepeat: 'no-repeat',
+                                                        backgroundPosition: 'right center'
+                                                    }}
                                                 >
                                                     <option value="USD">USD</option>
                                                     <option value="NGN">NGN</option>
                                                     <option value="EUR">EUR</option>
                                                     <option value="GBP">GBP</option>
                                                 </select>
+                                                <input
+                                                    type="text"
+                                                    placeholder=""
+                                                    value={formData.unitPrice}
+                                                    onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
+                                                    className="w-full pl-24 pr-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-0"
+                                                />
                                             </div>
                                         </div>
                                     </div>
@@ -478,23 +484,79 @@ const ProductManagement = () => {
                                     </div>
                                 </div>
 
-                                {/* Buttons - width: 652px; height: 42px; justify-content: space-between */}
-                                <div className="w-full max-w-[652px] h-[42px] flex items-center justify-end gap-3 mt-6">
-                                    {/* Cancel Button - Type="Brand"; Style="Outline"; width: 82px; height: 42px; border-radius: md; padding: 10px 16px; gap: 8px; border: 1px solid #2F80ED */}
+                                {/* Buttons */}
+                                <div 
+                                    className="flex mt-6"
+                                    style={{
+                                        width: '652px',
+                                        height: '42px',
+                                        justifyContent: 'space-between'
+                                    }}
+                                >
+                                    {/* Cancel Button */}
                                     <button
                                         onClick={() => setShowAddModal(false)}
-                                        className="w-[82px] h-[42px] flex items-center justify-center gap-2 px-4 py-[10px] border border-[#2F80ED] text-[#2F80ED] rounded-md hover:bg-[#EFF8FF] transition-colors"
-                                        style={{ fontFamily: 'Inter Tight, sans-serif', fontWeight: 500, fontSize: '16px', lineHeight: '140%', letterSpacing: '0.01em' }}
+                                        className="rounded-md"
+                                        style={{
+                                            width: '82px',
+                                            height: '42px',
+                                            paddingTop: '10px',
+                                            paddingRight: '16px',
+                                            paddingBottom: '10px',
+                                            paddingLeft: '16px',
+                                            gap: '8px',
+                                            borderWidth: '1px',
+                                            background: '#FFFFFF',
+                                            border: '1px solid #2F80ED',
+                                            boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)'
+                                        }}
                                     >
-                                        Cancel
+                                        <span
+                                            style={{
+                                                width: '50px',
+                                                height: '22px',
+                                                fontFamily: 'Inter Tight, sans-serif',
+                                                fontWeight: 500,
+                                                fontSize: '16px',
+                                                lineHeight: '140%',
+                                                letterSpacing: '0.01em',
+                                                textAlign: 'center',
+                                                color: '#2F80ED'
+                                            }}
+                                        >
+                                            Cancel
+                                        </span>
                                     </button>
-                                    {/* Save Item Button - Type="Brand"; Style="Filled"; width: 140px; height: 42px; border-radius: md; padding: 10px 16px; gap: 8px; background: #2F80ED */}
+                                    {/* Save Item Button */}
                                     <button
                                         onClick={handleSaveProduct}
-                                        className="w-[140px] h-[42px] flex items-center justify-center gap-2 px-4 py-[10px] bg-[#2F80ED] text-white rounded-md hover:bg-[#2563EB] transition-colors"
-                                        style={{ fontFamily: 'Inter Tight, sans-serif', fontWeight: 500, fontSize: '16px', lineHeight: '140%', letterSpacing: '0.01em' }}
+                                        className="rounded-md"
+                                        style={{
+                                            width: '140px',
+                                            height: '42px',
+                                            paddingTop: '10px',
+                                            paddingRight: '16px',
+                                            paddingBottom: '10px',
+                                            paddingLeft: '16px',
+                                            gap: '8px',
+                                            background: '#2F80ED'
+                                        }}
                                     >
-                                        Save Item
+                                        <span
+                                            style={{
+                                                width: '71px',
+                                                height: '22px',
+                                                fontFamily: 'Inter Tight, sans-serif',
+                                                fontWeight: 500,
+                                                fontSize: '16px',
+                                                lineHeight: '140%',
+                                                letterSpacing: '0.01em',
+                                                textAlign: 'center',
+                                                color: '#FFFFFF'
+                                            }}
+                                        >
+                                            Save Item
+                                        </span>
                                     </button>
                                 </div>
                             </div>
@@ -547,42 +609,164 @@ const ProductManagement = () => {
 
                 {/* Delete Confirmation Modal */}
                 {showDeleteModal && (
-                    <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: 'rgba(197, 199, 202, 0.90)' }}>
-                        <div className="bg-white rounded-lg w-full max-w-md p-6 mx-4">
-                            <div className="flex justify-end mb-4">
-                                <button onClick={() => setShowDeleteModal(false)} className="text-[#667085] hover:text-[#101828]">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M19.281 18.2194C19.3507 18.289 19.406 18.3718 19.4437 18.4628C19.4814 18.5539 19.5008 18.6514 19.5008 18.75C19.5008 18.8485 19.4814 18.9461 19.4437 19.0372C19.406 19.1282 19.3507 19.2109 19.281 19.2806C19.2114 19.3503 19.1286 19.4056 19.0376 19.4433C18.9465 19.481 18.849 19.5004 18.7504 19.5004C18.6519 19.5004 18.5543 19.481 18.4632 19.4433C18.3722 19.4056 18.2895 19.3503 18.2198 19.2806L12.0004 13.0603L5.78104 19.2806C5.64031 19.4213 5.44944 19.5004 5.25042 19.5004C5.05139 19.5004 4.86052 19.4213 4.71979 19.2806C4.57906 19.1399 4.5 18.949 4.5 18.75C4.5 18.551 4.57906 18.3601 4.71979 18.2194L10.9401 12L4.71979 5.78061C4.57906 5.63988 4.5 5.44901 4.5 5.24999C4.5 5.05097 4.57906 4.8601 4.71979 4.71936C4.86052 4.57863 5.05139 4.49957 5.25042 4.49957C5.44944 4.49957 5.64031 4.57863 5.78104 4.71936L12.0004 10.9397L18.2198 4.71936C18.3605 4.57863 18.5514 4.49957 18.7504 4.49957C18.9494 4.49957 19.1403 4.57863 19.281 4.71936C19.4218 4.8601 19.5008 5.05097 19.5008 5.24999C19.5008 5.44901 19.4218 5.63988 19.281 5.78061L13.0607 12L19.281 18.2194Z" fill="black" />
-                                    </svg>
+                    <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(197, 199, 202, 0.90)' }}>
+                        <div
+                            className="bg-white rounded-2xl relative"
+                            style={{
+                                width: '400px',
+                                height: '348px',
+                                paddingTop: '32px',
+                                paddingBottom: '24px',
+                                boxShadow: '0px 10px 18px -2px rgba(10, 9, 11, 0.07)'
+                            }}
+                        >
+                            {/* Close button */}
+                            <button
+                                onClick={() => setShowDeleteModal(false)}
+                                className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 transition-colors"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M19.281 18.2194C19.3507 18.289 19.406 18.3718 19.4437 18.4628C19.4814 18.5539 19.5008 18.6514 19.5008 18.75C19.5008 18.8485 19.4814 18.9461 19.4437 19.0372C19.406 19.1282 19.3507 19.2109 19.281 19.2806C19.2114 19.3503 19.1286 19.4056 19.0376 19.4433C18.9465 19.481 18.849 19.5004 18.7504 19.5004C18.6519 19.5004 18.5543 19.481 18.4632 19.4433C18.3722 19.4056 18.2895 19.3503 18.2198 19.2806L12.0004 13.0603L5.78104 19.2806C5.64031 19.4213 5.44944 19.5004 5.25042 19.5004C5.05139 19.5004 4.86052 19.4213 4.71979 19.2806C4.57906 19.1399 4.5 18.949 4.5 18.75C4.5 18.551 4.57906 18.3601 4.71979 18.2194L10.9401 12L4.71979 5.78061C4.57906 5.63988 4.5 5.44901 4.5 5.24999C4.5 5.05097 4.57906 4.8601 4.71979 4.71936C4.86052 4.57863 5.05139 4.49957 5.25042 4.49957C5.44944 4.49957 5.64031 4.57863 5.78104 4.71936L12.0004 10.9397L18.2198 4.71936C18.3605 4.57863 18.5514 4.49957 18.7504 4.49957C18.9494 4.49957 19.1403 4.57863 19.281 4.71936C19.4218 4.8601 19.5008 5.05097 19.5008 5.24999C19.5008 5.44901 19.4218 5.63988 19.281 5.78061L13.0607 12L19.281 18.2194Z" fill="currentColor" />
+                                </svg>
+                            </button>
 
-                                </button>
-                            </div>
-                            <div className="flex flex-col items-center text-center">
-                                <div className="w-16 h-16 rounded-full bg-[#FEE4E2] flex items-center justify-center mb-4">
+                            {/* Content */}
+                            <div
+                                className="flex flex-col items-center text-center"
+                                style={{
+                                    width: '400px',
+                                    height: '202px',
+                                    paddingTop: '8px',
+                                    paddingRight: '24px',
+                                    paddingBottom: '8px',
+                                    paddingLeft: '24px',
+                                    gap: '24px'
+                                }}
+                            >
+                                {/* Icon */}
+                                <div className="w-24 h-24 rounded-full bg-[#FEE4E2] flex items-center justify-center">
                                     <svg width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M34.364 6.85053C38.6205 -2.28351 51.3795 -2.28351 55.636 6.85053C58.0129 11.951 63.5594 14.6722 68.9556 13.3853C78.6192 11.0807 86.5743 21.2433 82.2185 30.3287C79.7862 35.402 81.1561 41.5165 85.5082 45.0122C93.3019 51.2725 90.4628 63.9451 80.7747 66.1403C75.3648 67.3661 71.5265 72.2695 71.5572 77.9156C71.6123 88.0265 60.1169 93.6664 52.3918 87.3184C48.0781 83.7737 41.9219 83.7737 37.6082 87.3184C29.8831 93.6664 18.3877 88.0266 18.4428 77.9156C18.4735 72.2695 14.6352 67.3661 9.22531 66.1403C-0.462787 63.9451 -3.30193 51.2725 4.49185 45.0122C8.84391 41.5165 10.2138 35.402 7.78151 30.3287C3.42572 21.2433 11.3808 11.0807 21.0444 13.3853C26.4406 14.6722 31.9871 11.951 34.364 6.85053Z" fill="#FEF3F2" />
                                         <path d="M58.0625 33.125H52.125V31.9375C52.125 30.9927 51.7497 30.0865 51.0816 29.4184C50.4135 28.7503 49.5073 28.375 48.5625 28.375H41.4375C40.4927 28.375 39.5865 28.7503 38.9184 29.4184C38.2503 30.0865 37.875 30.9927 37.875 31.9375V33.125H31.9375C31.6226 33.125 31.3205 33.2501 31.0978 33.4728C30.8751 33.6955 30.75 33.9976 30.75 34.3125C30.75 34.6274 30.8751 34.9295 31.0978 35.1522C31.3205 35.3749 31.6226 35.5 31.9375 35.5H33.125V56.875C33.125 57.5049 33.3752 58.109 33.8206 58.5544C34.266 58.9998 34.8701 59.25 35.5 59.25H54.5C55.1299 59.25 55.734 58.9998 56.1794 58.5544C56.6248 58.109 56.875 57.5049 56.875 56.875V35.5H58.0625C58.3774 35.5 58.6795 35.3749 58.9022 35.1522C59.1249 34.9295 59.25 34.6274 59.25 34.3125C59.25 33.9976 59.1249 33.6955 58.9022 33.4728C58.6795 33.2501 58.3774 33.125 58.0625 33.125ZM40.25 31.9375C40.25 31.6226 40.3751 31.3205 40.5978 31.0978C40.8205 30.8751 41.1226 30.75 41.4375 30.75H48.5625C48.8774 30.75 49.1795 30.8751 49.4022 31.0978C49.6249 31.3205 49.75 31.6226 49.75 31.9375V33.125H40.25V31.9375ZM54.5 56.875H35.5V35.5H54.5V56.875ZM42.625 41.4375V50.9375C42.625 51.2524 42.4999 51.5545 42.2772 51.7772C42.0545 51.9999 41.7524 52.125 41.4375 52.125C41.1226 52.125 40.8205 51.9999 40.5978 51.7772C40.3751 51.5545 40.25 51.2524 40.25 50.9375V41.4375C40.25 41.1226 40.3751 40.8205 40.5978 40.5978C40.8205 40.3751 41.1226 40.25 41.4375 40.25C41.7524 40.25 42.0545 40.3751 42.2772 40.5978C42.4999 40.8205 42.625 41.1226 42.625 41.4375ZM49.75 41.4375V50.9375C49.75 51.2524 49.6249 51.5545 49.4022 51.7772C49.1795 51.9999 48.8774 52.125 48.5625 52.125C48.2476 52.125 47.9455 51.9999 47.7228 51.7772C47.5001 51.5545 47.375 51.2524 47.375 50.9375V41.4375C47.375 41.1226 47.5001 40.8205 47.7228 40.5978C47.9455 40.3751 48.2476 40.25 48.5625 40.25C48.8774 40.25 49.1795 40.3751 49.4022 40.5978C49.6249 40.8205 49.75 41.1226 49.75 41.4375Z" fill="#F04438" />
                                     </svg>
 
                                 </div>
-                                <h3 className="text-base sm:text-lg font-semibold text-[#101828] mb-2">Delete this item?</h3>
-                                <p className="text-sm text-[#667085] mb-6">
-                                    This action can't be undone. The item will be permanently removed from your list.
-                                </p>
-                                <div className="flex gap-20 w-[400px] h-[90px]">
+
+                                {/* Title and Description Container */}
+                                <div
+                                    className="flex flex-col items-center"
+                                    style={{
+                                        width: '352px',
+                                        height: '72px',
+                                        gap: '8px'
+                                    }}
+                                >
+                                    {/* Title */}
+                                    <h3
+                                        className="text-center"
+                                        style={{
+                                            width: '352px',
+                                            height: '24px',
+                                            fontFamily: 'Inter Tight, sans-serif',
+                                            fontWeight: 600,
+                                            fontSize: '20px',
+                                            lineHeight: '120%',
+                                            letterSpacing: '0%',
+                                            color: '#000000'
+                                        }}
+                                    >
+                                        Delete this item?
+                                    </h3>
+
+                                    {/* Description */}
+                                    <p
+                                        className="text-center"
+                                        style={{
+                                            width: '324px',
+                                            height: '40px',
+                                            fontFamily: 'Inter Tight, sans-serif',
+                                            fontWeight: 400,
+                                            fontSize: '14px',
+                                            lineHeight: '140%',
+                                            letterSpacing: '0.01em',
+                                            color: '#333436'
+                                        }}
+                                    >
+                                        This action can't be undone. The item will be permanently removed from your list.
+                                    </p>
+                                </div>
+
+                                {/* Buttons */}
+                                <div
+                                    className="flex"
+                                    style={{
+                                        width: '352px',
+                                        height: '42px',
+                                        justifyContent: 'space-between'
+                                    }}
+                                >
                                     <button
                                         onClick={() => setShowDeleteModal(false)}
-                                        className="flex-1 px-4 py-2 border border-[#2F80ED] 
-                                        text-[#344054] rounded-lg bg-[#FFFFFF] transition-colors"
+                                        className="rounded-md"
+                                        style={{
+                                            width: '82px',
+                                            height: '42px',
+                                            paddingTop: '10px',
+                                            paddingRight: '16px',
+                                            paddingBottom: '10px',
+                                            paddingLeft: '16px',
+                                            gap: '8px',
+                                            borderWidth: '1px',
+                                            background: '#FFFFFF',
+                                            border: '1px solid #2F80ED',
+                                            boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)'
+                                        }}
                                     >
-                                        Cancel
+                                        <span
+                                            style={{
+                                                width: '50px',
+                                                height: '22px',
+                                                fontFamily: 'Inter Tight, sans-serif',
+                                                fontWeight: 500,
+                                                fontSize: '16px',
+                                                lineHeight: '140%',
+                                                letterSpacing: '0.01em',
+                                                textAlign: 'center',
+                                                color: '#2F80ED'
+                                            }}
+                                        >
+                                            Cancel
+                                        </span>
                                     </button>
                                     <button
                                         onClick={handleDeleteProduct}
-                                        className="flex-1 px-4 py-2 bg-[#2F80ED] 
-                                        text-[#FFFFFF] rounded-lg transition-colors"
+                                        className="rounded-md"
+                                        style={{
+                                            width: '140px',
+                                            height: '42px',
+                                            paddingTop: '10px',
+                                            paddingRight: '16px',
+                                            paddingBottom: '10px',
+                                            paddingLeft: '16px',
+                                            gap: '8px',
+                                            background: '#2F80ED'
+                                        }}
                                     >
-                                        Delete
+                                        <span
+                                            style={{
+                                                width: '47px',
+                                                height: '22px',
+                                                fontFamily: 'Inter Tight, sans-serif',
+                                                fontWeight: 500,
+                                                fontSize: '16px',
+                                                lineHeight: '140%',
+                                                letterSpacing: '0.01em',
+                                                textAlign: 'center',
+                                                color: '#FFFFFF'
+                                            }}
+                                        >
+                                            Delete
+                                        </span>
                                     </button>
                                 </div>
                             </div>
