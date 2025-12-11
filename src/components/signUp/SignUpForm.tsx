@@ -158,7 +158,12 @@ export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUp
 
       {/* Social Login Buttons */}
       <div className="flex flex-col sm:flex-row gap-4">
-        <button className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
+        <button 
+          onClick={() => {
+            const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+            window.location.href = `${apiBaseUrl}/oauth/google/login`;
+          }}
+          className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
           flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
           <GoogleIcon width={20} height={20} />
           <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
@@ -166,7 +171,12 @@ export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUp
           </span>
         </button>
         
-        <button className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
+        <button 
+          onClick={() => {
+            const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+            window.location.href = `${apiBaseUrl}/oauth/apple/login`;
+          }}
+          className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
           flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
           <AppleIcon width={20} height={20} />
           <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">

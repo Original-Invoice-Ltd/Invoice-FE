@@ -1,16 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Logo from '../signUp/Logo';
 import LeftIllustrationPanel from '../signUp/LeftIllustrationPanel';
 import SignInForm from './SignInForm';
+import { ApiClient } from '@/lib/api';
 
 export default function SignIn() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     rememberMe: false,
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -20,13 +25,30 @@ export default function SignIn() {
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
+    setError(''); // Clear error on input change
   };
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle sign-in submission
-    console.log('Sign in:', formData);
-    // Here you would typically send the data to your backend API
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await ApiClient.login(formData.email, formData.password);
+
+      if (response.success) {
+        // Tokens are now in HTTP-only cookies
+        // Redirect to dashboard
+        router.push('/dashboard');
+      } else {
+        setError(response.error || 'Login failed. Please try again.');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+      console.error('Login error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -45,11 +67,19 @@ export default function SignIn() {
         
         {/* Form Container */}
         <div className="w-full max-w-[470px]">
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+          
           {/* Sign In Form */}
           <SignInForm
             formData={formData}
             onInputChange={handleInputChange}
             onSubmit={handleSignIn}
+            loading={loading}
           />
         </div>
       </div>

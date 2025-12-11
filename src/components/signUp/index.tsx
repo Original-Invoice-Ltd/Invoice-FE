@@ -1,23 +1,32 @@
 /**
  * SignUp Component (Main Container)
  * 
- * Main component that orchestrates the two-screen signup flow:
+ * Main component that orchestrates the three-screen signup flow:
  * 1. Sign Up screen - Email, password, and social login
  * 2. Setup Account screen - Full name, business name, and category
+ * 3. OTP Verification screen - Email verification with OTP
  * 
- * Manages state and screen transitions between the two forms.
+ * Manages state and screen transitions between the forms.
  * Fully responsive for mobile and desktop devices.
  */
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Logo from './Logo';
 import LeftIllustrationPanel from './LeftIllustrationPanel';
 import SignUpForm from './SignUpForm';
 import SetupAccountForm from './SetupAccountForm';
+import OTPVerificationForm from './OTPVerificationForm';
+import { ApiClient } from '@/lib/api';
+
+type Screen = 'signup' | 'setup' | 'otp';
 
 export default function SignUp() {
-  const [currentScreen, setCurrentScreen] = useState<'signup' | 'setup'>('signup');
+  const router = useRouter();
+  const [currentScreen, setCurrentScreen] = useState<Screen>('signup');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -42,11 +51,75 @@ export default function SignUp() {
     setCurrentScreen('setup');
   };
 
-  const handleSetup = (e: React.FormEvent) => {
+  const handleSetup = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle account setup submission
-    console.log('Account setup:', formData);
-    // Here you would typically send the data to your backend API
+    setLoading(true);
+    setError('');
+
+    try {
+      // Register user with backend
+      const response = await ApiClient.register({
+        email: formData.email,
+        password: formData.password,
+        fullName: formData.fullName,
+        businessName: formData.businessName,
+        businessCategory: formData.businessCategory,
+      });
+
+      if (response.success) {
+        // Move to OTP verification screen
+        setCurrentScreen('otp');
+      } else {
+        setError(response.error || 'Registration failed. Please try again.');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+      console.error('Registration error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOTPVerification = async (otp: string) => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await ApiClient.verifyOTP(formData.email, otp);
+
+      if (response.success) {
+        // Redirect to dashboard on successful verification
+        router.push('/dashboard');
+      } else {
+        setError(response.error || 'Invalid OTP. Please try again.');
+        return false;
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+      console.error('OTP verification error:', err);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+    return true;
+  };
+
+  const handleResendOTP = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await ApiClient.resendOTP(formData.email);
+
+      if (!response.success) {
+        setError(response.error || 'Failed to resend OTP. Please try again.');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+      console.error('Resend OTP error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -65,7 +138,14 @@ export default function SignUp() {
         
         {/* Form Container */}
         <div className="w-full max-w-[470px]">
-          {/* Conditional Rendering: Sign Up or Setup Account Form */}
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
+              {error}
+            </div>
+          )}
+
+          {/* Conditional Rendering: Sign Up, Setup Account, or OTP Verification Form */}
           {currentScreen === 'signup' ? (
             <SignUpForm
               formData={{
@@ -76,7 +156,7 @@ export default function SignUp() {
               onInputChange={handleInputChange}
               onSubmit={handleSignUp}
             />
-          ) : (
+          ) : currentScreen === 'setup' ? (
             <SetupAccountForm
               formData={{
                 fullName: formData.fullName,
@@ -86,6 +166,14 @@ export default function SignUp() {
               email={formData.email}
               onInputChange={handleInputChange}
               onSubmit={handleSetup}
+              loading={loading}
+            />
+          ) : (
+            <OTPVerificationForm
+              email={formData.email}
+              onOTPComplete={handleOTPVerification}
+              onResendOTP={handleResendOTP}
+              loading={loading}
             />
           )}
         </div>
