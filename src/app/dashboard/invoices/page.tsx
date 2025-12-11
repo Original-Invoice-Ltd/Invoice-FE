@@ -9,74 +9,52 @@ const InvoicesPage = () => {
 
     return (
         <div>
-                    <div className="max-w-7xl mx-auto">
+                    <div className="max-w-7xl  mx-auto mb-[200px] ">
                         {/* Header */}
-                        <div className="mb-6">
-                            <h1 className="text-2xl font-semibold text-[#101828] mb-2">Invoice Management</h1>
-                            <p className="text-[#667085]">
-                                View, manage, and track all your invoices, stay on top of payments and tax compliance effortlessly.
-                            </p>
-                        </div>
-
-                        {/* Mobile Create Invoice Button */}
-                        <div className="lg:hidden mb-6">
+                        <div className="mb-6 flex items-start justify-between">
+                            <div>
+                                <h1 className="text-[20px] font-semibold text-[#101828] mb-1">Invoice Management</h1>
+                                <p className="text-[14px] text-[#667085]">
+                                    View, manage, and track all your invoices, stay on<br />
+                                    top of payments and tax compliance effortlessly.
+                                </p>
+                            </div>
                             <Link
                                 href="/dashboard/invoices/create"
-                                className="w-full flex items-center justify-center gap-2 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
-                                style={{ height: '48px' }}
+                                className="flex items-center gap-2 px-5 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors text-[16px] font-medium whitespace-nowrap"
                             >
                                 <Plus size={20} />
                                 Create Invoice
                             </Link>
                         </div>
 
-                        {/* All Invoices Section with Search - Mobile */}
-                        <div className="lg:hidden mb-4 flex items-center justify-between">
-                            <h2 className="text-lg font-semibold text-[#101828]">All Invoices</h2>
-                            <div className="relative w-48">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={16} />
-                                <input
-                                    type="text"
-                                    placeholder="Search Clients"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full pl-9 pr-3 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                />
+                        {/* All Invoices Section with Empty State */}
+                        <div className="bg-white rounded-lg  ">
+                            {/* Header with Search */}
+                            <div className="flex items-center justify-between px-6 py-4 ">
+                                <h2 className="text-[18px] font-semibold text-[#101828]">All Invoices</h2>
+                                <div className="flex items-center gap-3">
+                                    <div className="relative w-64">
+                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#98A2B3]" size={18} />
+                                        <input
+                                            type="text"
+                                            placeholder="search clients"
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            className="w-full pl-10 pr-4 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#667085] placeholder:text-[#98A2B3] bg-white focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                        />
+                                    </div>
+                                    <button className="flex items-center gap-2 px-4 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#667085] bg-white hover:bg-gray-50 transition-colors">
+                                        Sort by
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-
-                        {/* Search and Create Button - Desktop */}
-                        <div className="hidden lg:flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-6">
-                            <div className="relative w-full sm:w-96">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={20} />
-                                <input
-                                    type="text"
-                                    placeholder="Search clients"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                />
-                            </div>
-                            <div className="flex gap-3">
-                                <select className="px-4 py-2 border border-[#D0D5DD] rounded-lg text-[#344054] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" style={{ height: '48px' }}>
-                                    <option>Sort by</option>
-                                    <option>Date</option>
-                                    <option>Amount</option>
-                                    <option>Status</option>
-                                </select>
-                                <Link
-                                    href="/dashboard/invoices/create"
-                                    className="flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
-                                    style={{ height: '48px' }}
-                                >
-                                    <Plus size={20} />
-                                    Create Invoice
-                                </Link>
-                            </div>
-                        </div>
-
-                        {/* Empty State */}
-                        <div className="bg-white rounded-lg border border-[#E4E7EC] p-12 flex flex-col items-center justify-center">
+                            
+                            {/* Empty State */}
+                            <div className="p-12 flex flex-col items-center justify-center">
                             <div className="mb-6">
                                 <svg width="108" height="108" viewBox="0 0 108 108" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <rect width="108" height="108" rx="54" fill="#EFF8FF"/>
@@ -102,18 +80,19 @@ const InvoicesPage = () => {
                                     <path d="M100.591 52.1413L99.5121 59.6021C99.449 60.0311 99.2093 60.416 98.8496 60.662L73.0414 78.3407L71.2149 79.5931L63.1895 67.8799L65.016 66.6275L90.8242 48.9489C91.1838 48.7028 91.6286 48.6176 92.0513 48.7154L99.3985 50.4032C100.187 50.583 100.708 51.34 100.591 52.1413Z" fill="white" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round"/>
                                 </svg>
                             </div>
-                            <h3 className="text-lg font-semibold text-[#101828] mb-2">No invoices yet</h3>
-                            <p className="text-[#667085] mb-6 text-center max-w-md">
-                                Create your first invoice to start getting paid and track taxes easily.
+                            <h3 className="text-[16px] font-semibold text-[#101828] mb-2">No invoices yet</h3>
+                            <p className="text-[14px] text-[#667085] mb-6 text-center max-w-md leading-relaxed">
+                                Create your first invoice to<br />
+                                start getting paid and track taxes easily.
                             </p>
                             <Link
                                 href="/dashboard/invoices/create"
-                                className="hidden lg:flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
-                                style={{ height: '48px' }}
+                                className="flex items-center gap-2 px-6 py-3 bg-transparent border-2 border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-[#EFF8FF] transition-colors text-[16px] font-medium"
                             >
                                 <Plus size={20} />
                                 Create Invoice
                             </Link>
+                        </div>
                         </div>
                     </div>
         </div>
