@@ -69,20 +69,16 @@ const ClientsPage = () => {
     return (
         <div className="p-6">
             <div className="max-w-[1108px] mx-auto">
-                {/* Header - width: 1108; height: 68; justify-content: space-between; top: 98px; left: 304px */}
+                {/* Header */}
                 <div className="flex items-start justify-between mb-6 h-[68px]">
-                    {/* Title and description container - width: 360; height: 68; gap: 4px */}
                     <div className="w-[360px] h-[68px] flex flex-col gap-1">
-                        {/* Clients Management - width: 360; height: 24; font: Inter Tight 600 20px; line-height: 120%; color: #000000 */}
                         <h1 className="w-[360px] h-6 font-semibold text-[20px] leading-[120%] text-[#000000]" style={{ fontFamily: 'Inter Tight, sans-serif' }}>
                             Clients Management
                         </h1>
-                        {/* Description - width: 360; height: 40; font: Inter Tight 400 14px; line-height: 140%; letter-spacing: 1%; color: #333436 */}
                         <p className="w-[360px] h-10 text-[14px] leading-[140%] text-[#333436]" style={{ fontFamily: 'Inter Tight, sans-serif', letterSpacing: '0.01em' }}>
                             Manage your client database, track payments, and view billing history.
                         </p>
                     </div>
-                    {/* Add Client Button - width: 139; height: 48; border-radius: 8px; padding: 12px 16px; gap: 8px; background: #2F80ED */}
                     <button
                         onClick={() => setShowAddModal(true)}
                         className="hidden lg:flex items-center gap-2 w-[139px] h-12 px-4 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
@@ -153,7 +149,7 @@ const ClientsPage = () => {
                         </button>
                     </div>
                 ) : (
-                    /* Table View - width: 1108; height: 792; border-radius: 8px; padding: 16px 14px; gap: 18px; top: 190px; left: 304px */
+                    /* Table View */
                     <div className="bg-white rounded-lg border border-[#E4E7EC] pt-4 pr-[14px] pl-[14px] pb-4 h-[792px] flex flex-col gap-[18px]">
                         {/* All Clients header with search and sort */}
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

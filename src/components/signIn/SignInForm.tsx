@@ -16,9 +16,10 @@ interface SignInFormProps {
   };
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
+  loading?: boolean;
 }
 
-export default function SignInForm({ formData, onInputChange, onSubmit }: SignInFormProps) {
+export default function SignInForm({ formData, onInputChange, onSubmit, loading = false }: SignInFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
@@ -122,10 +123,11 @@ export default function SignInForm({ formData, onInputChange, onSubmit }: SignIn
       <button
         type="submit"
         onClick={onSubmit}
+        disabled={loading}
         className="w-full h-[48px] rounded-lg bg-[#2F80ED] text-white text-[16px] 
-          font-medium font-['Inter_Tight'] hover:bg-[#2670d4] transition-colors"
+          font-medium font-['Inter_Tight'] hover:bg-[#2670d4] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Sign In
+        {loading ? 'Signing In...' : 'Sign In'}
       </button>
 
       {/* Divider with lines */}
@@ -137,16 +139,28 @@ export default function SignInForm({ formData, onInputChange, onSubmit }: SignIn
 
       {/* Social Login Buttons */}
       <div className="flex flex-col sm:flex-row gap-4">
-        <button className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
-          flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
+        <button 
+          onClick={() => {
+            const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+            window.location.href = `${apiBaseUrl}/oauth/google/login`;
+          }}
+          disabled={loading}
+          className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
+          flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
           <GoogleIcon width={20} height={20} />
           <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
             Continue with Google
           </span>
         </button>
         
-        <button className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
-          flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
+        <button 
+          onClick={() => {
+            const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+            window.location.href = `${apiBaseUrl}/oauth/apple/login`;
+          }}
+          disabled={loading}
+          className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
+          flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
           <AppleIcon width={20} height={20} />
           <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
             Continue with Apple

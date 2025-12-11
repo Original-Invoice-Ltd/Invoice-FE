@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Settings, LogOut } from "lucide-react";
 import siderLogo from './../../../public/assets/header logo.svg';
+import { AuthService } from '@/lib/auth';
 
 interface DashboardSideBarProps {
     isOpen?: boolean;
@@ -87,9 +88,13 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
     };
 
     const bottomItems = [
-        { icon: Settings, label: "Account Settings", href: "/dashboard/settings" },
-        { icon: LogOut, label: "Logout", href: "/logout" },
+        { icon: Settings, label: "Account Settings", href: "/dashboard/settings", isLogout: false },
+        { icon: LogOut, label: "Logout", href: "#", isLogout: true },
     ];
+
+    const handleLogout = async () => {
+        await AuthService.logout();
+    };
 
     return (
         <>
@@ -147,6 +152,22 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
                 <div className="flex flex-col gap-[8px]">
                     {bottomItems.map((item) => {
                         const Icon = item.icon;
+                        
+                        if (item.isLogout) {
+                            return (
+                                <button
+                                    key={item.label}
+                                    onClick={handleLogout}
+                                    className="flex items-center gap-[12px] px-[12px] 
+                                    py-[10px] rounded-[8px] text-[#667085] 
+                                    hover:bg-[#F9FAFB] transition-colors duration-200 w-full text-left"
+                                >
+                                    <Icon size={20} />
+                                    <span className="text-[14px] font-medium">{item.label}</span>
+                                </button>
+                            );
+                        }
+                        
                         return (
                             <Link
                                 key={item.label}
