@@ -1,10 +1,9 @@
 /**
  * SignUp Component (Main Container)
  * 
- * Main component that orchestrates the three-screen signup flow:
- * 1. Sign Up screen - Email, password, and social login
- * 2. Setup Account screen - Full name, business name, and category
- * 3. OTP Verification screen - Email verification with OTP
+ * Main component that orchestrates the two-screen signup flow:
+ * 1. Sign Up screen - Email, password, full name, and social login
+ * 2. OTP Verification screen - Email verification with OTP
  * 
  * Manages state and screen transitions between the forms.
  * Fully responsive for mobile and desktop devices.
@@ -16,23 +15,22 @@ import { useRouter } from 'next/navigation';
 import Logo from './Logo';
 import LeftIllustrationPanel from './LeftIllustrationPanel';
 import SignUpForm from './SignUpForm';
-import SetupAccountForm from './SetupAccountForm';
 import OTPVerificationForm from './OTPVerificationForm';
+import Toast from '@/components/ui/Toast';
+import { useToast } from '@/hooks/useToast';
 import { ApiClient } from '@/lib/api';
 
-type Screen = 'signup' | 'setup' | 'otp';
+type Screen = 'signup' | 'otp';
 
 export default function SignUp() {
   const router = useRouter();
+  const { toast, showSuccess, showError, hideToast } = useToast();
   const [currentScreen, setCurrentScreen] = useState<Screen>('signup');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     fullName: '',
-    businessName: '',
-    businessCategory: '',
     agreeToTerms: false,
   });
 
@@ -46,15 +44,9 @@ export default function SignUp() {
     }
   };
 
-  const handleSignUp = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCurrentScreen('setup');
-  };
-
-  const handleSetup = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
 
     try {
       // Register user with backend
@@ -62,18 +54,39 @@ export default function SignUp() {
         email: formData.email,
         password: formData.password,
         fullName: formData.fullName,
-        businessName: formData.businessName,
-        businessCategory: formData.businessCategory,
       });
 
       if (response.success) {
-        // Move to OTP verification screen
+        // Show success message and move to OTP verification screen
+        showSuccess('Registration successful! Please check your email for verification code.');
         setCurrentScreen('otp');
       } else {
-        setError(response.error || 'Registration failed. Please try again.');
+        // Handle different error types
+        let errorMessage = 'Registration failed. Please try again.';
+        
+        if (response.error) {
+          // Try to parse JSON error if it's a string
+          if (typeof response.error === 'string') {
+            try {
+              // Check if it's a JSON string that starts with unexpected token
+              if (response.error.includes('Unexpected token') || response.error.includes('user exist')) {
+                errorMessage = 'An account with this email already exists. Please sign in instead.';
+              } else {
+                errorMessage = response.error;
+              }
+            } catch {
+              errorMessage = response.error;
+            }
+          } else {
+            errorMessage = response.error;
+          }
+        }
+        
+        showError(errorMessage);
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      const errorMessage = 'An unexpected error occurred. Please try again.';
+      showError(errorMessage);
       console.error('Registration error:', err);
     } finally {
       setLoading(false);
@@ -82,20 +95,24 @@ export default function SignUp() {
 
   const handleOTPVerification = async (otp: string) => {
     setLoading(true);
-    setError('');
 
     try {
       const response = await ApiClient.verifyOTP(formData.email, otp);
 
       if (response.success) {
-        // Redirect to dashboard on successful verification
-        router.push('/dashboard');
+        // Show success message and redirect to dashboard
+        showSuccess('Email verified successfully! Welcome to your dashboard.');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1500);
       } else {
-        setError(response.error || 'Invalid OTP. Please try again.');
+        const errorMessage = response.error || 'Invalid OTP. Please try again.';
+        showError(errorMessage);
         return false;
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      const errorMessage = 'An unexpected error occurred. Please try again.';
+      showError(errorMessage);
       console.error('OTP verification error:', err);
       return false;
     } finally {
@@ -106,16 +123,19 @@ export default function SignUp() {
 
   const handleResendOTP = async () => {
     setLoading(true);
-    setError('');
 
     try {
       const response = await ApiClient.resendOTP(formData.email);
 
-      if (!response.success) {
-        setError(response.error || 'Failed to resend OTP. Please try again.');
+      if (response.success) {
+        showSuccess('OTP sent successfully! Please check your email.');
+      } else {
+        const errorMessage = response.error || 'Failed to resend OTP. Please try again.';
+        showError(errorMessage);
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      const errorMessage = 'An unexpected error occurred. Please try again.';
+      showError(errorMessage);
       console.error('Resend OTP error:', err);
     } finally {
       setLoading(false);
@@ -138,34 +158,17 @@ export default function SignUp() {
         
         {/* Form Container */}
         <div className="w-full max-w-[470px]">
-          {/* Error Message */}
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
-              {error}
-            </div>
-          )}
-
-          {/* Conditional Rendering: Sign Up, Setup Account, or OTP Verification Form */}
+          {/* Conditional Rendering: Sign Up or OTP Verification Form */}
           {currentScreen === 'signup' ? (
             <SignUpForm
               formData={{
                 email: formData.email,
                 password: formData.password,
+                fullName: formData.fullName,
                 agreeToTerms: formData.agreeToTerms,
               }}
               onInputChange={handleInputChange}
               onSubmit={handleSignUp}
-            />
-          ) : currentScreen === 'setup' ? (
-            <SetupAccountForm
-              formData={{
-                fullName: formData.fullName,
-                businessName: formData.businessName,
-                businessCategory: formData.businessCategory,
-              }}
-              email={formData.email}
-              onInputChange={handleInputChange}
-              onSubmit={handleSetup}
               loading={loading}
             />
           ) : (
@@ -178,6 +181,14 @@ export default function SignUp() {
           )}
         </div>
       </div>
+
+      {/* Toast Notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+      />
     </div>
   );
 }

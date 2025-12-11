@@ -22,19 +22,59 @@ export class ApiClient {
         },
       });
 
-      const data = await response.json();
+      // Check if response has content
+      const contentType = response.headers.get('content-type');
+      let data;
+      
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          data = await response.json();
+        } catch (jsonError) {
+          // If JSON parsing fails, try to get text response
+          const textResponse = await response.text();
+          console.error('JSON parsing failed, raw response:', textResponse);
+          
+          // Handle specific error messages
+          let errorMessage = 'Invalid response format';
+          if (textResponse.includes('user exist')) {
+            errorMessage = 'An account with this email already exists. Please sign in instead.';
+          } else if (textResponse.includes('Unexpected token')) {
+            errorMessage = 'Server response error. Please try again.';
+          } else if (textResponse) {
+            errorMessage = textResponse;
+          }
+          
+          return {
+            success: false,
+            error: errorMessage,
+          };
+        }
+      } else {
+        // Handle non-JSON responses
+        const textResponse = await response.text();
+        
+        // Handle specific text responses
+        if (textResponse.includes('user exist')) {
+          return {
+            success: false,
+            error: 'An account with this email already exists. Please sign in instead.',
+          };
+        }
+        
+        data = { message: textResponse };
+      }
 
       if (!response.ok) {
         return {
           success: false,
-          error: data.message || data.error || 'An error occurred',
+          error: data?.message || data?.error || data || 'An error occurred',
         };
       }
 
       return {
         success: true,
-        data: data.data || data,
-        message: data.message,
+        data: data?.data || data,
+        message: data?.message,
       };
     } catch (error) {
       console.error('API request failed:', error);

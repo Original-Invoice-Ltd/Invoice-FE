@@ -8,23 +8,98 @@ import UserIcon from "./userIcon";
 import GoogleIcon from "./googleIcon";
 import AppleIcon from "./appleIcon";
 import Logo from './Logo';
+import { Validator } from '@/lib/validation';
 
 interface SignUpFormProps {
   formData: {
     email: string;
     password: string;
+    fullName: string;
     agreeToTerms: boolean;
   };
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
+  loading?: boolean;
 }
 
-export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUpFormProps) {
+export default function SignUpForm({ formData, onInputChange, onSubmit, loading = false }: SignUpFormProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [touched, setTouched] = useState<{[key: string]: boolean}>({});
   const router = useRouter();
 
   const handleSignInClick = () => {
     router.push('/signIn');
+  };
+
+  const validateField = (name: string, value: string) => {
+    let validation;
+    switch (name) {
+      case 'email':
+        validation = Validator.email(value);
+        break;
+      case 'password':
+        validation = Validator.password(value);
+        break;
+      case 'fullName':
+        validation = Validator.fullName(value);
+        break;
+      default:
+        validation = { isValid: true };
+    }
+
+    setErrors(prev => ({
+      ...prev,
+      [name]: validation.isValid ? '' : validation.error || ''
+    }));
+
+    return validation.isValid;
+  };
+
+  const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    validateField(name, value);
+  };
+
+  const handleInputChangeWithValidation = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    onInputChange(e);
+    
+    // Only validate if field has been touched
+    if (touched[name]) {
+      validateField(name, value);
+    }
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate all fields
+    const emailValid = validateField('email', formData.email);
+    const passwordValid = validateField('password', formData.password);
+    const fullNameValid = validateField('fullName', formData.fullName);
+    
+    // Check terms agreement
+    if (!formData.agreeToTerms) {
+      setErrors(prev => ({ ...prev, terms: 'You must agree to the Terms and Conditions' }));
+      return;
+    } else {
+      setErrors(prev => ({ ...prev, terms: '' }));
+    }
+
+    // Mark all fields as touched
+    setTouched({
+      email: true,
+      password: true,
+      fullName: true,
+      terms: true
+    });
+
+    // Only submit if all validations pass
+    if (emailValid && passwordValid && fullNameValid && formData.agreeToTerms) {
+      onSubmit(e);
+    }
   };
 
   return (
@@ -57,15 +132,20 @@ export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUp
             type="email"
             placeholder="Enter your email address"
             value={formData.email}
-            onChange={onInputChange}
-            className="w-full h-[48px] rounded-lg pl-4 pr-12 border border-[#E5E5E5] 
+            onChange={handleInputChangeWithValidation}
+            onBlur={handleInputBlur}
+            className={`w-full h-[48px] rounded-lg pl-4 pr-12 border 
+              ${errors.email ? 'border-red-500' : 'border-[#E5E5E5]'} 
               bg-white text-[14px] placeholder-gray-400 focus:outline-none focus:ring-2 
-              focus:ring-[#2F80ED] font-['Inter_Tight']"
+              ${errors.email ? 'focus:ring-red-500' : 'focus:ring-[#2F80ED]'} font-['Inter_Tight']`}
           />
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
             <MailIcon width={20} height={20} />
           </div>
         </div>
+        {errors.email && (
+          <span className="text-[12px] text-red-500 font-['Inter_Tight']">{errors.email}</span>
+        )}
       </div>
 
       {/* Password Input */}
@@ -80,10 +160,12 @@ export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUp
             type={showPassword ? "text" : "password"}
             placeholder="Enter your password"
             value={formData.password}
-            onChange={onInputChange}
-            className="w-full h-[48px] rounded-lg pl-4 pr-12 border border-[#E5E5E5] 
+            onChange={handleInputChangeWithValidation}
+            onBlur={handleInputBlur}
+            className={`w-full h-[48px] rounded-lg pl-4 pr-12 border 
+              ${errors.password ? 'border-red-500' : 'border-[#E5E5E5]'} 
               bg-white text-[14px] placeholder-gray-400 focus:outline-none focus:ring-2 
-              focus:ring-[#2F80ED] font-['Inter_Tight']"
+              ${errors.password ? 'focus:ring-red-500' : 'focus:ring-[#2F80ED]'} font-['Inter_Tight']`}
           />
           <button
             type="button"
@@ -100,6 +182,9 @@ export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUp
             )}
           </button>
         </div>
+        {errors.password && (
+          <span className="text-[12px] text-red-500 font-['Inter_Tight']">{errors.password}</span>
+        )}
       </div>
 
       {/* Full Name Input */}
@@ -113,40 +198,62 @@ export default function SignUpForm({ formData, onInputChange, onSubmit }: SignUp
             name="fullName"
             type="text"
             placeholder="Enter your full name"
-            onChange={onInputChange}
-            className="w-full h-[48px] rounded-lg pl-4 pr-12 border border-[#E5E5E5] 
+            value={formData.fullName}
+            onChange={handleInputChangeWithValidation}
+            onBlur={handleInputBlur}
+            className={`w-full h-[48px] rounded-lg pl-4 pr-12 border 
+              ${errors.fullName ? 'border-red-500' : 'border-[#E5E5E5]'} 
               bg-white text-[14px] placeholder-gray-400 focus:outline-none focus:ring-2 
-              focus:ring-[#2F80ED] font-['Inter_Tight']"
+              ${errors.fullName ? 'focus:ring-red-500' : 'focus:ring-[#2F80ED]'} font-['Inter_Tight']`}
           />
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
             <UserIcon width={14} height={17} />
           </div>
         </div>
+        {errors.fullName && (
+          <span className="text-[12px] text-red-500 font-['Inter_Tight']">{errors.fullName}</span>
+        )}
       </div>
 
       {/* Terms Checkbox */}
-      <div className="flex items-start gap-2">
-        <input
-          type="checkbox"
-          id="terms"
-          name="terms"
-          className="w-5 h-5 mt-0.5 rounded border border-[#E5E5E5] bg-white"
-        />
-        <label htmlFor="terms" className="text-[13px] text-[#666666] font-['Inter_Tight'] leading-relaxed">
-          By creating an account means you agree to the{' '}
-          <span className="text-[#2F80ED]">Terms and Conditions</span>, and our{' '}
-          <span className="text-[#2F80ED]">Privacy Policy</span>
-        </label>
+      <div className="flex flex-col gap-1">
+        <div className="flex items-start gap-2">
+          <input
+            type="checkbox"
+            id="terms"
+            name="agreeToTerms"
+            checked={formData.agreeToTerms}
+            onChange={onInputChange}
+            className="w-5 h-5 mt-0.5 rounded border border-[#E5E5E5] bg-white"
+          />
+          <label htmlFor="terms" className="text-[13px] text-[#666666] font-['Inter_Tight'] leading-relaxed">
+            By creating an account means you agree to the{' '}
+            <span className="text-[#2F80ED]">Terms and Conditions</span>, and our{' '}
+            <span className="text-[#2F80ED]">Privacy Policy</span>
+          </label>
+        </div>
+        {errors.terms && (
+          <span className="text-[12px] text-red-500 font-['Inter_Tight']">{errors.terms}</span>
+        )}
       </div>
 
       {/* Sign Up Button */}
       <button
         type="submit"
-        onClick={onSubmit}
+        onClick={handleFormSubmit}
+        disabled={loading}
         className="w-full h-[48px] rounded-lg bg-[#2F80ED] text-white text-[16px] 
-          font-medium font-['Inter_Tight'] hover:bg-[#2670d4] transition-colors"
+          font-medium font-['Inter_Tight'] hover:bg-[#2670d4] transition-colors
+          disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
       >
-        Sign Up
+        {loading ? (
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            Creating Account...
+          </div>
+        ) : (
+          'Sign Up'
+        )}
       </button>
 
       {/* Divider with lines */}
