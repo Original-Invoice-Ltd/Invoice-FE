@@ -19,10 +19,13 @@ import ForgotPasswordForm from './ForgotPasswordForm';
 import VerifyCodeForm from './VerifyCodeForm';
 import CreateNewPasswordForm from './CreateNewPasswordForm';
 import PasswordUpdatedSuccess from './PasswordUpdatedSuccess';
+import Toast from '@/components/ui/Toast';
+import { useToast } from '@/hooks/useToast';
 
 type Screen = 'forgot-password' | 'verify-code' | 'create-password' | 'success';
 
 export default function ForgotPassword() {
+  const { toast, showSuccess, showError, hideToast } = useToast();
   const [currentScreen, setCurrentScreen] = useState<Screen>('forgot-password');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,6 +35,7 @@ export default function ForgotPassword() {
     e.preventDefault();
     // In a real app, you would send the email to the backend
     console.log('Sending reset code to:', email);
+    showSuccess('Reset code sent to your email!');
     setCurrentScreen('verify-code');
   };
 
@@ -44,6 +48,7 @@ export default function ForgotPassword() {
   const handleResendCode = () => {
     // In a real app, you would resend the code
     console.log('Resending code to:', email);
+    showSuccess('Reset code resent to your email!');
   };
 
   const handlePasswordChange = (newPassword: string, newConfirmPassword: string) => {
@@ -54,11 +59,11 @@ export default function ForgotPassword() {
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      showError('Passwords do not match');
       return;
     }
     if (password.length < 8) {
-      alert('Password must be at least 8 characters');
+      showError('Password must be at least 8 characters');
       return;
     }
     // In a real app, you would send the new password to the backend
@@ -122,6 +127,14 @@ export default function ForgotPassword() {
           )}
         </div>
       </div>
+
+      {/* Toast Notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+      />
     </div>
   );
 }
