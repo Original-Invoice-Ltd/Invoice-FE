@@ -126,104 +126,114 @@ const CreateInvoicePage = () => {
     };
 
     return (
-        <div>
-                    <div className="max-w-7xl mx-auto">
-                        {/* Header */}
-                        <div className="mb-6 flex items-center gap-4">
-                            <Link href="/dashboard/invoices" className="p-2 hover:bg-gray-100 rounded-lg">
-                                <ArrowLeft size={24} />
-                            </Link>
-                            <h1 className="text-2xl font-semibold text-[#101828]">Create New Invoice</h1>
-                        </div>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Left Column - Form */}
-                            <div className="lg:col-span-2 space-y-6">
-                                {/* Invoice Header */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <h2 className="text-lg font-semibold mb-4">Invoice</h2>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Upload your Logo
-                                            </label>
-                                            <div className="border-2 border-dashed border-[#D0D5DD] rounded-lg p-4 text-center cursor-pointer hover:border-[#2F80ED]">
-                                                <Upload className="mx-auto mb-2 text-[#667085]" size={24} />
-                                                <p className="text-sm text-[#667085]">Max file size</p>
+        <div className="mt-[6px] m-[-20px]">   {/* Header */}
+            <div className="mb-4 flex items-center gap-4">
+                <Link href="/dashboard/invoices" className="p-2 text-[#2F80ED] ">
+                   <ArrowLeft size={24} />
+                </Link>
+                <h1 className="text-[20px] font-semibold text-[#101828]">Create New Invoice</h1>
+            </div>
+            <div className="flex gap-[22px]">
+                  <div className="w-[630px]">
+                {/* Left Column - Form */}
+                <div className="lg:col-span-3 bg-white rounded-lg  p-4">
+                    <div className="space-y-6 border border-[#E4E7EC] rounded-lg p-2">
+                        {/* Invoice Header */}
+                        <div className="p-4">
+                            <div className="flex items-center justify-between gap-12">
+                                <div className="flex-shrink-0">
+                                    <div className="bg-[#F8F8FA] flex items-center justify-center border border-[#EDEDED] rounded-lg px-16 py-2">
+                                        <h2 className="text-[18px] font-medium text-[#101828]">Invoice</h2>
+                                    </div>
+                                </div>
+                                <div className="flex-1 max-w-[200px] ml-auto">
+                                    <div className="border border-dashed rounded-lg py-3 px-1 text-center cursor-pointer hover:border-[#2F80ED]">
+                                        <div className="flex flex-col items-center">
+                                           <div className="border-gray-100 border border-2 p-1 px-2  rounded-lg">
+                                                 <div className="mb-2 text-[#2F80ED] items-center flex  bg-gray-100 px-1 py-1 rounded-lg">
+                                               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M18 2.25C20.0711 2.25 21.75 3.92893 21.75 6V18C21.75 20.0711 20.0711 21.75 18 21.75H6C5.28598 21.75 4.61621 21.55 4.04688 21.2021C3.79222 21.0466 3.55825 20.861 3.34863 20.6514C2.67084 19.9736 2.25 19.0353 2.25 18V6C2.25 3.92893 3.92893 2.25 6 2.25H18ZM6 3.75C4.75736 3.75 3.75 4.75736 3.75 6V18C3.75 18.6215 4.00119 19.1828 4.40918 19.5908C4.53542 19.7171 4.67626 19.8285 4.8291 19.9219C5.16966 20.1299 5.56969 20.25 6 20.25H18C19.2426 20.25 20.25 19.2426 20.25 18V6C20.25 4.75736 19.2426 3.75 18 3.75H6ZM12.6211 10.8154C13.4764 9.92021 14.9098 10.1204 15.5176 11.1807L17.5723 14.7637C18.0473 15.5923 17.5123 16.7498 16.4551 16.75H7.54492C6.45827 16.7497 5.93366 15.5372 6.45996 14.7109L7.54004 13.0156C8.04626 12.2208 9.06446 11.9222 9.91309 12.3662L10.5293 12.6885C10.6466 12.7498 10.7915 12.732 10.8965 12.6221L12.6211 10.8154ZM14.2168 11.9268C14.0958 11.7156 13.8525 11.6985 13.7061 11.8516L11.9805 13.6582C11.4227 14.2418 10.555 14.3948 9.83398 14.0176L9.21777 13.6953C9.08415 13.6254 8.90762 13.6597 8.80469 13.8213L7.89453 15.25H16.1221L14.2168 11.9268ZM9 8C9.55228 8 10 8.44772 10 9C10 9.55228 9.55228 10 9 10C8.44772 10 8 9.55228 8 9C8 8.44772 8.44772 8 9 8Z" fill="#2F80ED"/>
+                                                    </svg>
                                             </div>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Invoice Name
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="INV-0001"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                            />
+                                           </div>
+                                            <p className="text-[16px] font-medium text-[#101828] mb-1">Upload Business Logo</p>
+                                            <p className="text-[12px] text-[#667085]">Max file size 5MB</p>
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Bill From */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <h2 className="text-lg font-semibold mb-4">Bill From</h2>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Full Name <span className="text-red-500">*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="Enter full name"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Address
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="Enter your address"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Email <span className="text-red-500">*</span>
-                                            </label>
+                            </div>
+                        </div>
+                        {/* Bill From */}
+                        <div className="p-2">
+                            <h2 className="text-[20px] font-semibold text-[#101828] mb-4">Bill From</h2>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                        Full Name <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter full name"
+                                        className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                            Email <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="relative">
                                             <input
                                                 type="email"
                                                 placeholder="Enter email address"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                className="w-full px-3 py-2.5 pr-10 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                             />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Business Name <span className="text-red-500">*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="Enter business name"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Phone Number <span className="text-red-500">*</span>
-                                            </label>
-                                            <input
-                                                type="tel"
-                                                placeholder="Enter phone number"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                            />
+                                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085]">
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M3.33334 3.33334H16.6667C17.5833 3.33334 18.3333 4.08334 18.3333 5.00001V15C18.3333 15.9167 17.5833 16.6667 16.6667 16.6667H3.33334C2.41668 16.6667 1.66668 15.9167 1.66668 15V5.00001C1.66668 4.08334 2.41668 3.33334 3.33334 3.33334Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                    <path d="M18.3333 5L10 10.8333L1.66666 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                </svg>
+                                            </div>
                                         </div>
                                     </div>
+                                    <div>
+                                        <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                            Address
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="INV-0012"
+                                            className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                            Phone Number <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            placeholder="Enter phone number"
+                                            className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                            Business Name <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="Enter business name"
+                                            className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                                 </div>
 
                                 {/* Bill To */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
+                                <div className="bg-white rounded-lg p-2">
                                     <h2 className="text-lg font-semibold mb-4">Bill To</h2>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="col-span-2">
@@ -267,7 +277,7 @@ const CreateInvoicePage = () => {
                                 </div>
 
                                 {/* Table Items */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
+                                <div className="bg-white rounded-lg  p-2">
                                     <h2 className="text-lg font-semibold mb-4">Table Item</h2>
                                     <div className="overflow-x-auto">
                                         <table className="w-full">
@@ -346,7 +356,7 @@ const CreateInvoicePage = () => {
                                 </div>
 
                                 {/* Additional Fields */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
+                                <div className="bg-white rounded-lg  p-2">
                                     <div className="space-y-4">
                                         <div>
                                             <label className="block text-sm font-medium text-[#344054] mb-2">
@@ -372,7 +382,7 @@ const CreateInvoicePage = () => {
                                 </div>
 
                                 {/* Signature */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
+                                <div className="bg-white rounded-lg  p-2">
                                     <label className="block text-sm font-medium text-[#344054] mb-2">
                                         Add Signature
                                     </label>
@@ -384,117 +394,22 @@ const CreateInvoicePage = () => {
                                     </button>
                                 </div>
 
-                                {/* Action Buttons */}
-                                <div className="flex gap-4">
-                                    <button className="px-6 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50">
-                                        Cancel
-                                    </button>
-                                    <button className="px-6 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50">
-                                        Save as Draft
-                                    </button>
-                                    <button className="px-6 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB]">
-                                        Preview Invoice
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Right Column - Summary */}
-                            <div className="space-y-6">
-                                {/* Language & Currency */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <h3 className="font-semibold mb-4">Language</h3>
-                                    <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg mb-4">
-                                        <option>English</option>
-                                    </select>
-                                    <h3 className="font-semibold mb-4">Currency</h3>
-                                    <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg">
-                                        <option>NGN</option>
-                                    </select>
-                                </div>
-
-                                {/* Color Selection */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <h3 className="font-semibold mb-4">Select Color</h3>
-                                    <div className="flex gap-2">
-                                        <button className="w-8 h-8 rounded bg-[#2F80ED] border-2 border-gray-300"></button>
-                                    </div>
-                                </div>
-
-                                {/* Template Selection */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <h3 className="font-semibold mb-4">Select Template</h3>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {['Default', 'Compact', 'Modern', 'Pro'].map((template) => (
-                                            <div key={template} className="border border-[#D0D5DD] rounded p-2 text-center cursor-pointer hover:border-[#2F80ED]">
-                                                <div className="h-16 bg-gray-100 rounded mb-2"></div>
-                                                <p className="text-xs">{template}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Summary */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <div className="space-y-3">
-                                        <div className="flex justify-between">
-                                            <span className="text-[#667085]">Subtotal</span>
-                                            <span className="font-medium">₦{calculateSubtotal().toFixed(2)}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-[#667085]">VAT (7.5%)</span>
-                                            <span className="font-medium">₦{calculateTax().toFixed(2)}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-[#667085]">WHT (5%)</span>
-                                            <span className="font-medium">₦0.00</span>
-                                        </div>
-                                        <div className="border-t border-[#E4E7EC] pt-3 flex justify-between">
-                                            <span className="font-semibold">Total Due</span>
-                                            <span className="font-semibold text-lg">₦{calculateTotal().toFixed(2)}</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Payment Details */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <h3 className="font-semibold mb-4">Payment Details</h3>
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Bank Account <span className="text-red-500">*</span>
-                                            </label>
-                                            <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg">
-                                                <option>Select</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Account Name
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="Enter account name"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Account Number
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="Enter account number"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        {/* Action Buttons */}
+                        <div className="flex gap-4 p-2">
+                            <button className="px-6 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50">
+                                Cancel
+                            </button>
+                            <button className="px-6 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50">
+                                Save as Draft
+                            </button>
+                            <button className="px-6 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB]">
+                                Preview Invoice
+                            </button>
                         </div>
                     </div>
-
-            {/* Signature Modal */}
-            {showSignatureModal && (
+                </div>
+                {/* Signature Modal */}
+                {showSignatureModal && (
                 <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
                         <div className="flex justify-between items-center mb-4">
@@ -548,8 +463,124 @@ const CreateInvoicePage = () => {
                         </div>
                     </div>
                 </div>
-            )}
+                )}
+            </div>
+                 {/* Right Column - Summary */}
+                <div className="bg-white rounded-lg w-[320px] ">
+                    <div className="space-y-6">
+                                {/* Language & Currency */}
+                                <div className=" rounded-lg   p-4">
+                                    <h3 className="font-medium text-[16px] mb-2">Language</h3>
+                                    <div className="relative mb-4">
+                                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center">
+                                            <div className="w-6 h-6 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <circle cx="12" cy="12" r="10" fill="white"/>
+                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#008751"/>
+                                                    <path d="M12 2v20" stroke="white" strokeWidth="2"/>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <select className="w-full pl-12 pr-3 py-2 border border-[#D0D5DD] rounded-lg appearance-none">
+                                            <option>English</option>
+                                            <option>Hausa</option>
+                                            <option>Igbo</option>
+                                            <option>Yoruba</option>
+                                        </select>
+                                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <h3 className="font-medium text-[16px] mb-2">Currency <span className="text-red-500">*</span></h3>
+                                    <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg">
+                                        <option>NGN</option>
+                                    </select>
+                                </div>
+
+                                {/* Color Selection */}
+                                <div className="bg-white rounded-lg  px-4">
+                                    <h3 className="font-medium text-[16px] mb-2">Select Color</h3>
+                                    <div className="flex gap-2">
+                                        <button className="w-8 h-8 rounded bg-[#2F80ED] border-2 border-gray-300"></button>
+                                    </div>
+                                </div>
+
+                                {/* Template Selection */}
+                                <div className="bg-white rounded-lg  p-4">
+                                    <h3 className="font-medium text-[16px] mb-2">Select Template</h3>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {['Default', 'Compact', 'Modern', 'Pro'].map((template) => (
+                                            <div key={template} className="border border-[#D0D5DD] rounded p-2 text-center cursor-pointer hover:border-[#2F80ED]">
+                                                <div className="h-16 bg-gray-100 rounded mb-2"></div>
+                                                <p className="text-xs">{template}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Summary */}
+                                <div className="bg-white rounded-lg  px-4">
+                                    <div className="space-y-3">
+                                        <div className="flex justify-between">
+                                            <h3 className=" text-[16px] font-medium">Subtotal</h3>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-[#667085] text-[18px]">VAT (7.5%)</span>
+                                            <span className=" text-[18px] font-semibold">₦{calculateTax().toFixed(2)}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-[#667085] text-[18px]">WHT (5%)</span>
+                                            <span className=" text-[18px] font-semibold">₦0.00</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-[18px] text-[#667085]">Total Due</span>
+                                            <span className=" text-[18px] font-semibold">₦{calculateTotal().toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                        {/* Payment Details */}
+                        <div className="p-4">
+                            <h3 className="font-medium mb-2 text-[16px]">Payment Details</h3>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-[#344054] mb-2">
+                                        Bank Account <span className="text-red-500">*</span>
+                                    </label>
+                                    <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg">
+                                        <option>Select</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-[#344054] mb-2">
+                                        Account Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter account name"
+                                        className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-[#344054] mb-2">
+                                        Account Number
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter account number"
+                                        className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          
         </div>
+       
     );
 };
 
