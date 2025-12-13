@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Check } from "lucide-react";
+import { X, CheckCircle } from "lucide-react";
 import { ModalType } from "./types";
 
 interface ModalsProps {
@@ -12,35 +12,74 @@ interface ModalsProps {
 const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
   if (!modalType) return null;
 
+  // Prevent body scroll when modal is open
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = 'hidden';
+  }
+
+  const handleClose = () => {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = 'unset';
+    }
+    onClose();
+  };
+
   const renderModalContent = () => {
     switch (modalType) {
       case 'markPaid':
         return (
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 relative">
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-            >
-              <X size={24} />
-            </button>
-            
-            <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+          <div className="text-center" style={{ paddingTop: '32px', paddingBottom: '24px', paddingLeft: '24px', paddingRight: '24px' }}>
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={handleClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-3">
               Mark as paid?
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-sm text-gray-600 mb-6">
               Record this invoice as paid to keep your payment history accurate.
             </p>
-            
-            <div className="flex gap-3">
+            <div style={{ width: '352px', height: '42px', display: 'flex', justifyContent: 'space-between', margin: '0 auto' }}>
               <button
-                onClick={onClose}
-                className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                onClick={handleClose}
+                style={{
+                  width: '82px',
+                  height: '42px',
+                  borderRadius: '6px',
+                  padding: '10px 16px',
+                  gap: '8px',
+                  background: '#FFFFFF',
+                  border: '1px solid #2F80ED',
+                  boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)',
+                  color: '#2F80ED',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+                className="hover:bg-blue-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={onConfirm}
-                className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                style={{
+                  width: '140px',
+                  height: '42px',
+                  borderRadius: '6px',
+                  padding: '10px 16px',
+                  gap: '8px',
+                  background: '#2F80ED',
+                  border: 'none',
+                  color: '#FFFFFF',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+                className="hover:bg-blue-700 transition-colors"
               >
                 Mark as Paid
               </button>
@@ -48,76 +87,60 @@ const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
           </div>
         );
 
-      case 'paymentSuccess':
-        return (
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 relative">
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-            >
-              <X size={24} />
-            </button>
-            
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-                <Check size={40} className="text-green-600" />
-              </div>
-            </div>
-            
-            <h2 className="text-2xl font-semibold text-gray-900 mb-3 text-center">
-              Payment marked as paid.
-            </h2>
-            <p className="text-gray-600 mb-6 text-center">
-              The invoice has been updated.
-            </p>
-            
-            <div className="flex gap-3">
-              <button
-                onClick={onClose}
-                className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  onClose();
-                  window.location.href = '/dashboard';
-                }}
-                className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-              >
-                Back to Home
-              </button>
-            </div>
-          </div>
-        );
-
       case 'revertStatus':
         return (
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 relative">
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-            >
-              <X size={24} />
-            </button>
-            
-            <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+          <div className="text-center" style={{ paddingTop: '32px', paddingBottom: '24px', paddingLeft: '24px', paddingRight: '24px' }}>
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={handleClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-3">
               Revert payment status?
             </h2>
-            <p className="text-gray-600 mb-6">
-              This invoice will be marked as unpaid again. The client&apos;s payment record will be removed.
+            <p className="text-sm text-gray-600 mb-6">
+              This invoice will be marked as unpaid again. The client's payment record will be removed.
             </p>
-            
-            <div className="flex gap-3">
+            <div style={{ width: '352px', height: '42px', display: 'flex', justifyContent: 'space-between', margin: '0 auto' }}>
               <button
-                onClick={onClose}
-                className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                onClick={handleClose}
+                style={{
+                  width: '82px',
+                  height: '42px',
+                  borderRadius: '6px',
+                  padding: '10px 16px',
+                  gap: '8px',
+                  background: '#FFFFFF',
+                  border: '1px solid #2F80ED',
+                  boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)',
+                  color: '#2F80ED',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+                className="hover:bg-blue-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={onConfirm}
-                className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                style={{
+                  width: '140px',
+                  height: '42px',
+                  borderRadius: '6px',
+                  padding: '10px 16px',
+                  gap: '8px',
+                  background: '#2F80ED',
+                  border: 'none',
+                  color: '#FFFFFF',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+                className="hover:bg-blue-700 transition-colors"
               >
                 Mark as Unpaid
               </button>
@@ -125,42 +148,137 @@ const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
           </div>
         );
 
-      case 'revertSuccess':
+      case 'paymentSuccess':
         return (
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 relative">
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-            >
-              <X size={24} />
-            </button>
-            
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-                <Check size={40} className="text-green-600" />
+          <div className="text-center" style={{ paddingTop: '32px', paddingBottom: '24px', paddingLeft: '24px', paddingRight: '24px' }}>
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={handleClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute inset-0 bg-teal-100 rounded-full blur-xl opacity-50"></div>
+                <div className="relative bg-teal-100 rounded-full p-4">
+                  <CheckCircle size={40} className="text-teal-600" />
+                </div>
               </div>
             </div>
-            
-            <h2 className="text-2xl font-semibold text-gray-900 mb-3 text-center">
-              Payment status reverted.
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Payment marked as paid.
             </h2>
-            <p className="text-gray-600 mb-6 text-center">
-              The invoice is now unpaid.
+            <p className="text-sm text-gray-600 mb-6">
+              The invoice has been updated.
             </p>
-            
-            <div className="flex gap-3">
+            <div style={{ width: '352px', height: '42px', display: 'flex', justifyContent: 'space-between', margin: '0 auto' }}>
               <button
-                onClick={onClose}
-                className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                onClick={handleClose}
+                style={{
+                  width: '82px',
+                  height: '42px',
+                  borderRadius: '6px',
+                  padding: '10px 16px',
+                  gap: '8px',
+                  background: '#FFFFFF',
+                  border: '1px solid #2F80ED',
+                  boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)',
+                  color: '#2F80ED',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+                className="hover:bg-blue-50 transition-colors"
               >
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  onClose();
-                  window.location.href = '/dashboard';
+                onClick={handleClose}
+                style={{
+                  width: '140px',
+                  height: '42px',
+                  borderRadius: '6px',
+                  padding: '10px 16px',
+                  gap: '8px',
+                  background: '#2F80ED',
+                  border: 'none',
+                  color: '#FFFFFF',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
                 }}
-                className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                className="hover:bg-blue-700 transition-colors"
+              >
+                Back to Home
+              </button>
+            </div>
+          </div>
+        );
+
+      case 'revertSuccess':
+        return (
+          <div className="text-center" style={{ paddingTop: '32px', paddingBottom: '24px', paddingLeft: '24px', paddingRight: '24px' }}>
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={handleClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute inset-0 bg-teal-100 rounded-full blur-xl opacity-50"></div>
+                <div className="relative bg-teal-100 rounded-full p-4">
+                  <CheckCircle size={40} className="text-teal-600" />
+                </div>
+              </div>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Payment status reverted.
+            </h2>
+            <p className="text-sm text-gray-600 mb-6">
+              The invoice is now unpaid.
+            </p>
+            <div style={{ width: '352px', height: '42px', display: 'flex', justifyContent: 'space-between', margin: '0 auto' }}>
+              <button
+                onClick={handleClose}
+                style={{
+                  width: '82px',
+                  height: '42px',
+                  borderRadius: '6px',
+                  padding: '10px 16px',
+                  gap: '8px',
+                  background: '#FFFFFF',
+                  border: '1px solid #2F80ED',
+                  boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)',
+                  color: '#2F80ED',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+                className="hover:bg-blue-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleClose}
+                style={{
+                  width: '140px',
+                  height: '42px',
+                  borderRadius: '6px',
+                  padding: '10px 16px',
+                  gap: '8px',
+                  background: '#2F80ED',
+                  border: 'none',
+                  color: '#FFFFFF',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+                className="hover:bg-blue-700 transition-colors"
               >
                 Back to Home
               </button>
@@ -174,9 +292,37 @@ const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
-      {renderModalContent()}
-    </div>
+    <>
+      {/* Backdrop with blur and semi-transparent overlay */}
+      <div
+        className="fixed inset-0 z-40"
+        style={{
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          backdropFilter: 'blur(4px)',
+          WebkitBackdropFilter: 'blur(4px)',
+        }}
+        onClick={handleClose}
+      />
+      
+      {/* Modal */}
+      <div 
+        className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div 
+          className="bg-white rounded-2xl pointer-events-auto"
+          style={{
+            width: '400px',
+            minHeight: (modalType === 'paymentSuccess' || modalType === 'revertSuccess') ? '328px' : '234px',
+            backgroundColor: '#FFFFFF',
+            boxShadow: '0px 10px 18px -2px rgba(10, 9, 11, 0.07)',
+            borderRadius: '16px'
+          }}
+        >
+          {renderModalContent()}
+        </div>
+      </div>
+    </>
   );
 };
 

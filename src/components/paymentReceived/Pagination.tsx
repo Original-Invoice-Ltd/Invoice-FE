@@ -1,7 +1,5 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
@@ -9,74 +7,77 @@ interface PaginationProps {
 }
 
 const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) => {
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;
-    
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) pages.push(i);
-        pages.push('...');
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1);
-        pages.push('...');
-        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
-      } else {
-        pages.push(1);
-        pages.push('...');
-        pages.push(currentPage - 1);
-        pages.push(currentPage);
-        pages.push(currentPage + 1);
-        pages.push('...');
-        pages.push(totalPages);
-      }
-    }
-    
-    return pages;
-  };
-
   return (
-    <div className="flex items-center justify-center gap-2 mt-8">
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <ChevronLeft size={20} />
-      </button>
-      
-      {getPageNumbers().map((page, index) => (
-        typeof page === 'number' ? (
-          <button
-            key={index}
-            onClick={() => onPageChange(page)}
-            className={`px-4 py-2 rounded-lg ${
-              currentPage === page
-                ? 'bg-blue-600 text-white'
-                : 'border border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            {page}
-          </button>
-        ) : (
-          <span key={index} className="px-2">
-            {page}
-          </span>
-        )
-      ))}
-      
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <ChevronRight size={20} />
-      </button>
+    <div className="px-[14px] pb-8 pt-4 border-t border-[#E4E7EC]">
+      <div className="w-full max-w-[1080px] h-[40px] flex items-center justify-center gap-6">
+        <button 
+          className="w-10 h-10 flex items-center justify-center text-[#667085] hover:text-[#101828] disabled:opacity-50" 
+          disabled={currentPage === 1}
+          onClick={() => onPageChange(currentPage - 1)}
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        <button 
+          className={`w-10 h-10 flex items-center justify-center text-sm ${
+            currentPage === 1 ? 'text-[#2F80ED] font-medium' : 'text-[#667085] hover:text-[#101828]'
+          }`}
+          onClick={() => onPageChange(1)}
+        >
+          1
+        </button>
+        <button 
+          className={`w-10 h-10 flex items-center justify-center text-sm ${
+            currentPage === 2 ? 'text-[#2F80ED] font-medium' : 'text-[#667085] hover:text-[#101828]'
+          }`}
+          onClick={() => onPageChange(2)}
+        >
+          2
+        </button>
+        <button 
+          className={`w-10 h-10 flex items-center justify-center text-sm ${
+            currentPage === 3 ? 'text-[#2F80ED] font-medium' : 'text-[#667085] hover:text-[#101828]'
+          }`}
+          onClick={() => onPageChange(3)}
+        >
+          3
+        </button>
+        <button 
+          className={`w-10 h-10 flex items-center justify-center text-sm ${
+            currentPage === 4 ? 'text-[#2F80ED] font-medium' : 'text-[#667085] hover:text-[#101828]'
+          }`}
+          onClick={() => onPageChange(4)}
+        >
+          4
+        </button>
+        <button 
+          className={`w-10 h-10 flex items-center justify-center text-sm ${
+            currentPage === 5 ? 'text-[#2F80ED] font-medium' : 'text-[#667085] hover:text-[#101828]'
+          }`}
+          onClick={() => onPageChange(5)}
+        >
+          5
+        </button>
+        <span className="text-sm text-[#667085]">...</span>
+        <button 
+          className={`w-10 h-10 flex items-center justify-center text-sm ${
+            currentPage === totalPages ? 'text-[#2F80ED] font-medium' : 'text-[#667085] hover:text-[#101828]'
+          }`}
+          onClick={() => onPageChange(totalPages)}
+        >
+          {totalPages}
+        </button>
+        <button 
+          className="w-10 h-10 flex items-center justify-center text-[#667085] hover:text-[#101828] disabled:opacity-50"
+          disabled={currentPage === totalPages}
+          onClick={() => onPageChange(currentPage + 1)}
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 };

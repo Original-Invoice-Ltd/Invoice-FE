@@ -9,4 +9,4 @@ export interface Payment {
   balanceDue: number;
 }
 
-export type ModalType = 'markPaid' | 'paymentSuccess' | 'revertStatus' | 'revertSuccess' | null;
+export type ModalType = 'markPaid' | 'revertStatus' | 'paymentSuccess' | 'revertSuccess' | null;

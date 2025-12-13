@@ -105,9 +105,9 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
     <>
       {/* Header Section */}
       <div className="mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+        <div className="flex items-center justify-between" style={{ maxWidth: '1108px', height: '68px' }}>
+          <div style={{ maxWidth: '360px', height: '68px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
               Payments
             </h1>
             <p className="text-gray-600 text-sm sm:text-base">
@@ -116,7 +116,17 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
           </div>
           <button
             onClick={onCreateInvoice}
-            className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors whitespace-nowrap"
+            className="text-white rounded-md font-medium hover:bg-blue-700 transition-colors whitespace-nowrap flex items-center"
+            style={{ 
+              width: '167px', 
+              height: '48px', 
+              gap: '8px',
+              paddingTop: '12px',
+              paddingRight: '16px',
+              paddingBottom: '12px',
+              paddingLeft: '16px',
+              background: 'var(--Button-Primary-Base, #2F80ED)'
+            }}
           >
             + Create Invoice
           </button>
@@ -124,35 +134,61 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
       </div>
 
       {/* Main Content */}
-      <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
-        {!hasPayments ? (
-          <EmptyState onViewUnpaid={() => setHasPayments(true)} />
-        ) : (
-          <>
+      {!hasPayments ? (
+        <div className="w-full max-w-[1108px] bg-white rounded-lg border border-[#E4E7EC]"
+          style={{ minHeight: '372px' }}>
+          <div className="pt-4 pr-[14px] pl-[14px] flex flex-col sm:flex-row sm:items-center 
+          sm:justify-between gap-[18px] border-b border-[#E4E7EC] pb-4">
             <PaymentTableHeader
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
               sortBy={sortBy}
               onSortChange={setSortBy}
             />
-            
-            <PaymentTable
-              payments={payments}
-              onMarkPaid={handleMarkPaid}
-              onRevertStatus={handleRevertStatus}
-              onEmail={handleEmail}
-              onGetLink={handleGetLink}
-              onDelete={handleDelete}
+          </div>
+          <EmptyState onViewUnpaid={() => setHasPayments(true)} />
+        </div>
+      ) : (
+        <div 
+          className="w-full rounded-lg" 
+          style={{ 
+            maxWidth: '1108px', 
+            height: '818px',
+            borderRadius: '8px',
+            paddingTop: '16px',
+            paddingRight: '14px',
+            paddingBottom: '32px',
+            paddingLeft: '14px',
+            gap: '18px',
+            background: 'var(--Content-Neutral, #FFFFFF)'
+          }}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center 
+          sm:justify-between gap-[18px] border-b border-[#E4E7EC] pb-4">
+            <PaymentTableHeader
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              sortBy={sortBy}
+              onSortChange={setSortBy}
             />
-            
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          </>
-        )}
-      </div>
+          </div>
+          
+          <PaymentTable
+            payments={payments}
+            onMarkPaid={handleMarkPaid}
+            onRevertStatus={handleRevertStatus}
+            onEmail={handleEmail}
+            onGetLink={handleGetLink}
+            onDelete={handleDelete}
+          />
+          
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
 
       {/* Modals */}
       {modalType && (
