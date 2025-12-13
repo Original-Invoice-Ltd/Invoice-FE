@@ -2,28 +2,35 @@
  * SignUp Component (Main Container)
  * 
  * Main component that orchestrates the two-screen signup flow:
- * 1. Sign Up screen - Email, password, and social login
- * 2. Setup Account screen - Full name, business name, and category
+ * 1. Sign Up screen - Email, password, full name, and social login
+ * 2. OTP Verification screen - Email verification with OTP
  * 
- * Manages state and screen transitions between the two forms.
+ * Manages state and screen transitions between the forms.
  * Fully responsive for mobile and desktop devices.
  */
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Logo from './Logo';
 import LeftIllustrationPanel from './LeftIllustrationPanel';
 import SignUpForm from './SignUpForm';
-import SetupAccountForm from './SetupAccountForm';
+import OTPVerificationForm from './OTPVerificationForm';
+import Toast from '@/components/ui/Toast';
+import { useToast } from '@/hooks/useToast';
+import { ApiClient } from '@/lib/api';
+
+type Screen = 'signup' | 'otp';
 
 export default function SignUp() {
-  const [currentScreen, setCurrentScreen] = useState<'signup' | 'setup'>('signup');
+  const router = useRouter();
+  const { toast, showSuccess, showError, hideToast } = useToast();
+  const [currentScreen, setCurrentScreen] = useState<Screen>('signup');
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     fullName: '',
-    businessName: '',
-    businessCategory: '',
     agreeToTerms: false,
   });
 
@@ -37,16 +44,102 @@ export default function SignUp() {
     }
   };
 
-  const handleSignUp = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentScreen('setup');
+    setLoading(true);
+
+    try {
+      // Register user with backend
+      const response = await ApiClient.register({
+        email: formData.email,
+        password: formData.password,
+        fullName: formData.fullName,
+      });
+
+      if (response.success) {
+        // Show success message and move to OTP verification screen
+        showSuccess('Registration successful! Please check your email for verification code.');
+        setCurrentScreen('otp');
+      } else {
+        // Handle different error types
+        let errorMessage = 'Registration failed. Please try again.';
+        
+        if (response.error) {
+          // Try to parse JSON error if it's a string
+          if (typeof response.error === 'string') {
+            try {
+              // Check if it's a JSON string that starts with unexpected token
+              if (response.error.includes('Unexpected token') || response.error.includes('user exist')) {
+                errorMessage = 'An account with this email already exists. Please sign in instead.';
+              } else {
+                errorMessage = response.error;
+              }
+            } catch {
+              errorMessage = response.error;
+            }
+          } else {
+            errorMessage = response.error;
+          }
+        }
+        
+        showError(errorMessage);
+      }
+    } catch (err) {
+      const errorMessage = 'An unexpected error occurred. Please try again.';
+      showError(errorMessage);
+      console.error('Registration error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSetup = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle account setup submission
-    console.log('Account setup:', formData);
-    // Here you would typically send the data to your backend API
+  const handleOTPVerification = async (otp: string) => {
+    setLoading(true);
+
+    try {
+      const response = await ApiClient.verifyOTP(formData.email, otp);
+
+      if (response.success) {
+        // Show success message and redirect to dashboard
+        showSuccess('Email verified successfully! Welcome to your dashboard.');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1500);
+      } else {
+        const errorMessage = response.error || 'Invalid OTP. Please try again.';
+        showError(errorMessage);
+        return false;
+      }
+    } catch (err) {
+      const errorMessage = 'An unexpected error occurred. Please try again.';
+      showError(errorMessage);
+      console.error('OTP verification error:', err);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+    return true;
+  };
+
+  const handleResendOTP = async () => {
+    setLoading(true);
+
+    try {
+      const response = await ApiClient.resendOTP(formData.email);
+
+      if (response.success) {
+        showSuccess('OTP sent successfully! Please check your email.');
+      } else {
+        const errorMessage = response.error || 'Failed to resend OTP. Please try again.';
+        showError(errorMessage);
+      }
+    } catch (err) {
+      const errorMessage = 'An unexpected error occurred. Please try again.';
+      showError(errorMessage);
+      console.error('Resend OTP error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -65,31 +158,37 @@ export default function SignUp() {
         
         {/* Form Container */}
         <div className="w-full max-w-[470px]">
-          {/* Conditional Rendering: Sign Up or Setup Account Form */}
+          {/* Conditional Rendering: Sign Up or OTP Verification Form */}
           {currentScreen === 'signup' ? (
             <SignUpForm
               formData={{
                 email: formData.email,
                 password: formData.password,
+                fullName: formData.fullName,
                 agreeToTerms: formData.agreeToTerms,
               }}
               onInputChange={handleInputChange}
               onSubmit={handleSignUp}
+              loading={loading}
             />
           ) : (
-            <SetupAccountForm
-              formData={{
-                fullName: formData.fullName,
-                businessName: formData.businessName,
-                businessCategory: formData.businessCategory,
-              }}
+            <OTPVerificationForm
               email={formData.email}
-              onInputChange={handleInputChange}
-              onSubmit={handleSetup}
+              onOTPComplete={handleOTPVerification}
+              onResendOTP={handleResendOTP}
+              loading={loading}
             />
           )}
         </div>
       </div>
+
+      {/* Toast Notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+      />
     </div>
   );
 }

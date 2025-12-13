@@ -142,8 +142,8 @@ const CreateInvoicePage = () => {
                         <div className="p-4">
                             <div className="flex items-center justify-between gap-12">
                                 <div className="flex-shrink-0">
-                                    <div className="bg-[#F9FAFB] rounded-lg px-12 py-4 flex items-center justify-center">
-                                        <h2 className="text-[20px] font-semibold text-[#101828]">Invoice</h2>
+                                    <div className="bg-[#F8F8FA] flex items-center justify-center border border-[#EDEDED] rounded-lg px-16 py-2">
+                                        <h2 className="text-[18px] font-medium text-[#101828]">Invoice</h2>
                                     </div>
                                 </div>
                                 <div className="flex-1 max-w-[200px] ml-auto">

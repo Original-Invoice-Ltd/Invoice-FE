@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Plus } from "lucide-react";
+import { Plus, ChevronDown, Search } from "lucide-react";
 import Link from "next/link";
 
 const InvoicesPage = () => {
@@ -9,10 +9,10 @@ const InvoicesPage = () => {
 
     return (
         <div>
-                    <div className="max-w-7xl  mx-auto mb-[200px] ">
-                        {/* Header */}
-                        <div className="mb-6 flex items-start justify-between">
-                            <div>
+           <div className="max-w-7xl  mx-auto mb-[200px] ">
+                {/* Header */}
+                <div className="mb-6 flex items-start justify-between">
+                     <div>
                                 <h1 className="text-[20px] font-semibold text-[#101828] mb-1">Invoice Management</h1>
                                 <p className="text-[14px] text-[#667085]">
                                     View, manage, and track all your invoices, stay on<br />
