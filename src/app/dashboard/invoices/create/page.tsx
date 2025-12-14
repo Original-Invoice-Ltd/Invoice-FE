@@ -4,13 +4,27 @@ import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, Upload, Plus, X } from "lucide-react";
 import Link from "next/link";
 
+interface Tax {
+    id: string;
+    name: string;
+    taxType: string;
+    baseTaxRate: number;
+    individualRate: number;
+    businessRate: number;
+    description: string;
+    isActive: boolean;
+}
+
 interface InvoiceItem {
     id: string;
     itemName: string;
     quantity: number;
     rate: number;
-    tax: number;
+    tax: number; // Legacy field
     amount: number;
+    selectedTaxes: Tax[]; // New field for multiple taxes
+    totalTaxAmount: number; // Calculated total tax
+    amountWithTax: number; // Amount including taxes
 }
 
 const CreateInvoicePage = () => {
@@ -19,6 +33,9 @@ const CreateInvoicePage = () => {
     const [signature, setSignature] = useState<string | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
+    const [availableTaxes, setAvailableTaxes] = useState<Tax[]>([]);
+    const [selectedClient, setSelectedClient] = useState<{id: string, customerType: 'INDIVIDUAL' | 'BUSINESS'} | null>(null);
+    const [showTaxModal, setShowTaxModal] = useState<{show: boolean, itemId: string | null}>({show: false, itemId: null});
 
     const addNewRow = () => {
         const newItem: InvoiceItem = {
@@ -26,8 +43,11 @@ const CreateInvoicePage = () => {
             itemName: "",
             quantity: 1,
             rate: 0,
-            tax: 0,
-            amount: 0
+            tax: 0, // Legacy field
+            amount: 0,
+            selectedTaxes: [],
+            totalTaxAmount: 0,
+            amountWithTax: 0
         };
         setItems([...items, newItem]);
     };
@@ -42,8 +62,40 @@ const CreateInvoicePage = () => {
                 const updated = { ...item, [field]: value };
                 if (field === 'quantity' || field === 'rate') {
                     updated.amount = updated.quantity * updated.rate;
+                    // Recalculate taxes when amount changes
+                    updated.totalTaxAmount = calculateItemTaxAmount(updated);
+                    updated.amountWithTax = updated.amount + updated.totalTaxAmount;
                 }
                 return updated;
+            }
+            return item;
+        }));
+    };
+
+    const calculateItemTaxAmount = (item: InvoiceItem): number => {
+        if (!selectedClient || !item.selectedTaxes.length) return 0;
+        
+        return item.selectedTaxes.reduce((total, tax) => {
+            const rate = selectedClient.customerType === 'INDIVIDUAL' 
+                ? tax.individualRate 
+                : tax.businessRate;
+            return total + (item.amount * rate / 100);
+        }, 0);
+    };
+
+    const toggleTaxForItem = (itemId: string, tax: Tax) => {
+        setItems(items.map(item => {
+            if (item.id === itemId) {
+                const isSelected = item.selectedTaxes.some(t => t.id === tax.id);
+                const updatedTaxes = isSelected
+                    ? item.selectedTaxes.filter(t => t.id !== tax.id)
+                    : [...item.selectedTaxes, tax];
+                
+                const updatedItem = { ...item, selectedTaxes: updatedTaxes };
+                updatedItem.totalTaxAmount = calculateItemTaxAmount(updatedItem);
+                updatedItem.amountWithTax = updatedItem.amount + updatedItem.totalTaxAmount;
+                
+                return updatedItem;
             }
             return item;
         }));
@@ -54,12 +106,51 @@ const CreateInvoicePage = () => {
     };
 
     const calculateTax = () => {
-        return items.reduce((sum, item) => sum + (item.amount * item.tax / 100), 0);
+        return items.reduce((sum, item) => sum + item.totalTaxAmount, 0);
     };
 
     const calculateTotal = () => {
         return calculateSubtotal() + calculateTax();
     };
+
+    // Load available taxes
+    useEffect(() => {
+        const loadTaxes = async () => {
+            try {
+                const response = await fetch('/api/tax/active');
+                if (response.ok) {
+                    const taxes = await response.json();
+                    setAvailableTaxes(taxes);
+                }
+            } catch (error) {
+                console.error('Error loading taxes:', error);
+                // Set default taxes for demo
+                setAvailableTaxes([
+                    {
+                        id: '1',
+                        name: 'Withholding Tax',
+                        taxType: 'WHT',
+                        baseTaxRate: 5,
+                        individualRate: 5,
+                        businessRate: 10,
+                        description: 'WHT - 5% for individuals, 10% for businesses',
+                        isActive: true
+                    },
+                    {
+                        id: '2',
+                        name: 'Value Added Tax',
+                        taxType: 'VAT',
+                        baseTaxRate: 7.5,
+                        individualRate: 7.5,
+                        businessRate: 7.5,
+                        description: 'VAT - 7.5% for all clients',
+                        isActive: true
+                    }
+                ]);
+            }
+        };
+        loadTaxes();
+    }, []);
 
     // Canvas drawing functions
     useEffect(() => {
@@ -230,8 +321,39 @@ const CreateInvoicePage = () => {
                                             <label className="block text-sm font-medium text-[#344054] mb-2">
                                                 Customer <span className="text-red-500">*</span>
                                             </label>
-                                            <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
-                                                <option>Select from saved client</option>
+                                            <select 
+                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                onChange={(e) => {
+                                                    const value = e.target.value;
+                                                    if (value) {
+                                                        const [id, customerType] = value.split('|');
+                                                        setSelectedClient({
+                                                            id,
+                                                            customerType: customerType as 'INDIVIDUAL' | 'BUSINESS'
+                                                        });
+                                                        // Recalculate all item taxes when client changes
+                                                        setItems(prevItems => prevItems.map(item => {
+                                                            const newClient = {id, customerType: customerType as 'INDIVIDUAL' | 'BUSINESS'};
+                                                            const totalTaxAmount = item.selectedTaxes.reduce((total, tax) => {
+                                                                const rate = newClient.customerType === 'INDIVIDUAL' 
+                                                                    ? tax.individualRate 
+                                                                    : tax.businessRate;
+                                                                return total + (item.amount * rate / 100);
+                                                            }, 0);
+                                                            return {
+                                                                ...item,
+                                                                totalTaxAmount,
+                                                                amountWithTax: item.amount + totalTaxAmount
+                                                            };
+                                                        }));
+                                                    }
+                                                }}
+                                            >
+                                                <option value="">Select from saved client</option>
+                                                {/* Demo clients - replace with actual client data */}
+                                                <option value="1|INDIVIDUAL">John Doe (Individual)</option>
+                                                <option value="2|BUSINESS">ABC Corp (Business)</option>
+                                                <option value="3|INDIVIDUAL">Jane Smith (Individual)</option>
                                             </select>
                                         </div>
                                         <div>
@@ -310,18 +432,28 @@ const CreateInvoicePage = () => {
                                                             />
                                                         </td>
                                                         <td className="py-3 px-2">
-                                                            <select
-                                                                value={item.tax}
-                                                                onChange={(e) => updateItem(item.id, 'tax', parseFloat(e.target.value))}
-                                                                className="w-20 px-2 py-1 border border-[#D0D5DD] rounded focus:outline-none focus:ring-1 focus:ring-[#2F80ED]"
+                                                            <button
+                                                                onClick={() => setShowTaxModal({show: true, itemId: item.id})}
+                                                                className="px-2 py-1 border border-[#D0D5DD] rounded text-sm hover:bg-gray-50 min-w-[80px]"
                                                             >
-                                                                <option value="0">0%</option>
-                                                                <option value="5">5%</option>
-                                                                <option value="10">10%</option>
-                                                            </select>
+                                                                {item.selectedTaxes.length > 0 
+                                                                    ? `${item.selectedTaxes.length} tax${item.selectedTaxes.length > 1 ? 'es' : ''}`
+                                                                    : 'Add Tax'
+                                                                }
+                                                            </button>
+                                                            {item.selectedTaxes.length > 0 && (
+                                                                <div className="text-xs text-gray-500 mt-1">
+                                                                    ₦{item.totalTaxAmount.toFixed(2)}
+                                                                </div>
+                                                            )}
                                                         </td>
                                                         <td className="py-3 px-2 font-medium">
-                                                            ₦{item.amount.toFixed(2)}
+                                                            <div>₦{item.amount.toFixed(2)}</div>
+                                                            {item.totalTaxAmount > 0 && (
+                                                                <div className="text-xs text-gray-500">
+                                                                    +₦{item.totalTaxAmount.toFixed(2)} tax
+                                                                </div>
+                                                            )}
                                                         </td>
                                                         <td className="py-3 px-2">
                                                             <button
@@ -440,14 +572,32 @@ const CreateInvoicePage = () => {
                                             <span className="text-[#667085]">Subtotal</span>
                                             <span className="font-medium">₦{calculateSubtotal().toFixed(2)}</span>
                                         </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-[#667085]">VAT (7.5%)</span>
-                                            <span className="font-medium">₦{calculateTax().toFixed(2)}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-[#667085]">WHT (5%)</span>
-                                            <span className="font-medium">₦0.00</span>
-                                        </div>
+                                        {/* Dynamic tax breakdown */}
+                                        {availableTaxes.map(tax => {
+                                            const taxAmount = items.reduce((sum, item) => {
+                                                const itemTax = item.selectedTaxes.find(t => t.id === tax.id);
+                                                if (itemTax && selectedClient) {
+                                                    const rate = selectedClient.customerType === 'INDIVIDUAL' 
+                                                        ? tax.individualRate 
+                                                        : tax.businessRate;
+                                                    return sum + (item.amount * rate / 100);
+                                                }
+                                                return sum;
+                                            }, 0);
+                                            
+                                            if (taxAmount > 0) {
+                                                const rate = selectedClient?.customerType === 'INDIVIDUAL' 
+                                                    ? tax.individualRate 
+                                                    : tax.businessRate;
+                                                return (
+                                                    <div key={tax.id} className="flex justify-between">
+                                                        <span className="text-[#667085]">{tax.name} ({rate}%)</span>
+                                                        <span className="font-medium">₦{taxAmount.toFixed(2)}</span>
+                                                    </div>
+                                                );
+                                            }
+                                            return null;
+                                        })
                                         <div className="border-t border-[#E4E7EC] pt-3 flex justify-between">
                                             <span className="font-semibold">Total Due</span>
                                             <span className="font-semibold text-lg">₦{calculateTotal().toFixed(2)}</span>
@@ -492,6 +642,85 @@ const CreateInvoicePage = () => {
                             </div>
                         </div>
                     </div>
+
+            {/* Tax Selection Modal */}
+            {showTaxModal.show && (
+                <div className="fixed inset-0 flex items-center justify-center z-50 px-4 bg-black bg-opacity-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-semibold text-[#101828]">Select Taxes</h3>
+                            <button 
+                                onClick={() => setShowTaxModal({show: false, itemId: null})}
+                                className="text-[#667085] hover:text-[#101828]"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
+                        
+                        {selectedClient ? (
+                            <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                                <p className="text-sm text-blue-800">
+                                    Client Type: <span className="font-semibold">{selectedClient.customerType}</span>
+                                </p>
+                                <p className="text-xs text-blue-600 mt-1">
+                                    Tax rates will be applied based on client type
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="mb-4 p-3 bg-yellow-50 rounded-lg">
+                                <p className="text-sm text-yellow-800">
+                                    Please select a client first to see applicable tax rates
+                                </p>
+                            </div>
+                        )}
+                        
+                        <div className="space-y-3 max-h-60 overflow-y-auto">
+                            {availableTaxes.map((tax) => {
+                                const currentItem = items.find(item => item.id === showTaxModal.itemId);
+                                const isSelected = currentItem?.selectedTaxes.some(t => t.id === tax.id) || false;
+                                const applicableRate = selectedClient?.customerType === 'INDIVIDUAL' 
+                                    ? tax.individualRate 
+                                    : tax.businessRate;
+                                
+                                return (
+                                    <div key={tax.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                                        <div className="flex items-center space-x-3">
+                                            <input
+                                                type="checkbox"
+                                                checked={isSelected}
+                                                onChange={() => showTaxModal.itemId && toggleTaxForItem(showTaxModal.itemId, tax)}
+                                                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                            />
+                                            <div>
+                                                <p className="font-medium text-gray-900">{tax.name}</p>
+                                                <p className="text-sm text-gray-500">{tax.description}</p>
+                                                <p className="text-sm font-medium text-blue-600">
+                                                    {applicableRate}% for {selectedClient?.customerType || 'this client type'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        
+                        <div className="flex gap-3 mt-6">
+                            <button
+                                onClick={() => setShowTaxModal({show: false, itemId: null})}
+                                className="flex-1 px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => setShowTaxModal({show: false, itemId: null})}
+                                className="flex-1 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB]"
+                            >
+                                Apply Taxes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Signature Modal */}
             {showSignatureModal && (
