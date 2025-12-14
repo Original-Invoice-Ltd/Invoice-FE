@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, ChevronDown, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import Link from "next/link";
 
 const InvoicesPage = () => {
@@ -93,20 +93,6 @@ const InvoicesPage = () => {
                                 Create Invoice
                             </Link>
                         </div>
-                        </div>
-
-                    </div>
-                    <h3 className="text-lg font-semibold text-[#101828] mb-2">No invoices yet</h3>
-                    <p className="text-sm text-[#667085] mb-6 text-center max-w-md">
-                        Create your first invoice to start getting paid and track taxes easily.
-                    </p>
-                    <Link
-                        href="/dashboard/invoices/create"
-                        className="flex items-center gap-2 px-6 border border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-[#EFF8FF] transition-colors h-12"
-                    >
-                        <Plus size={20} />
-                        Create Invoice
-                    </Link>
                 </div>
             </div>
         </div>
