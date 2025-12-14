@@ -1,16 +1,23 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Logo from '../signUp/Logo';
 import LeftIllustrationPanel from '../signUp/LeftIllustrationPanel';
 import SignInForm from './SignInForm';
+import Toast from '@/components/ui/Toast';
+import { useToast } from '@/hooks/useToast';
+import { ApiClient } from '@/lib/api';
 
 export default function SignIn() {
+  const router = useRouter();
+  const { toast, showSuccess, showError, hideToast } = useToast();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     rememberMe: false,
   });
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -22,11 +29,28 @@ export default function SignIn() {
     }
   };
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle sign-in submission
-    console.log('Sign in:', formData);
-    // Here you would typically send the data to your backend API
+    setLoading(true);
+
+    try {
+      const response = await ApiClient.login(formData.email, formData.password);
+
+      if (response.success) {
+        // Show success message and redirect to dashboard
+        showSuccess('Login successful! Redirecting to dashboard...');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1500);
+      } else {
+        showError(response.error || 'Login failed. Please try again.');
+      }
+    } catch (err) {
+      showError('An unexpected error occurred. Please try again.');
+      console.error('Login error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -50,9 +74,18 @@ export default function SignIn() {
             formData={formData}
             onInputChange={handleInputChange}
             onSubmit={handleSignIn}
+            loading={loading}
           />
         </div>
       </div>
+
+      {/* Toast Notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+      />
     </div>
   );
 }

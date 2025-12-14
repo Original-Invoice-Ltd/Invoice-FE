@@ -12,13 +12,13 @@ import AppleIcon from '../signUp/appleIcon';
 
 export default function SocialLoginButtons() {
   const handleGoogleLogin = () => {
-    // Handle Google authentication
-    console.log('Google login clicked');
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+    window.location.href = `${apiBaseUrl}/oauth/google/login`;
   };
 
   const handleAppleLogin = () => {
-    // Handle Apple authentication
-    console.log('Apple login clicked');
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+    window.location.href = `${apiBaseUrl}/oauth/apple/login`;
   };
 
   return (
