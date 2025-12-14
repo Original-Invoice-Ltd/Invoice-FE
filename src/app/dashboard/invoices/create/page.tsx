@@ -4,27 +4,13 @@ import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, Upload, Plus, X } from "lucide-react";
 import Link from "next/link";
 
-interface Tax {
-    id: string;
-    name: string;
-    taxType: string;
-    baseTaxRate: number;
-    individualRate: number;
-    businessRate: number;
-    description: string;
-    isActive: boolean;
-}
-
 interface InvoiceItem {
     id: string;
     itemName: string;
     quantity: number;
     rate: number;
-    tax: number; // Legacy field
+    tax: number;
     amount: number;
-    selectedTaxes: Tax[]; // New field for multiple taxes
-    totalTaxAmount: number; // Calculated total tax
-    amountWithTax: number; // Amount including taxes
 }
 
 const CreateInvoicePage = () => {
@@ -33,9 +19,6 @@ const CreateInvoicePage = () => {
     const [signature, setSignature] = useState<string | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
-    const [availableTaxes, setAvailableTaxes] = useState<Tax[]>([]);
-    const [selectedClient, setSelectedClient] = useState<{id: string, customerType: 'INDIVIDUAL' | 'BUSINESS'} | null>(null);
-    const [showTaxModal, setShowTaxModal] = useState<{show: boolean, itemId: string | null}>({show: false, itemId: null});
 
     const addNewRow = () => {
         const newItem: InvoiceItem = {
@@ -43,11 +26,8 @@ const CreateInvoicePage = () => {
             itemName: "",
             quantity: 1,
             rate: 0,
-            tax: 0, // Legacy field
-            amount: 0,
-            selectedTaxes: [],
-            totalTaxAmount: 0,
-            amountWithTax: 0
+            tax: 0,
+            amount: 0
         };
         setItems([...items, newItem]);
     };
@@ -62,40 +42,8 @@ const CreateInvoicePage = () => {
                 const updated = { ...item, [field]: value };
                 if (field === 'quantity' || field === 'rate') {
                     updated.amount = updated.quantity * updated.rate;
-                    // Recalculate taxes when amount changes
-                    updated.totalTaxAmount = calculateItemTaxAmount(updated);
-                    updated.amountWithTax = updated.amount + updated.totalTaxAmount;
                 }
                 return updated;
-            }
-            return item;
-        }));
-    };
-
-    const calculateItemTaxAmount = (item: InvoiceItem): number => {
-        if (!selectedClient || !item.selectedTaxes.length) return 0;
-        
-        return item.selectedTaxes.reduce((total, tax) => {
-            const rate = selectedClient.customerType === 'INDIVIDUAL' 
-                ? tax.individualRate 
-                : tax.businessRate;
-            return total + (item.amount * rate / 100);
-        }, 0);
-    };
-
-    const toggleTaxForItem = (itemId: string, tax: Tax) => {
-        setItems(items.map(item => {
-            if (item.id === itemId) {
-                const isSelected = item.selectedTaxes.some(t => t.id === tax.id);
-                const updatedTaxes = isSelected
-                    ? item.selectedTaxes.filter(t => t.id !== tax.id)
-                    : [...item.selectedTaxes, tax];
-                
-                const updatedItem = { ...item, selectedTaxes: updatedTaxes };
-                updatedItem.totalTaxAmount = calculateItemTaxAmount(updatedItem);
-                updatedItem.amountWithTax = updatedItem.amount + updatedItem.totalTaxAmount;
-                
-                return updatedItem;
             }
             return item;
         }));
@@ -106,51 +54,12 @@ const CreateInvoicePage = () => {
     };
 
     const calculateTax = () => {
-        return items.reduce((sum, item) => sum + item.totalTaxAmount, 0);
+        return items.reduce((sum, item) => sum + (item.amount * item.tax / 100), 0);
     };
 
     const calculateTotal = () => {
         return calculateSubtotal() + calculateTax();
     };
-
-    // Load available taxes
-    useEffect(() => {
-        const loadTaxes = async () => {
-            try {
-                const response = await fetch('/api/tax/active');
-                if (response.ok) {
-                    const taxes = await response.json();
-                    setAvailableTaxes(taxes);
-                }
-            } catch (error) {
-                console.error('Error loading taxes:', error);
-                // Set default taxes for demo
-                setAvailableTaxes([
-                    {
-                        id: '1',
-                        name: 'Withholding Tax',
-                        taxType: 'WHT',
-                        baseTaxRate: 5,
-                        individualRate: 5,
-                        businessRate: 10,
-                        description: 'WHT - 5% for individuals, 10% for businesses',
-                        isActive: true
-                    },
-                    {
-                        id: '2',
-                        name: 'Value Added Tax',
-                        taxType: 'VAT',
-                        baseTaxRate: 7.5,
-                        individualRate: 7.5,
-                        businessRate: 7.5,
-                        description: 'VAT - 7.5% for all clients',
-                        isActive: true
-                    }
-                ]);
-            }
-        };
-        loadTaxes();
-    }, []);
 
     // Canvas drawing functions
     useEffect(() => {
@@ -331,39 +240,8 @@ const CreateInvoicePage = () => {
                                             <label className="block text-sm font-medium text-[#344054] mb-2">
                                                 Customer <span className="text-red-500">*</span>
                                             </label>
-                                            <select 
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                                onChange={(e) => {
-                                                    const value = e.target.value;
-                                                    if (value) {
-                                                        const [id, customerType] = value.split('|');
-                                                        setSelectedClient({
-                                                            id,
-                                                            customerType: customerType as 'INDIVIDUAL' | 'BUSINESS'
-                                                        });
-                                                        // Recalculate all item taxes when client changes
-                                                        setItems(prevItems => prevItems.map(item => {
-                                                            const newClient = {id, customerType: customerType as 'INDIVIDUAL' | 'BUSINESS'};
-                                                            const totalTaxAmount = item.selectedTaxes.reduce((total, tax) => {
-                                                                const rate = newClient.customerType === 'INDIVIDUAL' 
-                                                                    ? tax.individualRate 
-                                                                    : tax.businessRate;
-                                                                return total + (item.amount * rate / 100);
-                                                            }, 0);
-                                                            return {
-                                                                ...item,
-                                                                totalTaxAmount,
-                                                                amountWithTax: item.amount + totalTaxAmount
-                                                            };
-                                                        }));
-                                                    }
-                                                }}
-                                            >
-                                                <option value="">Select from saved client</option>
-                                                {/* Demo clients - replace with actual client data */}
-                                                <option value="1|INDIVIDUAL">John Doe (Individual)</option>
-                                                <option value="2|BUSINESS">ABC Corp (Business)</option>
-                                                <option value="3|INDIVIDUAL">Jane Smith (Individual)</option>
+                                            <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
+                                                <option>Select from saved client</option>
                                             </select>
                                         </div>
                                         <div>
@@ -442,28 +320,18 @@ const CreateInvoicePage = () => {
                                                             />
                                                         </td>
                                                         <td className="py-3 px-2">
-                                                            <button
-                                                                onClick={() => setShowTaxModal({show: true, itemId: item.id})}
-                                                                className="px-2 py-1 border border-[#D0D5DD] rounded text-sm hover:bg-gray-50 min-w-[80px]"
+                                                            <select
+                                                                value={item.tax}
+                                                                onChange={(e) => updateItem(item.id, 'tax', parseFloat(e.target.value))}
+                                                                className="w-20 px-2 py-1 border border-[#D0D5DD] rounded focus:outline-none focus:ring-1 focus:ring-[#2F80ED]"
                                                             >
-                                                                {item.selectedTaxes.length > 0 
-                                                                    ? `${item.selectedTaxes.length} tax${item.selectedTaxes.length > 1 ? 'es' : ''}`
-                                                                    : 'Add Tax'
-                                                                }
-                                                            </button>
-                                                            {item.selectedTaxes.length > 0 && (
-                                                                <div className="text-xs text-gray-500 mt-1">
-                                                                    ₦{item.totalTaxAmount.toFixed(2)}
-                                                                </div>
-                                                            )}
+                                                                <option value="0">0%</option>
+                                                                <option value="5">5%</option>
+                                                                <option value="10">10%</option>
+                                                            </select>
                                                         </td>
                                                         <td className="py-3 px-2 font-medium">
-                                                            <div>₦{item.amount.toFixed(2)}</div>
-                                                            {item.totalTaxAmount > 0 && (
-                                                                <div className="text-xs text-gray-500">
-                                                                    +₦{item.totalTaxAmount.toFixed(2)} tax
-                                                                </div>
-                                                            )}
+                                                            ₦{item.amount.toFixed(2)}
                                                         </td>
                                                         <td className="py-3 px-2">
                                                             <button
