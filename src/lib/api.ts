@@ -144,6 +144,27 @@ export class ApiClient {
     });
   }
 
+  static async forgotPassword(email: string) {
+    return this.request('/api/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  static async verifyPasswordResetOTP(email: string, otp: string) {
+    return this.request('/api/auth/verify-password-reset-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp }),
+    });
+  }
+
+  static async resetPasswordWithOTP(email: string, otp: string, newPassword: string) {
+    return this.request('/api/auth/reset-password-with-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp, newPassword }),
+    });
+  }
+
   static async getUserProfile(email: string) {
     return this.request(`/api/users/get-profile?email=${email}`, {
       method: 'GET',
