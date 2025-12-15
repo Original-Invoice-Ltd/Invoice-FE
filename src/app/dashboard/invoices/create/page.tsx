@@ -133,7 +133,7 @@ const CreateInvoicePage = () => {
                 </Link>
                 <h1 className="text-[20px] font-semibold text-[#101828]">Create New Invoice</h1>
             </div>
-            <div className="flex gap-[22px]">
+            <div className="flex gap-[22px] mb-14">
                   <div className="w-[630px]">
                 {/* Left Column - Form */}
                 <div className="lg:col-span-3 bg-white rounded-lg p-4 space-y-6">
@@ -423,7 +423,7 @@ const CreateInvoicePage = () => {
                             </label>
                             <button
                                 onClick={() => setShowSignatureModal(true)}
-                                className="flex items-center justify-center w-12 h-12 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
+                                className="flex items-center justify-center w-10 h-10 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
                             >
                                 <Plus size={20} />
                             </button>
@@ -508,7 +508,7 @@ const CreateInvoicePage = () => {
             </div>
 
             {/* Right Column - Summary */}
-            <div className="bg-white rounded-lg w-[320px]">
+            <div className="bg-white rounded-lg w-[320px] self-start">
                     <div className="space-y-6">
                                 {/* Language & Currency */}
                                 <div className=" rounded-lg   p-4">
@@ -516,10 +516,9 @@ const CreateInvoicePage = () => {
                                     <div className="relative mb-4">
                                         <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center">
                                             <div className="w-6 h-6 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center">
-                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <circle cx="12" cy="12" r="10" fill="white"/>
-                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#008751"/>
-                                                    <path d="M12 2v20" stroke="white" strokeWidth="2"/>
+                                                <svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M0 9.37797C0 13.6777 2.71375 17.343 6.52176 18.756V0C2.71375 1.41289 0 5.07836 0 9.37797Z" fill="#6DA544"/>
+                                                    <path d="M20.0003 9.37797C20.0003 5.07836 17.2865 1.41289 13.4785 0V18.7561C17.2865 17.343 20.0003 13.6777 20.0003 9.37797Z" fill="#6DA544"/>
                                                 </svg>
                                             </div>
                                         </div>
