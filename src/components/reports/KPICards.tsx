@@ -5,13 +5,35 @@ interface KPICardsProps {
 }
 
 const KPICards = ({ data }: KPICardsProps) => {
+  const cardWidths = ['258.67px', '260px', '258.67px', '258.67px'];
+  const cardHeights = ['117px', '117px', '119px', '117px'];
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div 
+      className="flex mb-6 w-full"
+      style={{ 
+        maxWidth: '1108px',
+        height: '119px',
+        gap: '24px',
+        opacity: 1
+      }}
+    >
       {data.map((kpi, index) => (
         <div
           key={index}
-          className="bg-white rounded-lg border border-[#E4E7EC] p-6"
-          style={{ minHeight: '120px' }}
+          style={{
+            width: cardWidths[index],
+            height: cardHeights[index],
+            borderRadius: '8px',
+            opacity: 1,
+            gap: '20px',
+            paddingTop: '24px',
+            paddingRight: '16px',
+            paddingBottom: '24px',
+            paddingLeft: '16px',
+            background: 'var(--Card-Background, #FFFFFF)',
+            border: '1px solid var(--Border-Border, #E4E7EC)'
+          }}
         >
           <div className="flex items-start justify-between mb-2">
             <p className="text-[14px] text-[#667085]">{kpi.title}</p>
