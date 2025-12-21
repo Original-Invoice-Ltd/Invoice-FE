@@ -22,6 +22,16 @@ const CreateInvoicePage = () => {
     const [isDrawing, setIsDrawing] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
 
+    // Client dropdown and modal state
+    const [showClientDropdown, setShowClientDropdown] = useState(false);
+    const [showAddClientModal, setShowAddClientModal] = useState(false);
+    const [clients, setClients] = useState([
+        { id: '1', name: 'James Joseph', email: 'Jamesoriginalinvoice@gmail.com' },
+        { id: '2', name: 'James Joseph', email: 'Jamesoriginalinvoice@gmail.com' },
+        { id: '3', name: 'James Joseph', email: 'Jamesoriginalinvoice@gmail.com' },
+        { id: '4', name: 'James Joseph', email: 'Jamesoriginalinvoice@gmail.com' },
+    ]);
+
     // Form state
     const [billFrom, setBillFrom] = useState({
         fullName: "",
@@ -198,7 +208,8 @@ const CreateInvoicePage = () => {
     }
 
     return (
-        <div className="mt-[6px] m-[-20px]">   {/* Header */}
+        <>
+        <div className="mt-[6px] mx-4 ">   {/* Header */}
             <div className="mb-4 flex items-center gap-4">
                 <Link href="/dashboard/invoices" className="p-2 text-[#2F80ED] ">
                    <ArrowLeft size={24} />
@@ -220,7 +231,25 @@ const CreateInvoicePage = () => {
                                     </div>
                                 </div>
                                 <div className="flex-1 max-w-[200px] ml-auto">
-                                    <div className="border border-dashed border-[#E5E5E5] rounded-lg py-1 px-1 text-center cursor-pointer ">
+                                    <input
+                                        type="file"
+                                        id="logo-upload"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file && file.size <= 5 * 1024 * 1024) {
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                    setLogo(reader.result as string);
+                                                };
+                                                reader.readAsDataURL(file);
+                                            } else {
+                                                alert('File size must be less than 5MB');
+                                            }
+                                        }}
+                                    />
+                                    <label htmlFor="logo-upload" className="block border border-dashed border-[#E5E5E5] rounded-lg py-1 px-1 text-center cursor-pointer hover:border-[#2F80ED] transition-colors">
                                         <div className="flex flex-col items-center">
                                            <div className="border-gray-100 border border-2 p-1 w-12 h-12 rounded-lg">
                                                  <div className="mb-2 text-[#2F80ED] items-center flex  bg-gray-100 px-1 py-1 rounded-lg">
@@ -232,7 +261,7 @@ const CreateInvoicePage = () => {
                                             <p className="text-[16px] font-medium text-[#101828] mb-1">Upload Business Logo</p>
                                             <p className="text-[12px] text-[#667085]">Max file size 5MB</p>
                                         </div>
-                                    </div>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -324,18 +353,63 @@ const CreateInvoicePage = () => {
                                                 Customer <span className="text-red-500">*</span>
                                             </label>
                                             <div className="relative">
-                                                <select 
-                                                    value={billTo.customer}
-                                                    onChange={(e) => setBillTo({ ...billTo, customer: e.target.value })}
-                                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                <div
+                                                    onClick={() => setShowClientDropdown(!showClientDropdown)}
+                                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#98A2B3] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2F80ED] flex justify-between items-center"
                                                 >
-                                                    <option value="">Select from added client</option>
-                                                </select>
-                                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                                                    <span>{billTo.customer || 'Select from added client'}</span>
                                                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                                     </svg>
                                                 </div>
+                                                
+                                                {/* Client Dropdown */}
+                                                {showClientDropdown && (
+                                                    <div className="absolute z-10 w-full mt-1 bg-white border border-[#D0D5DD] rounded-lg shadow-lg max-h-80 overflow-y-auto">
+                                                        {clients.map((client, index) => (
+                                                            <div
+                                                                key={client.id}
+                                                                onClick={() => {
+                                                                    setBillTo({ ...billTo, customer: client.name });
+                                                                    setShowClientDropdown(false);
+                                                                }}
+                                                                className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 ${
+                                                                    index === 0 ? 'bg-[#2F80ED] text-white hover:bg-[#2F80ED]' : ''
+                                                                }`}
+                                                            >
+                                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-semibold ${
+                                                                    index === 0 ? 'bg-white text-[#2F80ED]' : 'bg-gray-100 text-gray-600'
+                                                                }`}>
+                                                                    C
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <p className={`font-medium ${index === 0 ? 'text-white' : 'text-gray-900'}`}>
+                                                                        {client.name}
+                                                                    </p>
+                                                                    <div className="flex items-center gap-1 text-sm">
+                                                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                            <path d="M2.66667 2.66667H13.3333C14.0667 2.66667 14.6667 3.26667 14.6667 4V12C14.6667 12.7333 14.0667 13.3333 13.3333 13.3333H2.66667C1.93333 13.3333 1.33333 12.7333 1.33333 12V4C1.33333 3.26667 1.93333 2.66667 2.66667 2.66667Z" stroke={index === 0 ? 'white' : 'currentColor'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                                            <path d="M14.6667 4L8 8.66667L1.33333 4" stroke={index === 0 ? 'white' : 'currentColor'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                                        </svg>
+                                                                        <span className={index === 0 ? 'text-white' : 'text-gray-600'}>{client.email}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                        
+                                                        {/* Add New Client Button */}
+                                                        <div
+                                                            onClick={() => {
+                                                                setShowClientDropdown(false);
+                                                                setShowAddClientModal(true);
+                                                            }}
+                                                            className="flex items-center gap-2 px-4 py-3 cursor-pointer hover:bg-gray-50 text-[#2F80ED] border-t border-gray-200"
+                                                        >
+                                                            <Plus size={20} />
+                                                            <span className="font-medium">Add New Client</span>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
@@ -547,59 +621,59 @@ const CreateInvoicePage = () => {
 
                 {/* Signature Modal */}
                 {showSignatureModal && (
-                <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-semibold text-[#101828]">Add Signature</h3>
-                            <button 
-                                onClick={() => {
-                                    setShowSignatureModal(false);
-                                    clearCanvas();
-                                }}
-                                className="text-[#667085] hover:text-[#101828]"
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-                        
-                        <div className="mb-4">
-                            <canvas
-                                ref={canvasRef}
-                                width={400}
-                                height={200}
-                                onMouseDown={startDrawing}
-                                onMouseMove={draw}
-                                onMouseUp={stopDrawing}
-                                onMouseLeave={stopDrawing}
-                                className="w-full border-2 border-[#D0D5DD] rounded-lg cursor-crosshair bg-white"
-                            />
-                        </div>
+                    <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
+                        <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-semibold text-[#101828]">Add Signature</h3>
+                                <button 
+                                    onClick={() => {
+                                        setShowSignatureModal(false);
+                                        clearCanvas();
+                                    }}
+                                    className="text-[#667085] hover:text-[#101828]"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
+                            
+                            <div className="mb-4">
+                                <canvas
+                                    ref={canvasRef}
+                                    width={400}
+                                    height={200}
+                                    onMouseDown={startDrawing}
+                                    onMouseMove={draw}
+                                    onMouseUp={stopDrawing}
+                                    onMouseLeave={stopDrawing}
+                                    className="w-full border-2 border-[#D0D5DD] rounded-lg cursor-crosshair bg-white"
+                                />
+                            </div>
 
-                        <div className="flex gap-3">
-                            <button
-                                onClick={clearCanvas}
-                                className="px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50"
-                            >
-                                Clear
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setShowSignatureModal(false);
-                                    clearCanvas();
-                                }}
-                                className="flex-1 px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={saveSignature}
-                                className="flex-1 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB]"
-                            >
-                                Save
-                            </button>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={clearCanvas}
+                                    className="px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50"
+                                >
+                                    Clear
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowSignatureModal(false);
+                                        clearCanvas();
+                                    }}
+                                    className="flex-1 px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={saveSignature}
+                                    className="flex-1 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB]"
+                                >
+                                    Save
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
                 )}
             </div>
 
@@ -727,9 +801,181 @@ const CreateInvoicePage = () => {
                     </div>
                 </div>
             </div>
-          
         </div>
-       
+
+        {/* Add New Client Modal */}
+        {showAddClientModal && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
+                <div className="bg-white rounded-2xl p-5 w-[500px] shadow-2xl [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
+                    <div className="flex justify-between items-center mb-1">
+                        <h3 className="text-xl font-semibold text-[#101828]">Add New Client</h3>
+                        <button 
+                            onClick={() => setShowAddClientModal(false)}
+                            className="text-[#667085] hover:text-[#101828]"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
+                    <p className="text-[13px] text-[#667085] mb-3">Save your client's business details to send invoices and track payments easily</p>
+                    
+                    <div className="space-y-2.5">
+                        <div>
+                            <label className="block text-[13px] font-medium text-[#344054] mb-1">
+                                Customer Type<span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                                <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
+                                    <option>Select customer type</option>
+                                </select>
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3">
+                            <div>
+                                <label className="block text-[13px] font-medium text-[#344054] mb-1">
+                                    Title<span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
+                                        <option>Ms</option>
+                                        <option>Mr</option>
+                                        <option>Mrs</option>
+                                        <option>Dr</option>
+                                    </select>
+                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-span-2">
+                                <label className="block text-[13px] font-medium text-[#344054] mb-1">
+                                    Client Full Name<span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter client full name"
+                                    className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-[13px] font-medium text-[#344054] mb-1">
+                                Business Name<span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="Enter business name"
+                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-[13px] font-medium text-[#344054] mb-1">
+                                    Email Address<span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="email"
+                                        placeholder="Enter client email"
+                                        className="w-full px-3 py-2 pr-10 border border-[#D0D5DD] rounded-lg text-[13px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                    />
+                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085]">
+                                        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M3.33334 3.33334H16.6667C17.5833 3.33334 18.3333 4.08334 18.3333 5.00001V15C18.3333 15.9167 17.5833 16.6667 16.6667 16.6667H3.33334C2.41668 16.6667 1.66668 15.9167 1.66668 15V5.00001C1.66668 4.08334 2.41668 3.33334 3.33334 3.33334Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                            <path d="M18.3333 5L10 10.8333L1.66666 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-[13px] font-medium text-[#344054] mb-1">
+                                    Phone Number<span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="tel"
+                                        placeholder="Enter client phone number"
+                                        className="w-full px-3 py-2 pr-10 border border-[#D0D5DD] rounded-lg text-[13px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                    />
+                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085]">
+                                        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M18.3333 14.1V16.6C18.3343 16.8321 18.2867 17.0618 18.1937 17.2745C18.1008 17.4871 17.9644 17.678 17.7934 17.8349C17.6224 17.9918 17.4205 18.1112 17.2006 18.1856C16.9808 18.26 16.7478 18.2876 16.5167 18.2667C13.9523 17.988 11.489 17.1118 9.32498 15.7083C7.31151 14.4289 5.60443 12.7218 4.32498 10.7083C2.91663 8.53438 2.04019 6.05916 1.76665 3.48334C1.74583 3.25292 1.77321 3.02069 1.84707 2.80139C1.92092 2.58209 2.03963 2.38061 2.19562 2.2098C2.35162 2.03899 2.54149 1.90258 2.75314 1.80943C2.9648 1.71627 3.19348 1.66847 3.42498 1.66834H5.92498C6.32953 1.66445 6.72148 1.80628 7.02812 2.06942C7.33476 2.33256 7.53505 2.69956 7.59165 3.10001C7.69717 3.90006 7.89286 4.68562 8.17498 5.44167C8.28712 5.74037 8.31137 6.06396 8.24491 6.37531C8.17844 6.68666 8.02404 6.97334 7.79998 7.20001L6.74165 8.25834C7.92795 10.3446 9.65536 12.072 11.7417 13.2583L12.8 12.2C13.0267 11.976 13.3133 11.8216 13.6247 11.7551C13.936 11.6886 14.2596 11.7129 14.5583 11.825C15.3144 12.1071 16.0999 12.3028 16.9 12.4083C17.3048 12.4654 17.6755 12.6693 17.9388 12.9812C18.2021 13.2931 18.3402 13.6913 18.3333 14.1Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-[13px] font-medium text-[#344054] mb-1">
+                                Country
+                            </label>
+                            <div className="relative">
+                                <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
+                                    <option>Select customer country</option>
+                                </select>
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                    Business Registration Number
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter client business Reg Number"
+                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                    Tax Identification Number
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter client Tax ID"
+                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-3 mt-3">
+                        <button
+                            onClick={() => setShowAddClientModal(false)}
+                            className="flex-1 px-6 py-2 border border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-blue-50 transition-colors text-[14px]"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={() => {
+                                // Handle save client
+                                setShowAddClientModal(false);
+                            }}
+                            className="flex-1 px-6 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors text-[14px]"
+                        >
+                            Save Client
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
+        </>
     );
 };
 
