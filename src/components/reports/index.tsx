@@ -28,7 +28,7 @@ const ReportsAnalytics = () => {
     {
       title: "Outstanding Amount",
       value: data.kpis.outstandingAmount === 0 ? "₦0" : `₦${data.kpis.outstandingAmount.toLocaleString()}`,
-      badge: data.kpis.outstandingAmount > 0 ? { text: "Overdue", color: "red" } : undefined,
+      badge: { text: "Overdue", color: "red" },
     },
     {
       title: "VAT Collected",
