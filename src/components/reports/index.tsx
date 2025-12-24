@@ -3,8 +3,7 @@
 import { useState } from "react";
 import ReportsHeader from "./ReportsHeader";
 import KPICards from "./KPICards";
-import RevenueChart from "./RevenueChart";
-import StatusChart from "./StatusChart";
+import RevenueChart, { StatusChart } from "./RevenueChart";
 import RecentInvoicesTable from "./RecentInvoicesTable";
 import { emptyReportsData, filledReportsData } from "./mockData";
 import { KPICardData } from "./types";
@@ -53,9 +52,13 @@ const ReportsAnalytics = () => {
 
         <KPICards data={kpiCards} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <RevenueChart data={data.revenueData} isEmpty={!hasData} />
-          <StatusChart data={data.statusDistribution} isEmpty={!hasData} />
+        <div className="flex flex-col lg:flex-row gap-6 mb-6 w-full max-w-[1108px]">
+          <div className="w-full lg:w-[692px]">
+            <RevenueChart data={data.revenueData} isEmpty={!hasData} />
+          </div>
+          <div className="w-full lg:w-[392px]">
+            <StatusChart data={data.statusDistribution} isEmpty={!hasData} />
+          </div>
         </div>
 
         <RecentInvoicesTable
