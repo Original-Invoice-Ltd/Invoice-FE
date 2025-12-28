@@ -69,11 +69,20 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({
 
         {/* Right Column - Payment Form (60%) */}
         <div className="lg:col-span-3 flex items-center justify-center p-6 lg:p-12">
-          <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-            <PaymentForm
-              onSubmit={handlePaymentSubmit}
-              isProcessing={paymentStatus === 'processing'}
-            />
+          <div 
+            className="w-full bg-white rounded-xl shadow-lg"
+            style={{
+              maxWidth: '518px',
+              minHeight: '625px',
+              padding: '32px 24px',
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+              <PaymentForm
+                onSubmit={handlePaymentSubmit}
+                isProcessing={paymentStatus === 'processing'}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -57,8 +57,20 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onSubmit, isProcessing }) => 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Payment Method</h2>
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <h2 
+        style={{
+          width: '470px',
+          height: '29px',
+          fontFamily: 'Inter Tight, sans-serif',
+          fontWeight: 500,
+          fontSize: '24px',
+          lineHeight: '120%',
+          letterSpacing: '0%',
+        }}
+      >
+        Card Information
+      </h2>
 
       {/* Card Number */}
       <div>
@@ -67,7 +79,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onSubmit, isProcessing }) => 
             type="text"
             value={formatCardNumber(formData.cardNumber)}
             onChange={handleCardNumberChange}
-            placeholder="1234 1234 1234 123"
+            placeholder="1234 1234 1234 1234"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
@@ -174,9 +186,9 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onSubmit, isProcessing }) => 
       </button>
 
       {/* Footer Text */}
-      <div className="text-xs text-gray-500 text-center space-y-2">
+      <div className="text-xs text-gray-500 text-center" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <p>
-          By confirming your payment, you allow Original Invoice to charge you for this payment and future payments in accordance with their terms.
+          By confirming your payment, you allow Original Invoice to charge you for this payment and future payment in accordance with their terms.
         </p>
         <p className="flex items-center justify-center gap-1">
           Powered by <span className="text-blue-600 font-semibold">Paystack</span>
