@@ -103,15 +103,15 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
   };
 
   return (
-    <div className="w-full max-w-[470px] mx-auto flex flex-col gap-[16px]">
+    <div className="w-full max-w-[470px] mx-auto flex flex-col gap-4">
       {/* Logo - Centered with spacing (mobile only) */}
-      <div className="flex justify-center mb-6 lg:hidden">
+      <div className="flex justify-center mb-4 md:hidden">
         <Logo/>
       </div>
       
       {/* Header */}
-      <div className="text-center mb-2 relative">
-        <h2 className="text-[24px] font-medium text-[#000000] font-['Inter_Tight'] mb-2">
+      <div className="text-center mb-1">
+        <h2 className="text-[24px] font-medium text-[#000000] font-['Inter_Tight'] mb-1">
           Sign Up
         </h2>
     
@@ -257,7 +257,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
       </button>
 
       {/* Divider with lines */}
-      <div className="flex items-center gap-4 my-2">
+      <div className="flex items-center gap-4 my-1">
         <div className="flex-1 h-[1px] bg-[#E5E5E5]"></div>
         <span className="text-[16px] font-semibold text-[#333333] font-['Inter_Tight']">Or</span>
         <div className="flex-1 h-[1px] bg-[#E5E5E5]"></div>
