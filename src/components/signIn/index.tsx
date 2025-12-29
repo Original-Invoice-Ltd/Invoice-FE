@@ -36,7 +36,7 @@ export default function SignIn() {
     try {
       const response = await ApiClient.login(formData.email, formData.password);
 
-      if (response.success) {
+      if (response.status === 200) {
         // Show success message and redirect to dashboard
         showSuccess('Login successful! Redirecting to dashboard...');
         setTimeout(() => {

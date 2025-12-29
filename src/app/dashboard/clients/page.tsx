@@ -1,17 +1,31 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Plus, X, Check, MoreVertical, ChevronDown, Mail, Phone } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Search, Plus, MoreVertical, ChevronDown, Edit, Trash2 } from "lucide-react";
+import { ApiClient } from "@/lib/api";
+
+import { ClientCache } from "@/lib/clientCache";
+import ClientModal from "@/components/clientManagement/ClientModal";
 
 interface Client {
     id: string;
+    customerType: string;
     title: string;
-    name: string;
-    company: string;
+    fullName: string;
+    businessName: string;
     email: string;
     phone: string;
-    taxId: string;
-    balance: string;
+    country: string;
+}
+
+interface FormData {
+    customerType: string;
+    title: string;
+    fullName: string;
+    businessName: string;
+    email: string;
+    phone: string;
+    country: string;
 }
 
 
@@ -23,8 +37,16 @@ const ClientsPage = () => {
     const [clients, setClients] = useState<Client[]>([]);
     const [showSortDropdown, setShowSortDropdown] = useState(false);
     const [showActionMenu, setShowActionMenu] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingClients, setIsLoadingClients] = useState(true);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editingClientId, setEditingClientId] = useState<string | null>(null);
+    const [sortBy, setSortBy] = useState("name");
+    
+    const sortDropdownRef = useRef<HTMLDivElement>(null);
+    const actionMenuRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<FormData>({
         customerType: "",
         title: "Mr",
         fullName: "",
@@ -32,26 +54,156 @@ const ClientsPage = () => {
         email: "",
         phone: "",
         country: "",
-        businessRegNumber: "",
-        taxId: "",
     });
 
-    const handleSaveClient = () => {
-        const newClient: Client = {
-            id: `${clients.length + 1}`,
-            title: formData.title,
-            name: formData.fullName,
-            company: formData.businessName,
-            email: formData.email,
-            phone: formData.phone,
-            taxId: formData.taxId || "#000000000",
-            balance: "₦0",
+    // Load clients on component mount
+    useEffect(() => {
+        loadClients();
+    }, []);
+
+    // Close dropdowns when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target as Node)) {
+                setShowSortDropdown(false);
+            }
+            
+            // Close action menus
+            Object.entries(actionMenuRefs.current).forEach(([clientId, ref]) => {
+                if (ref && !ref.contains(event.target as Node)) {
+                    if (showActionMenu === clientId) {
+                        setShowActionMenu(null);
+                    }
+                }
+            });
         };
 
-        setClients([...clients, newClient]);
-        setShowAddModal(false);
-        setShowSuccessModal(true);
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showActionMenu]);
 
+    const loadClients = async (forceRefresh = false) => {
+        try {
+            setIsLoadingClients(true);
+            
+            // Try to load from cache first if not forcing refresh
+            if (!forceRefresh) {
+                const cachedClients = ClientCache.get();
+                if (cachedClients) {
+                    setClients(cachedClients);
+                    setIsLoadingClients(false);
+                    return;
+                }
+            }
+            
+            const response = await ApiClient.getAllUserClients();
+            
+            // Log the response to see what backend is returning
+            console.log('Backend response:', response);
+            
+            if (response.status === 200) {
+                // Handle both cases: data exists (array) or data is null/undefined (empty list)
+                const clientsData = Array.isArray(response.data) ? response.data : [];
+                setClients(clientsData);
+                // Cache the clients (even if empty array)
+                ClientCache.set(clientsData);
+            } else {
+                // Only handle actual API errors, not empty lists
+                console.log('API error response:', response);
+                const cachedClients = ClientCache.get();
+                if (cachedClients) {
+                    setClients(cachedClients);
+                    // Silently use cached data, no toast needed
+                } else {
+                    // Set empty array if no cached data and API failed
+                    setClients([]);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading clients:', error);
+            
+            // Try to load from cache as fallback
+            const cachedClients = ClientCache.get();
+            if (cachedClients) {
+                setClients(cachedClients);
+                // Silently use cached data, no toast needed
+            }
+            // If no cached data available, the empty state will be shown
+        } finally {
+            setIsLoadingClients(false);
+        }
+    };
+
+    const handleSaveClient = async () => {
+        if (!formData.customerType || !formData.title || !formData.fullName || 
+            !formData.businessName || !formData.email || !formData.phone) {
+            alert('Please fill in all required fields');
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            let response;
+
+            if (isEditMode && editingClientId) {
+                response = await ApiClient.updateClient(editingClientId, formData);
+            } else {
+                response = await ApiClient.addClient(formData);
+            }
+
+            // Check for appropriate status codes: 201 for create, 200 for update
+            const expectedStatus = isEditMode ? 200 : 201;
+            if (response.status === expectedStatus) {
+                setShowAddModal(false);
+                setShowSuccessModal(true);
+                resetForm();
+                await loadClients(true); // Force refresh to get latest data
+            } else {
+                console.error(`Failed to ${isEditMode ? 'update' : 'add'} client:`, response.error);
+            }
+        } catch (error) {
+            console.error('Error saving client:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleEditClient = (client: Client) => {
+        setFormData({
+            customerType: client.customerType,
+            title: client.title,
+            fullName: client.fullName,
+            businessName: client.businessName,
+            email: client.email,
+            phone: client.phone,
+            country: client.country || "",
+        });
+        setIsEditMode(true);
+        setEditingClientId(client.id);
+        setShowAddModal(true);
+        setShowActionMenu(null);
+    };
+
+    const handleDeleteClient = async (clientId: string) => {
+        if (!confirm('Are you sure you want to delete this client?')) {
+            return;
+        }
+
+        try {
+            const response = await ApiClient.deleteClient(clientId);
+            
+            if (response.status === 200) {
+                await loadClients(true); // Force refresh to get latest data
+            } else {
+                console.error('Failed to delete client:', response.error);
+            }
+        } catch (error) {
+            console.error('Error deleting client:', error);
+        }
+        setShowActionMenu(null);
+    };
+
+    const resetForm = () => {
         setFormData({
             customerType: "",
             title: "Mr",
@@ -60,12 +212,38 @@ const ClientsPage = () => {
             email: "",
             phone: "",
             country: "",
-            businessRegNumber: "",
-            taxId: "",
         });
+        setIsEditMode(false);
+        setEditingClientId(null);
     };
 
-    const totalPages = 99;
+    const handleAddNewClient = () => {
+        resetForm();
+        setShowAddModal(true);
+    };
+
+    const filteredClients = clients.filter(client =>
+        client.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        client.businessName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        client.email.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const sortedClients = [...filteredClients].sort((a, b) => {
+        switch (sortBy) {
+            case 'name':
+                return a.fullName.localeCompare(b.fullName);
+            case 'company':
+                return a.businessName.localeCompare(b.businessName);
+            case 'email':
+                return a.email.localeCompare(b.email);
+            default:
+                return 0;
+        }
+    });
+
+    const totalPages = Math.ceil(sortedClients.length / 10);
+    const startIndex = (currentPage - 1) * 10;
+    const paginatedClients = sortedClients.slice(startIndex, startIndex + 10);
 
     return (
         <div className="p-6">
@@ -81,7 +259,7 @@ const ClientsPage = () => {
                         </p>
                     </div>
                     <button
-                        onClick={() => setShowAddModal(true)}
+                        onClick={handleAddNewClient}
                         className="hidden lg:flex items-center gap-2 w-[139px] h-12 px-4 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
                     >
                         <Plus size={20} />
@@ -93,7 +271,7 @@ const ClientsPage = () => {
                 {/* Mobile Add Client Button */}
                 <div className="lg:hidden mb-6">
                     <button
-                        onClick={() => setShowAddModal(true)}
+                        onClick={handleAddNewClient}
                         className="w-full flex items-center justify-center gap-2 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
                     >
                         <Plus size={20} />
@@ -101,8 +279,14 @@ const ClientsPage = () => {
                     </button>
                 </div>
 
-                {/* Conditional Rendering: Empty State or Table */}
-                {clients.length === 0 ? (
+                {/* Conditional Rendering: Loading, Empty State or Table */}
+                {isLoadingClients ? (
+                    /* Loading State */
+                    <div className="bg-white rounded-lg border border-[#E4E7EC] p-12 flex flex-col items-center justify-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2F80ED] mb-4"></div>
+                        <p className="text-[#667085]">Loading clients...</p>
+                    </div>
+                ) : clients.length === 0 ? (
                     /* Empty State */
                     <div className="bg-white rounded-lg border border-[#E4E7EC] p-12 flex flex-col items-center justify-center">
                         <div className="mb-6">
@@ -143,7 +327,7 @@ const ClientsPage = () => {
                             Add your first client to start sending invoices and tracking payments.
                         </p>
                         <button
-                            onClick={() => setShowAddModal(true)}
+                            onClick={handleAddNewClient}
                             className="flex items-center gap-2 px-4 py-2 border border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-[#EFF8FF] transition-colors"
                         >
                             <Plus size={20} />
@@ -167,10 +351,47 @@ const ClientsPage = () => {
                                         className="w-full pl-10 pr-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                     />
                                 </div>
-                                <button className="flex items-center justify-center gap-2 px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm text-[#344054] hover:bg-[#F9FAFB]">
-                                    Sort by
-                                    <ChevronDown size={16} />
-                                </button>
+                                <div className="relative" ref={sortDropdownRef}>
+                                    <button 
+                                        onClick={() => setShowSortDropdown(!showSortDropdown)}
+                                        className="flex items-center justify-center gap-2 px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm text-[#344054] hover:bg-[#F9FAFB]"
+                                        style={{ width: '111px', height: '40px' }}
+                                    >
+                                        Sort by
+                                        <ChevronDown size={16} />
+                                    </button>
+                                    {showSortDropdown && (
+                                        <div className="absolute right-0 mt-1 w-48 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-10">
+                                            <button
+                                                onClick={() => {
+                                                    setSortBy('name');
+                                                    setShowSortDropdown(false);
+                                                }}
+                                                className="w-full text-left px-4 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB] first:rounded-t-lg"
+                                            >
+                                                Name
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setSortBy('company');
+                                                    setShowSortDropdown(false);
+                                                }}
+                                                className="w-full text-left px-4 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB]"
+                                            >
+                                                Company
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setSortBy('email');
+                                                    setShowSortDropdown(false);
+                                                }}
+                                                className="w-full text-left px-4 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB] last:rounded-b-lg"
+                                            >
+                                                Email
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
@@ -185,25 +406,52 @@ const ClientsPage = () => {
                                         <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Company Name</th>
                                         <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Email Address</th>
                                         <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Phone Number</th>
-                                        <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Tax ID</th>
-                                        <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Balance Due</th>
                                         <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {clients.map((client, index) => (
-                                        <tr key={index} className="border-b border-[#E4E7EC] hover:bg-[#F9FAFB]">
+                                    {paginatedClients.map((client, index) => (
+                                        <tr key={client.id} className="border-b border-[#E4E7EC] hover:bg-[#F9FAFB]">
                                             <td className="px-6 py-4 text-sm text-[#101828]">{client.title}</td>
-                                            <td className="px-6 py-4 text-sm text-[#101828]">{client.name}</td>
-                                            <td className="px-6 py-4 text-sm text-[#101828]">{client.company}</td>
+                                            <td className="px-6 py-4 text-sm text-[#101828]">{client.fullName}</td>
+                                            <td className="px-6 py-4 text-sm text-[#101828]">{client.businessName}</td>
                                             <td className="px-6 py-4 text-sm text-[#667085]">{client.email}</td>
                                             <td className="px-6 py-4 text-sm text-[#667085]">{client.phone}</td>
-                                            <td className="px-6 py-4 text-sm text-[#667085]">{client.taxId}</td>
-                                            <td className="px-6 py-4 text-sm text-[#101828] font-medium">{client.balance}</td>
-                                            <td className="px-6 py-4">
-                                                <button className="text-[#667085] hover:text-[#101828]">
-                                                    <MoreVertical size={18} />
-                                                </button>
+                                            <td className="px-6 py-4 relative">
+                                                <div 
+                                                    ref={(el) => {
+                                                        if (el) actionMenuRefs.current[client.id] = el;
+                                                    }}
+                                                    className="relative"
+                                                >
+                                                    <button 
+                                                        onClick={() => setShowActionMenu(showActionMenu === client.id ? null : client.id)}
+                                                        className="text-[#667085] hover:text-[#101828] p-1"
+                                                    >
+                                                        <MoreVertical size={18} />
+                                                    </button>
+                                                    {showActionMenu === client.id && (
+                                                        <div 
+                                                            className="absolute right-0 mt-1 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-10"
+                                                            style={{ width: '120px' }}
+                                                        >
+                                                            <button
+                                                                onClick={() => handleEditClient(client)}
+                                                                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB] first:rounded-t-lg"
+                                                            >
+                                                                <Edit size={14} />
+                                                                Edit
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeleteClient(client.id)}
+                                                                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#F04438] hover:bg-[#FEF3F2] last:rounded-b-lg"
+                                                            >
+                                                                <Trash2 size={14} />
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -212,224 +460,77 @@ const ClientsPage = () => {
                         </div>
 
                         {/* Pagination */}
-                        <div className="flex items-center justify-center gap-2">
-                            <button className="p-2 hover:bg-[#F9FAFB] rounded-lg">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <path d="M12.5 15L7.5 10L12.5 5" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            </button>
-                            {[1, 2, 3, 4, 5].map((page) => (
-                                <button
-                                    key={page}
-                                    onClick={() => setCurrentPage(page)}
-                                    className={`px-3 py-1 rounded-lg text-sm ${currentPage === page
-                                            ? 'bg-[#2F80ED] text-white'
-                                            : 'text-[#667085] hover:bg-[#F9FAFB]'
-                                        }`}
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-center gap-2">
+                                <button 
+                                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                                    disabled={currentPage === 1}
+                                    className="p-2 hover:bg-[#F9FAFB] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {page}
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M12.5 15L7.5 10L12.5 5" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
                                 </button>
-                            ))}
-                            <span className="px-2 text-[#667085]">...</span>
-                            <button className="px-3 py-1 rounded-lg text-sm text-[#667085] hover:bg-[#F9FAFB]">
-                                99
-                            </button>
-                            <button className="p-2 hover:bg-[#F9FAFB] rounded-lg">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <path d="M7.5 15L12.5 10L7.5 5" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* Add Client Modal */}
-                {showAddModal && (
-                    <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: 'rgba(197, 199, 202, 0.90)' }}>
-                        <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                            <div className="p-6">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h2 className="text-xl font-semibold text-[#000000]">Add New Client</h2>
-                                    <button onClick={() => setShowAddModal(false)} className="text-[#667085] hover:text-[#101828]">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M19.281 18.2194C19.3507 18.289 19.406 18.3718 19.4437 18.4628C19.4814 18.5539 19.5008 18.6514 19.5008 18.75C19.5008 18.8485 19.4814 18.9461 19.4437 19.0372C19.406 19.1282 19.3507 19.2109 19.281 19.2806C19.2114 19.3503 19.1286 19.4056 19.0376 19.4433C18.9465 19.481 18.849 19.5004 18.7504 19.5004C18.6519 19.5004 18.5543 19.481 18.4632 19.4433C18.3722 19.4056 18.2895 19.3503 18.2198 19.2806L12.0004 13.0603L5.78104 19.2806C5.64031 19.4213 5.44944 19.5004 5.25042 19.5004C5.05139 19.5004 4.86052 19.4213 4.71979 19.2806C4.57906 19.1399 4.5 18.949 4.5 18.75C4.5 18.551 4.57906 18.3601 4.71979 18.2194L10.9401 12L4.71979 5.78061C4.57906 5.63988 4.5 5.44901 4.5 5.24999C4.5 5.05097 4.57906 4.8601 4.71979 4.71936C4.86052 4.57863 5.05139 4.49957 5.25042 4.49957C5.44944 4.49957 5.64031 4.57863 5.78104 4.71936L12.0004 10.9397L18.2198 4.71936C18.3605 4.57863 18.5514 4.49957 18.7504 4.49957C18.9494 4.49957 19.1403 4.57863 19.281 4.71936C19.4218 4.8601 19.5008 5.05097 19.5008 5.24999C19.5008 5.44901 19.4218 5.63988 19.281 5.78061L13.0607 12L19.281 18.2194Z" fill="black" />
-                                        </svg>
-
-                                    </button>
-                                </div>
-                                <p className="text-sm text-[#333436] mb-6">
-                                    Save your client's business details to send invoices and track payments easily
-                                </p>
-
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-2">
-                                            <span className="text-[#000000]">Customer Type</span>
-                                            <span className="text-[#F04438]">*</span>
-                                        </label>
-
-                                        <select
-                                            value={formData.customerType}
-                                            onChange={(e) => setFormData({ ...formData, customerType: e.target.value })}
-                                            className="w-full px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                
+                                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                    const page = i + 1;
+                                    return (
+                                        <button
+                                            key={page}
+                                            onClick={() => setCurrentPage(page)}
+                                            className={`px-3 py-1 rounded-lg text-sm ${currentPage === page
+                                                    ? 'bg-[#2F80ED] text-white'
+                                                    : 'text-[#667085] hover:bg-[#F9FAFB]'
+                                                }`}
                                         >
-                                            <option value="">Select customer type</option>
-                                            <option value="individual">Individual</option>
-                                            <option value="business">Business</option>
-                                        </select>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium mb-2">
-                                                <span className="text-[#000000]">Title</span>
-                                                <span className="text-[#F04438]">*</span>
-                                            </label>
-
-                                            <select
-                                                value={formData.title}
-                                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                                className="w-full px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-0"
-                                            >
-                                                <option value="Mr">Mr</option>
-                                                <option value="Mrs">Mrs</option>
-                                                <option value="Ms">Ms</option>
-                                                <option value="Miss">Miss</option>
-                                                <option value="Dr">Dr</option>
-                                                <option value="Engr">Engr</option>
-                                                <option value="Hon">Hon</option>
-                                                <option value="Capt">Capt</option>
-                                                <option value="Gen">Gen</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium mb-2">
-                                                <span className="text-[#000000]">Client Full Name</span>
-                                                <span className="text-[#F04438]">*</span>
-                                            </label>
-
-                                            <input
-                                                type="text"
-                                                placeholder="Enter client full name"
-                                                value={formData.fullName}
-                                                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                                                className="w-full px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium mb-2">
-                                            <span className="text-[#000000]">Business Name</span>
-                                            <span className="text-[#F04438]">*</span>
-                                        </label>
-
-                                        <input
-                                            type="text"
-                                            placeholder="Enter business name"
-                                            value={formData.businessName}
-                                            onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
-                                            className="w-full px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-0"
-                                        />
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium mb-2">
-                                                <span className="text-[#000000]">Email Address</span>
-                                                <span className="text-[#F04438]">*</span>
-                                            </label>
-
-                                            <div className="relative">
-                                                <input
-                                                    type="email"
-                                                    placeholder="Enter client email"
-                                                    value={formData.email}
-                                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                                    className="w-full pl-4 pr-10 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-0"
-                                                />
-                                                <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={18} />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium mb-2">
-                                                <span className="text-[#000000]">Phone Number</span>
-                                                <span className="text-[#F04438]">*</span>
-                                            </label>
-
-                                            <div className="relative">
-                                                <input
-                                                    type="tel"
-                                                    placeholder="Enter client phone number"
-                                                    value={formData.phone}
-                                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                                    className="w-full pl-4 pr-10 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-0"
-                                                />
-                                                <Phone className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={18} />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-[#000000] mb-2">Country</label>
-                                        <select
-                                            value={formData.country}
-                                            onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                                            className="w-full px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-0"
+                                            {page}
+                                        </button>
+                                    );
+                                })}
+                                
+                                {totalPages > 5 && (
+                                    <>
+                                        <span className="px-2 text-[#667085]">...</span>
+                                        <button 
+                                            onClick={() => setCurrentPage(totalPages)}
+                                            className={`px-3 py-1 rounded-lg text-sm ${currentPage === totalPages
+                                                    ? 'bg-[#2F80ED] text-white'
+                                                    : 'text-[#667085] hover:bg-[#F9FAFB]'
+                                                }`}
                                         >
-                                            <option value="">Select customer country</option>
-                                            <option value="nigeria">Nigeria</option>
-                                            <option value="ghana">Ghana</option>
-                                            <option value="kenya">Kenya</option>
-                                        </select>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#000000] mb-2">Business Registration Number</label>
-                                            <input
-                                                type="text"
-                                                placeholder="Enter client business Reg Number"
-                                                value={formData.businessRegNumber}
-                                                onChange={(e) => setFormData({ ...formData, businessRegNumber: e.target.value })}
-                                                className="w-full px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-0"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#000000] mb-2">Tax Identification Number</label>
-                                            <input
-                                                type="text"
-                                                placeholder="Enter client Tax ID"
-                                                value={formData.taxId}
-                                                onChange={(e) => setFormData({ ...formData, taxId: e.target.value })}
-                                                className="w-full px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-0"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-3 mt-6">
-                                    <button
-                                        onClick={() => setShowAddModal(false)}
-                                        className="flex-1 px-6 py-3 border border-[#2F80ED] text-[#2F80ED] rounded-lg text-sm font-medium"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        onClick={handleSaveClient}
-                                        className="flex-1 px-6 py-3 bg-[#2F80ED] text-[#FFFFFF] rounded-lg text-sm font-medium"
-                                    >
-                                        Save Client
-                                    </button>
-                                </div>
+                                            {totalPages}
+                                        </button>
+                                    </>
+                                )}
+                                
+                                <button 
+                                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="p-2 hover:bg-[#F9FAFB] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M7.5 15L12.5 10L7.5 5" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                </button>
                             </div>
-                        </div>
+                        )}
                     </div>
                 )}
+
+                {/* Client Modal */}
+                <ClientModal
+                    isOpen={showAddModal}
+                    formData={formData}
+                    onClose={() => setShowAddModal(false)}
+                    onSave={handleSaveClient}
+                    onChange={setFormData}
+                    isLoading={isLoading}
+                    isEdit={isEditMode}
+                />
 
                 {/* Success Modal */}
                 {showSuccessModal && (
-                    <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: 'rgba(197, 199, 202, 0.95)' }}>
+                    <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: '#020D173B' }}>
                         <div className="bg-white rounded-lg w-full max-w-md p-6">
                             <div className="flex justify-end mb-4">
                                 <button onClick={() => setShowSuccessModal(false)} className="text-[#667085]">
