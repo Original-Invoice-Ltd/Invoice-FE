@@ -24,7 +24,7 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
     itemName: '',
     category: 'PRODUCT',
     description: '',
-    quantity: '',
+    quantity: '1',
     rate: '',
     amount: '',
     taxIds: [] as string[]
@@ -42,7 +42,7 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
         itemName: product.itemName || '',
         category: product.category || 'PRODUCT',
         description: product.description || '',
-        quantity: product.quantity?.toString() || '',
+        quantity: product.quantity?.toString() || '1',
         rate: product.rate?.toString() || '',
         amount: product.amount?.toString() || '',
         taxIds: product.taxes?.map(tax => tax.id) || []
@@ -138,7 +138,7 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: '#020D173B' }}>
       <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-xl font-semibold">
@@ -194,12 +194,13 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
+              Description *
             </label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleInputChange}
+              required
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter product description"
@@ -209,29 +210,31 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Quantity
+                Quantity *
               </label>
               <input
                 type="number"
                 name="quantity"
                 value={formData.quantity}
                 onChange={handleInputChange}
-                min="0"
+                required
+                min="1"
                 step="1"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="0"
+                placeholder="1"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Rate ($)
+                Rate ($) *
               </label>
               <input
                 type="number"
                 name="rate"
                 value={formData.rate}
                 onChange={handleInputChange}
+                required
                 min="0"
                 step="0.01"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -241,13 +244,14 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Amount ($)
+                Amount ($) *
               </label>
               <input
                 type="number"
                 name="amount"
                 value={formData.amount}
                 onChange={handleInputChange}
+                required
                 min="0"
                 step="0.01"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -259,7 +263,7 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
           {!loadingTaxes && availableTaxes.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Applicable Taxes
+                Applicable Taxes (Optional)
               </label>
               <div className="space-y-2 max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-3">
                 {availableTaxes.map((tax) => (
