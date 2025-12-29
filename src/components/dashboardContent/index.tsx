@@ -2,6 +2,7 @@
 
 import { Search, ChevronDown, Plus } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import Link from 'next/link';
 
 const DashboardContent = () => {
     // Sample data for charts
@@ -50,13 +51,13 @@ const DashboardContent = () => {
 
             {/* Action Buttons */}
             <div className="flex gap-3 mb-6">
-                <button className="flex-1 lg:flex-none lg:px-6 border border-[#2F80ED] text-[#2F80ED] rounded-lg text-sm font-medium hover:bg-[#EFF8FF] h-12 flex items-center justify-center">
+                <Link href="/dashboard/clients" className="flex-1 lg:flex-none lg:px-6 border border-[#2F80ED] text-[#2F80ED] rounded-lg text-sm font-medium hover:bg-[#EFF8FF] h-12 flex items-center justify-center">
                     Add Client
-                </button>
-                <button className="flex-1 lg:flex-none lg:px-6 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] h-12 flex items-center justify-center gap-2">
+                </Link>
+                <Link href="/dashboard/invoices/create-enhanced" className="flex-1 lg:flex-none lg:px-6 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] h-12 flex items-center justify-center gap-2">
                     <Plus size={18} />
-                    Create Invoice
-                </button>
+                    Create Invoice (Enhanced)
+                </Link>
             </div>
 
             {/* Stats Cards */}

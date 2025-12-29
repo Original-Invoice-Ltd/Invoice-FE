@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { X, Mail, Phone } from "lucide-react";
 
 interface FormData {
     customerType: string;
@@ -12,7 +12,7 @@ interface FormData {
     country: string;
 }
 
-interface AddClientModalProps {
+interface ClientModalProps {
     isOpen: boolean;
     formData: FormData;
     onClose: () => void;
@@ -22,7 +22,7 @@ interface AddClientModalProps {
     isEdit?: boolean;
 }
 
-const AddClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading = false, isEdit = false }: AddClientModalProps) => {
+const ClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading = false, isEdit = false }: ClientModalProps) => {
     if (!isOpen) return null;
 
     return (
@@ -48,6 +48,7 @@ const AddClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading
                             value={formData.customerType || ""}
                             onChange={(e) => onChange({...formData, customerType: e.target.value})}
                             className="w-full px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                            disabled={isLoading}
                         >
                             <option value="">Select customer type</option>
                             <option value="individual">Individual</option>
@@ -62,12 +63,17 @@ const AddClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading
                                 value={formData.title || "Mr"}
                                 onChange={(e) => onChange({...formData, title: e.target.value})}
                                 className="w-full px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                disabled={isLoading}
                             >
-                                <option value="">Mr</option>
                                 <option value="Mr">Mr</option>
                                 <option value="Mrs">Mrs</option>
                                 <option value="Ms">Ms</option>
                                 <option value="Miss">Miss</option>
+                                <option value="Dr">Dr</option>
+                                <option value="Engr">Engr</option>
+                                <option value="Hon">Hon</option>
+                                <option value="Capt">Capt</option>
+                                <option value="Gen">Gen</option>
                             </select>
                         </div>
                         <div>
@@ -78,6 +84,7 @@ const AddClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading
                                 value={formData.fullName}
                                 onChange={(e) => onChange({...formData, fullName: e.target.value})}
                                 className="w-full px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                disabled={isLoading}
                             />
                         </div>
                     </div>
@@ -90,29 +97,38 @@ const AddClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading
                             value={formData.businessName}
                             onChange={(e) => onChange({...formData, businessName: e.target.value})}
                             className="w-full px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                            disabled={isLoading}
                         />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-[#344054] mb-2">Email Address*</label>
-                            <input 
-                                type="email"
-                                placeholder="Enter client email"
-                                value={formData.email}
-                                onChange={(e) => onChange({...formData, email: e.target.value})}
-                                className="w-full px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                            />
+                            <div className="relative">
+                                <input 
+                                    type="email"
+                                    placeholder="Enter client email"
+                                    value={formData.email}
+                                    onChange={(e) => onChange({...formData, email: e.target.value})}
+                                    className="w-full pl-4 pr-10 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                    disabled={isLoading}
+                                />
+                                <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={18} />
+                            </div>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-[#344054] mb-2">Phone Number*</label>
-                            <input 
-                                type="tel"
-                                placeholder="Enter client phone number"
-                                value={formData.phone}
-                                onChange={(e) => onChange({...formData, phone: e.target.value})}
-                                className="w-full px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                            />
+                            <div className="relative">
+                                <input 
+                                    type="tel"
+                                    placeholder="Enter client phone number"
+                                    value={formData.phone}
+                                    onChange={(e) => onChange({...formData, phone: e.target.value})}
+                                    className="w-full pl-4 pr-10 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                    disabled={isLoading}
+                                />
+                                <Phone className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={18} />
+                            </div>
                         </div>
                     </div>
 
@@ -122,14 +138,19 @@ const AddClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading
                             value={formData.country || ""}
                             onChange={(e) => onChange({...formData, country: e.target.value})}
                             className="w-full px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                            disabled={isLoading}
                         >
                             <option value="">Select customer country</option>
                             <option value="nigeria">Nigeria</option>
                             <option value="ghana">Ghana</option>
                             <option value="kenya">Kenya</option>
+                            <option value="south-africa">South Africa</option>
+                            <option value="egypt">Egypt</option>
+                            <option value="morocco">Morocco</option>
+                            <option value="uganda">Uganda</option>
+                            <option value="tanzania">Tanzania</option>
                         </select>
                     </div>
-
                 </div>
 
                 <div className="flex items-center gap-3 mt-6">
@@ -159,4 +180,4 @@ const AddClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading
     );
 };
 
-export default AddClientModal;
+export default ClientModal;

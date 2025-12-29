@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter_Tight } from "next/font/google";
 import "./globals.css";
+import ActivityTracker from "@/components/ActivityTracker";
 
 const interTight = Inter_Tight({
     subsets: ["latin"],
@@ -23,6 +24,7 @@ export default function RootLayout({
     return (
         <html lang="en">
         <body className={`${interTight.className} antialiased`}>
+        <ActivityTracker />
         {children}
         </body>
         </html>
