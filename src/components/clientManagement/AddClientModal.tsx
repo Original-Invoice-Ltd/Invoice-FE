@@ -10,6 +10,8 @@ interface FormData {
     email: string;
     phone: string;
     country: string;
+    businessRegNumber: string;
+    taxId: string;
 }
 
 interface AddClientModalProps {
