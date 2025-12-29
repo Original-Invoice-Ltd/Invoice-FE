@@ -103,7 +103,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
   };
 
   return (
-    <div className="w-full max-w-[470px] mx-auto flex flex-col gap-4">
+    <div className=" w-full max-w-[470px] mx-auto flex flex-col mt-16 gap-2">
       {/* Logo - Centered with spacing (mobile only) */}
       <div className="flex justify-center mb-4 md:hidden">
         <Logo/>
@@ -134,7 +134,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
             value={formData.email}
             onChange={handleInputChangeWithValidation}
             onBlur={handleInputBlur}
-            className={`w-full h-[48px] rounded-lg pl-4 pr-12 border 
+            className={`w-full h-[38px] rounded-lg pl-4 pr-12 border 
               ${errors.email ? 'border-red-500' : 'border-[#E5E5E5]'} 
               bg-white text-[14px] placeholder-gray-400 focus:outline-none focus:ring-2 
               ${errors.email ? 'focus:ring-red-500' : 'focus:ring-[#2F80ED]'} font-['Inter_Tight']`}
@@ -162,7 +162,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
             value={formData.password}
             onChange={handleInputChangeWithValidation}
             onBlur={handleInputBlur}
-            className={`w-full h-[48px] rounded-lg pl-4 pr-12 border 
+            className={`w-full h-[38px] rounded-lg pl-4 pr-12 border 
               ${errors.password ? 'border-red-500' : 'border-[#E5E5E5]'} 
               bg-white text-[14px] placeholder-gray-400 focus:outline-none focus:ring-2 
               ${errors.password ? 'focus:ring-red-500' : 'focus:ring-[#2F80ED]'} font-['Inter_Tight']`}
@@ -201,7 +201,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
             value={formData.fullName}
             onChange={handleInputChangeWithValidation}
             onBlur={handleInputBlur}
-            className={`w-full h-[48px] rounded-lg pl-4 pr-12 border 
+            className={`w-full h-[38px] rounded-lg pl-4 pr-12 border 
               ${errors.fullName ? 'border-red-500' : 'border-[#E5E5E5]'} 
               bg-white text-[14px] placeholder-gray-400 focus:outline-none focus:ring-2 
               ${errors.fullName ? 'focus:ring-red-500' : 'focus:ring-[#2F80ED]'} font-['Inter_Tight']`}
@@ -224,7 +224,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
             name="agreeToTerms"
             checked={formData.agreeToTerms}
             onChange={onInputChange}
-            className="w-5 h-5 mt-0.5 rounded border border-[#E5E5E5] bg-white"
+            className="w-5 h-5 mt-0.5 accent-[#2F08ED] rounded border border-[#E5E5E5] bg-white"
           />
           <label htmlFor="terms" className="text-[13px] text-[#666666] font-['Inter_Tight'] leading-relaxed">
             By creating an account means you agree to the{' '}
@@ -242,7 +242,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
         type="submit"
         onClick={handleFormSubmit}
         disabled={loading}
-        className="w-full h-[48px] rounded-lg bg-[#2F80ED] text-white text-[16px] 
+        className="w-full h-[38px] rounded-lg bg-[#2F80ED] text-white text-[16px] 
           font-medium font-['Inter_Tight'] hover:bg-[#2670d4] transition-colors
           disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
       >
@@ -270,7 +270,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
             const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
             window.location.href = `${apiBaseUrl}/oauth/google/login`;
           }}
-          className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
+          className="w-full sm:flex-1 h-[38px] rounded-lg border border-[#E5E5E5] bg-white 
           flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
           <GoogleIcon width={20} height={20} />
           <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
@@ -283,7 +283,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
             const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
             window.location.href = `${apiBaseUrl}/oauth/apple/login`;
           }}
-          className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
+          className="w-full sm:flex-1 h-[38px] rounded-lg border border-[#E5E5E5] bg-white 
           flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
           <AppleIcon width={20} height={20} />
           <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">

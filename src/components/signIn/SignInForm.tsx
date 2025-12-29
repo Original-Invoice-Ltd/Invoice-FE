@@ -28,7 +28,7 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
   };
 
   return (
-    <div className="w-full lg:mb-[-110px] max-w-[470px] mx-auto flex flex-col gap-2">
+    <div className="w-full  max-w-[470px] mx-auto flex flex-col gap-2">
       {/* Logo - Centered with spacing (mobile only) */}
       <div className="flex justify-center mb-4 md:hidden">
         <Logo/>
@@ -39,7 +39,6 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
         <h2 className="text-[24px] font-medium text-[#000000] font-['Inter_Tight']">
           Sign In
         </h2>
-       
         <p className="text-[16px] text-[#666666] font-['Inter_Tight']">
           Sign in with your email or social accounts
         </p>
@@ -110,7 +109,7 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
             name="rememberMe"
             checked={formData.rememberMe}
             onChange={onInputChange}
-            className="w-5 h-5 rounded border accent-[#2F80ED] border-[#E5E5E5] bg-white"
+            className="w-4 h-4 rounded border accent-[#2F80ED] border-[#E5E5E5] bg-white"
           />
           <span className="text-[14px] text-[#000000] font-['Inter_Tight']">Remember me</span>
         </label>

@@ -1,4 +1,8 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+const API_BASE_URL =  'https://api.originalinvoice.com/api/v1';
+
+console.log('=== API CLIENT INITIALIZED ===');
+console.log('API_BASE_URL:', API_BASE_URL);
+console.log('NEXT_PUBLIC_API_BASE_URL env:', process.env.NEXT_PUBLIC_API_BASE_URL);
 
 interface ApiResponse<T> {
   success: boolean;
@@ -86,7 +90,7 @@ export class ApiClient {
   }
 
   static async login(email: string, password: string) {
-    return this.request('/api/auth/login', {
+    return this.request('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
@@ -99,74 +103,74 @@ export class ApiClient {
     businessName?: string;
     businessCategory?: string;
   }) {
-    return this.request('/api/users/register', {
+    return this.request('/users/register', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   static async logout() {
-    return this.request('/api/auth/logout', {
+    return this.request('/auth/logout', {
       method: 'POST',
     });
   }
 
   static async refreshToken() {
-    return this.request('/api/auth/refresh', {
+    return this.request('/auth/refresh', {
       method: 'POST',
     });
   }
 
   static async verifyEmail(token: string) {
-    return this.request(`/api/auth/verify?token=${token}`, {
+    return this.request(`/auth/verify?token=${token}`, {
       method: 'GET',
     });
   }
 
   static async verifyOTP(email: string, otp: string) {
-    return this.request('/api/auth/verify-otp', {
+    return this.request('/auth/verify-otp', {
       method: 'POST',
       body: JSON.stringify({ email, otp }),
     });
   }
 
   static async resendOTP(email: string) {
-    return this.request('/api/auth/resend-otp', {
+    return this.request('/auth/resend-otp', {
       method: 'POST',
       body: JSON.stringify({ email }),
     });
   }
 
   static async sendVerificationOTP(email: string) {
-    return this.request('/api/auth/send-verification-otp', {
+    return this.request('/auth/send-verification-otp', {
       method: 'POST',
       body: JSON.stringify({ email }),
     });
   }
 
   static async forgotPassword(email: string) {
-    return this.request('/api/auth/forgot-password', {
+    return this.request('/auth/forgot-password', {
       method: 'POST',
       body: JSON.stringify({ email }),
     });
   }
 
   static async verifyPasswordResetOTP(email: string, otp: string) {
-    return this.request('/api/auth/verify-password-reset-otp', {
+    return this.request('/auth/verify-password-reset-otp', {
       method: 'POST',
       body: JSON.stringify({ email, otp }),
     });
   }
 
   static async resetPasswordWithOTP(email: string, otp: string, newPassword: string) {
-    return this.request('/api/auth/reset-password-with-otp', {
+    return this.request('/auth/reset-password-with-otp', {
       method: 'POST',
       body: JSON.stringify({ email, otp, newPassword }),
     });
   }
 
   static async getUserProfile(email: string) {
-    return this.request(`/api/users/get-profile?email=${email}`, {
+    return this.request(`/users/get-profile?email=${email}`, {
       method: 'GET',
     });
   }

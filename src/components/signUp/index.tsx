@@ -150,14 +150,15 @@ export default function SignUp() {
       </div>
 
       {/* Right Side - Form Section */}
-      <div className="relative w-full md:w-1/2 h-full flex flex-col items-center justify-center px-4 sm:px-8 md:px-6 lg:px-12"> 
+      <div className="w-full md:w-1/2 h-full flex flex-col px-4 sm:px-8 md:px-6 lg:px-12 overflow-hidden"> 
         {/* Logo - top-left on desktop only */}
-        <div className="hidden md:block absolute top-4 left-4 md:top-6 md:left-6 lg:top-8 lg:left-8">
+        <div className="hidden md:block pt-6 md:pt-8 lg:pt-6 lg:mb-4">
           <Logo />
         </div>
         
-        {/* Form Container */}
-        <div className="w-full max-w-[470px]">
+        {/* Form Container - scrollable with hidden scrollbar */}
+        <div className="flex-1 overflow-y-auto flex items-start md:items-center justify-center pt-4 md:pt-0 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="w-full max-w-[470px] py-4">
           {/* Conditional Rendering: Sign Up or OTP Verification Form */}
           {currentScreen === 'signup' ? (
             <SignUpForm
@@ -179,6 +180,7 @@ export default function SignUp() {
               loading={loading}
             />
           )}
+          </div>
         </div>
       </div>
 
