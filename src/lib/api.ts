@@ -1,6 +1,6 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.originalinvoice.com';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://localhost:8089';
 
 // Configure axios defaults
 const axiosInstance = axios.create({
