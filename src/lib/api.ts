@@ -1,6 +1,6 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://localhost:8089';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
 
 // Configure axios defaults
 const axiosInstance = axios.create({
@@ -10,6 +10,38 @@ const axiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Add request interceptor for debugging
+axiosInstance.interceptors.request.use(
+  (config) => {
+    console.log(`Making ${config.method?.toUpperCase()} request to: ${config.baseURL}${config.url}`);
+    return config;
+  },
+  (error) => {
+    console.error('Request interceptor error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for better error handling and debugging
+axiosInstance.interceptors.response.use(
+  (response) => {
+    console.log(`Response from ${response.config.url}:`, response.status);
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      console.error('Authentication failed - redirecting to login');
+      // Only redirect if we're not already on auth pages
+      if (typeof window !== 'undefined' && 
+          !window.location.pathname.includes('/signIn') && 
+          !window.location.pathname.includes('/signUp')) {
+        window.location.href = '/signIn';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 interface ApiResponse<T> {
   status: number;
