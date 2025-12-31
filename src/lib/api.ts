@@ -1,95 +1,113 @@
+import axios, { AxiosResponse, AxiosError } from 'axios';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
 
+// Configure axios defaults
+const axiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true, // CRITICAL: Include cookies
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Add request interceptor for debugging
+axiosInstance.interceptors.request.use(
+  (config) => {
+    console.log(`Making ${config.method?.toUpperCase()} request to: ${config.baseURL}${config.url}`);
+    return config;
+  },
+  (error) => {
+    console.error('Request interceptor error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for better error handling and debugging
+axiosInstance.interceptors.response.use(
+  (response) => {
+    console.log(`Response from ${response.config.url}:`, response.status);
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      console.error('Authentication failed - redirecting to login');
+      // Only redirect if we're not already on auth pages
+      if (typeof window !== 'undefined' && 
+          !window.location.pathname.includes('/signIn') && 
+          !window.location.pathname.includes('/signUp')) {
+        window.location.href = '/signIn';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 interface ApiResponse<T> {
-  success: boolean;
+  status: number;
   data?: T;
   message?: string;
   error?: string;
 }
 
 export class ApiClient {
-  private static async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
-    try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        ...options,
-        credentials: 'include', // CRITICAL: Include cookies
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
-      });
+  private static handleResponse<T>(response: AxiosResponse): ApiResponse<T> {
+    return {
+      status: response.status,
+      data: response.data,
+      message: typeof response.data === 'string' ? response.data : undefined,
+    };
+  }
 
-      // Check if response has content
-      const contentType = response.headers.get('content-type');
-      let data;
+  private static handleError(error: AxiosError): ApiResponse<any> {
+    if (error.response) {
+      // Server responded with error status
+      const errorMessage = typeof error.response.data === 'string' 
+        ? error.response.data 
+        : (error.response.data as any)?.message || error.message;
       
-      if (contentType && contentType.includes('application/json')) {
-        try {
-          data = await response.json();
-        } catch (jsonError) {
-          // If JSON parsing fails, try to get text response
-          const textResponse = await response.text();
-          console.error('JSON parsing failed, raw response:', textResponse);
-          
-          // Handle specific error messages
-          let errorMessage = 'Invalid response format';
-          if (textResponse.includes('user exist')) {
-            errorMessage = 'An account with this email already exists. Please sign in instead.';
-          } else if (textResponse.includes('Unexpected token')) {
-            errorMessage = 'Server response error. Please try again.';
-          } else if (textResponse) {
-            errorMessage = textResponse;
-          }
-          
-          return {
-            success: false,
-            error: errorMessage,
-          };
-        }
-      } else {
-        // Handle non-JSON responses
-        const textResponse = await response.text();
-        
-        // Handle specific text responses
-        if (textResponse.includes('user exist')) {
-          return {
-            success: false,
-            error: 'An account with this email already exists. Please sign in instead.',
-          };
-        }
-        
-        data = { message: textResponse };
-      }
-
-      if (!response.ok) {
-        return {
-          success: false,
-          error: data?.message || data?.error || data || 'An error occurred',
-        };
-      }
-
       return {
-        success: true,
-        data: data?.data || data,
-        message: data?.message,
+        status: error.response.status,
+        error: errorMessage,
       };
-    } catch (error) {
-      console.error('API request failed:', error);
+    } else if (error.request) {
+      // Network error
       return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Network error',
+        status: 0,
+        error: 'Network error - please check your connection',
+      };
+    } else {
+      // Other error
+      return {
+        status: 0,
+        error: error.message || 'An unexpected error occurred',
       };
     }
   }
 
+  private static async request<T>(
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    endpoint: string,
+    data?: any,
+    params?: any
+  ): Promise<ApiResponse<T>> {
+    try {
+      const response = await axiosInstance.request({
+        method,
+        url: endpoint,
+        data,
+        params,
+      });
+      
+      return this.handleResponse<T>(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  // Authentication APIs
   static async login(email: string, password: string) {
-    return this.request('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
+    return this.request('POST', '/api/auth/login', { email, password });
   }
 
   static async register(data: {
@@ -99,54 +117,121 @@ export class ApiClient {
     businessName?: string;
     businessCategory?: string;
   }) {
-    return this.request('/api/users/register', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    return this.request('POST', '/api/users/register', data);
   }
 
   static async logout() {
-    return this.request('/api/auth/logout', {
-      method: 'POST',
-    });
+    return this.request('POST', '/api/auth/logout');
   }
 
   static async refreshToken() {
-    return this.request('/api/auth/refresh', {
-      method: 'POST',
-    });
+    return this.request('POST', '/api/auth/refresh');
   }
 
   static async verifyEmail(token: string) {
-    return this.request(`/api/auth/verify?token=${token}`, {
-      method: 'GET',
-    });
+    return this.request('GET', '/api/auth/verify', undefined, { token });
   }
 
   static async verifyOTP(email: string, otp: string) {
-    return this.request('/api/auth/verify-otp', {
-      method: 'POST',
-      body: JSON.stringify({ email, otp }),
-    });
+    return this.request('POST', '/api/auth/verify-otp', { email, otp });
   }
 
   static async resendOTP(email: string) {
-    return this.request('/api/auth/resend-otp', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-    });
+    return this.request('POST', '/api/auth/resend-otp', { email });
   }
 
   static async sendVerificationOTP(email: string) {
-    return this.request('/api/auth/send-verification-otp', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-    });
+    return this.request('POST', '/api/auth/send-verification-otp', { email });
   }
 
   static async getUserProfile(email: string) {
-    return this.request(`/api/users/get-profile?email=${email}`, {
-      method: 'GET',
-    });
+    return this.request('GET', '/api/users/get-profile', undefined, { email });
+  }
+
+  // Client Management APIs
+  static async addClient(clientData: {
+    customerType: string;
+    title: string;
+    fullName: string;
+    businessName: string;
+    phone: string;
+    email: string;
+    country?: string;
+  }) {
+    return this.request('POST', '/api/client/add', clientData);
+  }
+
+  static async updateClient(id: string, clientData: {
+    customerType: string;
+    title: string;
+    fullName: string;
+    businessName: string;
+    phone: string;
+    email: string;
+    country?: string;
+  }) {
+    return this.request('PUT', '/api/client/update', clientData, { id });
+  }
+
+  static async deleteClient(id: string) {
+    return this.request('DELETE', '/api/client/delete-by-id', undefined, { id });
+  }
+
+  static async getAllUserClients() {
+    return this.request('GET', '/api/client/all-user');
+  }
+
+  static async getClientById(id: string) {
+    return this.request('GET', '/api/client/find-by-id', undefined, { id });
+  }
+
+  // Product Management APIs
+  static async addProduct(productData: {
+    itemName: string;
+    category: string;
+    description?: string;
+    quantity?: number;
+    rate?: number;
+    amount?: number;
+    taxIds?: string[];
+  }) {
+    return this.request('POST', '/api/product/add', productData);
+  }
+
+  static async updateProduct(id: string, productData: {
+    itemName: string;
+    category: string;
+    description?: string;
+    quantity?: number;
+    rate?: number;
+    amount?: number;
+    taxIds?: string[];
+  }) {
+    return this.request('PUT', '/api/product/update', productData, { id });
+  }
+
+  static async deleteProduct(id: string) {
+    return this.request('DELETE', '/api/product/delete-by-id', undefined, { id });
+  }
+
+  static async getAllUserProducts() {
+    return this.request('GET', '/api/product/all-user');
+  }
+
+  static async getProductById(id: string) {
+    return this.request('GET', '/api/product/find-by-id', undefined, { id });
+  }
+
+  static async getProductsByIds(ids: string[]) {
+    return this.request('POST', '/api/product/by-ids', ids);
+  }
+
+  // Tax Management APIs
+  static async getActiveTaxes() {
+    return this.request('GET', '/api/tax/active');
+  }
+
+  static async getAllTaxes() {
+    return this.request('GET', '/api/tax/all');
   }
 }
