@@ -65,20 +65,17 @@ export default function SignUp() {
         let errorMessage = 'Registration failed. Please try again.';
         
         if (response.error) {
-          // Try to parse JSON error if it's a string
-          if (typeof response.error === 'string') {
-            try {
-              // Check if it's a JSON string that starts with unexpected token
-              if (response.error.includes('Unexpected token') || response.error.includes('user exist')) {
-                errorMessage = 'An account with this email already exists. Please sign in instead.';
-              } else {
-                errorMessage = response.error;
-              }
-            } catch {
+          // Handle object errors (e.g., {message: "..."})
+          if (typeof response.error === 'object' && response.error !== null) {
+            const errorObj = response.error as { message?: string };
+            errorMessage = errorObj.message || JSON.stringify(response.error);
+          } else if (typeof response.error === 'string') {
+            // Check if it's a JSON string that starts with unexpected token
+            if (response.error.includes('Unexpected token') || response.error.includes('user exist')) {
+              errorMessage = 'An account with this email already exists. Please sign in instead.';
+            } else {
               errorMessage = response.error;
             }
-          } else {
-            errorMessage = response.error;
           }
         }
         
