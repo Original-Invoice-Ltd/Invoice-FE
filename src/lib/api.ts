@@ -1,20 +1,95 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089/api';
+import axios, { AxiosResponse, AxiosError } from 'axios';
 
-console.log('=== API CLIENT INITIALIZED ===');
-console.log('API_BASE_URL:', API_BASE_URL);
-console.log('NEXT_PUBLIC_API_BASE_URL env:', process.env.NEXT_PUBLIC_API_BASE_URL);
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+
+// Configure axios defaults
+const axiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true, // CRITICAL: Include cookies
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Add request interceptor for debugging
+axiosInstance.interceptors.request.use(
+  (config) => {
+    console.log(`Making ${config.method?.toUpperCase()} request to: ${config.baseURL}${config.url}`);
+    return config;
+  },
+  (error) => {
+    console.error('Request interceptor error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for better error handling and debugging
+axiosInstance.interceptors.response.use(
+  (response) => {
+    console.log(`Response from ${response.config.url}:`, response.status);
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      console.error('Authentication failed - redirecting to login');
+      // Only redirect if we're not already on auth pages
+      if (typeof window !== 'undefined' && 
+          !window.location.pathname.includes('/signIn') && 
+          !window.location.pathname.includes('/signUp')) {
+        window.location.href = '/signIn';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 interface ApiResponse<T> {
-  success: boolean;
+  status: number;
   data?: T;
   message?: string;
   error?: string;
 }
 
 export class ApiClient {
+  private static handleResponse<T>(response: AxiosResponse): ApiResponse<T> {
+    return {
+      status: response.status,
+      data: response.data,
+      message: typeof response.data === 'string' ? response.data : undefined,
+    };
+  }
+
+  private static handleError(error: AxiosError): ApiResponse<any> {
+    if (error.response) {
+      // Server responded with error status
+      const errorMessage = typeof error.response.data === 'string' 
+        ? error.response.data 
+        : (error.response.data as any)?.message || error.message;
+      
+      return {
+        status: error.response.status,
+        error: errorMessage,
+      };
+    } else if (error.request) {
+      // Network error
+      return {
+        status: 0,
+        error: 'Network error - please check your connection',
+      };
+    } else {
+      // Other error
+      return {
+        status: 0,
+        error: error.message || 'An unexpected error occurred',
+      };
+    }
+  }
+
   private static async request<T>(
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
     endpoint: string,
-    options: RequestInit = {}
+    data?: any,
+    params?: any
   ): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`;
     console.log('=== API REQUEST ===');
@@ -23,130 +98,22 @@ export class ApiClient {
     console.log('Body:', options.body);
     
     try {
-      const response = await fetch(url, {
-        ...options,
-        credentials: 'include', // CRITICAL: Include cookies
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
+      const response = await axiosInstance.request({
+        method,
+        url: endpoint,
+        data,
+        params,
       });
-
-      console.log('=== API RESPONSE ===');
-      console.log('Status:', response.status);
-      console.log('Status Text:', response.statusText);
-      console.log('Headers:', Object.fromEntries(response.headers.entries()));
-
-      // Check if response has content
-      const contentType = response.headers.get('content-type');
-      let data;
-      const rawText = await response.text();
       
-      console.log('Raw Response Text:', rawText);
-      
-      // Try to parse as JSON first
-      if (rawText) {
-        try {
-          data = JSON.parse(rawText);
-          console.log('Parsed JSON:', data);
-        } catch {
-          // Not JSON, use raw text
-          data = rawText;
-          console.log('Not JSON, using raw text');
-        }
-      }
-
-      if (!response.ok) {
-        // Extract error message - handle various formats
-        let errorMsg = this.extractErrorMessage(data, rawText);
-        console.log('Error Message Extracted:', errorMsg);
-        
-        return {
-          success: false,
-          error: errorMsg,
-        };
-      }
-
-      return {
-        success: true,
-        data: typeof data === 'object' ? (data?.data || data) : data,
-        message: typeof data === 'object' ? data?.message : undefined,
-      };
+      return this.handleResponse<T>(response);
     } catch (error) {
-      console.error('=== API REQUEST FAILED ===');
-      console.error('Error:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Network error. Please check your connection.',
-      };
+      return this.handleError(error as AxiosError);
     }
   }
 
-  private static extractErrorMessage(data: unknown, rawText: string): string {
-    console.log('=== ERROR EXTRACTION DEBUG ===');
-    console.log('data:', data);
-    console.log('rawText:', rawText);
-    console.log('typeof data:', typeof data);
-    
-    // Map of backend messages to user-friendly messages
-    const errorMappings: Record<string, string> = {
-      'user exists with email': 'Account already exists. Please sign in instead.',
-      'user exist': 'Account already exists. Please sign in instead.',
-      'User not found': 'No account found with this email address.',
-      'Invalid credentials': 'Invalid email or password. Please try again.',
-      'Account not verified': 'Please verify your email address before signing in.',
-      'Invalid OTP': 'The verification code is incorrect. Please try again.',
-      'OTP expired': 'The verification code has expired. Please request a new one.',
-    };
-
-    // Check if data is a string and not empty
-    if (typeof data === 'string' && data.trim()) {
-      // Check for known error patterns
-      for (const [pattern, friendlyMessage] of Object.entries(errorMappings)) {
-        if (data.toLowerCase().includes(pattern.toLowerCase())) {
-          return friendlyMessage;
-        }
-      }
-      return data;
-    }
-
-    // Check if data is an object with message/error
-    if (typeof data === 'object' && data !== null) {
-      const obj = data as Record<string, unknown>;
-      const message = obj.message || obj.error;
-      
-      if (typeof message === 'string' && message.trim()) {
-        // Check for known error patterns
-        for (const [pattern, friendlyMessage] of Object.entries(errorMappings)) {
-          if (message.toLowerCase().includes(pattern.toLowerCase())) {
-            return friendlyMessage;
-          }
-        }
-        return message;
-      }
-    }
-
-    // Fallback: check raw text
-    if (rawText && rawText.trim()) {
-      for (const [pattern, friendlyMessage] of Object.entries(errorMappings)) {
-        if (rawText.toLowerCase().includes(pattern.toLowerCase())) {
-          return friendlyMessage;
-        }
-      }
-      // Don't return raw text if it looks like JSON with empty message
-      if (!rawText.includes('{"message":""}')) {
-        return rawText;
-      }
-    }
-
-    return 'An error occurred. Please try again.';
-  }
-
+  // Authentication APIs
   static async login(email: string, password: string) {
-    return this.request('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
+    return this.request('POST', '/api/auth/login', { email, password });
   }
 
   static async register(data: {
@@ -156,56 +123,31 @@ export class ApiClient {
     businessName?: string;
     businessCategory?: string;
   }) {
-    return this.request('/users/register', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    return this.request('POST', '/api/users/register', data);
   }
 
   static async logout() {
-    return this.request('/auth/logout', {
-      method: 'POST',
-    });
+    return this.request('POST', '/api/auth/logout');
   }
 
   static async refreshToken() {
-    return this.request('/auth/refresh', {
-      method: 'POST',
-    });
+    return this.request('POST', '/api/auth/refresh');
   }
 
   static async verifyEmail(token: string) {
-    return this.request(`/auth/verify?token=${token}`, {
-      method: 'GET',
-    });
+    return this.request('GET', '/api/auth/verify', undefined, { token });
   }
 
   static async verifyOTP(email: string, otp: string) {
-    return this.request('/auth/verify-otp', {
-      method: 'POST',
-      body: JSON.stringify({ email, otp }),
-    });
+    return this.request('POST', '/api/auth/verify-otp', { email, otp });
   }
 
   static async resendOTP(email: string) {
-    return this.request('/auth/resend-otp', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-    });
+    return this.request('POST', '/api/auth/resend-otp', { email });
   }
 
   static async sendVerificationOTP(email: string) {
-    return this.request('/auth/send-verification-otp', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-    });
-  }
-
-  static async forgotPassword(email: string) {
-    return this.request('/auth/forgot-password', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-    });
+    return this.request('POST', '/api/auth/send-verification-otp', { email });
   }
 
   static async verifyPasswordResetOTP(email: string, otp: string) {
@@ -223,8 +165,93 @@ export class ApiClient {
   }
 
   static async getUserProfile(email: string) {
-    return this.request(`/users/get-profile?email=${email}`, {
-      method: 'GET',
-    });
+    return this.request('GET', '/api/users/get-profile', undefined, { email });
+  }
+
+  // Client Management APIs
+  static async addClient(clientData: {
+    customerType: string;
+    title: string;
+    fullName: string;
+    businessName: string;
+    phone: string;
+    email: string;
+    country?: string;
+  }) {
+    return this.request('POST', '/api/client/add', clientData);
+  }
+
+  static async updateClient(id: string, clientData: {
+    customerType: string;
+    title: string;
+    fullName: string;
+    businessName: string;
+    phone: string;
+    email: string;
+    country?: string;
+  }) {
+    return this.request('PUT', '/api/client/update', clientData, { id });
+  }
+
+  static async deleteClient(id: string) {
+    return this.request('DELETE', '/api/client/delete-by-id', undefined, { id });
+  }
+
+  static async getAllUserClients() {
+    return this.request('GET', '/api/client/all-user');
+  }
+
+  static async getClientById(id: string) {
+    return this.request('GET', '/api/client/find-by-id', undefined, { id });
+  }
+
+  // Product Management APIs
+  static async addProduct(productData: {
+    itemName: string;
+    category: string;
+    description?: string;
+    quantity?: number;
+    rate?: number;
+    amount?: number;
+    taxIds?: string[];
+  }) {
+    return this.request('POST', '/api/product/add', productData);
+  }
+
+  static async updateProduct(id: string, productData: {
+    itemName: string;
+    category: string;
+    description?: string;
+    quantity?: number;
+    rate?: number;
+    amount?: number;
+    taxIds?: string[];
+  }) {
+    return this.request('PUT', '/api/product/update', productData, { id });
+  }
+
+  static async deleteProduct(id: string) {
+    return this.request('DELETE', '/api/product/delete-by-id', undefined, { id });
+  }
+
+  static async getAllUserProducts() {
+    return this.request('GET', '/api/product/all-user');
+  }
+
+  static async getProductById(id: string) {
+    return this.request('GET', '/api/product/find-by-id', undefined, { id });
+  }
+
+  static async getProductsByIds(ids: string[]) {
+    return this.request('POST', '/api/product/by-ids', ids);
+  }
+
+  // Tax Management APIs
+  static async getActiveTaxes() {
+    return this.request('GET', '/api/tax/active');
+  }
+
+  static async getAllTaxes() {
+    return this.request('GET', '/api/tax/all');
   }
 }

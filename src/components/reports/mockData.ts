@@ -34,9 +34,9 @@ export const filledReportsData: ReportsData = {
     { month: "Dec", revenue: 450000 },
   ],
   statusDistribution: [
-    { name: "Paid", value: 890000, color: "#2F80ED", percentage: "65%", change: "-5%" },
-    { name: "Pending", value: 320000, color: "#93C5FD", percentage: "23%", change: "+7%" },
-    { name: "Overdue", value: 635000, color: "#EF4444", percentage: "12%", change: "+10%" },
+    { name: "Paid", value: 890000, color: "#EFF8FF", percentage: "65%", change: "-55%" },
+    { name: "Pending", value: 320000, color: "#3A97F7", percentage: "23%", change: "+7%" },
+    { name: "Overdue", value: 635000, color: "#1D51B0", percentage: "12%", change: "+10%" },
   ],
   recentInvoices: [
     {

@@ -56,7 +56,7 @@ export default function SignUp() {
         fullName: formData.fullName,
       });
 
-      if (response.success) {
+      if (response.status === 201) {
         // Show success message and move to OTP verification screen
         showSuccess('Registration successful! Please check your email for verification code.');
         setCurrentScreen('otp');
@@ -96,7 +96,7 @@ export default function SignUp() {
     try {
       const response = await ApiClient.verifyOTP(formData.email, otp);
 
-      if (response.success) {
+      if (response.status === 200) {
         // Show success message and redirect to dashboard
         showSuccess('Email verified successfully! Welcome to your dashboard.');
         setTimeout(() => {
@@ -124,7 +124,7 @@ export default function SignUp() {
     try {
       const response = await ApiClient.resendOTP(formData.email);
 
-      if (response.success) {
+      if (response.status === 200) {
         showSuccess('OTP sent successfully! Please check your email.');
       } else {
         const errorMessage = response.error || 'Failed to resend OTP. Please try again.';
