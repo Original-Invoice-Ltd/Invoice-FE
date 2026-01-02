@@ -234,4 +234,33 @@ export class ApiClient {
   static async getAllTaxes() {
     return this.request('GET', '/api/tax/all');
   }
+
+  // Notification APIs
+  static async getNotifications(page = 0, size = 4) {
+    return this.request('GET', '/api/notifications', undefined, { page, size });
+  }
+
+  static async getNotificationsByType(type: string, page = 0, size = 4) {
+    return this.request('GET', `/api/notifications/type/${type}`, undefined, { page, size });
+  }
+
+  static async getUnreadNotifications() {
+    return this.request('GET', '/api/notifications/unread');
+  }
+
+  static async getUnreadCount() {
+    return this.request('GET', '/api/notifications/unread/count');
+  }
+
+  static async markAllAsRead() {
+    return this.request('PUT', '/api/notifications/mark-all-read');
+  }
+
+  static async markAllAsNotNew() {
+    return this.request('PUT', '/api/notifications/mark-all-not-new');
+  }
+
+  static async markAsRead(id: number) {
+    return this.request('PUT', `/api/notifications/${id}/read`);
+  }
 }

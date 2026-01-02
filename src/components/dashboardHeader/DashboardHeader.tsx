@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Search, Menu, Bell, ChevronDown, User, LogOut } from "lucide-react";
 import Image from "next/image";
 import { AuthService } from '@/lib/auth';
+import NotificationsPanel from '@/components/notifications/NotificationsPanel';
 
 interface DashboardHeaderProps {
     onMenuClick?: () => void;
@@ -12,6 +13,7 @@ interface DashboardHeaderProps {
 const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
     const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+    const [showNotifications, setShowNotifications] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState("EN");
     const languageDropdownRef = useRef<HTMLDivElement>(null);
     const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -125,7 +127,11 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
                     </div>
 
                     {/* Notification Bell */}
-                    <button className="relative flex items-center justify-center rounded-lg hover:bg-gray-50 border border-[#E4E7EC]" style={{ width: '32px', height: '32px' }}>
+                    <button 
+                        onClick={() => setShowNotifications(true)}
+                        className="relative flex items-center justify-center rounded-lg hover:bg-gray-50 border border-[#E4E7EC]" 
+                        style={{ width: '32px', height: '32px' }}
+                    >
                         <Bell size={20} className="text-[#667085]" />
                         <span className="absolute top-1 right-1 w-2 h-2 bg-[#F04438] rounded-full"></span>
                     </button>
@@ -185,6 +191,12 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
                     Upgrade Now
                 </button>
             </div>
+
+            {/* Notifications Panel */}
+            <NotificationsPanel 
+                isOpen={showNotifications} 
+                onClose={() => setShowNotifications(false)} 
+            />
         </header>
     );
 };
