@@ -29,12 +29,91 @@ const CreateInvoicePage = () => {
     const [showClientDropdown, setShowClientDropdown] = useState(false);
     const [showAddClientModal, setShowAddClientModal] = useState(false);
     const [selectedClientId, setSelectedClientId] = useState<string>("");
-    const [clients, setClients] = useState([
-        { id: '1', name: 'James Joseph', email: 'Jamesoriginalinvoice@gmail.com' },
-        { id: '2', name: 'James Joseph', email: 'Jamesoriginalinvoice@gmail.com' },
-        { id: '3', name: 'James Joseph', email: 'Jamesoriginalinvoice@gmail.com' },
-        { id: '4', name: 'James Joseph', email: 'Jamesoriginalinvoice@gmail.com' },
-    ]);
+    const [clients, setClients] = useState<{ id: string; fullName: string; email: string; businessName: string }[]>([]);
+    const [isLoadingClients, setIsLoadingClients] = useState(false);
+    const [clientsLoaded, setClientsLoaded] = useState(false);
+    const [isSavingClient, setIsSavingClient] = useState(false);
+    
+    // New client form state
+    const [newClientForm, setNewClientForm] = useState({
+        customerType: "",
+        title: "Mr",
+        fullName: "",
+        businessName: "",
+        phone: "",
+        email: "",
+        country: ""
+    });
+
+    // Load clients from API
+    const loadClients = async () => {
+        if (clientsLoaded || isLoadingClients) return;
+        
+        try {
+            setIsLoadingClients(true);
+            const response = await ApiClient.getAllUserClients();
+            
+            if (response.status === 200) {
+                const clientsData = Array.isArray(response.data) ? response.data : [];
+                setClients(clientsData);
+                setClientsLoaded(true);
+            } else {
+                console.error('Failed to load clients:', response.error);
+            }
+        } catch (error) {
+            console.error('Error loading clients:', error);
+        } finally {
+            setIsLoadingClients(false);
+        }
+    };
+
+    // Handle dropdown open - fetch clients
+    const handleClientDropdownClick = () => {
+        if (!showClientDropdown) {
+            loadClients();
+        }
+        setShowClientDropdown(!showClientDropdown);
+    };
+
+    // Save new client to API
+    const handleSaveNewClient = async () => {
+        // Validate required fields
+        if (!newClientForm.customerType || !newClientForm.title || !newClientForm.fullName || 
+            !newClientForm.businessName || !newClientForm.email || !newClientForm.phone) {
+            alert('Please fill in all required fields');
+            return;
+        }
+
+        try {
+            setIsSavingClient(true);
+            const response = await ApiClient.addClient(newClientForm);
+
+            if (response.status === 201) {
+                // Close modal and reset form
+                setShowAddClientModal(false);
+                setNewClientForm({
+                    customerType: "",
+                    title: "Mr",
+                    fullName: "",
+                    businessName: "",
+                    phone: "",
+                    email: "",
+                    country: ""
+                });
+                // Refresh clients list
+                setClientsLoaded(false);
+                await loadClients();
+            } else {
+                console.error('Failed to add client:', response.error);
+                alert(response.error || 'Failed to add client');
+            }
+        } catch (error) {
+            console.error('Error saving client:', error);
+            alert('An error occurred while saving the client');
+        } finally {
+            setIsSavingClient(false);
+        }
+    };
 
     // Form state
     const [billFrom, setBillFrom] = useState({
@@ -449,7 +528,7 @@ const CreateInvoicePage = () => {
                                             </label>
                                             <div className="relative">
                                                 <div
-                                                    onClick={() => setShowClientDropdown(!showClientDropdown)}
+                                                    onClick={handleClientDropdownClick}
                                                     className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#98A2B3] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2F80ED] flex justify-between items-center"
                                                 >
                                                     <span>{billTo.customer || 'Select from added client'}</span>
@@ -461,33 +540,49 @@ const CreateInvoicePage = () => {
                                                 {/* Client Dropdown */}
                                                 {showClientDropdown && (
                                                     <div className="absolute z-10 w-full mt-1 bg-white border border-[#D0D5DD] rounded-lg shadow-lg max-h-80 overflow-y-auto">
-                                                        {clients.map((client, index) => (
+                                                        {/* Loading State */}
+                                                        {isLoadingClients && (
+                                                            <div className="flex items-center justify-center py-4">
+                                                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#2F80ED]"></div>
+                                                                <span className="ml-2 text-sm text-[#667085]">Loading clients...</span>
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {/* Empty State */}
+                                                        {!isLoadingClients && clients.length === 0 && (
+                                                            <div className="px-4 py-3 text-sm text-[#667085] text-center">
+                                                                No clients found
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {/* Client List */}
+                                                        {!isLoadingClients && clients.map((client, index) => (
                                                             <div
                                                                 key={client.id}
                                                                 onClick={() => {
-                                                                    setBillTo({ ...billTo, customer: client.name });
+                                                                    setBillTo({ ...billTo, customer: client.fullName });
                                                                     setSelectedClientId(client.id);
                                                                     setShowClientDropdown(false);
                                                                 }}
                                                                 className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 ${
-                                                                    index === 0 ? 'bg-[#2F80ED] text-white hover:bg-[#2F80ED]' : ''
+                                                                    selectedClientId === client.id ? 'bg-[#2F80ED] text-white hover:bg-[#2F80ED]' : ''
                                                                 }`}
                                                             >
                                                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-semibold ${
-                                                                    index === 0 ? 'bg-white text-[#2F80ED]' : 'bg-gray-100 text-gray-600'
+                                                                    selectedClientId === client.id ? 'bg-white text-[#2F80ED]' : 'bg-gray-100 text-gray-600'
                                                                 }`}>
-                                                                    C
+                                                                    {client.fullName?.charAt(0)?.toUpperCase() || 'C'}
                                                                 </div>
                                                                 <div className="flex-1">
-                                                                    <p className={`font-medium ${index === 0 ? 'text-white' : 'text-gray-900'}`}>
-                                                                        {client.name}
+                                                                    <p className={`font-medium ${selectedClientId === client.id ? 'text-white' : 'text-gray-900'}`}>
+                                                                        {client.fullName}
                                                                     </p>
                                                                     <div className="flex items-center gap-1 text-sm">
                                                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                            <path d="M2.66667 2.66667H13.3333C14.0667 2.66667 14.6667 3.26667 14.6667 4V12C14.6667 12.7333 14.0667 13.3333 13.3333 13.3333H2.66667C1.93333 13.3333 1.33333 12.7333 1.33333 12V4C1.33333 3.26667 1.93333 2.66667 2.66667 2.66667Z" stroke={index === 0 ? 'white' : 'currentColor'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                                                            <path d="M14.6667 4L8 8.66667L1.33333 4" stroke={index === 0 ? 'white' : 'currentColor'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                                            <path d="M2.66667 2.66667H13.3333C14.0667 2.66667 14.6667 3.26667 14.6667 4V12C14.6667 12.7333 14.0667 13.3333 13.3333 13.3333H2.66667C1.93333 13.3333 1.33333 12.7333 1.33333 12V4C1.33333 3.26667 1.93333 2.66667 2.66667 2.66667Z" stroke={selectedClientId === client.id ? 'white' : 'currentColor'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                                            <path d="M14.6667 4L8 8.66667L1.33333 4" stroke={selectedClientId === client.id ? 'white' : 'currentColor'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                                                         </svg>
-                                                                        <span className={index === 0 ? 'text-white' : 'text-gray-600'}>{client.email}</span>
+                                                                        <span className={selectedClientId === client.id ? 'text-white' : 'text-gray-600'}>{client.email}</span>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -1042,29 +1137,6 @@ const CreateInvoicePage = () => {
                                         <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                     </svg>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-[14px] font-medium text-[#344054] mb-2">
-                                    Business Registration Number
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder="Enter client business Reg Number"
-                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-[14px] font-medium text-[#344054] mb-2">
-                                    Tax Identification Number
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder="Enter client Tax ID"
-                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                />
                             </div>
                         </div>
                     </div>
