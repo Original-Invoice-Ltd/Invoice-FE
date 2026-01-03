@@ -15,6 +15,8 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     console.log(`Making ${config.method?.toUpperCase()} request to: ${config.baseURL}${config.url}`);
+    console.log('Request withCredentials:', config.withCredentials);
+    console.log('Document cookies available:', typeof document !== 'undefined' ? document.cookie : 'SSR');
     return config;
   },
   (error) => {
@@ -31,13 +33,9 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      console.error('Authentication failed - redirecting to login');
-      // Only redirect if we're not already on auth pages
-      if (typeof window !== 'undefined' && 
-          !window.location.pathname.includes('/signIn') && 
-          !window.location.pathname.includes('/signUp')) {
-        window.location.href = '/signIn';
-      }
+      console.error('Authentication failed (401) for:', error.config?.url);
+      // Don't auto-redirect - let the calling code handle the error
+      // This allows showing proper error messages to the user
     }
     return Promise.reject(error);
   }
@@ -272,43 +270,57 @@ export class ApiClient {
   }
 
   // Create Invoice - multipart/form-data
+  // Uses same request pattern as addProduct (via axiosInstance.request)
   static async createInvoice(formData: FormData) {
     console.log('=== CREATE INVOICE REQUEST ===');
     console.log('URL:', `${API_BASE_URL}/api/invoices/add`);
     
     try {
-      const response = await axiosInstance.post('/api/invoices/add', formData, {
+      const response = await axiosInstance.request({
+        method: 'POST',
+        url: '/api/invoices/add',
+        data: formData,
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
+      
+      console.log('Create Invoice Response:', response.status, response.data);
       
       return {
         status: response.status,
         data: response.data,
       };
     } catch (error) {
+      console.error('Create Invoice Error:', error);
       return this.handleError(error as AxiosError);
     }
   }
 
   // Update Invoice - multipart/form-data
+  // Uses same request pattern as updateProduct (via axiosInstance.request)
   static async updateInvoice(id: string, formData: FormData) {
     console.log('=== UPDATE INVOICE REQUEST ===');
     console.log('URL:', `${API_BASE_URL}/api/invoices/${id}`);
     
     try {
-      const response = await axiosInstance.patch(`/api/invoices/${id}`, formData, {
+      const response = await axiosInstance.request({
+        method: 'PATCH',
+        url: `/api/invoices/${id}`,
+        data: formData,
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
+      
+      console.log('Update Invoice Response:', response.status, response.data);
       
       return {
         status: response.status,
         data: response.data,
       };
     } catch (error) {
+      console.error('Update Invoice Error:', error);
       return this.handleError(error as AxiosError);
     }
   }

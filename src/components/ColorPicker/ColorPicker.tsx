@@ -142,7 +142,6 @@ const ColorPicker = ({ initialColor = "#4F46E5", onColorChange }: ColorPickerPro
         </svg>
       </button>
 
-
       {/* Color Picker Dropdown */}
       {isOpen && (
         <div className="absolute top-full left-0 mt-2 z-50 bg-white rounded-xl shadow-xl border border-gray-200 p-4 w-[320px]">
