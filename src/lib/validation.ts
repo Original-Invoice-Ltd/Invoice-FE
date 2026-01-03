@@ -71,6 +71,28 @@ export class Validator {
     return { isValid: true };
   }
 
+  static phone(phone: string): ValidationResult {
+    if (!phone.trim()) {
+      return { isValid: false, error: 'Phone number is required' };
+    }
+
+    // Remove all non-digit characters for validation
+    const digitsOnly = phone.replace(/\D/g, '');
+    
+    // Check if it's a valid length (10-15 digits)
+    if (digitsOnly.length < 10 || digitsOnly.length > 15) {
+      return { isValid: false, error: 'Phone number must be between 10-15 digits' };
+    }
+
+    // Basic international phone format validation
+    const phoneRegex = /^[\+]?[1-9][\d]{0,3}[-.\s]?[\d]{1,4}[-.\s]?[\d]{1,4}[-.\s]?[\d]{1,9}$/;
+    if (!phoneRegex.test(phone.trim())) {
+      return { isValid: false, error: 'Please enter a valid phone number' };
+    }
+
+    return { isValid: true };
+  }
+
   static required(value: string, fieldName: string): ValidationResult {
     if (!value.trim()) {
       return { isValid: false, error: `${fieldName} is required` };

@@ -9,13 +9,16 @@ import palleteImg from './../../public/assets/Pallete Content.svg';
 import emailContent from './../../public/assets/Email Content.svg';
 import FAQ from "@/components/FAQ";
 import Testimonials from "@/components/testimonials";
+import CTAButton from "@/components/ui/CTAButton";
 import { useEffect, useState, useRef } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const  Home =()=> {
   const [isVisible, setIsVisible] = useState(false);
   const [isPalleteVisible, setIsPalleteVisible] = useState(false);
   const [isEmailVisible, setIsEmailVisible] = useState(false);
   const [isTrackPaymentVisible, setIsTrackPaymentVisible] = useState(false);
+  const { isAuthenticated } = useAuth();
   
   const macbookRef = useRef<HTMLDivElement>(null);
   const palleteRef = useRef<HTMLDivElement>(null);
@@ -104,9 +107,11 @@ const  Home =()=> {
                         </div>
 
                         {/* CTA Button */}
-                        <Link href="/signUp" className="bg-[#2F80ED] px-[16px] text-white w-full max-w-[343px] lg:w-[221px] h-[56px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] transition-colors flex items-center justify-center cursor-pointer">
-                            Start Your Free Trial Today
-                        </Link>
+                        {!isAuthenticated && (
+                            <Link href="/signUp" className="bg-[#2F80ED] px-[16px] text-white w-full max-w-[343px] lg:w-[221px] h-[56px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] transition-colors flex items-center justify-center cursor-pointer">
+                                Start Your Free Trial Today
+                            </Link>
+                        )}
                     </div>
 
                     {/* Laptop Mockup */}
@@ -145,9 +150,11 @@ const  Home =()=> {
                                 <p className="text-[24px] lg:text-[38px] leading-tight font-medium text-[#000]">A simple workflow for every invoice you create</p>
                                 <p className="text-[14px] lg:text-[16px] leading-tight text-[#333436]">Follow a simple flow that keeps your invoicing clear, organized, and easy to manage. Each step helps you stay focused while the system handles the details.</p>
                             </div>
-                            <Link href="/signUp" className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] flex items-center justify-center cursor-pointer">
-                                Get Started
-                            </Link>
+                            {!isAuthenticated && (
+                                <Link href="/signUp" className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] flex items-center justify-center cursor-pointer">
+                                    Get Started
+                                </Link>
+                            )}
                         </div>
                     </div>
                     
@@ -172,9 +179,7 @@ const  Home =()=> {
                                     Bring your invoice to life in a clean editor that guides your flow. Add products or services, apply VAT or WHT, and personalize notes—all without breaking your pace.Every change reflects immediately, giving you clarity and confidence in what you’re sending
                                 </p>
                             </div>
-                            <Link href="/signUp" className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] flex items-center justify-center cursor-pointer">
-                                Create Invoice
-                            </Link>
+                            <CTAButton text="Create Invoice" />
                         </div>
                         <div 
                             ref={palleteRef}
@@ -217,9 +222,7 @@ const  Home =()=> {
                                     Send your invoice with one click, choose the format that fits your client, and deliver a professional experience every time.Whether you share a link, attach a PDF, or print a copy, everything stays neatly organized on your dashboard.
                                 </p>
                             </div>
-                            <Link href="/signUp" className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] flex items-center justify-center cursor-pointer">
-                                Create Invoice
-                            </Link>
+                            <CTAButton text="Create Invoice" />
                         </div>
                     </div>
 
@@ -233,9 +236,7 @@ const  Home =()=> {
                                     Quickly mark payments, review outstanding totals, and keep everything organized without switching between tools.
                                 </p>
                             </div>
-                            <Link href="/signUp" className="bg-[#2F80ED] px-[16px] text-white w-[180px] h-[54px] rounded-md font-medium text-[16px] hover:bg-[#2563EB] flex items-center justify-center cursor-pointer">
-                                Create Invoice
-                            </Link>
+                            <CTAButton text="Create Invoice" />
                         </div>
                         <div 
                             ref={trackPaymentRef}
