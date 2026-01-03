@@ -31,12 +31,23 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      console.error('Authentication failed - redirecting to login');
-      // Only redirect if we're not already on auth pages
-      if (typeof window !== 'undefined' && 
-          !window.location.pathname.includes('/signIn') && 
-          !window.location.pathname.includes('/signUp')) {
-        window.location.href = '/signIn';
+      console.error('Authentication failed - 401 response received');
+      
+      // Only redirect if we're on protected pages (dashboard routes)
+      if (typeof window !== 'undefined') {
+        const currentPath = window.location.pathname;
+        const isProtectedRoute = currentPath.startsWith('/dashboard') || 
+                                currentPath.startsWith('/complete-profile');
+        
+        // Only redirect if we're on a protected route and not already on auth pages
+        if (isProtectedRoute && 
+            !currentPath.includes('/signIn') && 
+            !currentPath.includes('/signUp')) {
+          console.log('Redirecting to sign-in from protected route:', currentPath);
+          window.location.href = '/signIn';
+        } else {
+          console.log('401 on public route, not redirecting:', currentPath);
+        }
       }
     }
     return Promise.reject(error);
@@ -105,6 +116,23 @@ export class ApiClient {
     }
   }
 
+  // Generic HTTP methods
+  static async get(endpoint: string, params?: any) {
+    return this.request('GET', endpoint, undefined, params);
+  }
+
+  static async post(endpoint: string, data?: any) {
+    return this.request('POST', endpoint, data);
+  }
+
+  static async put(endpoint: string, data?: any) {
+    return this.request('PUT', endpoint, data);
+  }
+
+  static async delete(endpoint: string, params?: any) {
+    return this.request('DELETE', endpoint, undefined, params);
+  }
+
   // Authentication APIs
   static async login(email: string, password: string) {
     return this.request('POST', '/api/auth/login', { email, password });
@@ -114,6 +142,7 @@ export class ApiClient {
     email: string;
     password: string;
     fullName: string;
+    phoneNumber?: string;
     businessName?: string;
     businessCategory?: string;
   }) {
@@ -233,5 +262,34 @@ export class ApiClient {
 
   static async getAllTaxes() {
     return this.request('GET', '/api/tax/all');
+  }
+
+  // Notification APIs
+  static async getNotifications(page = 0, size = 4) {
+    return this.request('GET', '/api/notifications', undefined, { page, size });
+  }
+
+  static async getNotificationsByType(type: string, page = 0, size = 4) {
+    return this.request('GET', `/api/notifications/type/${type}`, undefined, { page, size });
+  }
+
+  static async getUnreadNotifications() {
+    return this.request('GET', '/api/notifications/unread');
+  }
+
+  static async getUnreadCount() {
+    return this.request('GET', '/api/notifications/unread/count');
+  }
+
+  static async markAllAsRead() {
+    return this.request('PUT', '/api/notifications/mark-all-read');
+  }
+
+  static async markAllAsNotNew() {
+    return this.request('PUT', '/api/notifications/mark-all-not-new');
+  }
+
+  static async markAsRead(id: number) {
+    return this.request('PUT', `/api/notifications/${id}/read`);
   }
 }
