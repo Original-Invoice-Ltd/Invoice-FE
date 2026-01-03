@@ -33,9 +33,24 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      console.error('Authentication failed (401) for:', error.config?.url);
-      // Don't auto-redirect - let the calling code handle the error
-      // This allows showing proper error messages to the user
+      console.error('Authentication failed - 401 response received');
+      
+      // Only redirect if we're on protected pages (dashboard routes)
+      if (typeof window !== 'undefined') {
+        const currentPath = window.location.pathname;
+        const isProtectedRoute = currentPath.startsWith('/dashboard') || 
+                                currentPath.startsWith('/complete-profile');
+        
+        // Only redirect if we're on a protected route and not already on auth pages
+        if (isProtectedRoute && 
+            !currentPath.includes('/signIn') && 
+            !currentPath.includes('/signUp')) {
+          console.log('Redirecting to sign-in from protected route:', currentPath);
+          window.location.href = '/signIn';
+        } else {
+          console.log('401 on public route, not redirecting:', currentPath);
+        }
+      }
     }
     return Promise.reject(error);
   }
@@ -108,6 +123,23 @@ export class ApiClient {
     }
   }
 
+  // Generic HTTP methods
+  static async get(endpoint: string, params?: any) {
+    return this.request('GET', endpoint, undefined, params);
+  }
+
+  static async post(endpoint: string, data?: any) {
+    return this.request('POST', endpoint, data);
+  }
+
+  static async put(endpoint: string, data?: any) {
+    return this.request('PUT', endpoint, data);
+  }
+
+  static async delete(endpoint: string, params?: any) {
+    return this.request('DELETE', endpoint, undefined, params);
+  }
+
   // Authentication APIs
   static async login(email: string, password: string) {
     
@@ -127,6 +159,7 @@ export class ApiClient {
     email: string;
     password: string;
     fullName: string;
+    phoneNumber?: string;
     businessName?: string;
     businessCategory?: string;
   }) {
@@ -256,77 +289,32 @@ export class ApiClient {
     return this.request('GET', '/api/tax/all');
   }
 
-  // Invoice Management APIs
-  static async getAllInvoices() {
-    return this.request('GET', '/api/invoices/all');
+  // Notification APIs
+  static async getNotifications(page = 0, size = 4) {
+    return this.request('GET', '/api/notifications', undefined, { page, size });
   }
 
-  static async getAllUserInvoices() {
-    return this.request('GET', '/api/invoices/all-user');
+  static async getNotificationsByType(type: string, page = 0, size = 4) {
+    return this.request('GET', `/api/notifications/type/${type}`, undefined, { page, size });
   }
 
-  static async getInvoiceById(id: string) {
-    return this.request('GET', `/api/invoices/${id}`);
+  static async getUnreadNotifications() {
+    return this.request('GET', '/api/notifications/unread');
   }
 
-  // Create Invoice - multipart/form-data
-  // Uses same request pattern as addProduct (via axiosInstance.request)
-  static async createInvoice(formData: FormData) {
-    console.log('=== CREATE INVOICE REQUEST ===');
-    console.log('URL:', `${API_BASE_URL}/api/invoices/add`);
-    
-    try {
-      const response = await axiosInstance.request({
-        method: 'POST',
-        url: '/api/invoices/add',
-        data: formData,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      
-      console.log('Create Invoice Response:', response.status, response.data);
-      
-      return {
-        status: response.status,
-        data: response.data,
-      };
-    } catch (error) {
-      console.error('Create Invoice Error:', error);
-      return this.handleError(error as AxiosError);
-    }
+  static async getUnreadCount() {
+    return this.request('GET', '/api/notifications/unread/count');
   }
 
-  // Update Invoice - multipart/form-data
-  // Uses same request pattern as updateProduct (via axiosInstance.request)
-  static async updateInvoice(id: string, formData: FormData) {
-    console.log('=== UPDATE INVOICE REQUEST ===');
-    console.log('URL:', `${API_BASE_URL}/api/invoices/${id}`);
-    
-    try {
-      const response = await axiosInstance.request({
-        method: 'PATCH',
-        url: `/api/invoices/${id}`,
-        data: formData,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      
-      console.log('Update Invoice Response:', response.status, response.data);
-      
-      return {
-        status: response.status,
-        data: response.data,
-      };
-    } catch (error) {
-      console.error('Update Invoice Error:', error);
-      return this.handleError(error as AxiosError);
-    }
+  static async markAllAsRead() {
+    return this.request('PUT', '/api/notifications/mark-all-read');
   }
 
-  // Delete Invoice
-  static async deleteInvoice(id: string) {
-    return this.request('DELETE', `/api/invoices/${id}`);
+  static async markAllAsNotNew() {
+    return this.request('PUT', '/api/notifications/mark-all-not-new');
+  }
+
+  static async markAsRead(id: number) {
+    return this.request('PUT', `/api/notifications/${id}/read`);
   }
 }

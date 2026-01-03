@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import MailIcon from "./mailIcon";
 import PasswordIcon from "./passwordIcon";
+import PhoneIcon from "./phoneIcon";
 import UserIcon from "./userIcon";
 import GoogleIcon from "./googleIcon";
 import AppleIcon from "./appleIcon";
 import Logo from './Logo';
+import PhoneCollectionModal from '@/components/auth/PhoneCollectionModal';
 import { Validator } from '@/lib/validation';
 
 interface SignUpFormProps {
@@ -15,6 +17,7 @@ interface SignUpFormProps {
     email: string;
     password: string;
     fullName: string;
+    phoneNumber: string;
     agreeToTerms: boolean;
   };
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -26,6 +29,9 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [touched, setTouched] = useState<{[key: string]: boolean}>({});
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<'google' | 'apple' | null>(null);
+  const [oauthLoading, setOauthLoading] = useState(false);
   const router = useRouter();
 
   const handleSignInClick = () => {
@@ -43,6 +49,9 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
         break;
       case 'fullName':
         validation = Validator.fullName(value);
+        break;
+      case 'phoneNumber':
+        validation = Validator.phone(value);
         break;
       default:
         validation = { isValid: true };
@@ -79,6 +88,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
     const emailValid = validateField('email', formData.email);
     const passwordValid = validateField('password', formData.password);
     const fullNameValid = validateField('fullName', formData.fullName);
+    const phoneValid = validateField('phoneNumber', formData.phoneNumber);
     
     // Check terms agreement
     if (!formData.agreeToTerms) {
@@ -93,13 +103,48 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
       email: true,
       password: true,
       fullName: true,
+      phoneNumber: true,
       terms: true
     });
 
     // Only submit if all validations pass
-    if (emailValid && passwordValid && fullNameValid && formData.agreeToTerms) {
+    if (emailValid && passwordValid && fullNameValid && phoneValid && formData.agreeToTerms) {
       onSubmit(e);
     }
+  };
+
+  const handleOAuthClick = (provider: 'google' | 'apple') => {
+    setSelectedProvider(provider);
+    setShowPhoneModal(true);
+  };
+
+  const handlePhoneSubmit = (phoneNumber: string) => {
+    if (!selectedProvider) return;
+    
+    setOauthLoading(true);
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+    
+    // Create a unique state parameter to track this OAuth flow
+    const state = btoa(JSON.stringify({
+      phoneNumber: phoneNumber || '',
+      timestamp: Date.now(),
+      isSignIn: false // Mark this as sign-up flow
+    }));
+    
+    // Redirect to OAuth provider with state parameter
+    const oauthUrl = `${apiBaseUrl}/oauth/${selectedProvider}/login?state=${encodeURIComponent(state)}`;
+    window.location.href = oauthUrl;
+  };
+
+  const handleSkipToSignIn = () => {
+    // For sign-up, this shouldn't be called, but handle gracefully
+    handlePhoneSubmit('');
+  };
+
+  const handlePhoneModalClose = () => {
+    setShowPhoneModal(false);
+    setSelectedProvider(null);
+    setOauthLoading(false);
   };
 
   return (
@@ -215,6 +260,34 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
         )}
       </div>
 
+      {/* Phone Number Input */}
+      <div className="flex flex-col gap-1">
+        <label htmlFor="phoneNumber" className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
+          Phone Number
+        </label>
+        <div className="relative">
+          <input
+            id="phoneNumber"
+            name="phoneNumber"
+            type="tel"
+            placeholder="Enter your phone number"
+            value={formData.phoneNumber}
+            onChange={handleInputChangeWithValidation}
+            onBlur={handleInputBlur}
+            className={`w-full h-[48px] rounded-lg pl-4 pr-12 border 
+              ${errors.phoneNumber ? 'border-red-500' : 'border-[#E5E5E5]'} 
+              bg-white text-[14px] placeholder-gray-400 focus:outline-none focus:ring-2 
+              ${errors.phoneNumber ? 'focus:ring-red-500' : 'focus:ring-[#2F80ED]'} font-['Inter_Tight']`}
+          />
+          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            <PhoneIcon width={20} height={20} />
+          </div>
+        </div>
+        {errors.phoneNumber && (
+          <span className="text-[12px] text-red-500 font-['Inter_Tight']">{errors.phoneNumber}</span>
+        )}
+      </div>
+
       {/* Terms Checkbox */}
       <div className="flex flex-col gap-1">
         <div className="flex items-start gap-2">
@@ -266,11 +339,9 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
       {/* Social Login Buttons */}
       <div className="flex flex-col sm:flex-row gap-4">
         <button 
-          onClick={() => {
-            const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
-            window.location.href = `${apiBaseUrl}/oauth/google/login`;
-          }}
-          className="w-full sm:flex-1 h-[38px] rounded-lg border border-[#E5E5E5] bg-white 
+          onClick={() => handleOAuthClick('google')}
+          type="button"
+          className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
           flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
           <GoogleIcon width={20} height={20} />
           <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
@@ -279,11 +350,9 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
         </button>
         
         <button 
-          onClick={() => {
-            const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
-            window.location.href = `${apiBaseUrl}/oauth/apple/login`;
-          }}
-          className="w-full sm:flex-1 h-[38px] rounded-lg border border-[#E5E5E5] bg-white 
+          onClick={() => handleOAuthClick('apple')}
+          type="button"
+          className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
           flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
           <AppleIcon width={20} height={20} />
           <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
@@ -302,6 +371,17 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
           Sign In
         </span>
       </div>
+
+      {/* Phone Collection Modal */}
+      <PhoneCollectionModal
+        isOpen={showPhoneModal}
+        onClose={handlePhoneModalClose}
+        onSubmit={handlePhoneSubmit}
+        onSkipToSignIn={handleSkipToSignIn}
+        provider={selectedProvider || 'google'}
+        loading={oauthLoading}
+        showPhoneField={true} // Always show phone field for sign-up
+      />
     </div>
   );
 }

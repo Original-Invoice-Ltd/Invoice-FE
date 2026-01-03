@@ -96,7 +96,7 @@ const DashboardContent = () => {
                     </button>
                 </div>
                 <div className="h-[200px] lg:h-[280px]">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200}>
                         <LineChart data={paymentTrendsData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#E8E9ED" />
                             <XAxis 
@@ -137,7 +137,7 @@ const DashboardContent = () => {
                         </button>
                     </div>
                     <div className="h-[280px]">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={280}>
                             <LineChart data={paymentTrendsData}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#E8E9ED" />
                                 <XAxis 
@@ -176,7 +176,7 @@ const DashboardContent = () => {
                         </button>
                     </div>
                     <div className="h-[180px] flex items-center justify-center">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={180}>
                             <PieChart>
                                 <Pie
                                     data={statusDistributionData}
@@ -218,7 +218,7 @@ const DashboardContent = () => {
                     </button>
                 </div>
                 <div className="h-[180px] flex items-center justify-center">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={180}>
                         <PieChart>
                             <Pie
                                 data={statusDistributionData}

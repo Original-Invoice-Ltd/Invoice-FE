@@ -2,7 +2,7 @@
  * SignUp Component (Main Container)
  * 
  * Main component that orchestrates the two-screen signup flow:
- * 1. Sign Up screen - Email, password, full name, and social login
+ * 1. Sign Up screen - Email, password, full name, phone number, and social login
  * 2. OTP Verification screen - Email verification with OTP
  * 
  * Manages state and screen transitions between the forms.
@@ -31,6 +31,7 @@ export default function SignUp() {
     email: '',
     password: '',
     fullName: '',
+    phoneNumber: '',
     agreeToTerms: false,
   });
 
@@ -54,6 +55,7 @@ export default function SignUp() {
         email: formData.email,
         password: formData.password,
         fullName: formData.fullName,
+        phoneNumber: formData.phoneNumber
       });
 
       if (response.status === 201) {
@@ -163,6 +165,7 @@ export default function SignUp() {
                 email: formData.email,
                 password: formData.password,
                 fullName: formData.fullName,
+                phoneNumber: formData.phoneNumber,
                 agreeToTerms: formData.agreeToTerms,
               }}
               onInputChange={handleInputChange}
@@ -182,13 +185,14 @@ export default function SignUp() {
       </div>
 
       {/* Toast Notification */}
-      <Toast
-        message={toast.message}
-        type={toast.type}
-        isVisible={toast.isVisible}
-        onClose={hideToast}
-      />
+      {toast.isVisible && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          isVisible={toast.isVisible}
+          onClose={hideToast}
+        />
+      )}
     </div>
   );
 }
-
