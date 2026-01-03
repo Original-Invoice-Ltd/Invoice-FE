@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, Plus, X } from "lucide-react";
 import Link from "next/link";
 import InvoicePreview from "@/components/invoice/InvoicePreview";
+import ColorPicker from "@/components/ColorPicker/ColorPicker";
 import { ApiClient } from "@/lib/api";
 import { buildInvoiceFormData, dataURLtoFile, base64ToFile, CreateInvoiceData } from "@/lib/invoiceTypes";
 
@@ -827,11 +828,12 @@ const CreateInvoicePage = () => {
                                 </div>
 
                                 {/* Color Selection */}
-                                <div className="bg-white rounded-lg  px-4">
+                                <div className="bg-white rounded-lg px-4">
                                     <h3 className="font-medium text-[16px] mb-2">Select Color</h3>
-                                    <div className="flex gap-2">
-                                        <button className="w-8 h-8 rounded bg-[#2F80ED] border-2 border-gray-300"></button>
-                                    </div>
+                                    <ColorPicker
+                                        initialColor={color}
+                                        onColorChange={(newColor) => setColor(newColor)}
+                                    />
                                 </div>
 
                                 {/* Template Selection */}
