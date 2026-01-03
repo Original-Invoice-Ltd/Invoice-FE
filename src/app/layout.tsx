@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter_Tight } from "next/font/google";
 import "./globals.css";
 import ActivityTracker from "@/components/ActivityTracker";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const interTight = Inter_Tight({
     subsets: ["latin"],
@@ -24,8 +25,10 @@ export default function RootLayout({
     return (
         <html lang="en">
         <body className={`${interTight.className} antialiased`}>
-        <ActivityTracker />
-        {children}
+        <AuthProvider>
+            <ActivityTracker />
+            {children}
+        </AuthProvider>
         </body>
         </html>
     );
