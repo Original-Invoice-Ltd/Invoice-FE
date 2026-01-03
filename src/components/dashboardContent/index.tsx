@@ -2,6 +2,7 @@
 
 import { Search, ChevronDown, Plus } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import Link from 'next/link';
 
 const DashboardContent = () => {
     // Sample data for charts
@@ -50,13 +51,13 @@ const DashboardContent = () => {
 
             {/* Action Buttons */}
             <div className="flex gap-3 mb-6">
-                <button className="flex-1 lg:flex-none lg:px-6 border border-[#2F80ED] text-[#2F80ED] rounded-lg text-sm font-medium hover:bg-[#EFF8FF] h-12 flex items-center justify-center">
+                <Link href="/dashboard/clients" className="flex-1 lg:flex-none lg:px-6 border border-[#2F80ED] text-[#2F80ED] rounded-lg text-sm font-medium hover:bg-[#EFF8FF] h-12 flex items-center justify-center">
                     Add Client
-                </button>
-                <button className="flex-1 lg:flex-none lg:px-6 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] h-12 flex items-center justify-center gap-2">
+                </Link>
+                <Link href="/dashboard/invoices/create" className="flex-1 lg:flex-none lg:px-6 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] h-12 flex items-center justify-center gap-2">
                     <Plus size={18} />
                     Create Invoice
-                </button>
+                </Link>
             </div>
 
             {/* Stats Cards */}
@@ -95,7 +96,7 @@ const DashboardContent = () => {
                     </button>
                 </div>
                 <div className="h-[200px] lg:h-[280px]">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200}>
                         <LineChart data={paymentTrendsData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#E8E9ED" />
                             <XAxis 
@@ -136,7 +137,7 @@ const DashboardContent = () => {
                         </button>
                     </div>
                     <div className="h-[280px]">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={280}>
                             <LineChart data={paymentTrendsData}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#E8E9ED" />
                                 <XAxis 
@@ -175,7 +176,7 @@ const DashboardContent = () => {
                         </button>
                     </div>
                     <div className="h-[180px] flex items-center justify-center">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={180}>
                             <PieChart>
                                 <Pie
                                     data={statusDistributionData}
@@ -217,7 +218,7 @@ const DashboardContent = () => {
                     </button>
                 </div>
                 <div className="h-[180px] flex items-center justify-center">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={180}>
                         <PieChart>
                             <Pie
                                 data={statusDistributionData}
