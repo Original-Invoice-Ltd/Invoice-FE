@@ -4,9 +4,11 @@ import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, Plus, X } from "lucide-react";
 import Link from "next/link";
 import InvoicePreview from "@/components/invoice/InvoicePreview";
+import { ApiClient } from "@/lib/api";
+import { buildInvoiceFormData, dataURLtoFile, base64ToFile, CreateInvoiceData } from "@/lib/invoiceTypes";
 
 interface InvoiceItem {
-    id: string;
+    id: number;
     itemName: string;
     quantity: number;
     rate: number;
@@ -25,6 +27,7 @@ const CreateInvoicePage = () => {
     // Client dropdown and modal state
     const [showClientDropdown, setShowClientDropdown] = useState(false);
     const [showAddClientModal, setShowAddClientModal] = useState(false);
+    const [selectedClientId, setSelectedClientId] = useState<string>("");
     const [clients, setClients] = useState([
         { id: '1', name: 'James Joseph', email: 'Jamesoriginalinvoice@gmail.com' },
         { id: '2', name: 'James Joseph', email: 'Jamesoriginalinvoice@gmail.com' },
@@ -43,7 +46,8 @@ const CreateInvoicePage = () => {
 
     const [billTo, setBillTo] = useState({
         customer: "",
-        invoiceName: "",
+        title: "",
+        invoiceNumber: "",
         paymentTerms: "",
         invoiceDate: "",
         dueDate: ""
@@ -68,7 +72,7 @@ const CreateInvoicePage = () => {
 
     const addNewRow = () => {
         const newItem: InvoiceItem = {
-            id: Date.now().toString(),
+            id: Date.now(),
             itemName: "",
             quantity: 1,
             rate: 0,
@@ -78,11 +82,11 @@ const CreateInvoicePage = () => {
         setItems([...items, newItem]);
     };
 
-    const removeRow = (id: string) => {
+    const removeRow = (id: number) => {
         setItems(items.filter(item => item.id !== id));
     };
 
-    const updateItem = (id: string, field: keyof InvoiceItem, value: any) => {
+    const updateItem = (id: number, field: keyof InvoiceItem, value: any) => {
         setItems(items.map(item => {
             if (item.id === id) {
                 const updated = { ...item, [field]: value };
@@ -105,6 +109,12 @@ const CreateInvoicePage = () => {
 
     const calculateTotal = () => {
         return calculateSubtotal() + calculateTax();
+    };
+
+    // Submit invoice to backend (Save as Draft - without sending)
+    const handleSaveDraft = async () => {
+        // TODO: Implement save as draft functionality
+        console.log("Save as draft - not implemented yet");
     };
 
     // Canvas drawing functions
@@ -179,6 +189,88 @@ const CreateInvoicePage = () => {
         setShowPreview(false);
     };
 
+    // Send invoice to backend (called from preview page)
+    const handleSendInvoice = async (): Promise<{ success: boolean; error?: string }> => {
+        try {
+            // Prepare logo file from base64 if exists
+            let logoFile: File | null = null;
+            if (logo) {
+                logoFile = base64ToFile(logo, 'logo.png');
+            }
+
+            // Prepare signature file from base64 if exists
+            let signatureFile: File | null = null;
+            if (signature) {
+                signatureFile = dataURLtoFile(signature, 'signature.png');
+            }
+
+            // Calculate totals
+            const subtotal = calculateSubtotal();
+            const totalDue = calculateTotal();
+
+            // Build the invoice data object matching backend CreateInvoiceRequest
+            const invoiceData: CreateInvoiceData = {
+                logo: logoFile,
+                billFrom: {
+                    fullName: billFrom.fullName,
+                    email: billFrom.email,
+                    address: billFrom.address,
+                    phoneNumber: billFrom.phoneNumber,
+                    businessName: billFrom.businessName,
+                },
+                billTo: {
+                    clientId: selectedClientId,
+                    title: billTo.title,
+                    invoiceNumber: billTo.invoiceNumber,
+                    paymentTerms: billTo.paymentTerms,
+                    invoiceDate: billTo.invoiceDate,
+                    dueDate: billTo.dueDate,
+                },
+                items: items.map(item => ({
+                    id: item.id,
+                    itemName: item.itemName,
+                    quantity: item.quantity,
+                    rate: item.rate,
+                    tax: item.tax,
+                    amount: item.amount,
+                })),
+                note: customerNote,
+                termsAndConditions: termsAndConditions,
+                signature: signatureFile,
+                language: language,
+                currency: currency,
+                invoiceColor: color,
+                subtotal: subtotal,
+                totalDue: totalDue,
+                paymentDetails: {
+                    accountNumber: paymentDetails.accountNumber,
+                    accountName: paymentDetails.accountName,
+                    bank: paymentDetails.bankAccount,
+                },
+            };
+
+            // Build FormData for multipart/form-data request
+            const formData = buildInvoiceFormData(invoiceData);
+
+            // Send to backend
+            const response = await ApiClient.createInvoice(formData);
+
+            if (response.status === 201 || response.status === 200) {
+                console.log('Invoice created successfully:', response.data);
+                // Redirect to invoices list after short delay
+                setTimeout(() => {
+                    window.location.href = '/dashboard/invoices';
+                }, 1500);
+                return { success: true };
+            } else {
+                return { success: false, error: response.error || 'Failed to create invoice' };
+            }
+        } catch (error) {
+            console.error('Error creating invoice:', error);
+            return { success: false, error: 'An unexpected error occurred' };
+        }
+    };
+
     if (showPreview) {
         return (
             <InvoicePreview
@@ -196,13 +288,15 @@ const CreateInvoicePage = () => {
                     template,
                     paymentDetails,
                     vat,
-                    wht
+                    wht,
+                    selectedClientId
                 }}
                 onEdit={handleBackToEdit}
                 onEmailInvoice={() => {
                     // Handle email invoice
                     console.log("Email invoice");
                 }}
+                onSendInvoice={handleSendInvoice}
             />
         );
     }
@@ -371,6 +465,7 @@ const CreateInvoicePage = () => {
                                                                 key={client.id}
                                                                 onClick={() => {
                                                                     setBillTo({ ...billTo, customer: client.name });
+                                                                    setSelectedClientId(client.id);
                                                                     setShowClientDropdown(false);
                                                                 }}
                                                                 className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 ${
@@ -415,16 +510,30 @@ const CreateInvoicePage = () => {
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-[14px] font-medium text-[#344054] mb-2">
-                                                    Invoice Name
+                                                    Invoice Title
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Invoice Title"
+                                                    value={billTo.title}
+                                                    onChange={(e) => setBillTo({ ...billTo, title: e.target.value })}
+                                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                                    Invoice Number
                                                 </label>
                                                 <input
                                                     type="text"
                                                     placeholder="INV-0012"
-                                                    value={billTo.invoiceName}
-                                                    onChange={(e) => setBillTo({ ...billTo, invoiceName: e.target.value })}
+                                                    value={billTo.invoiceNumber}
+                                                    onChange={(e) => setBillTo({ ...billTo, invoiceNumber: e.target.value })}
                                                     className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                                 />
                                             </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-[14px] font-medium text-[#344054] mb-2">
                                                     Payment Terms
@@ -600,10 +709,13 @@ const CreateInvoicePage = () => {
                     {/* Action Buttons - No Border */}
                     <div className="flex justify-between items-center">
                             <div className="flex gap-4">
-                                <button className="px-8 py-3 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50 text-[14px] font-medium">
+                                <Link href="/dashboard/invoices" className="px-8 py-3 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50 text-[14px] font-medium">
                                     Cancel
-                                </button>
-                                <button className="px-8 py-3 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50 text-[14px] font-medium">
+                                </Link>
+                                <button 
+                                    onClick={handleSaveDraft}
+                                    className="px-8 py-3 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50 text-[14px] font-medium"
+                                >
                                     Save as Draft
                                 </button>
                             </div>

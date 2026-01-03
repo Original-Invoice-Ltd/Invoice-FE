@@ -1,6 +1,6 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 // Configure axios defaults
 const axiosInstance = axios.create({
@@ -91,11 +91,10 @@ export class ApiClient {
     data?: any,
     params?: any
   ): Promise<ApiResponse<T>> {
-    const url = `${API_BASE_URL}${endpoint}`;
     console.log('=== API REQUEST ===');
-    console.log('URL:', url);
-    console.log('Method:', options.method || 'GET');
-    console.log('Body:', options.body);
+    console.log('URL:', `${API_BASE_URL}${endpoint}`);
+    console.log('Method:', method);
+    console.log('Body:', data);
     
     try {
       const response = await axiosInstance.request({
@@ -113,7 +112,17 @@ export class ApiClient {
 
   // Authentication APIs
   static async login(email: string, password: string) {
-    return this.request('POST', '/api/auth/login', { email, password });
+    
+    try {
+      const response = await axiosInstance.post('/api/auth/login', { email, password }); 
+      
+      return {
+        status: response.status,
+        data: response.data,
+      };
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
   }
 
   static async register(data: {
@@ -151,17 +160,11 @@ export class ApiClient {
   }
 
   static async verifyPasswordResetOTP(email: string, otp: string) {
-    return this.request('/auth/verify-password-reset-otp', {
-      method: 'POST',
-      body: JSON.stringify({ email, otp }),
-    });
+    return this.request('POST', '/api/auth/verify-password-reset-otp', { email, otp });
   }
 
   static async resetPasswordWithOTP(email: string, otp: string, newPassword: string) {
-    return this.request('/auth/reset-password-with-otp', {
-      method: 'POST',
-      body: JSON.stringify({ email, otp, newPassword }),
-    });
+    return this.request('POST', '/api/auth/reset-password-with-otp', { email, otp, newPassword });
   }
 
   static async getUserProfile(email: string) {
@@ -253,5 +256,65 @@ export class ApiClient {
 
   static async getAllTaxes() {
     return this.request('GET', '/api/tax/all');
+  }
+
+  // Invoice Management APIs
+  static async getAllInvoices() {
+    return this.request('GET', '/api/invoices/all');
+  }
+
+  static async getAllUserInvoices() {
+    return this.request('GET', '/api/invoices/all-user');
+  }
+
+  static async getInvoiceById(id: string) {
+    return this.request('GET', `/api/invoices/${id}`);
+  }
+
+  // Create Invoice - multipart/form-data
+  static async createInvoice(formData: FormData) {
+    console.log('=== CREATE INVOICE REQUEST ===');
+    console.log('URL:', `${API_BASE_URL}/api/invoices/add`);
+    
+    try {
+      const response = await axiosInstance.post('/api/invoices/add', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      return {
+        status: response.status,
+        data: response.data,
+      };
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  // Update Invoice - multipart/form-data
+  static async updateInvoice(id: string, formData: FormData) {
+    console.log('=== UPDATE INVOICE REQUEST ===');
+    console.log('URL:', `${API_BASE_URL}/api/invoices/${id}`);
+    
+    try {
+      const response = await axiosInstance.patch(`/api/invoices/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      return {
+        status: response.status,
+        data: response.data,
+      };
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  // Delete Invoice
+  static async deleteInvoice(id: string) {
+    return this.request('DELETE', `/api/invoices/${id}`);
   }
 }

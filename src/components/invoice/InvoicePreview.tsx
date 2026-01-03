@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { ChevronDown, Mail } from "lucide-react";
 
 interface InvoiceItem {
-    id: string;
+    id: number;
     itemName: string;
     quantity: number;
     rate: number;
@@ -22,7 +23,8 @@ interface InvoiceData {
     };
     billTo: {
         customer: string;
-        invoiceName: string;
+        title: string;
+        invoiceNumber: string;
         paymentTerms: string;
         invoiceDate: string;
         dueDate: string;
@@ -42,15 +44,39 @@ interface InvoiceData {
     };
     vat: number;
     wht: number;
+    selectedClientId: string;
 }
 
 interface InvoicePreviewProps {
     data: InvoiceData;
     onEdit: () => void;
     onEmailInvoice: () => void;
+    onSendInvoice: () => Promise<{ success: boolean; error?: string }>;
 }
 
-const InvoicePreview = ({ data, onEdit, onEmailInvoice }: InvoicePreviewProps) => {
+const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice }: InvoicePreviewProps) => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [submitSuccess, setSubmitSuccess] = useState(false);
+
+    const handleSendInvoice = async () => {
+        setIsSubmitting(true);
+        setSubmitError(null);
+        
+        try {
+            const result = await onSendInvoice();
+            if (result.success) {
+                setSubmitSuccess(true);
+            } else {
+                setSubmitError(result.error || 'Failed to send invoice');
+            }
+        } catch (error) {
+            setSubmitError('An unexpected error occurred');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     const calculateSubtotal = () => {
         return data.items.reduce((sum, item) => sum + item.amount, 0);
     };
@@ -119,7 +145,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice }: InvoicePreviewProps) =
                         </div>
                         <div className="text-right">
                             <h1 className="text-[28px] text-gray-900 mb-2">INVOICE</h1>
-                            <p className="text-gray-600 mb-1">#{data.billTo.invoiceName || 'INV-002'}</p>
+                            <p className="text-gray-600 mb-1">#{data.billTo.invoiceNumber || 'INV-002'}</p>
                             <p className="text-[14px] text-gray-500 mb-2">Balance Due</p>
                             <p className="text-[16px] font-semibold text-gray-900">{formatCurrency(calculateTotal())}</p>
                         </div>
@@ -259,12 +285,30 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice }: InvoicePreviewProps) =
                         </div>
                     </div>
 
+                    {/* Error Message */}
+                    {submitError && (
+                        <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                            {submitError}
+                        </div>
+                    )}
+
+                    {/* Success Message */}
+                    {submitSuccess && (
+                        <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                            Invoice sent successfully!
+                        </div>
+                    )}
+
                     {/* Send Button */}
                     <div className="flex justify-end">
-                        <button className="flex items-center gap-2 px-8 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <button 
+                            onClick={handleSendInvoice}
+                            disabled={isSubmitting || submitSuccess}
+                            className="flex items-center gap-2 px-8 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
                             <Mail size={20} />
-                            Send
-                            <ChevronDown size={20} />
+                            {isSubmitting ? 'Sending...' : submitSuccess ? 'Sent!' : 'Send'}
+                            {!isSubmitting && !submitSuccess && <ChevronDown size={20} />}
                         </button>
                     </div>
                     </div>
