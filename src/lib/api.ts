@@ -1,6 +1,6 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 // Configure axios defaults
 const axiosInstance = axios.create({
@@ -15,6 +15,8 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     console.log(`Making ${config.method?.toUpperCase()} request to: ${config.baseURL}${config.url}`);
+    console.log('Request withCredentials:', config.withCredentials);
+    console.log('Document cookies available:', typeof document !== 'undefined' ? document.cookie : 'SSR');
     return config;
   },
   (error) => {
@@ -102,6 +104,11 @@ export class ApiClient {
     data?: any,
     params?: any
   ): Promise<ApiResponse<T>> {
+    console.log('=== API REQUEST ===');
+    console.log('URL:', `${API_BASE_URL}${endpoint}`);
+    console.log('Method:', method);
+    console.log('Body:', data);
+    
     try {
       const response = await axiosInstance.request({
         method,
@@ -135,7 +142,17 @@ export class ApiClient {
 
   // Authentication APIs
   static async login(email: string, password: string) {
-    return this.request('POST', '/api/auth/login', { email, password });
+    
+    try {
+      const response = await axiosInstance.post('/api/auth/login', { email, password }); 
+      
+      return {
+        status: response.status,
+        data: response.data,
+      };
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
   }
 
   static async register(data: {
@@ -171,6 +188,14 @@ export class ApiClient {
 
   static async sendVerificationOTP(email: string) {
     return this.request('POST', '/api/auth/send-verification-otp', { email });
+  }
+
+  static async verifyPasswordResetOTP(email: string, otp: string) {
+    return this.request('POST', '/api/auth/verify-password-reset-otp', { email, otp });
+  }
+
+  static async resetPasswordWithOTP(email: string, otp: string, newPassword: string) {
+    return this.request('POST', '/api/auth/reset-password-with-otp', { email, otp, newPassword });
   }
 
   static async getUserProfile(email: string) {
