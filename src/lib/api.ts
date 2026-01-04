@@ -35,6 +35,16 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       console.error('Authentication failed - 401 response received');
       
+      // Skip redirect for certain API endpoints that may return 401 for empty data
+      const skipRedirectEndpoints = ['/api/product/', '/api/client/', '/api/tax/'];
+      const requestUrl = error.config?.url || '';
+      const shouldSkipRedirect = skipRedirectEndpoints.some(endpoint => requestUrl.includes(endpoint));
+      
+      if (shouldSkipRedirect) {
+        console.log('Skipping redirect for data endpoint:', requestUrl);
+        return Promise.reject(error);
+      }
+      
       // Only redirect if we're on protected pages (dashboard routes)
       if (typeof window !== 'undefined') {
         const currentPath = window.location.pathname;
