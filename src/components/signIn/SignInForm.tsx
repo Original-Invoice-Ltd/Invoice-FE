@@ -28,18 +28,17 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
   };
 
   return (
-    <div className="w-full max-w-[470px] mx-auto flex flex-col gap-[16px]">
+    <div className="w-full  max-w-[470px] mx-auto flex flex-col gap-2">
       {/* Logo - Centered with spacing (mobile only) */}
-      <div className="flex justify-center mb-6 lg:hidden">
+      <div className="flex justify-center mb-4 md:hidden">
         <Logo/>
       </div>
       
       {/* Header */}
-      <div className="text-center mb-2 relative">
-        <h2 className="text-[24px] font-medium text-[#000000] font-['Inter_Tight'] mb-2">
+      <div className="text-center">
+        <h2 className="text-[24px] font-medium text-[#000000] font-['Inter_Tight']">
           Sign In
         </h2>
-       
         <p className="text-[16px] text-[#666666] font-['Inter_Tight']">
           Sign in with your email or social accounts
         </p>
@@ -58,7 +57,7 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
             placeholder="Enter your email address"
             value={formData.email}
             onChange={onInputChange}
-            className="w-full h-[48px] rounded-lg pl-4 pr-12 border border-[#E5E5E5] 
+            className="w-full h-[38px] rounded-lg pl-4 pr-12 border border-[#E5E5E5] 
               bg-white text-[14px] placeholder-gray-400 focus:outline-none focus:ring-2 
               focus:ring-[#2F80ED] font-['Inter_Tight']"
           />
@@ -81,7 +80,7 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
             placeholder="Enter your password"
             value={formData.password}
             onChange={onInputChange}
-            className="w-full h-[48px] rounded-lg pl-4 pr-12 border border-[#E5E5E5] 
+            className="w-full h-[38px] rounded-lg pl-4 pr-12 border border-[#E5E5E5] 
               bg-white text-[14px] placeholder-gray-400 focus:outline-none focus:ring-2 
               focus:ring-[#2F80ED] font-['Inter_Tight']"
           />
@@ -110,7 +109,7 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
             name="rememberMe"
             checked={formData.rememberMe}
             onChange={onInputChange}
-            className="w-5 h-5 rounded border border-[#E5E5E5] bg-white"
+            className="w-4 h-4 rounded border accent-[#2F80ED] border-[#E5E5E5] bg-white"
           />
           <span className="text-[14px] text-[#000000] font-['Inter_Tight']">Remember me</span>
         </label>
@@ -124,14 +123,14 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
         type="submit"
         onClick={onSubmit}
         disabled={loading}
-        className="w-full h-[48px] rounded-lg bg-[#2F80ED] text-white text-[16px] 
+        className="w-full h-[38px] rounded-lg bg-[#2F80ED] text-white text-[16px] 
           font-medium font-['Inter_Tight'] hover:bg-[#2670d4] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? 'Signing In...' : 'Sign In'}
       </button>
 
       {/* Divider with lines */}
-      <div className="flex items-center gap-4 my-2">
+      <div className="flex items-center gap-4 my-1">
         <div className="flex-1 h-[1px] bg-[#E5E5E5]"></div>
         <span className="text-[16px] font-semibold text-[#333333] font-['Inter_Tight']">Or</span>
         <div className="flex-1 h-[1px] bg-[#E5E5E5]"></div>
@@ -145,7 +144,7 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
             window.location.href = `${apiBaseUrl}/oauth/google/login`;
           }}
           disabled={loading}
-          className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
+          className="w-full sm:flex-1 h-[38px] rounded-lg border border-[#E5E5E5] bg-white 
           flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
           <GoogleIcon width={20} height={20} />
           <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
@@ -159,7 +158,7 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
             window.location.href = `${apiBaseUrl}/oauth/apple/login`;
           }}
           disabled={loading}
-          className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
+          className="w-full sm:flex-1 h-[38px] rounded-lg border border-[#E5E5E5] bg-white 
           flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
           <AppleIcon width={20} height={20} />
           <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">

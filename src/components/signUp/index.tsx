@@ -67,20 +67,17 @@ export default function SignUp() {
         let errorMessage = 'Registration failed. Please try again.';
         
         if (response.error) {
-          // Try to parse JSON error if it's a string
-          if (typeof response.error === 'string') {
-            try {
-              // Check if it's a JSON string that starts with unexpected token
-              if (response.error.includes('Unexpected token') || response.error.includes('user exist')) {
-                errorMessage = 'An account with this email already exists. Please sign in instead.';
-              } else {
-                errorMessage = response.error;
-              }
-            } catch {
+          // Handle object errors (e.g., {message: "..."})
+          if (typeof response.error === 'object' && response.error !== null) {
+            const errorObj = response.error as { message?: string };
+            errorMessage = errorObj.message || JSON.stringify(response.error);
+          } else if (typeof response.error === 'string') {
+            // Check if it's a JSON string that starts with unexpected token
+            if (response.error.includes('Unexpected token') || response.error.includes('user exist')) {
+              errorMessage = 'An account with this email already exists. Please sign in instead.';
+            } else {
               errorMessage = response.error;
             }
-          } else {
-            errorMessage = response.error;
           }
         }
         
@@ -145,21 +142,22 @@ export default function SignUp() {
   };
 
   return (
-    <div className="max-w-[1440px] min-h-screen lg:h-[1024px] bg-[#FFFFFF] flex flex-col lg:flex-row gap-0">
-      {/* Left Panel - Hidden on mobile */}
-      <div className="hidden lg:flex lg:w-1/2 items-center justify-center">
+    <div className="w-full h-screen max-h-screen bg-[#FFFFFF] flex flex-col md:flex-row">
+      {/* Left Panel - Hidden on mobile, shown on md and lg */}
+      <div className="hidden md:flex md:w-1/2 h-full">
         <LeftIllustrationPanel />
       </div>
 
       {/* Right Side - Form Section */}
-      <div className="relative w-full lg:w-1/2 flex flex-col items-center px-4 sm:px-8 py-8 lg:justify-center"> 
+      <div className="w-full md:w-1/2 h-full flex flex-col px-4 sm:px-8 md:px-6 lg:px-12 overflow-hidden"> 
         {/* Logo - top-left on desktop only */}
-        <div className="hidden lg:block lg:absolute lg:top-8 lg:left-8">
+        <div className="hidden md:block pt-6 md:pt-8 lg:pt-6 lg:mb-4">
           <Logo />
         </div>
         
-        {/* Form Container */}
-        <div className="w-full max-w-[470px]">
+        {/* Form Container - scrollable with hidden scrollbar */}
+        <div className="flex-1 overflow-y-auto flex items-start md:items-center justify-center pt-4 md:pt-0 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="w-full max-w-[470px] py-4">
           {/* Conditional Rendering: Sign Up or OTP Verification Form */}
           {currentScreen === 'signup' ? (
             <SignUpForm
@@ -182,6 +180,7 @@ export default function SignUp() {
               loading={loading}
             />
           )}
+          </div>
         </div>
       </div>
 
