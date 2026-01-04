@@ -45,6 +45,66 @@ const CreateInvoicePage = () => {
         country: ""
     });
 
+    // Products dropdown state
+    const [showProductsDropdown, setShowProductsDropdown] = useState(false);
+    const [products, setProducts] = useState<{ id: string; itemName: string; quantity: number; rate: number; amount: number }[]>([]);
+    const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+    const [productsLoaded, setProductsLoaded] = useState(false);
+
+    // Bank dropdown state
+    const [showBankDropdown, setShowBankDropdown] = useState(false);
+    const [bankSearchQuery, setBankSearchQuery] = useState("");
+
+    // Nigerian banks list
+    const nigerianBanks = [
+        { category: "Fintechs", banks: ["OPay", "PalmPay", "Moniepoint", "Kuda Bank", "Carbon", "Fairmoney"] },
+        { category: "Commercial Banks", banks: ["Access Bank", "Zenith Bank", "GTBank", "First Bank", "UBA", "Fidelity Bank", "Union Bank", "Stanbic IBTC", "Sterling Bank", "Ecobank", "FCMB", "Wema Bank", "Polaris Bank", "Keystone Bank", "Unity Bank"] }
+    ];
+
+    // Load products from API
+    const loadProducts = async () => {
+        if (productsLoaded || isLoadingProducts) return;
+        
+        try {
+            setIsLoadingProducts(true);
+            const response = await ApiClient.getAllUserProducts();
+            
+            if (response.status === 200) {
+                const productsData = Array.isArray(response.data) ? response.data : [];
+                setProducts(productsData);
+                setProductsLoaded(true);
+            } else {
+                console.error('Failed to load products:', response.error);
+            }
+        } catch (error) {
+            console.error('Error loading products:', error);
+        } finally {
+            setIsLoadingProducts(false);
+        }
+    };
+
+    // Handle products dropdown open
+    const handleProductsDropdownClick = () => {
+        if (!showProductsDropdown) {
+            loadProducts();
+        }
+        setShowProductsDropdown(!showProductsDropdown);
+    };
+
+    // Handle product selection - add to table
+    const handleSelectProduct = (product: { id: string; itemName: string; quantity: number; rate: number; amount: number }) => {
+        const newItem: InvoiceItem = {
+            id: Date.now(),
+            itemName: product.itemName,
+            quantity: product.quantity || 1,
+            rate: product.rate || 0,
+            tax: 0,
+            amount: (product.quantity || 1) * (product.rate || 0)
+        };
+        setItems([...items, newItem]);
+        setShowProductsDropdown(false);
+    };
+
     // Load clients from API
     const loadClients = async () => {
         if (clientsLoaded || isLoadingClients) return;
@@ -606,30 +666,16 @@ const CreateInvoicePage = () => {
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-[14px] font-medium text-[#344054] mb-2">
-                                                    Invoice Title
+                                                    Invoice Name
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    placeholder="Invoice Title"
+                                                    placeholder="INV-0012"
                                                     value={billTo.title}
                                                     onChange={(e) => setBillTo({ ...billTo, title: e.target.value })}
                                                     className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                                 />
                                             </div>
-                                            <div>
-                                                <label className="block text-[14px] font-medium text-[#344054] mb-2">
-                                                    Invoice Number
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    placeholder="INV-0012"
-                                                    value={billTo.invoiceNumber}
-                                                    onChange={(e) => setBillTo({ ...billTo, invoiceNumber: e.target.value })}
-                                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-[14px] font-medium text-[#344054] mb-2">
                                                     Payment Terms
@@ -640,7 +686,7 @@ const CreateInvoicePage = () => {
                                                         onChange={(e) => setBillTo({ ...billTo, paymentTerms: e.target.value })}
                                                         className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                                     >
-                                                        <option value="">Select payment terms</option>
+                                                        <option value="">INV-0012</option>
                                                         <option value="Net 15">Net 15</option>
                                                         <option value="Net 30">Net 30</option>
                                                         <option value="Net 60">Net 60</option>
@@ -714,11 +760,24 @@ const CreateInvoicePage = () => {
                                                                 className="w-full text-[14px] font-medium text-[#101828] focus:outline-none bg-transparent"
                                                             />
                                                         </td>
-                                                        <td className="py-4 px-4 text-[14px] text-[#101828] border-r border-[#E4E7EC]">
-                                                            {item.quantity.toFixed(2)}
+                                                        <td className="py-4 px-4 border-r border-[#E4E7EC]">
+                                                            <input
+                                                                type="number"
+                                                                value={item.quantity}
+                                                                onChange={(e) => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
+                                                                className="w-full text-[14px] text-[#101828] focus:outline-none bg-transparent"
+                                                                min="0"
+                                                                step="0.01"
+                                                            />
                                                         </td>
-                                                        <td className="py-4 px-4 text-[14px] text-[#101828] border-r border-[#E4E7EC]">
-                                                            {item.rate.toLocaleString()}
+                                                        <td className="py-4 px-4 border-r border-[#E4E7EC]">
+                                                            <input
+                                                                type="number"
+                                                                value={item.rate}
+                                                                onChange={(e) => updateItem(item.id, 'rate', parseFloat(e.target.value) || 0)}
+                                                                className="w-full text-[14px] text-[#101828] focus:outline-none bg-transparent"
+                                                                min="0"
+                                                            />
                                                         </td>
                                                         <td className="py-4 px-4 border-r border-[#E4E7EC]">
                                                             <div className="relative inline-flex items-center">
@@ -737,8 +796,14 @@ const CreateInvoicePage = () => {
                                                                 </svg>
                                                             </div>
                                                         </td>
-                                                        <td className="py-4 px-4 text-[14px] font-semibold text-[#101828] border-r border-[#E4E7EC]">
-                                                            ₦{item.amount.toLocaleString()}
+                                                        <td className="py-4 px-4 border-r border-[#E4E7EC]">
+                                                            <input
+                                                                type="number"
+                                                                value={item.amount}
+                                                                onChange={(e) => updateItem(item.id, 'amount', parseFloat(e.target.value) || 0)}
+                                                                className="w-full text-[14px] font-semibold text-[#101828] focus:outline-none bg-transparent"
+                                                                min="0"
+                                                            />
                                                         </td>
                                                         <td className="py-4 px-4">
                                                             <button
@@ -753,13 +818,64 @@ const CreateInvoicePage = () => {
                                             </tbody>
                                         </table>
                                     </div>
-                                    <button
-                                        onClick={addNewRow}
-                                        className="mt-4 flex items-center gap-2 px-4 py-2.5 text-[#2F80ED] border border-[#D0D5DD] rounded-lg hover:bg-[#F0F7FF] transition-colors text-[14px] font-medium"
-                                    >
-                                        <Plus size={18} />
-                                        Add New Row
-                                    </button>
+                                    <div className="mt-4 flex items-center justify-between">
+                                        <button
+                                            onClick={addNewRow}
+                                            className="flex items-center gap-2 px-4 py-2.5 text-[#2F80ED] border border-[#D0D5DD] rounded-lg hover:bg-[#F0F7FF] transition-colors text-[14px] font-medium"
+                                        >
+                                            <Plus size={18} />
+                                            Add New Row
+                                        </button>
+                                    
+                                        {/* Select Products Dropdown */}
+                                        <div className="relative">
+                                            <button
+                                                onClick={handleProductsDropdownClick}
+                                                className="flex items-center gap-2 px-4 py-2.5 text-[#344054] text-[14px] font-medium"
+                                            >
+                                                Select products
+                                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                </svg>
+                                            </button>
+                                            
+                                            {showProductsDropdown && (
+                                                <div className="absolute z-10 right-0 mt-1 w-72 bg-white border border-[#D0D5DD] rounded-lg shadow-lg max-h-80 overflow-y-auto">
+                                                    {/* Loading State */}
+                                                    {isLoadingProducts && (
+                                                        <div className="flex items-center justify-center py-4">
+                                                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#2F80ED]"></div>
+                                                            <span className="ml-2 text-sm text-[#667085]">Loading products...</span>
+                                                        </div>
+                                                    )}
+                                                    
+                                                    {/* Empty State */}
+                                                    {!isLoadingProducts && products.length === 0 && (
+                                                        <div className="px-4 py-3 text-sm text-[#667085] text-center">
+                                                            No products found
+                                                        </div>
+                                                    )}
+                                                    
+                                                    {/* Products List */}
+                                                    {!isLoadingProducts && products.map((product) => (
+                                                        <div
+                                                            key={product.id}
+                                                            onClick={() => handleSelectProduct(product)}
+                                                            className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 border-b border-[#E4E7EC] last:border-b-0"
+                                                        >
+                                                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg font-semibold text-gray-600">
+                                                                {product.itemName?.charAt(0)?.toUpperCase() || 'P'}
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <p className="font-medium text-gray-900">{product.itemName}</p>
+                                                                <p className="text-sm text-gray-600">₦{product.rate?.toLocaleString() || 0}</p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                     </div>
 
                     {/* Third Border: Additional Fields + Signature */}
@@ -973,13 +1089,89 @@ const CreateInvoicePage = () => {
                                     <label className="block text-sm font-medium text-[#344054] mb-2">
                                         Bank Account <span className="text-red-500">*</span>
                                     </label>
-                                    <select 
-                                        value={paymentDetails.bankAccount}
-                                        onChange={(e) => setPaymentDetails({ ...paymentDetails, bankAccount: e.target.value })}
-                                        className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg"
-                                    >
-                                        <option value="">Select</option>
-                                    </select>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Enter bank name or select"
+                                            value={paymentDetails.bankAccount}
+                                            onChange={(e) => setPaymentDetails({ ...paymentDetails, bankAccount: e.target.value })}
+                                            className="w-full px-3 py-2.5 pr-10 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowBankDropdown(!showBankDropdown)}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085] hover:text-[#344054]"
+                                        >
+                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                            </svg>
+                                        </button>
+                                        
+                                        {/* Bank Dropdown */}
+                                        {showBankDropdown && (
+                                            <div className="absolute z-10 w-full mt-1 bg-white border border-[#D0D5DD] rounded-lg shadow-lg max-h-80 overflow-hidden">
+                                                {/* Search Bar */}
+                                                <div className="p-3 border-b border-[#E4E7EC] sticky top-0 bg-white">
+                                                    <div className="relative">
+                                                        <svg className="absolute left-3 top-1/2 transform -translate-y-1/2" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M14 14L10 10M11.3333 6.66667C11.3333 9.244 9.244 11.3333 6.66667 11.3333C4.08934 11.3333 2 9.244 2 6.66667C2 4.08934 4.08934 2 6.66667 2C9.244 2 11.3333 4.08934 11.3333 6.66667Z" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                        </svg>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Search bank..."
+                                                            value={bankSearchQuery}
+                                                            onChange={(e) => setBankSearchQuery(e.target.value)}
+                                                            className="w-full pl-9 pr-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="max-h-60 overflow-y-auto">
+                                                    {nigerianBanks.map((group) => {
+                                                        const filteredBanks = group.banks.filter(bank => 
+                                                            bank.toLowerCase().includes(bankSearchQuery.toLowerCase())
+                                                        );
+                                                        if (filteredBanks.length === 0) return null;
+                                                        return (
+                                                            <div key={group.category}>
+                                                                <div className="px-4 py-2 text-xs font-semibold text-[#667085] bg-gray-50 sticky top-0">
+                                                                    {group.category}
+                                                                </div>
+                                                                {filteredBanks.map((bank) => (
+                                                                    <div
+                                                                        key={bank}
+                                                                        onClick={() => {
+                                                                            setPaymentDetails({ ...paymentDetails, bankAccount: bank });
+                                                                            setShowBankDropdown(false);
+                                                                            setBankSearchQuery("");
+                                                                        }}
+                                                                        className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 ${
+                                                                            paymentDetails.bankAccount === bank ? 'bg-[#2F80ED] text-white hover:bg-[#2F80ED]' : ''
+                                                                        }`}
+                                                                    >
+                                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                                                                            paymentDetails.bankAccount === bank ? 'bg-white text-[#2F80ED]' : 'bg-gray-100 text-gray-600'
+                                                                        }`}>
+                                                                            {bank.charAt(0)}
+                                                                        </div>
+                                                                        <span className={`font-medium ${paymentDetails.bankAccount === bank ? 'text-white' : 'text-gray-900'}`}>
+                                                                            {bank}
+                                                                        </span>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                    {nigerianBanks.every(group => 
+                                                        group.banks.filter(bank => bank.toLowerCase().includes(bankSearchQuery.toLowerCase())).length === 0
+                                                    ) && (
+                                                        <div className="px-4 py-3 text-sm text-[#667085] text-center">
+                                                            No banks found
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-[#344054] mb-2">
