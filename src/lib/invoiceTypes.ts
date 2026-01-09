@@ -2,13 +2,12 @@
 // Maps UI form fields to backend request body for POST /api/invoices/add (multipart/form-data)
 
 export interface InvoiceItem {
-  id?: number;              // Long in backend (null for new items)
+  id: number;               // Required for UI components
   itemName: string;
   category?: string;
   description?: string;
   quantity: number;
   rate: number;
-  tax?: number;             // Legacy field for backward compatibility
   amount: number;
   taxIds?: string[];        // List of tax UUIDs to apply to this item
 }
@@ -165,9 +164,7 @@ export function buildInvoiceFormData(data: CreateInvoiceData): FormData {
   // Items array (for new items)
   if (data.items && data.items.length > 0) {
     data.items.forEach((item, index) => {
-      if (item.id) {
-        formData.append(`items[${index}].id`, item.id.toString());
-      }
+      formData.append(`items[${index}].id`, item.id.toString());
       formData.append(`items[${index}].itemName`, item.itemName);
       if (item.category) {
         formData.append(`items[${index}].category`, item.category);
@@ -178,9 +175,6 @@ export function buildInvoiceFormData(data: CreateInvoiceData): FormData {
       formData.append(`items[${index}].quantity`, item.quantity.toString());
       formData.append(`items[${index}].rate`, item.rate.toString());
       formData.append(`items[${index}].amount`, item.amount.toString());
-      if (item.tax !== undefined) {
-        formData.append(`items[${index}].tax`, item.tax.toString());
-      }
       if (item.taxIds && item.taxIds.length > 0) {
         item.taxIds.forEach((taxId) => {
           formData.append(`items[${index}].taxIds`, taxId);

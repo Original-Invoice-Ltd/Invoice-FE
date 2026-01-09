@@ -2,15 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Mail, X } from "lucide-react";
-
-interface InvoiceItem {
-    id: number;
-    itemName: string;
-    quantity: number;
-    rate: number;
-    tax: number;
-    amount: number;
-}
+import { InvoiceItem } from "@/lib/invoiceTypes";
 
 interface InvoiceData {
     logo: string | null;
@@ -45,6 +37,7 @@ interface InvoiceData {
     vat: number;
     wht: number;
     selectedClientId: string;
+    invoiceTaxRate?: number;
 }
 
 interface InvoicePreviewProps {
@@ -126,7 +119,8 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice }: Invoice
     };
 
     const calculateVAT = () => {
-        return calculateSubtotal() * (data.vat / 100);
+        const subtotal = calculateSubtotal();
+        return subtotal * ((data.invoiceTaxRate || 0) / 100);
     };
 
     const calculateWHT = () => {
@@ -268,7 +262,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice }: Invoice
                                 <span className="text-gray-900">{formatCurrency(calculateSubtotal())}</span>
                             </div>
                             <div className="flex justify-between py-1">
-                                <span className="text-gray-600">VAT ({data.vat}%)</span>
+                                <span className="text-gray-600">Tax ({data.invoiceTaxRate || 0}%)</span>
                                 <span className="text-gray-900 ">{formatCurrency(calculateVAT())}</span>
                             </div>
                             <div className="flex justify-between py-1">
