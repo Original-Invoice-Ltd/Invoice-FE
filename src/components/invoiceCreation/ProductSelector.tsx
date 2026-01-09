@@ -14,15 +14,6 @@ interface InvoiceItem {
   quantity: number;
   rate: number;
   amount: number;
-  taxes?: Array<{
-    id: string;
-    name: string;
-    taxType: string;
-    rate: number;
-    amount: number;
-  }>;
-  totalTaxAmount: number;
-  amountWithTax: number;
 }
 
 interface ProductSelectorProps {
@@ -73,16 +64,7 @@ export default function ProductSelector({ items, onItemsChange }: ProductSelecto
       description: product.description,
       quantity: 1, // Default quantity
       rate: product.rate || 0,
-      amount: product.rate || 0,
-      taxes: product.taxes?.map(tax => ({
-        id: tax.id,
-        name: tax.name,
-        taxType: tax.taxType,
-        rate: tax.baseTaxRate,
-        amount: ((product.rate || 0) * tax.baseTaxRate) / 100
-      })) || [],
-      totalTaxAmount: product.totalTaxAmount || 0,
-      amountWithTax: product.amountWithTax || product.rate || 0
+      amount: product.rate || 0
     };
 
     onItemsChange([...items, newItem]);
@@ -96,10 +78,7 @@ export default function ProductSelector({ items, onItemsChange }: ProductSelecto
       category: 'PRODUCT',
       quantity: 1,
       rate: 0,
-      amount: 0,
-      taxes: [],
-      totalTaxAmount: 0,
-      amountWithTax: 0
+      amount: 0
     };
 
     onItemsChange([...items, newItem]);
@@ -113,17 +92,6 @@ export default function ProductSelector({ items, onItemsChange }: ProductSelecto
         // Recalculate amounts when quantity or rate changes
         if (field === 'quantity' || field === 'rate') {
           updated.amount = updated.quantity * updated.rate;
-          
-          // Recalculate tax amounts
-          if (updated.taxes && updated.taxes.length > 0) {
-            updated.taxes = updated.taxes.map(tax => ({
-              ...tax,
-              amount: (updated.amount * tax.rate) / 100
-            }));
-            updated.totalTaxAmount = updated.taxes.reduce((sum, tax) => sum + tax.amount, 0);
-          }
-          
-          updated.amountWithTax = updated.amount + updated.totalTaxAmount;
         }
         
         return updated;
@@ -174,8 +142,6 @@ export default function ProductSelector({ items, onItemsChange }: ProductSelecto
               <th className="text-left py-3 px-2 text-sm font-medium text-gray-600">Qty</th>
               <th className="text-left py-3 px-2 text-sm font-medium text-gray-600">Rate</th>
               <th className="text-left py-3 px-2 text-sm font-medium text-gray-600">Amount</th>
-              <th className="text-left py-3 px-2 text-sm font-medium text-gray-600">Tax</th>
-              <th className="text-left py-3 px-2 text-sm font-medium text-gray-600">Total</th>
               <th className="w-10"></th>
             </tr>
           </thead>
@@ -225,24 +191,6 @@ export default function ProductSelector({ items, onItemsChange }: ProductSelecto
                   ${item.amount.toFixed(2)}
                 </td>
                 <td className="py-3 px-2">
-                  <div className="text-sm">
-                    {item.taxes && item.taxes.length > 0 ? (
-                      <div>
-                        {item.taxes.map((tax, index) => (
-                          <div key={tax.id} className="text-xs">
-                            {tax.name}: ${tax.amount.toFixed(2)}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="text-gray-400">No tax</span>
-                    )}
-                  </div>
-                </td>
-                <td className="py-3 px-2 font-semibold">
-                  ${item.amountWithTax.toFixed(2)}
-                </td>
-                <td className="py-3 px-2">
                   <button
                     onClick={() => removeItem(item.id)}
                     className="text-red-500 hover:text-red-700"
@@ -281,7 +229,7 @@ export default function ProductSelector({ items, onItemsChange }: ProductSelecto
 
       {/* Product Selection Modal */}
       {showProductModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg w-full max-w-4xl max-h-[80vh] overflow-hidden">
             <div className="flex justify-between items-center p-6 border-b">
               <h2 className="text-xl font-semibold">Select Products</h2>
@@ -342,11 +290,6 @@ export default function ProductSelector({ items, onItemsChange }: ProductSelecto
                           <span className="text-lg font-semibold text-gray-900">
                             ${product.rate?.toFixed(2) || '0.00'}
                           </span>
-                          {product.taxes && product.taxes.length > 0 && (
-                            <span className="text-xs text-gray-500">
-                              +{product.taxes.length} tax{product.taxes.length > 1 ? 'es' : ''}
-                            </span>
-                          )}
                         </div>
                       </div>
                     ))}

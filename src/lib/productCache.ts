@@ -6,14 +6,6 @@ interface Product {
   quantity?: number;
   rate?: number;
   amount?: number;
-  totalTaxAmount?: number;
-  amountWithTax?: number;
-  taxes?: Array<{
-    id: string;
-    name: string;
-    taxType: string;
-    baseTaxRate: number;
-  }>;
   createdAt?: string;
   updatedAt?: string;
 }

@@ -42,7 +42,7 @@ const DashboardContent = () => {
     };
 
     return (
-        <div className="w-full max-w-[1108px]">
+        <div className="max-w-7xl mx-auto mb-[200px] p-6">
             {/* Welcome Section */}
             <div className="mb-6">
                 <h1 className="text-xl lg:text-2xl font-semibold text-[#101828] mb-1">Welcome, Victor</h1>
