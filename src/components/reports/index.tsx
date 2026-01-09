@@ -36,8 +36,7 @@ const ReportsAnalytics = () => {
   ];
 
   return (
-    <div className="p-4 sm:p-6">
-      <div className="max-w-[1108px] mx-auto">
+    <div className="max-w-7xl mx-auto mb-[200px] p-6">
         <ReportsHeader />
         
         {/* Toggle button for demo purposes - remove in production */}
@@ -52,7 +51,7 @@ const ReportsAnalytics = () => {
 
         <KPICards data={kpiCards} />
 
-        <div className="flex flex-col lg:flex-row gap-6 mb-6 w-full max-w-[1108px]">
+        <div className="flex flex-col lg:flex-row gap-6 mb-6 w-full">
           <div className="w-full lg:w-[692px]">
             <RevenueChart data={data.revenueData} isEmpty={!hasData} />
           </div>
@@ -66,7 +65,6 @@ const ReportsAnalytics = () => {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
         />
-      </div>
     </div>
   );
 };

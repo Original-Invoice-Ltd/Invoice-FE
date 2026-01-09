@@ -18,6 +18,7 @@ const CreateInvoicePage = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
+    const [isSendingInvoice, setIsSendingInvoice] = useState(false);
 
     // Client dropdown and modal state
     const [showClientDropdown, setShowClientDropdown] = useState(false);
@@ -258,8 +259,37 @@ const CreateInvoicePage = () => {
         return calculateSubtotal() + calculateTax();
     };
 
+    // Form validation
+    const isFormValid = () => {
+        // Required fields for billFrom
+        const billFromValid = billFrom.fullName.trim() !== "" && 
+                             billFrom.email.trim() !== "" && 
+                             billFrom.phoneNumber.trim() !== "" && 
+                             billFrom.businessName.trim() !== "";
+        
+        // Required fields for billTo
+        const billToValid = billTo.customer.trim() !== "" && 
+                           billTo.title.trim() !== "" && 
+                           billTo.invoiceDate.trim() !== "" && 
+                           billTo.dueDate.trim() !== "";
+        
+        // At least one item is required
+        const itemsValid = items.length > 0;
+        
+        // Payment details are required
+        const paymentDetailsValid = paymentDetails.bankAccount.trim() !== "" && 
+                                   paymentDetails.accountName.trim() !== "" && 
+                                   paymentDetails.accountNumber.trim() !== "";
+        
+        return billFromValid && billToValid && itemsValid && paymentDetailsValid;
+    };
+
     // Submit invoice to backend (Save as Draft - without sending)
     const handleSaveDraft = async () => {
+        if (!isFormValid()) {
+            alert("Please fill in all required fields before saving as draft.");
+            return;
+        }
         // TODO: Implement save as draft functionality
         console.log("Save as draft - not implemented yet");
     };
@@ -329,7 +359,68 @@ const CreateInvoicePage = () => {
     };
 
     const handlePreviewInvoice = () => {
+        if (!isFormValid()) {
+            alert("Please fill in all required fields before previewing the invoice.");
+            return;
+        }
         setShowPreview(true);
+    };
+
+    // Transform form data to InvoiceResponse structure for preview
+    const getPreviewData = () => {
+        return {
+            id: "preview",
+            title: billTo.title || "Invoice",
+            invoiceNumber: billTo.title || "INV-PREVIEW",
+            creationDate: billTo.invoiceDate,
+            dueDate: billTo.dueDate,
+            currency: currency,
+            invoiceColor: color,
+            status: "DRAFT" as const,
+            subtotal: items.reduce((sum, item) => sum + item.amount, 0),
+            totalTaxAmount: calculateTax(),
+            totalDue: calculateTotal(),
+            logoUrl: logo || undefined,
+            signatureUrl: signature || undefined,
+            note: customerNote,
+            termsAndConditions: termsAndConditions,
+            paymentTerms: billTo.paymentTerms,
+            bank: paymentDetails.bankAccount,
+            accountNumber: paymentDetails.accountNumber,
+            accountName: paymentDetails.accountName,
+            billFrom: {
+                fullName: billFrom.fullName,
+                email: billFrom.email,
+                phone: billFrom.phoneNumber,
+                address: billFrom.address
+            },
+            billTo: {
+                id: "preview-client",
+                customerType: "",
+                title: "",
+                fullName: billTo.customer,
+                businessName: billTo.customer,
+                email: "",
+                phone: "",
+                country: ""
+            },
+            items: items.map(item => ({
+                id: item.id,
+                itemName: item.itemName,
+                quantity: item.quantity,
+                rate: item.rate,
+                amount: item.amount,
+                description: ""
+            })),
+            appliedTaxes: items.filter(item => item.tax > 0).map((item, index) => ({
+                taxId: `tax-${index}`,
+                taxName: `VAT (${item.tax}%)`,
+                taxType: "VAT",
+                appliedRate: item.tax,
+                taxableAmount: item.amount,
+                taxAmount: (item.amount * item.tax) / 100
+            }))
+        };
     };
 
     const handleBackToEdit = () => {
@@ -338,7 +429,14 @@ const CreateInvoicePage = () => {
 
     // Send invoice to backend (called from preview page)
     const handleSendInvoice = async (): Promise<{ success: boolean; error?: string }> => {
+        if (!isFormValid()) {
+            alert("Please fill in all required fields before sending the invoice.");
+            return { success: false, error: "Form validation failed" };
+        }
+
         try {
+            setIsSendingInvoice(true);
+            
             // Prepare logo file from base64 if exists
             let logoFile: File | null = null;
             if (logo) {
@@ -403,17 +501,22 @@ const CreateInvoicePage = () => {
 
             if (response.status === 201 || response.status === 200) {
                 console.log('Invoice created successfully:', response.data);
+                alert('Invoice sent successfully!');
                 // Redirect to invoices list after short delay
                 setTimeout(() => {
                     window.location.href = '/dashboard/invoices';
                 }, 1500);
                 return { success: true };
             } else {
+                alert(`Failed to send invoice: ${response.error || 'Unknown error'}`);
                 return { success: false, error: response.error || 'Failed to create invoice' };
             }
         } catch (error) {
             console.error('Error creating invoice:', error);
+            alert('An unexpected error occurred while sending the invoice.');
             return { success: false, error: 'An unexpected error occurred' };
+        } finally {
+            setIsSendingInvoice(false);
         }
     };
 
@@ -906,14 +1009,24 @@ const CreateInvoicePage = () => {
                                 </Link>
                                 <button 
                                     onClick={handleSaveDraft}
-                                    className="px-8 py-3 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50 text-[14px] font-medium"
+                                    disabled={!isFormValid()}
+                                    className={`px-8 py-3 border border-[#D0D5DD] rounded-lg text-[14px] font-medium transition-colors ${
+                                        isFormValid() 
+                                            ? 'text-[#344054] hover:bg-gray-50 cursor-pointer' 
+                                            : 'text-gray-400 bg-gray-50 cursor-not-allowed'
+                                    }`}
                                 >
                                     Save as Draft
                                 </button>
                             </div>
                             <button 
                                 onClick={handlePreviewInvoice}
-                                className="flex items-center gap-2 px-8 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] text-[14px] font-medium"
+                                disabled={!isFormValid()}
+                                className={`flex items-center gap-2 px-8 py-3 rounded-lg text-[14px] font-medium transition-colors ${
+                                    isFormValid() 
+                                        ? 'bg-[#2F80ED] text-white hover:bg-[#2563EB] cursor-pointer' 
+                                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                }`}
                             >
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M12.7578 1.25C13.2987 1.25007 13.8276 1.36713 14.3105 1.58691C14.7155 1.77119 15.0885 2.02799 15.4092 2.34863L19.6514 6.59082C19.972 6.91146 20.2288 7.28452 20.4131 7.68945C20.6329 8.17244 20.7499 8.70127 20.75 9.24219V19C20.75 21.0711 19.0711 22.75 17 22.75H7C4.92893 22.75 3.25 21.0711 3.25 19V5C3.25 2.92893 4.92893 1.25 7 1.25H12.7578ZM7 2.75C5.75736 2.75 4.75 3.75736 4.75 5V19C4.75 20.2426 5.75736 21.25 7 21.25H17C18.2426 21.25 19.25 20.2426 19.25 19V9.24219C19.2499 8.9177 19.1797 8.60037 19.0479 8.31055C18.9987 8.20264 18.9398 8.09929 18.874 8H15C14.4477 8 14 7.55228 14 7V3.12598C13.9007 3.06015 13.7974 3.00126 13.6895 2.95215C13.3996 2.82026 13.0823 2.75007 12.7578 2.75H7ZM15.25 10.75C15.6642 10.75 16 11.0858 16 11.5V11.8662C16.5728 12.0136 17.0489 12.3242 17.3613 12.7217C17.6172 13.0473 17.5608 13.5194 17.2354 13.7754C16.9097 14.0313 16.4376 13.975 16.1816 13.6494C16.0477 13.479 15.732 13.2725 15.25 13.2725C14.4818 13.2725 14.25 13.7402 14.25 13.8867C14.2501 14.2045 14.3442 14.2907 14.4092 14.3359C14.5279 14.4186 14.78 14.5 15.25 14.5C15.83 14.5 16.4535 14.5891 16.9473 14.9326C17.4946 15.3135 17.7499 15.9094 17.75 16.6133C17.75 17.5939 16.9913 18.3658 16 18.6289V19C16 19.4142 15.6642 19.75 15.25 19.75C14.8358 19.75 14.5 19.4142 14.5 19V18.6328C13.9273 18.4854 13.4511 18.1757 13.1387 17.7783C12.8828 17.4527 12.9392 16.9806 13.2646 16.7246C13.5903 16.4687 14.0624 16.525 14.3184 16.8506C14.4523 17.021 14.768 17.2275 15.25 17.2275C16.0182 17.2275 16.25 16.7598 16.25 16.6133C16.2499 16.2955 16.1558 16.2093 16.0908 16.1641C15.9721 16.0814 15.72 16 15.25 16C14.67 16 14.0465 15.9109 13.5527 15.5674C13.0054 15.1865 12.7501 14.5906 12.75 13.8867C12.75 12.906 13.5086 12.1332 14.5 11.8701V11.5C14.5 11.0858 14.8358 10.75 15.25 10.75ZM12 9.25C12.4142 9.25 12.75 9.58579 12.75 10C12.75 10.4142 12.4142 10.75 12 10.75H7C6.58579 10.75 6.25 10.4142 6.25 10C6.25 9.58579 6.58579 9.25 7 9.25H12ZM11 5.25C11.4142 5.25 11.75 5.58579 11.75 6C11.75 6.41421 11.4142 6.75 11 6.75H7C6.58579 6.75 6.25 6.41421 6.25 6C6.25 5.58579 6.58579 5.25 7 5.25H11Z" fill="white"/>
@@ -1175,7 +1288,7 @@ const CreateInvoicePage = () => {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-[#344054] mb-2">
-                                        Account Name
+                                        Account Name <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -1187,7 +1300,7 @@ const CreateInvoicePage = () => {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-[#344054] mb-2">
-                                        Account Number
+                                        Account Number <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         type="text"
