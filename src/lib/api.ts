@@ -14,13 +14,9 @@ const axiosInstance = axios.create({
 // Add request interceptor for debugging
 axiosInstance.interceptors.request.use(
   (config) => {
-    console.log(`Making ${config.method?.toUpperCase()} request to: ${config.baseURL}${config.url}`);
-    console.log('Request withCredentials:', config.withCredentials);
-    console.log('Document cookies available:', typeof document !== 'undefined' ? document.cookie : 'SSR');
     return config;
   },
   (error) => {
-    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
@@ -28,12 +24,10 @@ axiosInstance.interceptors.request.use(
 // Add response interceptor for better error handling and debugging
 axiosInstance.interceptors.response.use(
   (response) => {
-    console.log(`Response from ${response.config.url}:`, response.status);
     return response;
   },
   (error) => {
     if (error.response?.status === 401) {
-      console.error('Authentication failed - 401 response received');
       
       // Skip redirect for certain API endpoints that may return 401 for empty data
       const skipRedirectEndpoints = ['/api/product/', '/api/client/', '/api/tax/'];
@@ -41,7 +35,6 @@ axiosInstance.interceptors.response.use(
       const shouldSkipRedirect = skipRedirectEndpoints.some(endpoint => requestUrl.includes(endpoint));
       
       if (shouldSkipRedirect) {
-        console.log('Skipping redirect for data endpoint:', requestUrl);
         return Promise.reject(error);
       }
       
@@ -55,10 +48,8 @@ axiosInstance.interceptors.response.use(
         if (isProtectedRoute && 
             !currentPath.includes('/signIn') && 
             !currentPath.includes('/signUp')) {
-          console.log('Redirecting to sign-in from protected route:', currentPath);
           window.location.href = '/signIn';
         } else {
-          console.log('401 on public route, not redirecting:', currentPath);
         }
       }
     }
@@ -114,7 +105,6 @@ export class ApiClient {
     data?: any,
     params?: any
   ): Promise<ApiResponse<T>> {
-    console.log('=== API REQUEST ===');
     console.log('URL:', `${API_BASE_URL}${endpoint}`);
     console.log('Method:', method);
     console.log('Body:', data);
@@ -326,5 +316,48 @@ export class ApiClient {
 
   static async markAsRead(id: number) {
     return this.request('PUT', `/api/notifications/${id}/read`);
+  }
+
+  // Invoice Management APIs
+  static async createInvoice(formData: FormData): Promise<ApiResponse<any>> {
+    try {
+      // For FormData, do NOT set Content-Type manually - browser will set it with boundary
+      const response = await axiosInstance.post('/api/invoices/add', formData, {
+        headers: {
+          // Remove Content-Type to let browser set it automatically with boundary
+          'Content-Type': undefined as any,
+        },
+        withCredentials: true, // Ensure cookies are sent
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  static async getAllUserInvoices() {
+    return this.request('GET', '/api/invoices/all-user');
+  }
+
+  static async getInvoiceById(id: string) {
+    return this.request('GET', `/api/invoices/${id}`);
+  }
+
+  static async updateInvoice(id: string, formData: FormData): Promise<ApiResponse<any>> {
+    try {
+      const response = await axiosInstance.patch(`/api/invoices/update/${id}`, formData, {
+        headers: {
+          'Content-Type': undefined as any,
+        },
+        withCredentials: true,
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  static async deleteInvoice(id: string) {
+    return this.request('DELETE', `/api/invoices/delete/${id}`);
   }
 }
