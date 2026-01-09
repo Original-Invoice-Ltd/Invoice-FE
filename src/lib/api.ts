@@ -247,7 +247,6 @@ export class ApiClient {
     quantity?: number;
     rate?: number;
     amount?: number;
-    taxIds?: string[];
   }) {
     return this.request('POST', '/api/product/add', productData);
   }
@@ -259,7 +258,6 @@ export class ApiClient {
     quantity?: number;
     rate?: number;
     amount?: number;
-    taxIds?: string[];
   }) {
     return this.request('PUT', '/api/product/update', productData, { id });
   }

@@ -8,9 +8,7 @@ export interface InvoiceItem {
   description?: string;
   quantity: number;
   rate: number;
-  tax?: number;             // Legacy field for backward compatibility
   amount: number;
-  taxIds?: string[];        // List of tax UUIDs to apply to this item
 }
 
 export interface BillFrom {
@@ -22,7 +20,7 @@ export interface BillFrom {
 }
 
 export interface BillTo {
-  clientId: string;        // UUID of selected client
+  clientId: string;        // UUID of selected client (for data transfer only, not stored in invoice)
   title: string;           // Invoice title
   invoiceNumber: string;   // Invoice number (e.g., INV-0012)
   paymentTerms: string;
@@ -51,6 +49,9 @@ export interface CreateInvoiceData {
   
   // Item IDs (optional - for existing items)
   itemIds?: number[];
+  
+  // Tax IDs (for invoice-level taxes)
+  taxIds?: string[];
   
   // Additional fields
   note?: string;
@@ -147,6 +148,13 @@ export function buildInvoiceFormData(data: CreateInvoiceData): FormData {
   formData.append('subtotal', data.subtotal.toString());
   formData.append('totalDue', data.totalDue.toString());
 
+  // Tax IDs (for invoice-level taxes)
+  if (data.taxIds && data.taxIds.length > 0) {
+    data.taxIds.forEach((taxId) => {
+      formData.append('taxIds', taxId);
+    });
+  }
+
   // Additional fields (optional)
   if (data.note) {
     formData.append('note', data.note);
@@ -178,14 +186,6 @@ export function buildInvoiceFormData(data: CreateInvoiceData): FormData {
       formData.append(`items[${index}].quantity`, item.quantity.toString());
       formData.append(`items[${index}].rate`, item.rate.toString());
       formData.append(`items[${index}].amount`, item.amount.toString());
-      if (item.tax !== undefined) {
-        formData.append(`items[${index}].tax`, item.tax.toString());
-      }
-      if (item.taxIds && item.taxIds.length > 0) {
-        item.taxIds.forEach((taxId) => {
-          formData.append(`items[${index}].taxIds`, taxId);
-        });
-      }
     });
   }
 

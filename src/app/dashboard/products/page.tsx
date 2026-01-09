@@ -5,6 +5,7 @@ import { ApiClient } from '@/lib/api';
 import { productCache, Product } from '@/lib/productCache';
 import { Plus, Edit, Trash2, Package } from 'lucide-react';
 import AddProductModal from '@/components/productManagement/AddProductModal';
+import DeleteConfirmationModal from '@/components/common/DeleteConfirmationModal';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -12,6 +13,9 @@ export default function ProductsPage() {
   const [error, setError] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadProducts();
@@ -56,24 +60,37 @@ export default function ProductsPage() {
     setShowAddModal(true);
   };
 
-  const handleDeleteProduct = async (productId: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) {
-      return;
-    }
+  const handleDeleteProduct = (product: Product) => {
+    setProductToDelete(product);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!productToDelete) return;
 
     try {
-      const response = await ApiClient.deleteProduct(productId);
+      setDeleting(true);
+      const response = await ApiClient.deleteProduct(productToDelete.id);
       
       if (response.status === 200) {
-        setProducts(prev => prev.filter(p => p.id !== productId));
-        productCache.removeProduct(productId);
+        setProducts(prev => prev.filter(p => p.id !== productToDelete.id));
+        productCache.removeProduct(productToDelete.id);
+        setShowDeleteModal(false);
+        setProductToDelete(null);
       } else {
         setError(response.error || 'Failed to delete product');
       }
     } catch (err) {
       setError('An unexpected error occurred');
       console.error('Error deleting product:', err);
+    } finally {
+      setDeleting(false);
     }
+  };
+
+  const handleCloseDeleteModal = () => {
+    setShowDeleteModal(false);
+    setProductToDelete(null);
   };
 
   const handleModalClose = () => {
@@ -103,7 +120,7 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="max-w-7xl mx-auto mb-[200px] p-6">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Products</h1>
@@ -205,7 +222,7 @@ export default function ProductsPage() {
                           <Edit size={16} />
                         </button>
                         <button
-                          onClick={() => handleDeleteProduct(product.id)}
+                          onClick={() => handleDeleteProduct(product)}
                           className="text-red-600 hover:text-red-900 p-1"
                           title="Delete product"
                         >
@@ -228,6 +245,16 @@ export default function ProductsPage() {
           onSave={handleProductSaved}
         />
       )}
+
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        title="Delete Product"
+        message={`Are you sure you want to delete "${productToDelete?.itemName}"? This action cannot be undone.`}
+        type="product"
+        isLoading={deleting}
+      />
     </div>
   );
 }
