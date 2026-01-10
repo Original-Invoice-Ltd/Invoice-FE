@@ -5,17 +5,12 @@ import { ArrowLeft, Plus, X } from "lucide-react";
 import Link from "next/link";
 import InvoicePreview from "@/components/invoice/InvoicePreview";
 import ColorPicker from "@/components/ColorPicker/ColorPicker";
+import PaymentTermsDropdown from "@/components/invoice/PaymentTermsDropdown";
+import AddProductModal from "@/components/productManagement/AddProductModal";
+import CountryDropdown from "@/components/common/CountryDropdown";
 import { ApiClient } from "@/lib/api";
-import { buildInvoiceFormData, dataURLtoFile, base64ToFile, CreateInvoiceData } from "@/lib/invoiceTypes";
-
-interface InvoiceItem {
-    id: number;
-    itemName: string;
-    quantity: number;
-    rate: number;
-    tax: number;
-    amount: number;
-}
+import { buildInvoiceFormData, dataURLtoFile, base64ToFile, CreateInvoiceData, InvoiceItem } from "@/lib/invoiceTypes";
+import { Product } from "@/lib/productCache";
 
 const CreateInvoicePage = () => {
     const [items, setItems] = useState<InvoiceItem[]>([]);
@@ -51,6 +46,9 @@ const CreateInvoicePage = () => {
     const [products, setProducts] = useState<{ id: string; itemName: string; quantity: number; rate: number; amount: number }[]>([]);
     const [isLoadingProducts, setIsLoadingProducts] = useState(false);
     const [productsLoaded, setProductsLoaded] = useState(false);
+
+    // Add Product Modal state
+    const [showAddProductModal, setShowAddProductModal] = useState(false);
 
     // Bank dropdown state
     const [showBankDropdown, setShowBankDropdown] = useState(false);
@@ -99,7 +97,6 @@ const CreateInvoicePage = () => {
             itemName: product.itemName,
             quantity: product.quantity || 1,
             rate: product.rate || 0,
-            tax: 0,
             amount: (product.quantity || 1) * (product.rate || 0)
         };
         setItems([...items, newItem]);
@@ -210,17 +207,27 @@ const CreateInvoicePage = () => {
 
     const [vat, setVat] = useState(7.5);
     const [wht, setWht] = useState(5);
+    const [invoiceTaxRate, setInvoiceTaxRate] = useState(0); // Overall tax rate for the invoice
 
     const addNewRow = () => {
+        setShowAddProductModal(true);
+    };
+
+    const handleProductSave = (product: Product) => {
+        // Create a new invoice item from the saved product
         const newItem: InvoiceItem = {
             id: Date.now(),
-            itemName: "",
-            quantity: 1,
-            rate: 0,
-            tax: 0,
-            amount: 0
+            itemName: product.itemName,
+            quantity: product.quantity || 1,
+            rate: product.rate || 0,
+            amount: product.amount || ((product.quantity || 1) * (product.rate || 0))
         };
+        
+        // Add the new item to the items array
         setItems([...items, newItem]);
+        
+        // Close the modal
+        setShowAddProductModal(false);
     };
 
     const removeRow = (id: number) => {
@@ -245,7 +252,8 @@ const CreateInvoicePage = () => {
     };
 
     const calculateTax = () => {
-        return items.reduce((sum, item) => sum + (item.amount * item.tax / 100), 0);
+        const subtotal = calculateSubtotal();
+        return subtotal * invoiceTaxRate / 100;
     };
 
     const calculateTotal = () => {
@@ -469,7 +477,6 @@ const CreateInvoicePage = () => {
                     itemName: item.itemName,
                     quantity: item.quantity,
                     rate: item.rate,
-                    tax: item.tax,
                     amount: item.amount,
                 })),
                 note: customerNote,
@@ -516,87 +523,32 @@ const CreateInvoicePage = () => {
 
     if (showPreview) {
         return (
-            <div className="min-h-screen bg-gray-50">
-                <div className="max-w-4xl mx-auto p-6">
-                    {/* Header with action buttons */}
-                    <div className="flex items-center justify-between mb-6">
-                        <button
-                            onClick={() => setShowPreview(false)}
-                            className="flex items-center gap-2 text-[#667085] hover:text-[#101828]"
-                        >
-                            <ArrowLeft size={20} />
-                            Back to Edit
-                        </button>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => setShowPreview(false)}
-                                className="flex items-center gap-2 px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm font-medium text-[#344054] hover:bg-gray-50"
-                            >
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M10 2.66667H2.66667C2.31304 2.66667 1.97391 2.80714 1.72386 3.05719C1.47381 3.30724 1.33333 3.64638 1.33333 4V12C1.33333 12.3536 1.47381 12.6928 1.72386 12.9428C1.97391 13.1929 2.31304 13.3333 2.66667 13.3333H10M10 2.66667L14.6667 7.33333M10 2.66667V7.33333H14.6667M10.6667 10H12.6667M10.6667 11.3333H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                                Edit
-                            </button>
-                            <button
-                                onClick={() => window.print()}
-                                className="flex items-center gap-2 px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm font-medium text-[#344054] hover:bg-gray-50"
-                            >
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M4 6V2.66667C4 2.31304 4.14048 1.97391 4.39052 1.72386C4.64057 1.47381 4.97971 1.33333 5.33333 1.33333H10.6667C11.0203 1.33333 11.3594 1.47381 11.6095 1.72386C11.8595 1.97391 12 2.31304 12 2.66667V6M4 6H2.66667C2.31304 6 1.97391 6.14048 1.72386 6.39052C1.47381 6.64057 1.33333 6.97971 1.33333 7.33333V11.3333C1.33333 11.687 1.47381 12.0261 1.72386 12.2761C1.97391 12.5262 2.31304 12.6667 2.66667 12.6667H4M4 6V12.6667M12 6H13.3333C13.687 6 14.0261 6.14048 14.2761 6.39052C14.5262 6.64057 14.6667 6.97971 14.6667 7.33333V11.3333C14.6667 11.687 14.5262 12.0261 14.2761 12.2761C14.0261 12.5262 13.687 12.6667 13.3333 12.6667H12M12 6V12.6667M12 12.6667H4M12 12.6667V14C12 14.3536 11.8595 14.6928 11.6095 14.9428C11.3594 15.1929 11.0203 15.3333 10.6667 15.3333H5.33333C4.97971 15.3333 4.64057 15.1929 4.39052 14.9428C4.14048 14.6928 4 14.3536 4 14V12.6667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                                Print
-                            </button>
-                            <button
-                                onClick={() => {
-                                    // Email functionality can be implemented later
-                                    alert('Email functionality coming soon');
-                                }}
-                                className="flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] text-sm font-medium"
-                            >
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M2.66667 2.66667H13.3333C14.0667 2.66667 14.6667 3.26667 14.6667 4V12C14.6667 12.7333 14.0667 13.3333 13.3333 13.3333H2.66667C1.93333 13.3333 1.33333 12.7333 1.33333 12V4C1.33333 3.26667 1.93333 2.66667 2.66667 2.66667Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M14.6667 4L8 8.66667L1.33333 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                                Email Invoice
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Invoice Preview */}
-                    <InvoicePreview
-                        invoice={getPreviewData()}
-                        showWatermark={false}
-                    />
-
-                    {/* Bottom Send Button */}
-                    <div className="flex justify-end mt-6">
-                        <button
-                            onClick={() => handleSendInvoice()}
-                            disabled={isSendingInvoice}
-                            className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-colors ${
-                                isSendingInvoice 
-                                    ? 'bg-gray-400 text-white cursor-not-allowed' 
-                                    : 'bg-[#2F80ED] text-white hover:bg-[#2563EB]'
-                            }`}
-                        >
-                            {isSendingInvoice ? (
-                                <>
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                    Sending...
-                                </>
-                            ) : (
-                                <>
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M14.6667 1.33333L7.33333 8.66667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M14.6667 1.33333L10 14.6667L7.33333 8.66667L1.33333 6L14.6667 1.33333Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                    Send
-                                </>
-                            )}
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <InvoicePreview
+                data={{
+                    logo,
+                    billFrom,
+                    billTo,
+                    items,
+                    customerNote,
+                    termsAndConditions,
+                    signature,
+                    currency,
+                    language,
+                    color,
+                    template,
+                    paymentDetails,
+                    vat,
+                    wht,
+                    selectedClientId,
+                    invoiceTaxRate
+                }}
+                onEdit={handleBackToEdit}
+                onEmailInvoice={() => {
+                    // Handle email invoice
+                    console.log("Email invoice");
+                }}
+                onSendInvoice={handleSendInvoice}
+            />
         );
     }
 
@@ -839,23 +791,11 @@ const CreateInvoicePage = () => {
                                                 <label className="block text-[14px] font-medium text-[#344054] mb-2">
                                                     Payment Terms
                                                 </label>
-                                                <div className="relative">
-                                                    <select 
-                                                        value={billTo.paymentTerms}
-                                                        onChange={(e) => setBillTo({ ...billTo, paymentTerms: e.target.value })}
-                                                        className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                                    >
-                                                        <option value="">INV-0012</option>
-                                                        <option value="Net 15">Net 15</option>
-                                                        <option value="Net 30">Net 30</option>
-                                                        <option value="Net 60">Net 60</option>
-                                                    </select>
-                                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                                        </svg>
-                                                    </div>
-                                                </div>
+                                                <PaymentTermsDropdown
+                                                    value={billTo.paymentTerms}
+                                                    onChange={(value) => setBillTo({ ...billTo, paymentTerms: value })}
+                                                    placeholder="Select payment terms"
+                                                />
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
@@ -893,17 +833,10 @@ const CreateInvoicePage = () => {
                                         <table className="w-full">
                                             <thead>
                                                 <tr className="border-b border-[#E4E7EC] bg-[#E5E5E5]">
-                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] w-[200px] border-r border-[#E4E7EC]">Item Detail</th>
+                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] w-[150px] border-r border-[#E4E7EC]">Item Detail</th>
+                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] w-[200px] border-r border-[#E4E7EC]">Description</th>
                                                     <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">Quantity</th>
                                                     <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">Rate</th>
-                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">
-                                                        <div className="flex items-center gap-2">
-                                                            Tax
-                                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <path d="M5 7.5H11C11.1326 7.5 11.2598 7.44732 11.3536 7.35355C11.4473 7.25979 11.5 7.13261 11.5 7V4C11.5 3.86739 11.4473 3.74021 11.3536 3.64645C11.2598 3.55268 11.1326 3.5 11 3.5H5C4.86739 3.5 4.74021 3.55268 4.64645 3.64645C4.55268 3.74021 4.5 3.86739 4.5 4V7C4.5 7.13261 4.55268 7.25979 4.64645 7.35355C4.74021 7.44732 4.86739 7.5 5 7.5ZM5.5 4.5H10.5V6.5H5.5V4.5ZM12.5 1.5H3.5C3.23478 1.5 2.98043 1.60536 2.79289 1.79289C2.60536 1.98043 2.5 2.23478 2.5 2.5V13.5C2.5 13.7652 2.60536 14.0196 2.79289 14.2071C2.98043 14.3946 3.23478 14.5 3.5 14.5H12.5C12.7652 14.5 13.0196 14.3946 13.2071 14.2071C13.3946 14.0196 13.5 13.7652 13.5 13.5V2.5C13.5 2.23478 13.3946 1.98043 13.2071 1.79289C13.0196 1.60536 12.7652 1.5 12.5 1.5ZM12.5 13.5H3.5V2.5H12.5V13.5ZM6.25 9.25C6.25 9.39834 6.20601 9.54334 6.1236 9.66668C6.04119 9.79001 5.92406 9.88614 5.78701 9.94291C5.64997 9.99967 5.49917 10.0145 5.35368 9.98559C5.2082 9.95665 5.07456 9.88522 4.96967 9.78033C4.86478 9.67544 4.79335 9.5418 4.76441 9.39632C4.73547 9.25083 4.75032 9.10003 4.80709 8.96299C4.86386 8.82594 4.95999 8.70881 5.08332 8.6264C5.20666 8.54399 5.35166 8.5 5.5 8.5C5.69891 8.5 5.88968 8.57902 6.03033 8.71967C6.17098 8.86032 6.25 9.05109 6.25 9.25ZM8.75 9.25C8.75 9.39834 8.70601 9.54334 8.6236 9.66668C8.54119 9.79001 8.42406 9.88614 8.28701 9.94291C8.14997 9.99967 7.99917 10.0145 7.85368 9.98559C7.7082 9.95665 7.57456 9.88522 7.46967 9.78033C7.36478 9.67544 7.29335 9.5418 7.26441 9.39632C7.23547 9.25083 7.25032 9.10003 7.30709 8.96299C7.36386 8.82594 7.45999 8.70881 7.58332 8.6264C7.70666 8.54399 7.85166 8.5 8 8.5C8.19891 8.5 8.38968 8.57902 8.53033 8.71967C8.67098 8.86032 8.75 9.05109 8.75 9.25ZM11.25 9.25C11.25 9.39834 11.206 9.54334 11.1236 9.66668C11.0412 9.79001 10.9241 9.88614 10.787 9.94291C10.65 9.99967 10.4992 10.0145 10.3537 9.98559C10.2082 9.95665 10.0746 9.88522 9.96967 9.78033C9.86478 9.67544 9.79335 9.5418 9.76441 9.39632C9.73547 9.25083 9.75033 9.10003 9.80709 8.96299C9.86386 8.82594 9.95999 8.70881 10.0833 8.6264C10.2067 8.54399 10.3517 8.5 10.5 8.5C10.6989 8.5 10.8897 8.57902 11.0303 8.71967C11.171 8.86032 11.25 9.05109 11.25 9.25ZM6.25 11.75C6.25 11.8983 6.20601 12.0433 6.1236 12.1667C6.04119 12.29 5.92406 12.3861 5.78701 12.4429C5.64997 12.4997 5.49917 12.5145 5.35368 12.4856C5.2082 12.4566 5.07456 12.3852 4.96967 12.2803C4.86478 12.1754 4.79335 12.0418 4.76441 11.8963C4.73547 11.7508 4.75032 11.6 4.80709 11.463C4.86386 11.3259 4.95999 11.2088 5.08332 11.1264C5.20666 11.044 5.35166 11 5.5 11C5.69891 11 5.88968 11.079 6.03033 11.2197C6.17098 11.3603 6.25 11.5511 6.25 11.75ZM8.75 11.75C8.75 11.8983 8.70601 12.0433 8.6236 12.1667C8.54119 12.29 8.42406 12.3861 8.28701 12.4429C8.14997 12.4997 7.99917 12.5145 7.85368 12.4856C7.7082 12.4566 7.57456 12.3852 7.46967 12.2803C7.36478 12.1754 7.29335 12.0418 7.26441 11.8963C7.73547 11.7508 7.25032 11.6 7.30709 11.463C7.36386 11.3259 7.45999 11.2088 7.58332 11.1264C7.70666 11.044 7.85166 11 8 11C8.19891 11 8.38968 11.079 8.53033 11.2197C8.67098 11.3603 8.75 11.5511 8.75 11.75ZM11.25 11.75C11.25 11.8983 11.206 12.0433 11.1236 12.1667C11.0412 12.29 10.9241 12.3861 10.787 12.4429C10.65 12.4997 10.4992 12.5145 10.3537 12.4856C10.2082 12.4566 10.0746 12.3852 9.96967 12.2803C9.86478 12.1754 9.79335 12.0418 9.76441 11.8963C9.73547 11.7508 9.75033 11.6 9.80709 11.463C9.86386 11.3259 9.95999 11.2088 10.0833 11.1264C10.2067 11.044 10.3517 11 10.5 11C10.6989 11 10.8897 11.079 11.0303 11.2197C11.171 11.3603 11.25 11.5511 11.25 11.75Z" fill="#7D7F81"/>
-                                                            </svg>
-                                                        </div>
-                                                    </th>
                                                     <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">Amount</th>
                                                     <th className="w-10"></th>
                                                 </tr>
@@ -917,6 +850,15 @@ const CreateInvoicePage = () => {
                                                                 value={item.itemName}
                                                                 onChange={(e) => updateItem(item.id, 'itemName', e.target.value)}
                                                                 className="w-full text-[14px] font-medium text-[#101828] focus:outline-none bg-transparent"
+                                                            />
+                                                        </td>
+                                                        <td className="py-4 px-4 border-r border-[#E4E7EC]">
+                                                            <input
+                                                                type="text"
+                                                                value={item.description || ""}
+                                                                onChange={(e) => updateItem(item.id, 'description', e.target.value)}
+                                                                className="w-full text-[14px] text-[#101828] focus:outline-none bg-transparent"
+                                                                placeholder="Enter description"
                                                             />
                                                         </td>
                                                         <td className="py-4 px-4 border-r border-[#E4E7EC]">
@@ -937,23 +879,6 @@ const CreateInvoicePage = () => {
                                                                 className="w-full text-[14px] text-[#101828] focus:outline-none bg-transparent"
                                                                 min="0"
                                                             />
-                                                        </td>
-                                                        <td className="py-4 px-4 border-r border-[#E4E7EC]">
-                                                            <div className="relative inline-flex items-center">
-                                                                <select
-                                                                    value={item.tax}
-                                                                    onChange={(e) => updateItem(item.id, 'tax', parseFloat(e.target.value))}
-                                                                    className="appearance-none bg-transparent text-[14px] text-[#101828] pr-6 focus:outline-none cursor-pointer"
-                                                                >
-                                                                    <option value="0">VAT(0%)</option>
-                                                                    <option value="5">VAT(5%)</option>
-                                                                    <option value="7.5">VAT(7.5%)</option>
-                                                                    <option value="10">VAT(10%)</option>
-                                                                </select>
-                                                                <svg className="absolute right-0 pointer-events-none" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                                                </svg>
-                                                            </div>
                                                         </td>
                                                         <td className="py-4 px-4 border-r border-[#E4E7EC]">
                                                             <input
@@ -1234,9 +1159,29 @@ const CreateInvoicePage = () => {
                                     <div className="space-y-3">
                                         <div className="flex justify-between">
                                             <h3 className=" text-[16px] font-medium">Subtotal</h3>
+                                            <span className=" text-[18px] font-semibold">₦{calculateSubtotal().toFixed(2)}</span>
                                         </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-[#667085] text-[18px]">VAT (7.5%)</span>
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[#667085] text-[18px]">Tax</span>
+                                                <div className="relative inline-flex items-center">
+                                                    <select
+                                                        value={invoiceTaxRate}
+                                                        onChange={(e) => setInvoiceTaxRate(parseFloat(e.target.value))}
+                                                        className="appearance-none bg-transparent text-[14px] text-[#667085] pr-6 focus:outline-none cursor-pointer"
+                                                    >
+                                                        <option value="0">0%</option>
+                                                        <option value="5">5%</option>
+                                                        <option value="7.5">7.5%</option>
+                                                        <option value="10">10%</option>
+                                                        <option value="15">15%</option>
+                                                        <option value="20">20%</option>
+                                                    </select>
+                                                    <svg className="absolute right-0 pointer-events-none" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                    </svg>
+                                                </div>
+                                            </div>
                                             <span className=" text-[18px] font-semibold">₦{calculateTax().toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between">
@@ -1375,7 +1320,7 @@ const CreateInvoicePage = () => {
 
         {/* Add New Client Modal */}
         {showAddClientModal && (
-            <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
+            <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 px-4">
                 <div className="bg-white rounded-2xl p-5 w-[500px] shadow-2xl [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
                     <div className="flex justify-between items-center mb-1">
                         <h3 className="text-xl font-semibold text-[#101828]">Add New Client</h3>
@@ -1394,8 +1339,16 @@ const CreateInvoicePage = () => {
                                 Customer Type<span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
-                                <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
-                                    <option>Select customer type</option>
+                                <select 
+                                    value={newClientForm.customerType}
+                                    onChange={(e) => setNewClientForm({ ...newClientForm, customerType: e.target.value })}
+                                    className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
+                                    <option value="">Select customer type</option>
+                                    <option value="Individual">Individual</option>
+                                    <option value="Business">Business</option>
+                                    <option value="Corporate">Corporate</option>
+                                    <option value="Government">Government</option>
+                                    <option value="Non-Profit">Non-Profit</option>
                                 </select>
                                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1411,11 +1364,14 @@ const CreateInvoicePage = () => {
                                     Title<span className="text-red-500">*</span>
                                 </label>
                                 <div className="relative">
-                                    <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
-                                        <option>Ms</option>
-                                        <option>Mr</option>
-                                        <option>Mrs</option>
-                                        <option>Dr</option>
+                                    <select 
+                                        value={newClientForm.title}
+                                        onChange={(e) => setNewClientForm({ ...newClientForm, title: e.target.value })}
+                                        className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
+                                        <option value="Mr">Mr</option>
+                                        <option value="Ms">Ms</option>
+                                        <option value="Mrs">Mrs</option>
+                                        <option value="Dr">Dr</option>
                                     </select>
                                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1431,6 +1387,8 @@ const CreateInvoicePage = () => {
                                 <input
                                     type="text"
                                     placeholder="Enter client full name"
+                                    value={newClientForm.fullName}
+                                    onChange={(e) => setNewClientForm({ ...newClientForm, fullName: e.target.value })}
                                     className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                 />
                             </div>
@@ -1443,6 +1401,8 @@ const CreateInvoicePage = () => {
                             <input
                                 type="text"
                                 placeholder="Enter business name"
+                                value={newClientForm.businessName}
+                                onChange={(e) => setNewClientForm({ ...newClientForm, businessName: e.target.value })}
                                 className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                             />
                         </div>
@@ -1456,6 +1416,8 @@ const CreateInvoicePage = () => {
                                     <input
                                         type="email"
                                         placeholder="Enter client email"
+                                        value={newClientForm.email}
+                                        onChange={(e) => setNewClientForm({ ...newClientForm, email: e.target.value })}
                                         className="w-full px-3 py-2 pr-10 border border-[#D0D5DD] rounded-lg text-[13px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                     />
                                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085]">
@@ -1474,6 +1436,8 @@ const CreateInvoicePage = () => {
                                     <input
                                         type="tel"
                                         placeholder="Enter client phone number"
+                                        value={newClientForm.phone}
+                                        onChange={(e) => setNewClientForm({ ...newClientForm, phone: e.target.value })}
                                         className="w-full px-3 py-2 pr-10 border border-[#D0D5DD] rounded-lg text-[13px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                     />
                                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085]">
@@ -1485,21 +1449,12 @@ const CreateInvoicePage = () => {
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-[13px] font-medium text-[#344054] mb-1">
-                                Country
-                            </label>
-                            <div className="relative">
-                                <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
-                                    <option>Select customer country</option>
-                                </select>
-                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
+                        <CountryDropdown
+                            value={newClientForm.country}
+                            onChange={(value) => setNewClientForm({ ...newClientForm, country: value })}
+                            label="Country"
+                            placeholder="Select customer country"
+                        />
                     </div>
 
                     <div className="flex gap-3 mt-3">
@@ -1510,17 +1465,24 @@ const CreateInvoicePage = () => {
                             Cancel
                         </button>
                         <button
-                            onClick={() => {
-                                // Handle save client
-                                setShowAddClientModal(false);
-                            }}
-                            className="flex-1 px-6 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors text-[14px]"
+                            onClick={handleSaveNewClient}
+                            disabled={isSavingClient}
+                            className="flex-1 px-6 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors text-[14px] disabled:bg-blue-400"
                         >
-                            Save Client
+                            {isSavingClient ? 'Saving...' : 'Save Client'}
                         </button>
                     </div>
                 </div>
             </div>
+        )}
+
+        {/* Add Product Modal */}
+        {showAddProductModal && (
+            <AddProductModal
+                product={null}
+                onClose={() => setShowAddProductModal(false)}
+                onSave={handleProductSave}
+            />
         )}
         </>
     );

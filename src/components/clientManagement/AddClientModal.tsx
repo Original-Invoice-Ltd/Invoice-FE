@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import CountryDropdown from "@/components/common/CountryDropdown";
 
 interface FormData {
     customerType: string;
@@ -118,19 +119,13 @@ const AddClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading
                         </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-[#344054] mb-2">Country</label>
-                        <select 
-                            value={formData.country || ""}
-                            onChange={(e) => onChange({...formData, country: e.target.value})}
-                            className="w-full px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                        >
-                            <option value="">Select customer country</option>
-                            <option value="nigeria">Nigeria</option>
-                            <option value="ghana">Ghana</option>
-                            <option value="kenya">Kenya</option>
-                        </select>
-                    </div>
+                    <CountryDropdown
+                        value={formData.country || ""}
+                        onChange={(value) => onChange({...formData, country: value})}
+                        label="Country"
+                        placeholder="Select customer country"
+                        disabled={isLoading}
+                    />
 
                 </div>
 
