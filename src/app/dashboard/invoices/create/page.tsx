@@ -1319,7 +1319,7 @@ const CreateInvoicePage = () => {
 
         {/* Add New Client Modal */}
         {showAddClientModal && (
-            <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
+            <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 px-4">
                 <div className="bg-white rounded-2xl p-5 w-[500px] shadow-2xl [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
                     <div className="flex justify-between items-center mb-1">
                         <h3 className="text-xl font-semibold text-[#101828]">Add New Client</h3>
@@ -1338,8 +1338,16 @@ const CreateInvoicePage = () => {
                                 Customer Type<span className="text-red-500">*</span>
                             </label>
                             <div className="relative">
-                                <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
-                                    <option>Select customer type</option>
+                                <select 
+                                    value={newClientForm.customerType}
+                                    onChange={(e) => setNewClientForm({ ...newClientForm, customerType: e.target.value })}
+                                    className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
+                                    <option value="">Select customer type</option>
+                                    <option value="Individual">Individual</option>
+                                    <option value="Business">Business</option>
+                                    <option value="Corporate">Corporate</option>
+                                    <option value="Government">Government</option>
+                                    <option value="Non-Profit">Non-Profit</option>
                                 </select>
                                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1355,11 +1363,14 @@ const CreateInvoicePage = () => {
                                     Title<span className="text-red-500">*</span>
                                 </label>
                                 <div className="relative">
-                                    <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
-                                        <option>Ms</option>
-                                        <option>Mr</option>
-                                        <option>Mrs</option>
-                                        <option>Dr</option>
+                                    <select 
+                                        value={newClientForm.title}
+                                        onChange={(e) => setNewClientForm({ ...newClientForm, title: e.target.value })}
+                                        className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
+                                        <option value="Mr">Mr</option>
+                                        <option value="Ms">Ms</option>
+                                        <option value="Mrs">Mrs</option>
+                                        <option value="Dr">Dr</option>
                                     </select>
                                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1375,6 +1386,8 @@ const CreateInvoicePage = () => {
                                 <input
                                     type="text"
                                     placeholder="Enter client full name"
+                                    value={newClientForm.fullName}
+                                    onChange={(e) => setNewClientForm({ ...newClientForm, fullName: e.target.value })}
                                     className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                 />
                             </div>
@@ -1387,6 +1400,8 @@ const CreateInvoicePage = () => {
                             <input
                                 type="text"
                                 placeholder="Enter business name"
+                                value={newClientForm.businessName}
+                                onChange={(e) => setNewClientForm({ ...newClientForm, businessName: e.target.value })}
                                 className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                             />
                         </div>
@@ -1400,6 +1415,8 @@ const CreateInvoicePage = () => {
                                     <input
                                         type="email"
                                         placeholder="Enter client email"
+                                        value={newClientForm.email}
+                                        onChange={(e) => setNewClientForm({ ...newClientForm, email: e.target.value })}
                                         className="w-full px-3 py-2 pr-10 border border-[#D0D5DD] rounded-lg text-[13px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                     />
                                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085]">
@@ -1418,6 +1435,8 @@ const CreateInvoicePage = () => {
                                     <input
                                         type="tel"
                                         placeholder="Enter client phone number"
+                                        value={newClientForm.phone}
+                                        onChange={(e) => setNewClientForm({ ...newClientForm, phone: e.target.value })}
                                         className="w-full px-3 py-2 pr-10 border border-[#D0D5DD] rounded-lg text-[13px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                     />
                                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085]">
@@ -1434,8 +1453,74 @@ const CreateInvoicePage = () => {
                                 Country
                             </label>
                             <div className="relative">
-                                <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
-                                    <option>Select customer country</option>
+                                <select 
+                                    value={newClientForm.country}
+                                    onChange={(e) => setNewClientForm({ ...newClientForm, country: e.target.value })}
+                                    className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
+                                    <option value="">Select customer country</option>
+                                    <option value="Nigeria">Nigeria</option>
+                                    <option value="Ghana">Ghana</option>
+                                    <option value="Kenya">Kenya</option>
+                                    <option value="South Africa">South Africa</option>
+                                    <option value="Uganda">Uganda</option>
+                                    <option value="Tanzania">Tanzania</option>
+                                    <option value="Ethiopia">Ethiopia</option>
+                                    <option value="Egypt">Egypt</option>
+                                    <option value="Cameroon">Cameroon</option>
+                                    <option value="Senegal">Senegal</option>
+                                    <option value="Ivory Coast">Ivory Coast</option>
+                                    <option value="Rwanda">Rwanda</option>
+                                    <option value="Botswana">Botswana</option>
+                                    <option value="Namibia">Namibia</option>
+                                    <option value="Zambia">Zambia</option>
+                                    <option value="Zimbabwe">Zimbabwe</option>
+                                    <option value="Malawi">Malawi</option>
+                                    <option value="Mozambique">Mozambique</option>
+                                    <option value="Angola">Angola</option>
+                                    <option value="Benin">Benin</option>
+                                    <option value="Burkina Faso">Burkina Faso</option>
+                                    <option value="Burundi">Burundi</option>
+                                    <option value="Cape Verde">Cape Verde</option>
+                                    <option value="Central African Republic">Central African Republic</option>
+                                    <option value="Chad">Chad</option>
+                                    <option value="Comoros">Comoros</option>
+                                    <option value="Congo">Congo</option>
+                                    <option value="Democratic Republic of Congo">Democratic Republic of Congo</option>
+                                    <option value="Djibouti">Djibouti</option>
+                                    <option value="Equatorial Guinea">Equatorial Guinea</option>
+                                    <option value="Eritrea">Eritrea</option>
+                                    <option value="Eswatini">Eswatini</option>
+                                    <option value="Gabon">Gabon</option>
+                                    <option value="Gambia">Gambia</option>
+                                    <option value="Guinea">Guinea</option>
+                                    <option value="Guinea-Bissau">Guinea-Bissau</option>
+                                    <option value="Lesotho">Lesotho</option>
+                                    <option value="Liberia">Liberia</option>
+                                    <option value="Libya">Libya</option>
+                                    <option value="Madagascar">Madagascar</option>
+                                    <option value="Mali">Mali</option>
+                                    <option value="Mauritania">Mauritania</option>
+                                    <option value="Mauritius">Mauritius</option>
+                                    <option value="Morocco">Morocco</option>
+                                    <option value="Niger">Niger</option>
+                                    <option value="Sao Tome and Principe">Sao Tome and Principe</option>
+                                    <option value="Seychelles">Seychelles</option>
+                                    <option value="Sierra Leone">Sierra Leone</option>
+                                    <option value="Somalia">Somalia</option>
+                                    <option value="South Sudan">South Sudan</option>
+                                    <option value="Sudan">Sudan</option>
+                                    <option value="Togo">Togo</option>
+                                    <option value="Tunisia">Tunisia</option>
+                                    <option value="United States">United States</option>
+                                    <option value="United Kingdom">United Kingdom</option>
+                                    <option value="Canada">Canada</option>
+                                    <option value="Australia">Australia</option>
+                                    <option value="India">India</option>
+                                    <option value="China">China</option>
+                                    <option value="Japan">Japan</option>
+                                    <option value="Germany">Germany</option>
+                                    <option value="France">France</option>
+                                    <option value="Brazil">Brazil</option>
                                 </select>
                                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1454,13 +1539,11 @@ const CreateInvoicePage = () => {
                             Cancel
                         </button>
                         <button
-                            onClick={() => {
-                                // Handle save client
-                                setShowAddClientModal(false);
-                            }}
-                            className="flex-1 px-6 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors text-[14px]"
+                            onClick={handleSaveNewClient}
+                            disabled={isSavingClient}
+                            className="flex-1 px-6 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors text-[14px] disabled:bg-blue-400"
                         >
-                            Save Client
+                            {isSavingClient ? 'Saving...' : 'Save Client'}
                         </button>
                     </div>
                 </div>

@@ -209,6 +209,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice }: Invoice
                     </table>
                 )}
 
+
                 {/* Totals */}
                 <div className="flex justify-end">
                     <div className="w-64 space-y-2">
