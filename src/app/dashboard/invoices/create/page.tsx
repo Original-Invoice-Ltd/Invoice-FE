@@ -7,6 +7,7 @@ import InvoicePreview from "@/components/invoice/InvoicePreview";
 import ColorPicker from "@/components/ColorPicker/ColorPicker";
 import PaymentTermsDropdown from "@/components/invoice/PaymentTermsDropdown";
 import AddProductModal from "@/components/productManagement/AddProductModal";
+import CountryDropdown from "@/components/common/CountryDropdown";
 import { ApiClient } from "@/lib/api";
 import { buildInvoiceFormData, dataURLtoFile, base64ToFile, CreateInvoiceData, InvoiceItem } from "@/lib/invoiceTypes";
 import { Product } from "@/lib/productCache";
@@ -1448,87 +1449,12 @@ const CreateInvoicePage = () => {
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-[13px] font-medium text-[#344054] mb-1">
-                                Country
-                            </label>
-                            <div className="relative">
-                                <select 
-                                    value={newClientForm.country}
-                                    onChange={(e) => setNewClientForm({ ...newClientForm, country: e.target.value })}
-                                    className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
-                                    <option value="">Select customer country</option>
-                                    <option value="Nigeria">Nigeria</option>
-                                    <option value="Ghana">Ghana</option>
-                                    <option value="Kenya">Kenya</option>
-                                    <option value="South Africa">South Africa</option>
-                                    <option value="Uganda">Uganda</option>
-                                    <option value="Tanzania">Tanzania</option>
-                                    <option value="Ethiopia">Ethiopia</option>
-                                    <option value="Egypt">Egypt</option>
-                                    <option value="Cameroon">Cameroon</option>
-                                    <option value="Senegal">Senegal</option>
-                                    <option value="Ivory Coast">Ivory Coast</option>
-                                    <option value="Rwanda">Rwanda</option>
-                                    <option value="Botswana">Botswana</option>
-                                    <option value="Namibia">Namibia</option>
-                                    <option value="Zambia">Zambia</option>
-                                    <option value="Zimbabwe">Zimbabwe</option>
-                                    <option value="Malawi">Malawi</option>
-                                    <option value="Mozambique">Mozambique</option>
-                                    <option value="Angola">Angola</option>
-                                    <option value="Benin">Benin</option>
-                                    <option value="Burkina Faso">Burkina Faso</option>
-                                    <option value="Burundi">Burundi</option>
-                                    <option value="Cape Verde">Cape Verde</option>
-                                    <option value="Central African Republic">Central African Republic</option>
-                                    <option value="Chad">Chad</option>
-                                    <option value="Comoros">Comoros</option>
-                                    <option value="Congo">Congo</option>
-                                    <option value="Democratic Republic of Congo">Democratic Republic of Congo</option>
-                                    <option value="Djibouti">Djibouti</option>
-                                    <option value="Equatorial Guinea">Equatorial Guinea</option>
-                                    <option value="Eritrea">Eritrea</option>
-                                    <option value="Eswatini">Eswatini</option>
-                                    <option value="Gabon">Gabon</option>
-                                    <option value="Gambia">Gambia</option>
-                                    <option value="Guinea">Guinea</option>
-                                    <option value="Guinea-Bissau">Guinea-Bissau</option>
-                                    <option value="Lesotho">Lesotho</option>
-                                    <option value="Liberia">Liberia</option>
-                                    <option value="Libya">Libya</option>
-                                    <option value="Madagascar">Madagascar</option>
-                                    <option value="Mali">Mali</option>
-                                    <option value="Mauritania">Mauritania</option>
-                                    <option value="Mauritius">Mauritius</option>
-                                    <option value="Morocco">Morocco</option>
-                                    <option value="Niger">Niger</option>
-                                    <option value="Sao Tome and Principe">Sao Tome and Principe</option>
-                                    <option value="Seychelles">Seychelles</option>
-                                    <option value="Sierra Leone">Sierra Leone</option>
-                                    <option value="Somalia">Somalia</option>
-                                    <option value="South Sudan">South Sudan</option>
-                                    <option value="Sudan">Sudan</option>
-                                    <option value="Togo">Togo</option>
-                                    <option value="Tunisia">Tunisia</option>
-                                    <option value="United States">United States</option>
-                                    <option value="United Kingdom">United Kingdom</option>
-                                    <option value="Canada">Canada</option>
-                                    <option value="Australia">Australia</option>
-                                    <option value="India">India</option>
-                                    <option value="China">China</option>
-                                    <option value="Japan">Japan</option>
-                                    <option value="Germany">Germany</option>
-                                    <option value="France">France</option>
-                                    <option value="Brazil">Brazil</option>
-                                </select>
-                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
+                        <CountryDropdown
+                            value={newClientForm.country}
+                            onChange={(value) => setNewClientForm({ ...newClientForm, country: value })}
+                            label="Country"
+                            placeholder="Select customer country"
+                        />
                     </div>
 
                     <div className="flex gap-3 mt-3">

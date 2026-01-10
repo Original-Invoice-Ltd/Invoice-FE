@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PaymentFormData } from './types';
+import CountryDropdown from '@/components/common/CountryDropdown';
 
 interface PaymentFormProps {
   onSubmit: (data: PaymentFormData) => void;
@@ -181,28 +182,13 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ onSubmit, isProcessing }) => 
       </div>
 
       {/* Country/Region */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Country or Region
-        </label>
-        <div className="relative">
-          <select
-            value={formData.country}
-            onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-            required
-          >
-            <option value="">Select country or region</option>
-            <option value="NG">Nigeria</option>
-            <option value="US">United States</option>
-            <option value="GB">United Kingdom</option>
-            <option value="CA">Canada</option>
-          </select>
-          <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
-      </div>
+      <CountryDropdown
+        value={formData.country}
+        onChange={(value) => setFormData({ ...formData, country: value })}
+        label="Country or Region"
+        placeholder="Select country or region"
+        required
+      />
 
       {/* Checkbox */}
       <div className="flex items-start gap-3">
