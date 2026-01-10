@@ -288,12 +288,8 @@ export class ApiClient {
   }
 
   // Notification APIs
-  static async getNotifications(page = 0, size = 4) {
-    return this.request('GET', '/api/notifications', undefined, { page, size });
-  }
-
-  static async getNotificationsByType(type: string, page = 0, size = 4) {
-    return this.request('GET', `/api/notifications/type/${type}`, undefined, { page, size });
+  static async getAllNotifications() {
+    return this.request('GET', '/api/notifications/all');
   }
 
   static async getUnreadNotifications() {
@@ -301,19 +297,15 @@ export class ApiClient {
   }
 
   static async getUnreadCount() {
-    return this.request('GET', '/api/notifications/unread/count');
+    return this.request('GET', '/api/notifications/unread-count');
   }
 
-  static async markAllAsRead() {
+  static async markAllNotificationsAsRead() {
     return this.request('PUT', '/api/notifications/mark-all-read');
   }
 
-  static async markAllAsNotNew() {
-    return this.request('PUT', '/api/notifications/mark-all-not-new');
-  }
-
-  static async markAsRead(id: number) {
-    return this.request('PUT', `/api/notifications/${id}/read`);
+  static async markNotificationAsRead(notificationId: string) {
+    return this.request('PUT', `/api/notifications/${notificationId}/mark-read`);
   }
 
   // Invoice Management APIs

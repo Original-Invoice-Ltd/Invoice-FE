@@ -5,6 +5,8 @@ import { Search, Menu, Bell, ChevronDown, User, LogOut } from "lucide-react";
 import Image from "next/image";
 import { AuthService } from '@/lib/auth';
 import NotificationsPanel from '@/components/notifications/NotificationsPanel';
+import { ApiClient } from '@/lib/api';
+import { subscribeToPusherChannel, disconnectPusher } from '@/lib/pusher';
 
 interface DashboardHeaderProps {
     onMenuClick?: () => void;
@@ -15,6 +17,7 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState("EN");
+    const [unreadCount, setUnreadCount] = useState(0);
     const languageDropdownRef = useRef<HTMLDivElement>(null);
     const profileDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -24,6 +27,48 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
         { code: "IG", name: "Igbo" },
         { code: "YO", name: "Yorùbá" },
     ];
+
+    // Fetch initial unread count
+    useEffect(() => {
+        const fetchUnreadCount = async () => {
+            try {
+                const response = await ApiClient.getUnreadCount();
+                if (response.status === 200) {
+                    setUnreadCount(response.data || 0);
+                }
+            } catch (error) {
+                console.error('Error fetching unread count:', error);
+            }
+        };
+
+        fetchUnreadCount();
+    }, []);
+
+    // Set up Pusher real-time notifications
+    useEffect(() => {
+        // Get user ID from localStorage or auth context
+        const userId = localStorage.getItem('userId'); // You might need to adjust this based on your auth implementation
+        
+        if (!userId) return;
+
+        const unsubscribe = subscribeToPusherChannel(
+            `user-${userId}`,
+            'notification',
+            (data: any) => {
+                console.log('New notification received:', data);
+                // Increment unread count
+                setUnreadCount(prev => prev + 1);
+                
+                // You could also show a toast notification here
+                // toast.success(data.title);
+            }
+        );
+
+        return () => {
+            unsubscribe();
+            disconnectPusher();
+        };
+    }, []);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -133,7 +178,11 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
                         style={{ width: '32px', height: '32px' }}
                     >
                         <Bell size={20} className="text-[#667085]" />
-                        <span className="absolute top-1 right-1 w-2 h-2 bg-[#F04438] rounded-full"></span>
+                        {unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#F04438] text-white text-xs rounded-full flex items-center justify-center font-medium">
+                                {unreadCount > 99 ? '99+' : unreadCount}
+                            </span>
+                        )}
                     </button>
 
                     {/* Profile Picture with Dropdown */}
@@ -195,7 +244,8 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
             {/* Notifications Panel */}
             <NotificationsPanel 
                 isOpen={showNotifications} 
-                onClose={() => setShowNotifications(false)} 
+                onClose={() => setShowNotifications(false)}
+                onUnreadCountChange={setUnreadCount}
             />
         </header>
     );
