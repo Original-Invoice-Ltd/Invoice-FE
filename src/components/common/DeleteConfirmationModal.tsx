@@ -10,6 +10,7 @@ interface DeleteConfirmationModalProps {
     message: string;
     type: 'invoice' | 'client' | 'product' | 'general';
     isLoading?: boolean;
+    error?: string | null;
 }
 
 const DeleteConfirmationModal = ({
@@ -19,7 +20,8 @@ const DeleteConfirmationModal = ({
     title,
     message,
     type,
-    isLoading = false
+    isLoading = false,
+    error = null
 }: DeleteConfirmationModalProps) => {
     if (!isOpen) return null;
 
@@ -63,6 +65,12 @@ const DeleteConfirmationModal = ({
                         <p className="text-gray-600 mb-6 leading-relaxed">
                             {message}
                         </p>
+
+                        {error && (
+                            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg w-full">
+                                <p className="text-sm text-red-700">{error}</p>
+                            </div>
+                        )}
 
                         {/* Action Buttons */}
                         <div className="flex gap-3 w-full">

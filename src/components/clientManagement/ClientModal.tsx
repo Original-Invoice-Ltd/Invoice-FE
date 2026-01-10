@@ -21,9 +21,10 @@ interface ClientModalProps {
     onChange: (data: FormData) => void;
     isLoading?: boolean;
     isEdit?: boolean;
+    error?: string | null;
 }
 
-const ClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading = false, isEdit = false }: ClientModalProps) => {
+const ClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading = false, isEdit = false, error = null }: ClientModalProps) => {
     if (!isOpen) return null;
 
     return (
@@ -41,6 +42,12 @@ const ClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading = 
                     {isEdit ? 'Edit Client' : 'Add New Client'}
                 </h2>
                 <p className="text-sm text-[#667085] mb-6">Save your client's business details to send invoices and track payments easily</p>
+                
+                {error && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-sm text-red-700">{error}</p>
+                    </div>
+                )}
                 
                 <div className="space-y-4">
                     <div>
