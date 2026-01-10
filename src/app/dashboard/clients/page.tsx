@@ -51,6 +51,7 @@ const ClientsPage = () => {
         client: null,
         isLoading: false
     });
+    const [clientFormError, setClientFormError] = useState<string | null>(null);
     
     const sortDropdownRef = useRef<HTMLDivElement>(null);
     const actionMenuRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -144,9 +145,11 @@ const ClientsPage = () => {
     };
 
     const handleSaveClient = async () => {
+        setClientFormError(null);
+        
         if (!formData.customerType || !formData.title || !formData.fullName || 
             !formData.businessName || !formData.email || !formData.phone) {
-            alert('Please fill in all required fields');
+            setClientFormError('Please fill in all required fields');
             return;
         }
 
@@ -168,10 +171,11 @@ const ClientsPage = () => {
                 resetForm();
                 await loadClients(true); // Force refresh to get latest data
             } else {
-                console.error(`Failed to ${isEditMode ? 'update' : 'add'} client:`, response.error);
+                setClientFormError(response.error || `Failed to ${isEditMode ? 'update' : 'add'} client`);
             }
         } catch (error) {
             console.error('Error saving client:', error);
+            setClientFormError('An error occurred while saving the client');
         } finally {
             setIsLoading(false);
         }
@@ -552,6 +556,7 @@ const ClientsPage = () => {
                     onChange={setFormData}
                     isLoading={isLoading}
                     isEdit={isEditMode}
+                    error={clientFormError}
                 />
 
                 {/* Success Modal */}

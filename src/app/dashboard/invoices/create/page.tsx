@@ -40,6 +40,8 @@ const CreateInvoicePage = () => {
         email: "",
         country: ""
     });
+    const [clientFormError, setClientFormError] = useState<string | null>(null);
+    const [formValidationError, setFormValidationError] = useState<string | null>(null);
 
     // Products dropdown state
     const [showProductsDropdown, setShowProductsDropdown] = useState(false);
@@ -136,9 +138,11 @@ const CreateInvoicePage = () => {
     // Save new client to API
     const handleSaveNewClient = async () => {
         // Validate required fields
+        setClientFormError(null);
+        
         if (!newClientForm.customerType || !newClientForm.title || !newClientForm.fullName || 
             !newClientForm.businessName || !newClientForm.email || !newClientForm.phone) {
-            alert('Please fill in all required fields');
+            setClientFormError('Please fill in all required fields');
             return;
         }
 
@@ -163,11 +167,11 @@ const CreateInvoicePage = () => {
                 await loadClients();
             } else {
                 console.error('Failed to add client:', response.error);
-                alert(response.error || 'Failed to add client');
+                setClientFormError(response.error || 'Failed to add client');
             }
         } catch (error) {
             console.error('Error saving client:', error);
-            alert('An error occurred while saving the client');
+            setClientFormError('An error occurred while saving the client');
         } finally {
             setIsSavingClient(false);
         }
@@ -287,8 +291,9 @@ const CreateInvoicePage = () => {
 
     // Submit invoice to backend (Save as Draft - without sending)
     const handleSaveDraft = async () => {
+        setFormValidationError(null);
         if (!isFormValid()) {
-            alert("Please fill in all required fields before saving as draft.");
+            setFormValidationError("Please fill in all required fields before saving as draft.");
             return;
         }
         // TODO: Implement save as draft functionality
@@ -360,8 +365,9 @@ const CreateInvoicePage = () => {
     };
 
     const handlePreviewInvoice = () => {
+        setFormValidationError(null);
         if (!isFormValid()) {
-            alert("Please fill in all required fields before previewing the invoice.");
+            setFormValidationError("Please fill in all required fields before previewing the invoice.");
             return;
         }
         setShowPreview(true);
@@ -430,8 +436,9 @@ const CreateInvoicePage = () => {
 
     // Send invoice to backend (called from preview page)
     const handleSendInvoice = async (): Promise<{ success: boolean; error?: string }> => {
+        setFormValidationError(null);
         if (!isFormValid()) {
-            alert("Please fill in all required fields before sending the invoice.");
+            setFormValidationError("Please fill in all required fields before sending the invoice.");
             return { success: false, error: "Form validation failed" };
         }
 
@@ -502,19 +509,18 @@ const CreateInvoicePage = () => {
 
             if (response.status === 201 || response.status === 200) {
                 console.log('Invoice created successfully:', response.data);
-                alert('Invoice sent successfully!');
                 // Redirect to invoices list after short delay
                 setTimeout(() => {
                     window.location.href = '/dashboard/invoices';
                 }, 1500);
                 return { success: true };
             } else {
-                alert(`Failed to send invoice: ${response.error || 'Unknown error'}`);
+                setFormValidationError(response.error || 'Failed to create invoice');
                 return { success: false, error: response.error || 'Failed to create invoice' };
             }
         } catch (error) {
             console.error('Error creating invoice:', error);
-            alert('An unexpected error occurred while sending the invoice.');
+            setFormValidationError('An unexpected error occurred while sending the invoice.');
             return { success: false, error: 'An unexpected error occurred' };
         } finally {
             setIsSendingInvoice(false);
@@ -1332,6 +1338,12 @@ const CreateInvoicePage = () => {
                         </button>
                     </div>
                     <p className="text-[13px] text-[#667085] mb-3">Save your client's business details to send invoices and track payments easily</p>
+                    
+                    {clientFormError && (
+                        <div className="mb-3 p-2.5 bg-red-50 border border-red-200 rounded-lg">
+                            <p className="text-[13px] text-red-700">{clientFormError}</p>
+                        </div>
+                    )}
                     
                     <div className="space-y-2.5">
                         <div>
