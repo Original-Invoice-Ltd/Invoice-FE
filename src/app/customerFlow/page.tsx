@@ -5,7 +5,11 @@ export default function CustomerFlowPage() {
   return (
     <div className="min-h-screen">
         <Header/>
-      <SideBar />
+      <SideBar 
+        invoiceStatus="UNPAID"
+        totalDue={0}
+        currency="NGN"
+      />
     </div>
   );
 }
