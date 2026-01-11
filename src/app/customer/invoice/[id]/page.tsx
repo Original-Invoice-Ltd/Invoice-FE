@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import CustomerHeader from "@/components/customer/header";
-import CustomerSidebar from "@/components/customer/sidebar";
+import CustomerSidebar from "@/components/customer/sideBar";
 import { ApiClient } from "@/lib/api";
 
 interface InvoiceItem {
@@ -378,7 +378,6 @@ const CustomerInvoicePage = () => {
                         </div>
                     </div>
                 </div>
-            </div>
             </div>
         </div>
 
