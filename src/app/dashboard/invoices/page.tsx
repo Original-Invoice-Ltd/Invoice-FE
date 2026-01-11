@@ -19,10 +19,12 @@ const InvoicesPage = () => {
         isOpen: boolean;
         invoice: InvoiceResponse | null;
         isLoading: boolean;
+        error?: string | null;
     }>({
         isOpen: false,
         invoice: null,
-        isLoading: false
+        isLoading: false,
+        error: null
     });
 
     // Fetch invoices on component mount
@@ -131,27 +133,25 @@ const InvoicesPage = () => {
     const confirmDeleteInvoice = async () => {
         if (!deleteModal.invoice) return;
 
-        setDeleteModal(prev => ({ ...prev, isLoading: true }));
+        setDeleteModal(prev => ({ ...prev, isLoading: true, error: null }));
 
         try {
             const response = await ApiClient.deleteInvoice(deleteModal.invoice.id);
             if (response.status === 204 || response.status === 200) {
                 setInvoices(invoices.filter(invoice => invoice.id !== deleteModal.invoice!.id));
-                setDeleteModal({ isOpen: false, invoice: null, isLoading: false });
+                setDeleteModal({ isOpen: false, invoice: null, isLoading: false, error: null });
             } else {
-                alert("Failed to delete invoice: " + (response.error || response.message));
-                setDeleteModal(prev => ({ ...prev, isLoading: false }));
+                setDeleteModal(prev => ({ ...prev, isLoading: false, error: response.error || response.message || "Failed to delete invoice" }));
             }
         } catch (err) {
-            alert("An error occurred while deleting the invoice");
             console.error("Error deleting invoice:", err);
-            setDeleteModal(prev => ({ ...prev, isLoading: false }));
+            setDeleteModal(prev => ({ ...prev, isLoading: false, error: "An error occurred while deleting the invoice" }));
         }
     };
 
     const closeDeleteModal = () => {
         if (!deleteModal.isLoading) {
-            setDeleteModal({ isOpen: false, invoice: null, isLoading: false });
+            setDeleteModal({ isOpen: false, invoice: null, isLoading: false, error: null });
         }
     };
 
@@ -408,6 +408,7 @@ const InvoicesPage = () => {
                 message={`Are you sure you want to delete invoice ${deleteModal.invoice?.invoiceNumber}? This action cannot be undone.`}
                 type="invoice"
                 isLoading={deleteModal.isLoading}
+                error={deleteModal.error}
             />
         </div>
     );
