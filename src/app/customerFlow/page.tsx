@@ -1,5 +1,5 @@
-import SideBar from "@/components/customerFlow/sideBar";
-import Header from "@/components/customerFlow/header";
+import SideBar from "@/components/customer/sideBar";
+import Header from "@/components/customer/header";
 
 export default function CustomerFlowPage() {
   return (
