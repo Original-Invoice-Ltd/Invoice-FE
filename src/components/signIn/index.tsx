@@ -40,7 +40,7 @@ export default function SignIn() {
         // Show success message and redirect to dashboard
         showSuccess('Login successful! Redirecting to dashboard...');
         setTimeout(() => {
-          router.push('/dashboard');
+          router.push('/dashboard/overview');
         }, 1500);
       } else {
         showError(response.error || 'Login failed. Please try again.');
