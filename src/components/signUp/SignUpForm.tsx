@@ -114,6 +114,11 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
   };
 
   const handleOAuthClick = (provider: 'google' | 'apple') => {
+    // Only allow Google OAuth if phone number is entered
+    if (provider === 'google' && !formData.phoneNumber.trim()) {
+      return;
+    }
+    
     setSelectedProvider(provider);
     setShowPhoneModal(true);
   };
@@ -341,8 +346,13 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
         <button 
           onClick={() => handleOAuthClick('google')}
           type="button"
-          className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
-          flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
+          disabled={!formData.phoneNumber.trim()}
+          className={`w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] 
+          flex items-center justify-center gap-2 transition-colors
+          ${!formData.phoneNumber.trim() 
+            ? 'bg-gray-100 cursor-not-allowed opacity-50' 
+            : 'bg-white hover:bg-gray-50'
+          }`}>
           <GoogleIcon width={20} height={20} />
           <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
             Continue with Google
@@ -356,7 +366,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
           flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
           <AppleIcon width={20} height={20} />
           <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
-            Continue with Apple
+            Sign in with Apple
           </span>
         </button>
       </div>

@@ -27,7 +27,7 @@ function CompleteProfileContent() {
           setUserEmail(response.data.email);
           // If user already has phone number, redirect to dashboard
           if (response.data.phoneNumber) {
-            router.push('/dashboard');
+            router.push('/dashboard/overview');
           }
         }
       } catch (error) {
@@ -39,7 +39,7 @@ function CompleteProfileContent() {
     if (step === 'phone') {
       fetchUserInfo();
     } else {
-      router.push('/dashboard');
+      router.push('/dashboard/overview');
     }
   }, [step, router]);
 
@@ -64,7 +64,7 @@ function CompleteProfileContent() {
       if (response.status === 200) {
         showSuccess('Phone number updated successfully!');
         setTimeout(() => {
-          router.push('/dashboard');
+          router.push('/dashboard/overview');
         }, 1500);
       } else {
         showError(response.error || 'Failed to update phone number');
@@ -78,7 +78,7 @@ function CompleteProfileContent() {
   };
 
   const handleSkip = () => {
-    router.push('/dashboard');
+    router.push('/dashboard/overview');
   };
 
   if (step !== 'phone') {

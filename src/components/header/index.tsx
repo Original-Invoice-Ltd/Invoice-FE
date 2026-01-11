@@ -121,7 +121,7 @@ const Header = ({ currentPage }: HeaderProps) => {
                                         <div className="text-gray-500">{user?.email}</div>
                                     </div>
                                     <Link
-                                        href="/dashboard"
+                                        href="/dashboard/overview"
                                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         onClick={() => setShowProfileDropdown(false)}
                                     >
@@ -168,7 +168,7 @@ const Header = ({ currentPage }: HeaderProps) => {
                                             <div className="text-gray-500">{user?.email}</div>
                                         </div>
                                         <Link
-                                            href="/dashboard"
+                                            href="/dashboard/overview"
                                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                             onClick={() => setShowProfileDropdown(false)}
                                         >

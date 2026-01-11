@@ -72,7 +72,7 @@ const SettingsLayout = ({ children }: SettingsLayoutProps) => {
   };
 
   const handleBack = () => {
-    router.push("/dashboard");
+    router.push("/dashboard/overview");
   };
 
   return (
