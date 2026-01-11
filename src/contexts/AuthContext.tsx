@@ -10,6 +10,8 @@ interface User {
   phoneNumber?: string;
   isVerified: boolean;
   roles: string[];
+  imageUrl?: string;
+  createdAt?: string;
 }
 
 interface AuthContextType {
@@ -17,18 +19,20 @@ interface AuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   refreshUser: () => Promise<void>;
+  updateUserProfile: (fullName: string, phoneNumber: string) => Promise<boolean>;
+  uploadProfilePhoto: (imageFile: File) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const fetchUser = async () => {
     setLoading(true);
     try {
-      const response = await ApiClient.get('/api/users/me');
+      const response = await ApiClient.getCurrentUser();
       if (response.status === 200 && response.data) {
         setUser(response.data);
       } else {
@@ -49,14 +53,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await fetchUser();
   };
 
-  // Don't automatically fetch user data on mount
-  // Let components decide when they need authentication info
+  const updateUserProfile = async (fullName: string, phoneNumber: string): Promise<boolean> => {
+    try {
+      const response = await ApiClient.updateProfile(fullName, phoneNumber);
+      if (response.status === 200) {
+        // Refresh user data after successful update
+        await refreshUser();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      return false;
+    }
+  };
+
+  const uploadProfilePhoto = async (imageFile: File): Promise<boolean> => {
+    if (!user?.email) return false;
+    
+    try {
+      const response = await ApiClient.uploadProfilePhoto(user.email, imageFile);
+      if (response.status === 200) {
+        // Refresh user data after successful upload
+        await refreshUser();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Failed to upload profile photo:', error);
+      return false;
+    }
+  };
+
+  // Auto-fetch user data on mount
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
   const value = {
     user,
     loading,
     isAuthenticated: !!user,
     refreshUser,
+    updateUserProfile,
+    uploadProfilePhoto,
   };
 
   return (
