@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Search, Menu, Bell, ChevronDown, User, LogOut, Settings } from "lucide-react";
+import { Menu, Bell, ChevronDown, LogOut, Settings } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,10 +12,11 @@ import { subscribeToPusherChannel, disconnectPusher } from '@/lib/pusher';
 
 interface DashboardHeaderProps {
     onMenuClick?: () => void;
+    onNotificationsChange?: (isOpen: boolean) => void;
 }
 
-const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
-    const { user, loading } = useAuth();
+const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeaderProps) => {
+    const { user } = useAuth();
     const router = useRouter();
     const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -32,12 +33,6 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
         { code: "YO", name: "Yorùbá" },
     ];
 
-    // Get user's first name for welcome message
-    const getFirstName = () => {
-        if (!user?.fullName) return 'User';
-        return user.fullName.split(' ')[0];
-    };
-
     // Get user's profile image or fallback
     const getProfileImage = () => {
         if (user?.imageUrl) return user.imageUrl;
@@ -51,7 +46,7 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
             try {
                 const response = await ApiClient.getUnreadCount();
                 if (response.status === 200) {
-                    setUnreadCount(response.data || 0);
+                    setUnreadCount(Number(response.data) || 0);
                 }
             } catch (error) {
                 console.error('Error fetching unread count:', error);
@@ -192,7 +187,10 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
 
                     {/* Notification Bell */}
                     <button 
-                        onClick={() => setShowNotifications(true)}
+                        onClick={() => {
+                            setShowNotifications(true);
+                            onNotificationsChange?.(true);
+                        }}
                         className="relative flex items-center justify-center rounded-lg hover:bg-gray-50 border border-[#E4E7EC]" 
                         style={{ width: '32px', height: '32px' }}
                     >
@@ -266,7 +264,10 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
             {/* Notifications Panel */}
             <NotificationsPanel 
                 isOpen={showNotifications} 
-                onClose={() => setShowNotifications(false)}
+                onClose={() => {
+                    setShowNotifications(false);
+                    onNotificationsChange?.(false);
+                }}
                 onUnreadCountChange={setUnreadCount}
             />
         </header>

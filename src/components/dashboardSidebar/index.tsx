@@ -10,9 +10,10 @@ import { AuthService } from '@/lib/auth';
 interface DashboardSideBarProps {
     isOpen?: boolean;
     onClose?: () => void;
+    notificationsOpen?: boolean;
 }
 
-const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => {
+const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }: DashboardSideBarProps) => {
     const pathname = usePathname();
     
     const menuItems = [
@@ -110,10 +111,10 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
             <div className={`
                 fixed lg:relative inset-y-0 left-0 z-50
                 h-screen w-[268px] 
-                bg-white border-r border-[#E4E7EC] 
+                ${notificationsOpen ? 'bg-white/70 backdrop-blur-sm' : 'bg-white'} border-r border-[#E4E7EC] 
                 flex flex-col justify-between
                 px-[16px] pt-[24px] pb-[32px]
-                transition-transform duration-300 ease-in-out
+                transition-all duration-300 ease-in-out
                 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
             `}>
                 <div className="flex flex-col gap-[32px]">

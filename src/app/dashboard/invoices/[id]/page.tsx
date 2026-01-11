@@ -120,23 +120,84 @@ const InvoiceViewPage = () => {
             <div className="bg-white rounded-lg border border-[#E4E7EC] overflow-hidden mx-6">
                 {/* Watermark overlay */}
                 <div className="relative">
-                    {/* Multiple watermark instances to match the image pattern */}
+                    {/* Status-based watermark */}
                     <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
-                        <div className="absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2">
-                            <div className="text-[80px] font-bold text-gray-300 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
-                                ORIGINAL INVOICE
-                            </div>
-                        </div>
-                        <div className="absolute top-2/3 right-1/4 transform translate-x-1/2 translate-y-1/2">
-                            <div className="text-[80px] font-bold text-gray-300 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
-                                ORIGINAL INVOICE
-                            </div>
-                        </div>
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                            <div className="text-[80px] font-bold text-gray-300 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
-                                ORIGINAL INVOICE
-                            </div>
-                        </div>
+                        {invoice.status === 'PAID' && (
+                            <>
+                                <div className="absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2">
+                                    <div className="text-[80px] font-bold text-green-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
+                                        PAID
+                                    </div>
+                                </div>
+                                <div className="absolute top-2/3 right-1/4 transform translate-x-1/2 translate-y-1/2">
+                                    <div className="text-[80px] font-bold text-green-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
+                                        PAID
+                                    </div>
+                                </div>
+                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                    <div className="text-[80px] font-bold text-green-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
+                                        PAID
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                        {invoice.status === 'OVERDUE' && (
+                            <>
+                                <div className="absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2">
+                                    <div className="text-[80px] font-bold text-red-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
+                                        OVERDUE
+                                    </div>
+                                </div>
+                                <div className="absolute top-2/3 right-1/4 transform translate-x-1/2 translate-y-1/2">
+                                    <div className="text-[80px] font-bold text-red-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
+                                        OVERDUE
+                                    </div>
+                                </div>
+                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                    <div className="text-[80px] font-bold text-red-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
+                                        OVERDUE
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                        {invoice.status === 'UNPAID' && (
+                            <>
+                                <div className="absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2">
+                                    <div className="text-[80px] font-bold text-orange-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
+                                        UNPAID
+                                    </div>
+                                </div>
+                                <div className="absolute top-2/3 right-1/4 transform translate-x-1/2 translate-y-1/2">
+                                    <div className="text-[80px] font-bold text-orange-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
+                                        UNPAID
+                                    </div>
+                                </div>
+                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                    <div className="text-[80px] font-bold text-orange-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
+                                        UNPAID
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                        {(!invoice.status || (invoice.status !== 'PAID' && invoice.status !== 'OVERDUE' && invoice.status !== 'UNPAID')) && (
+                            <>
+                                <div className="absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2">
+                                    <div className="text-[80px] font-bold text-gray-300 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
+                                        ORIGINAL INVOICE
+                                    </div>
+                                </div>
+                                <div className="absolute top-2/3 right-1/4 transform translate-x-1/2 translate-y-1/2">
+                                    <div className="text-[80px] font-bold text-gray-300 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
+                                        ORIGINAL INVOICE
+                                    </div>
+                                </div>
+                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                    <div className="text-[80px] font-bold text-gray-300 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
+                                        ORIGINAL INVOICE
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
                     
                     {/* Invoice Content */}

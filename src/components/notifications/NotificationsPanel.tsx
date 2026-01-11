@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Bell, Check, CheckCheck } from "lucide-react";
+import { X, Bell, Check } from "lucide-react";
 import { ApiClient } from "@/lib/api";
 
 interface Notification {
@@ -25,6 +25,7 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [activeTab, setActiveTab] = useState<'all' | 'invoices' | 'payments' | 'clients' | 'system'>('all');
 
     // Fetch notifications when panel opens
     useEffect(() => {
@@ -123,6 +124,16 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
                         </svg>
                     </div>
                 );
+            case 'SYSTEM_UPDATE':
+            case 'SYSTEM_MAINTENANCE':
+            case 'ACCOUNT_UPDATE':
+                return (
+                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 1C11.866 1 15 4.134 15 8C15 11.866 11.866 15 8 15C4.134 15 1 11.866 1 8C1 4.134 4.134 1 8 1ZM8 11C8.55228 11 9 11.4477 9 12C9 12.5523 8.55228 13 8 13C7.44772 13 7 12.5523 7 12C7 11.4477 7.44772 11 8 11ZM8 3C7.44772 3 7 3.44772 7 4V9C7 9.55228 7.44772 10 8 10C8.55228 10 9 9.55228 9 9V4C9 3.44772 8.55228 3 8 3Z" fill="#7C3AED"/>
+                        </svg>
+                    </div>
+                );
             default:
                 return (
                     <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
@@ -151,46 +162,123 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
         }
     };
 
+    const getFilteredNotifications = () => {
+        if (activeTab === 'all') return notifications;
+        
+        const typeMap = {
+            'invoices': ['INVOICE_CREATED', 'INVOICE_UPDATED', 'INVOICE_DELETED'],
+            'clients': ['CLIENT_CREATED', 'CLIENT_UPDATED', 'CLIENT_DELETED'],
+            'payments': ['PAYMENT_RECEIVED'],
+            'system': ['SYSTEM_UPDATE', 'SYSTEM_MAINTENANCE', 'ACCOUNT_UPDATE']
+        };
+        
+        return notifications.filter(n => typeMap[activeTab]?.includes(n.type));
+    };
+
+    const getTabCount = (tab: 'all' | 'invoices' | 'clients' | 'payments' | 'system') => {
+        if (tab === 'all') return notifications.length;
+        
+        const typeMap = {
+            'invoices': ['INVOICE_CREATED', 'INVOICE_UPDATED', 'INVOICE_DELETED'],
+            'clients': ['CLIENT_CREATED', 'CLIENT_UPDATED', 'CLIENT_DELETED'],
+            'payments': ['PAYMENT_RECEIVED'],
+            'system': ['SYSTEM_UPDATE', 'SYSTEM_MAINTENANCE', 'ACCOUNT_UPDATE']
+        };
+        
+        return notifications.filter(n => typeMap[tab]?.includes(n.type)).length;
+    };
+
     if (!isOpen) return null;
 
     return (
         <>
-            {/* Backdrop - Transparent */}
+            {/* Backdrop with blurred/dimmed background */}
             <div 
-                className="fixed inset-0 bg-transparent z-40"
+                className="fixed inset-0 z-40 backdrop-blur-sm"
+                style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
                 onClick={onClose}
             />
             
-            {/* Panel */}
-            <div className="fixed top-0 right-0 h-full w-96 bg-white shadow-2xl z-50 flex flex-col">
+            {/* Panel - 600px width */}
+            <div className="fixed top-16 right-4 h-[calc(100vh-5rem)] bg-white shadow-2xl z-50 flex flex-col rounded-lg border border-[#E4E7EC]" style={{ width: '600px' }}>
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-[#E4E7EC]">
-                    <div className="flex items-center gap-2">
-                        <Bell size={20} className="text-[#667085]" />
-                        <h2 className="text-lg font-semibold text-[#101828]">Notifications</h2>
-                        {unreadCount > 0 && (
-                            <span className="bg-[#F04438] text-white text-xs px-2 py-1 rounded-full">
-                                {unreadCount}
-                            </span>
-                        )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                        {unreadCount > 0 && (
-                            <button
-                                onClick={markAllAsRead}
-                                className="text-[#2F80ED] hover:text-[#2563EB] text-sm font-medium flex items-center gap-1"
-                            >
-                                <CheckCheck size={16} />
-                                Mark all read
-                            </button>
-                        )}
+                <div className="p-6 border-b border-[#E4E7EC]">
+                    <div className="flex items-center justify-between mb-2">
+                        <h2 className="text-2xl font-semibold text-[#101828]">Notifications</h2>
                         <button
                             onClick={onClose}
                             className="text-[#667085] hover:text-[#101828] p-1"
                         >
-                            <X size={20} />
+                            <X size={24} />
                         </button>
                     </div>
+                    <p className="text-[#667085] text-sm">
+                        Stay updated on invoice activity, payments, reminders, and account alerts.
+                    </p>
+                </div>
+
+                {/* Tabs with Mark as Read */}
+                <div className="flex items-center justify-between border-b border-[#E4E7EC] px-6">
+                    <div className="flex">
+                        <button
+                            onClick={() => setActiveTab('all')}
+                            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
+                                activeTab === 'all'
+                                    ? 'text-[#101828] border-[#101828]'
+                                    : 'text-[#667085] hover:text-[#101828] border-transparent'
+                            }`}
+                        >
+                            All
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('invoices')}
+                            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
+                                activeTab === 'invoices'
+                                    ? 'text-[#101828] border-[#101828]'
+                                    : 'text-[#667085] hover:text-[#101828] border-transparent'
+                            }`}
+                        >
+                            Invoices
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('payments')}
+                            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
+                                activeTab === 'payments'
+                                    ? 'text-[#101828] border-[#101828]'
+                                    : 'text-[#667085] hover:text-[#101828] border-transparent'
+                            }`}
+                        >
+                            Payments
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('clients')}
+                            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
+                                activeTab === 'clients'
+                                    ? 'text-[#101828] border-[#101828]'
+                                    : 'text-[#667085] hover:text-[#101828] border-transparent'
+                            }`}
+                        >
+                            Clients
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('system')}
+                            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
+                                activeTab === 'system'
+                                    ? 'text-[#101828] border-[#101828]'
+                                    : 'text-[#667085] hover:text-[#101828] border-transparent'
+                            }`}
+                        >
+                            System
+                        </button>
+                    </div>
+                    {unreadCount > 0 && (
+                        <button
+                            onClick={markAllAsRead}
+                            className="text-[#2F80ED] hover:text-[#2563EB] text-sm font-medium py-3"
+                        >
+                            Mark all as Read
+                        </button>
+                    )}
                 </div>
 
                 {/* Content */}
@@ -199,7 +287,7 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
                         <div className="flex items-center justify-center py-8">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED]"></div>
                         </div>
-                    ) : notifications.length === 0 ? (
+                    ) : getFilteredNotifications().length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-12 px-4">
                             <svg width="108" height="108" viewBox="0 0 108 108" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-4">
                                 <rect width="108" height="108" rx="54" fill="#EFF8FF"/>
@@ -224,14 +312,28 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
                                 <path d="M71.2137 79.5931L70.6364 79.9874C67.3997 82.2051 62.9832 81.3755 60.7687 78.142C58.551 74.9084 59.3743 70.4919 62.611 68.2742L63.1883 67.8799L71.2137 79.5931Z" fill="#E1E4EA" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round"/>
                                 <path d="M100.593 52.1413L99.514 59.6021C99.451 60.0311 99.2112 60.416 98.8515 60.662L73.0434 78.3407L71.2168 79.5931L63.1914 67.8799L65.0179 66.6275L90.8261 48.9489C91.1857 48.7028 91.6306 48.6176 92.0533 48.7154L99.4004 50.4032C100.189 50.583 100.71 51.34 100.593 52.1413Z" fill="white" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round"/>
                             </svg>
-                            <h3 className="text-lg font-medium text-[#101828] mb-2">No notifications yet</h3>
+                            <h3 className="text-lg font-medium text-[#101828] mb-2">
+                                {activeTab === 'all' ? 'No notifications yet' : 
+                                 activeTab === 'invoices' ? 'No invoice notifications' :
+                                 activeTab === 'clients' ? 'No client notifications' :
+                                 activeTab === 'payments' ? 'No payment notifications' :
+                                 'No system notifications'}
+                            </h3>
                             <p className="text-sm text-[#667085] text-center">
-                                You'll see notifications here when you create invoices, add clients, or receive payments.
+                                {activeTab === 'all' ? 
+                                    "You'll get updates here when clients view invoices, pay you, or when something needs your attention." :
+                                 activeTab === 'invoices' ?
+                                    "You'll see notifications here when invoices are created, updated, or deleted." :
+                                 activeTab === 'clients' ?
+                                    "You'll see notifications here when clients are added, updated, or removed." :
+                                 activeTab === 'payments' ?
+                                    "You'll see notifications here when payments are received." :
+                                    "You'll see notifications here about system updates and account changes."}
                             </p>
                         </div>
                     ) : (
                         <div className="divide-y divide-[#E4E7EC]">
-                            {notifications.map((notification) => (
+                            {getFilteredNotifications().map((notification) => (
                                 <div
                                     key={notification.id}
                                     className={`p-4 hover:bg-gray-50 transition-colors ${
