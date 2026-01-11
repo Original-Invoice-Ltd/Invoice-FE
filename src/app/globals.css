@@ -1,19 +1,11 @@
 @import "tailwindcss";
 
-:root {
-  --font-inter-tight: 'Inter Tight', sans-serif;
-}
-
 * {
-  font-family: var(--font-inter-tight) !important;
+  font-family: 'Inter Tight', sans-serif !important;
 }
 
 body {
-  font-family: var(--font-inter-tight) !important;
-}
-
-h1, h2, h3, h4, h5, h6, p, span, a, button, input, textarea, select, label, div {
-  font-family: var(--font-inter-tight) !important;
+  font-family: 'Inter Tight', sans-serif !important;
 }
 
 .group:hover img[alt="Smart Invoice Creation"] {

@@ -1,20 +1,28 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Search, Menu, Bell, ChevronDown, User, LogOut } from "lucide-react";
+import { Menu, Bell, ChevronDown, LogOut, Settings } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useAuth } from '@/contexts/AuthContext';
 import { AuthService } from '@/lib/auth';
 import NotificationsPanel from '@/components/notifications/NotificationsPanel';
+import { ApiClient } from '@/lib/api';
+import { subscribeToPusherChannel, disconnectPusher } from '@/lib/pusher';
 
 interface DashboardHeaderProps {
     onMenuClick?: () => void;
+    onNotificationsChange?: (isOpen: boolean) => void;
 }
 
-const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
+const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeaderProps) => {
+    const { user } = useAuth();
+    const router = useRouter();
     const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState("EN");
+    const [unreadCount, setUnreadCount] = useState(0);
     const languageDropdownRef = useRef<HTMLDivElement>(null);
     const profileDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -24,6 +32,52 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
         { code: "IG", name: "Igbo" },
         { code: "YO", name: "Yorùbá" },
     ];
+
+    // Get user's profile image or fallback
+    const getProfileImage = () => {
+        if (user?.imageUrl) return user.imageUrl;
+        // Use a dummy profile icon if no profile image is available
+        return "/assets/icons/ProfileIcon1.svg"; // fallback image
+    };
+
+    // Fetch initial unread count
+    useEffect(() => {
+        const fetchUnreadCount = async () => {
+            try {
+                const response = await ApiClient.getUnreadCount();
+                if (response.status === 200) {
+                    setUnreadCount(Number(response.data) || 0);
+                }
+            } catch (error) {
+                console.error('Error fetching unread count:', error);
+            }
+        };
+
+        fetchUnreadCount();
+    }, []);
+
+    // Set up Pusher real-time notifications
+    useEffect(() => {
+        if (!user?.id) return;
+
+        const unsubscribe = subscribeToPusherChannel(
+            `user-${user.id}`,
+            'notification',
+            (data: any) => {
+                console.log('New notification received:', data);
+                // Increment unread count
+                setUnreadCount(prev => prev + 1);
+                
+                // You could also show a toast notification here
+                // toast.success(data.title);
+            }
+        );
+
+        return () => {
+            unsubscribe();
+            disconnectPusher();
+        };
+    }, [user?.id]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -41,6 +95,11 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
 
     const handleLogout = async () => {
         await AuthService.logout();
+    };
+
+    const handleProfileSettings = () => {
+        setShowProfileDropdown(false);
+        router.push('/dashboard/settings/account');
     };
 
     return (
@@ -128,12 +187,19 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
 
                     {/* Notification Bell */}
                     <button 
-                        onClick={() => setShowNotifications(true)}
+                        onClick={() => {
+                            setShowNotifications(true);
+                            onNotificationsChange?.(true);
+                        }}
                         className="relative flex items-center justify-center rounded-lg hover:bg-gray-50 border border-[#E4E7EC]" 
                         style={{ width: '32px', height: '32px' }}
                     >
                         <Bell size={20} className="text-[#667085]" />
-                        <span className="absolute top-1 right-1 w-2 h-2 bg-[#F04438] rounded-full"></span>
+                        {unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#F04438] text-white text-xs rounded-full flex items-center justify-center font-medium">
+                                {unreadCount > 99 ? '99+' : unreadCount}
+                            </span>
+                        )}
                     </button>
 
                     {/* Profile Picture with Dropdown */}
@@ -144,7 +210,7 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
                             style={{ width: '32px', height: '32px' }}
                         >
                             <Image
-                                src="/assets/sunny1.png"
+                                src={getProfileImage()}
                                 alt="Profile"
                                 width={32}
                                 height={32}
@@ -155,15 +221,18 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
                         {showProfileDropdown && (
                             <div className="absolute right-0 mt-2 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-50 overflow-hidden" style={{ width: '200px' }}>
                                 <div className="py-1">
+                                    {user && (
+                                        <div className="px-4 py-2.5 border-b border-[#E4E7EC]">
+                                            <div className="text-xs font-medium text-[#101828]">{user.fullName}</div>
+                                            <div className="text-xs text-[#667085]">{user.email}</div>
+                                        </div>
+                                    )}
                                     <button
-                                        onClick={() => {
-                                            setShowProfileDropdown(false);
-                                            // Navigate to profile/settings
-                                        }}
+                                        onClick={handleProfileSettings}
                                         className="w-full px-4 py-2.5 text-left text-xs hover:bg-[#F9FAFB] transition-colors flex items-center gap-3"
                                     >
-                                        <User size={16} className="text-[#667085]" />
-                                        <span className="font-medium text-[#101828]">Profile Settings</span>
+                                        <Settings size={16} className="text-[#667085]" />
+                                        <span className="font-medium text-[#101828]">Account Settings</span>
                                     </button>
                                     <button
                                         onClick={handleLogout}
@@ -195,7 +264,11 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
             {/* Notifications Panel */}
             <NotificationsPanel 
                 isOpen={showNotifications} 
-                onClose={() => setShowNotifications(false)} 
+                onClose={() => {
+                    setShowNotifications(false);
+                    onNotificationsChange?.(false);
+                }}
+                onUnreadCountChange={setUnreadCount}
             />
         </header>
     );

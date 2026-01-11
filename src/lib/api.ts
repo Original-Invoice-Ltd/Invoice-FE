@@ -202,6 +202,40 @@ export class ApiClient {
     return this.request('GET', '/api/users/get-profile', undefined, { email });
   }
 
+  static async getCurrentUser() {
+    return this.request('GET', '/api/users/me');
+  }
+
+  static async updateProfile(fullName: string, phoneNumber: string) {
+    return this.request('PUT', '/api/users/update-profile', { fullName, phoneNumber });
+  }
+
+  static async changePassword(currentPassword: string, newPassword: string) {
+    return this.request('PUT', '/api/users/change-password', { currentPassword, newPassword });
+  }
+
+  static async deleteAccount() {
+    return this.request('DELETE', '/api/users/delete-account');
+  }
+
+  static async uploadProfilePhoto(email: string, imageFile: File): Promise<ApiResponse<any>> {
+    try {
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('image', imageFile);
+
+      const response = await axiosInstance.put('/api/users/upload-photo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
   // Client Management APIs
   static async addClient(clientData: {
     customerType: string;
@@ -288,12 +322,8 @@ export class ApiClient {
   }
 
   // Notification APIs
-  static async getNotifications(page = 0, size = 4) {
-    return this.request('GET', '/api/notifications', undefined, { page, size });
-  }
-
-  static async getNotificationsByType(type: string, page = 0, size = 4) {
-    return this.request('GET', `/api/notifications/type/${type}`, undefined, { page, size });
+  static async getAllNotifications() {
+    return this.request('GET', '/api/notifications/all');
   }
 
   static async getUnreadNotifications() {
@@ -301,19 +331,15 @@ export class ApiClient {
   }
 
   static async getUnreadCount() {
-    return this.request('GET', '/api/notifications/unread/count');
+    return this.request('GET', '/api/notifications/unread-count');
   }
 
-  static async markAllAsRead() {
+  static async markAllNotificationsAsRead() {
     return this.request('PUT', '/api/notifications/mark-all-read');
   }
 
-  static async markAllAsNotNew() {
-    return this.request('PUT', '/api/notifications/mark-all-not-new');
-  }
-
-  static async markAsRead(id: number) {
-    return this.request('PUT', `/api/notifications/${id}/read`);
+  static async markNotificationAsRead(notificationId: string) {
+    return this.request('PUT', `/api/notifications/${notificationId}/mark-read`);
   }
 
   // Invoice Management APIs

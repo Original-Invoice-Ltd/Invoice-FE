@@ -3,8 +3,16 @@
 import { Search, ChevronDown, Plus } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
 const DashboardContent = () => {
+    const { user } = useAuth();
+
+    // Get user's first name for welcome message
+    const getFirstName = () => {
+        if (!user?.fullName) return 'User';
+        return user.fullName.split(' ')[0];
+    };
     // Sample data for charts
     const paymentTrendsData = [
         { month: 'Jan', value: 50000 },
@@ -45,7 +53,7 @@ const DashboardContent = () => {
         <div className="max-w-7xl mx-auto mb-[200px] p-6">
             {/* Welcome Section */}
             <div className="mb-6">
-                <h1 className="text-xl lg:text-2xl font-semibold text-[#101828] mb-1">Welcome, Victor</h1>
+                <h1 className="text-xl lg:text-2xl font-semibold text-[#101828] mb-1">Welcome, {getFirstName()}</h1>
                 <p className="text-sm text-[#667085]">Here's your business performance at a glance</p>
             </div>
 
