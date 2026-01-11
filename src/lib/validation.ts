@@ -84,8 +84,8 @@ export class Validator {
       return { isValid: false, error: 'Phone number must be between 10-15 digits' };
     }
 
-    // Basic international phone format validation
-    const phoneRegex = /^[\+]?[1-9][\d]{0,3}[-.\s]?[\d]{1,4}[-.\s]?[\d]{1,4}[-.\s]?[\d]{1,9}$/;
+    // Updated regex to allow Nigerian format (starting with 0) and international formats
+    const phoneRegex = /^(\+?[1-9]\d{0,3}[-.\s]?|0)[\d]{3,4}[-.\s]?[\d]{3,4}[-.\s]?[\d]{3,4}$/;
     if (!phoneRegex.test(phone.trim())) {
       return { isValid: false, error: 'Please enter a valid phone number' };
     }
