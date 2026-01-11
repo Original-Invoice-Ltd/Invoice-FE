@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Search, Menu, Bell, ChevronDown, User, LogOut } from "lucide-react";
+import { Search, Menu, Bell, ChevronDown, User, LogOut, Settings } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useAuth } from '@/contexts/AuthContext';
 import { AuthService } from '@/lib/auth';
 import NotificationsPanel from '@/components/notifications/NotificationsPanel';
 import { ApiClient } from '@/lib/api';
@@ -13,6 +15,8 @@ interface DashboardHeaderProps {
 }
 
 const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
+    const { user, loading } = useAuth();
+    const router = useRouter();
     const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
@@ -27,6 +31,19 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
         { code: "IG", name: "Igbo" },
         { code: "YO", name: "Yorùbá" },
     ];
+
+    // Get user's first name for welcome message
+    const getFirstName = () => {
+        if (!user?.fullName) return 'User';
+        return user.fullName.split(' ')[0];
+    };
+
+    // Get user's profile image or fallback
+    const getProfileImage = () => {
+        if (user?.imageUrl) return user.imageUrl;
+        // Use a dummy profile icon if no profile image is available
+        return "/assets/icons/ProfileIcon1.svg"; // fallback image
+    };
 
     // Fetch initial unread count
     useEffect(() => {
@@ -46,13 +63,10 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
 
     // Set up Pusher real-time notifications
     useEffect(() => {
-        // Get user ID from localStorage or auth context
-        const userId = localStorage.getItem('userId'); // You might need to adjust this based on your auth implementation
-        
-        if (!userId) return;
+        if (!user?.id) return;
 
         const unsubscribe = subscribeToPusherChannel(
-            `user-${userId}`,
+            `user-${user.id}`,
             'notification',
             (data: any) => {
                 console.log('New notification received:', data);
@@ -68,7 +82,7 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
             unsubscribe();
             disconnectPusher();
         };
-    }, []);
+    }, [user?.id]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -86,6 +100,11 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
 
     const handleLogout = async () => {
         await AuthService.logout();
+    };
+
+    const handleProfileSettings = () => {
+        setShowProfileDropdown(false);
+        router.push('/dashboard/settings/account');
     };
 
     return (
@@ -193,7 +212,7 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
                             style={{ width: '32px', height: '32px' }}
                         >
                             <Image
-                                src="/assets/sunny1.png"
+                                src={getProfileImage()}
                                 alt="Profile"
                                 width={32}
                                 height={32}
@@ -204,15 +223,18 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
                         {showProfileDropdown && (
                             <div className="absolute right-0 mt-2 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-50 overflow-hidden" style={{ width: '200px' }}>
                                 <div className="py-1">
+                                    {user && (
+                                        <div className="px-4 py-2.5 border-b border-[#E4E7EC]">
+                                            <div className="text-xs font-medium text-[#101828]">{user.fullName}</div>
+                                            <div className="text-xs text-[#667085]">{user.email}</div>
+                                        </div>
+                                    )}
                                     <button
-                                        onClick={() => {
-                                            setShowProfileDropdown(false);
-                                            // Navigate to profile/settings
-                                        }}
+                                        onClick={handleProfileSettings}
                                         className="w-full px-4 py-2.5 text-left text-xs hover:bg-[#F9FAFB] transition-colors flex items-center gap-3"
                                     >
-                                        <User size={16} className="text-[#667085]" />
-                                        <span className="font-medium text-[#101828]">Profile Settings</span>
+                                        <Settings size={16} className="text-[#667085]" />
+                                        <span className="font-medium text-[#101828]">Account Settings</span>
                                     </button>
                                     <button
                                         onClick={handleLogout}

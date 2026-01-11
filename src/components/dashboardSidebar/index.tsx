@@ -88,7 +88,7 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
     };
 
     const bottomItems = [
-        { icon: Settings, label: "Account Settings", href: "/dashboard/settings", isLogout: false },
+        { icon: Settings, label: "Account Settings", href: "/dashboard/settings/account", isLogout: false },
         { icon: LogOut, label: "Logout", href: "#", isLogout: true },
     ];
 

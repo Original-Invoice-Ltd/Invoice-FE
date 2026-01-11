@@ -202,6 +202,40 @@ export class ApiClient {
     return this.request('GET', '/api/users/get-profile', undefined, { email });
   }
 
+  static async getCurrentUser() {
+    return this.request('GET', '/api/users/me');
+  }
+
+  static async updateProfile(fullName: string, phoneNumber: string) {
+    return this.request('PUT', '/api/users/update-profile', { fullName, phoneNumber });
+  }
+
+  static async changePassword(currentPassword: string, newPassword: string) {
+    return this.request('PUT', '/api/users/change-password', { currentPassword, newPassword });
+  }
+
+  static async deleteAccount() {
+    return this.request('DELETE', '/api/users/delete-account');
+  }
+
+  static async uploadProfilePhoto(email: string, imageFile: File): Promise<ApiResponse<any>> {
+    try {
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('image', imageFile);
+
+      const response = await axiosInstance.put('/api/users/upload-photo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
   // Client Management APIs
   static async addClient(clientData: {
     customerType: string;
