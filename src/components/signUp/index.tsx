@@ -142,7 +142,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className="w-full h-screen max-h-screen bg-black/10 flex flex-col md:flex-row">
+    <div className="w-full h-screen max-h-screen  flex flex-col md:flex-row">
       {/* Left Panel - Hidden on mobile, shown on md and lg */}
       <div className="hidden md:flex md:w-1/2 h-full">
         <LeftIllustrationPanel />
