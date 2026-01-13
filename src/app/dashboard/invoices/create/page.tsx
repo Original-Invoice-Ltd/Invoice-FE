@@ -419,14 +419,7 @@ const CreateInvoicePage = () => {
                 amount: item.amount,
                 description: ""
             })),
-            appliedTaxes: items.filter(item => item.tax > 0).map((item, index) => ({
-                taxId: `tax-${index}`,
-                taxName: `VAT (${item.tax}%)`,
-                taxType: "VAT",
-                appliedRate: item.tax,
-                taxableAmount: item.amount,
-                taxAmount: (item.amount * item.tax) / 100
-            }))
+            appliedTaxes: []
         };
     };
 
@@ -1143,13 +1136,40 @@ const CreateInvoicePage = () => {
                                 </div>
 
                                 {/* Template Selection */}
-                                <div className="bg-white rounded-lg  p-4">
-                                    <h3 className="font-medium text-[16px] mb-2">Select Template</h3>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {['Default', 'Compact', 'Modern', 'Pro'].map((template) => (
-                                            <div key={template} className="border border-[#D0D5DD] rounded p-2 text-center cursor-pointer hover:border-[#2F80ED]">
-                                                <div className="h-16 bg-gray-100 rounded mb-2"></div>
-                                                <p className="text-xs">{template}</p>
+                                <div className="bg-white rounded-lg p-4">
+                                    <h3 className="font-medium text-[16px] mb-4">Select Template</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {['Default', 'Compact', 'Standard', 'Simple'].map((templateName) => (
+                                            <div 
+                                                key={templateName} 
+                                                onClick={() => setTemplate(templateName)}
+                                                className={`border-2 rounded-lg p-4 text-center cursor-pointer transition-all ${
+                                                    template === templateName 
+                                                        ? 'border-[#2F80ED] bg-[#F0F7FF]' 
+                                                        : 'border-[#E4E7EC] bg-white hover:border-[#D0D5DD]'
+                                                }`}
+                                            >
+                                                {/* Template Preview */}
+                                                <div className="bg-white border border-[#E4E7EC] rounded-lg p-3 mb-3 h-32 flex flex-col justify-between">
+                                                    {/* Header */}
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                                                        <span className="text-[12px] font-semibold text-[#101828]">INV</span>
+                                                    </div>
+                                                    {/* Lines */}
+                                                    <div className="space-y-1 mb-2">
+                                                        <div className="h-1 bg-gray-300 rounded w-16"></div>
+                                                        <div className="h-1 bg-gray-300 rounded w-12"></div>
+                                                    </div>
+                                                    {/* Table Preview */}
+                                                    <div className="border-t border-[#E4E7EC] pt-2">
+                                                        <div className="flex gap-1">
+                                                            <div className="flex-1 h-6 bg-gray-100 rounded"></div>
+                                                            <div className="flex-1 h-6 bg-gray-100 rounded"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <p className="text-[14px] font-medium text-[#101828]">{templateName}</p>
                                             </div>
                                         ))}
                                     </div>

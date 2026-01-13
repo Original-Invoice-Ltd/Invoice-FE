@@ -2,14 +2,17 @@
 
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Mail, X } from "lucide-react";
+import CompactTemplate from "./templates/CompactTemplate";
+import StandardTemplate from "./templates/StandardTemplate";
+import SimpleTemplate from "./templates/SimpleTemplate";
 
 interface InvoiceItem {
     id: number;
     itemName: string;
     quantity: number;
     rate: number;
-    tax: number;
     amount: number;
+    description?: string;
 }
 
 interface InvoiceData {
@@ -45,6 +48,7 @@ interface InvoiceData {
     vat: number;
     wht: number;
     selectedClientId: string;
+    invoiceTaxRate: number;
 }
 
 interface InvoicePreviewProps {
@@ -175,7 +179,16 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice }: Invoice
 
                 {/* Invoice Content - White background */}
                 <div className="bg-white  mb-4 rounded-lg shadow-sm">
-                    <div className="px-12 py-4">
+                    {/* Render template based on selection */}
+                    {data.template === 'Compact' ? (
+                        <CompactTemplate data={data} />
+                    ) : data.template === 'Standard' ? (
+                        <StandardTemplate data={data} />
+                    ) : data.template === 'Simple' ? (
+                        <SimpleTemplate data={data} />
+                    ) : (
+                        // Default template
+                        <div className="px-12 py-4">
                     {/* Invoice Header */}
                     <div className="flex justify-between items-start mb-12">
                         <div className="flex items-center mt-8 justify-center at
@@ -397,7 +410,8 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice }: Invoice
                             )}
                         </div>
                     </div>
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
