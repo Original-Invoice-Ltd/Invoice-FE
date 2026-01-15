@@ -40,7 +40,6 @@ const TaxSettingsPage = () => {
 
     try {
       // TODO: Implement tax settings update API call
-      console.log("Tax settings:", settings);
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));

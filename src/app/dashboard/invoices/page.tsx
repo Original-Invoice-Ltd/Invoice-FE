@@ -37,17 +37,10 @@ const InvoicesPage = () => {
             setLoading(true);
             const response = await ApiClient.getAllUserInvoices();
             
-            // Console log the response to see what backend is returning
-            console.log('Invoice API Response:', response);
-            console.log('Response status:', response.status);
-            console.log('Response data:', response.data);
-            
             if (response.status === 200 && response.data) {
                 const invoicesData = Array.isArray(response.data) ? response.data : [];
-                console.log('Processed invoices data:', invoicesData);
                 setInvoices(invoicesData);
             } else {
-                console.log('API Error:', response.error || response.message);
                 setError(response.error || response.message || "Failed to fetch invoices");
             }
         } catch (err) {

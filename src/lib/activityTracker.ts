@@ -57,7 +57,6 @@ class ActivityTracker {
 
     // Check if user has been active and we should extend session to 1 hour
     if (this.isActive && !this.hasExtended && timeSinceSessionStart > this.config.sessionTimeout - this.config.refreshThreshold) {
-      console.log('User is active, extending session to 1 hour');
       await this.refreshToken();
       this.hasExtended = true;
       this.sessionStart = now; // Reset session start for extended period
@@ -69,7 +68,6 @@ class ActivityTracker {
         : this.config.sessionTimeout - timeSinceSessionStart;
 
       if (timeUntilExpiry <= this.config.refreshThreshold && timeUntilExpiry > 0) {
-        console.log('Refreshing token due to upcoming expiry');
         await this.refreshToken();
       }
     }
@@ -80,7 +78,6 @@ class ActivityTracker {
     // Check if session has expired
     const sessionTimeout = this.hasExtended ? this.config.extendedTimeout : this.config.sessionTimeout;
     if (timeSinceSessionStart > sessionTimeout) {
-      console.log('Session expired, logging out user');
       this.handleSessionExpiry();
     }
   }
@@ -97,7 +94,6 @@ class ActivityTracker {
       });
 
       if (response.ok) {
-        console.log('Token refreshed successfully');
         return true;
       } else {
         console.error('Token refresh failed:', response.status);

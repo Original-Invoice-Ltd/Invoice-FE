@@ -180,11 +180,11 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice }: Invoice
                 {/* Invoice Content - White background */}
                 <div className="bg-white  mb-4 rounded-lg shadow-sm">
                     {/* Render template based on selection */}
-                    {data.template === 'Compact' ? (
+                    {data.template === 'compact' ? (
                         <CompactTemplate data={data} />
-                    ) : data.template === 'Standard' ? (
+                    ) : data.template === 'standard' ? (
                         <StandardTemplate data={data} />
-                    ) : data.template === 'Simple' ? (
+                    ) : data.template === 'simple' ? (
                         <SimpleTemplate data={data} />
                     ) : (
                         // Default template

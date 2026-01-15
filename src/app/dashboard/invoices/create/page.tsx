@@ -8,6 +8,7 @@ import ColorPicker from "@/components/ColorPicker/ColorPicker";
 import PaymentTermsDropdown from "@/components/invoice/PaymentTermsDropdown";
 import AddProductModal from "@/components/productManagement/AddProductModal";
 import CountryDropdown from "@/components/common/CountryDropdown";
+import TemplateSelector from "@/components/invoice/TemplateSelector";
 import { ApiClient } from "@/lib/api";
 import { buildInvoiceFormData, dataURLtoFile, base64ToFile, CreateInvoiceData, InvoiceItem } from "@/lib/invoiceTypes";
 import { Product } from "@/lib/productCache";
@@ -200,7 +201,7 @@ const CreateInvoicePage = () => {
     const [currency, setCurrency] = useState("NGN");
     const [language, setLanguage] = useState("English");
     const [color, setColor] = useState("#2F80ED");
-    const [template, setTemplate] = useState("Default");
+    const [template, setTemplate] = useState("default");
     const [logo, setLogo] = useState<string | null>(null);
 
     const [paymentDetails, setPaymentDetails] = useState({
@@ -297,7 +298,6 @@ const CreateInvoicePage = () => {
             return;
         }
         // TODO: Implement save as draft functionality
-        console.log("Save as draft - not implemented yet");
     };
 
     // Canvas drawing functions
@@ -501,7 +501,6 @@ const CreateInvoicePage = () => {
             const response = await ApiClient.createInvoice(formData);
 
             if (response.status === 201 || response.status === 200) {
-                console.log('Invoice created successfully:', response.data);
                 // Redirect to invoices list after short delay
                 setTimeout(() => {
                     window.location.href = '/dashboard/invoices';
@@ -544,7 +543,6 @@ const CreateInvoicePage = () => {
                 onEdit={handleBackToEdit}
                 onEmailInvoice={() => {
                     // Handle email invoice
-                    console.log("Email invoice");
                 }}
                 onSendInvoice={handleSendInvoice}
             />
@@ -1136,44 +1134,10 @@ const CreateInvoicePage = () => {
                                 </div>
 
                                 {/* Template Selection */}
-                                <div className="bg-white rounded-lg p-4">
-                                    <h3 className="font-medium text-[16px] mb-4">Select Template</h3>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        {['Default', 'Compact', 'Standard', 'Simple'].map((templateName) => (
-                                            <div 
-                                                key={templateName} 
-                                                onClick={() => setTemplate(templateName)}
-                                                className={`border-2 rounded-lg p-4 text-center cursor-pointer transition-all ${
-                                                    template === templateName 
-                                                        ? 'border-[#2F80ED] bg-[#F0F7FF]' 
-                                                        : 'border-[#E4E7EC] bg-white hover:border-[#D0D5DD]'
-                                                }`}
-                                            >
-                                                {/* Template Preview */}
-                                                <div className="bg-white border border-[#E4E7EC] rounded-lg p-3 mb-3 h-32 flex flex-col justify-between">
-                                                    {/* Header */}
-                                                    <div className="flex justify-between items-start mb-2">
-                                                        <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                                                        <span className="text-[12px] font-semibold text-[#101828]">INV</span>
-                                                    </div>
-                                                    {/* Lines */}
-                                                    <div className="space-y-1 mb-2">
-                                                        <div className="h-1 bg-gray-300 rounded w-16"></div>
-                                                        <div className="h-1 bg-gray-300 rounded w-12"></div>
-                                                    </div>
-                                                    {/* Table Preview */}
-                                                    <div className="border-t border-[#E4E7EC] pt-2">
-                                                        <div className="flex gap-1">
-                                                            <div className="flex-1 h-6 bg-gray-100 rounded"></div>
-                                                            <div className="flex-1 h-6 bg-gray-100 rounded"></div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <p className="text-[14px] font-medium text-[#101828]">{templateName}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
+                                <TemplateSelector 
+                                  selectedTemplate={template}
+                                  onTemplateChange={setTemplate}
+                                />
 
                                 {/* Summary */}
                                 <div className="bg-white rounded-lg  px-4">

@@ -2,6 +2,9 @@ import axios, { AxiosResponse, AxiosError } from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+// Temporary bypass flag for testing - set to true to skip 401 redirects
+const BYPASS_AUTH_REDIRECT = true;
+
 // Configure axios defaults
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -29,8 +32,13 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       
+      // Skip redirect if bypass flag is enabled (for testing)
+      if (BYPASS_AUTH_REDIRECT) {
+        return Promise.reject(error);
+      }
+      
       // Skip redirect for certain API endpoints that may return 401 for empty data
-      const skipRedirectEndpoints = ['/api/product/', '/api/client/', '/api/tax/'];
+      const skipRedirectEndpoints = ['/api/product/', '/api/client/', '/api/tax/', '/api/notifications/', '/api/invoices/all-user'];
       const requestUrl = error.config?.url || '';
       const shouldSkipRedirect = skipRedirectEndpoints.some(endpoint => requestUrl.includes(endpoint));
       
@@ -49,7 +57,6 @@ axiosInstance.interceptors.response.use(
             !currentPath.includes('/signIn') && 
             !currentPath.includes('/signUp')) {
           window.location.href = '/signIn';
-        } else {
         }
       }
     }
@@ -105,10 +112,6 @@ export class ApiClient {
     data?: any,
     params?: any
   ): Promise<ApiResponse<T>> {
-    console.log('URL:', `${API_BASE_URL}${endpoint}`);
-    console.log('Method:', method);
-    console.log('Body:', data);
-    
     try {
       const response = await axiosInstance.request({
         method,
