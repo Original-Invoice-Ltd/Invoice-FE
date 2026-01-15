@@ -55,13 +55,11 @@ const Sidebar = ({
             {/* Header with Logo */}
             <div className="p-6 border-b border-blue-400/30">
                 <div className="flex items-center gap-2 mb-6">
-                    <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center">
-                        <span className="text-[#2F80ED] font-bold text-sm">O</span>
-                    </div>
-                    <div>
-                        <span className="text-white font-semibold text-lg">riginal</span>
-                        <div className="text-xs text-blue-200">INVOICE</div>
-                    </div>
+                    <img
+                        src="/assets/OriginalInvoiceWhiteLogo.svg"
+                        alt="Original Invoice"
+                        className="h-8 w-auto object-contain"
+                    />
                 </div>
 
                 {/* User Profile */}
@@ -138,10 +136,11 @@ const Sidebar = ({
             <div className="p-6 border-t border-blue-400/30">
                 <div className="text-center">
                     <div className="flex items-center justify-center gap-2 mb-2">
-                        <div className="w-6 h-6 bg-white rounded flex items-center justify-center">
-                            <span className="text-[#2F80ED] font-bold text-xs">O</span>
-                        </div>
-                        <span className="text-white font-semibold">riginal</span>
+                        <img
+                            src="/assets/OriginalInvoiceWhiteLogo.svg"
+                            alt="Original Invoice"
+                            className="h-6 w-auto object-contain"
+                        />
                     </div>
                     <p className="text-blue-200 text-xs">
                         Powered by Original Invoice
