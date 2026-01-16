@@ -3,8 +3,11 @@
 import { CustomerLayout } from "@/components/customerSection";
 import { useState } from "react";
 import { UploadReceiptModal } from "@/components/modals";
+import { useRouter } from "next/navigation";
+import { mockInvoices } from "@/lib/mockData";
 
 const CustomerInvoicesPage = () => {
+    const router = useRouter();
     const [searchTerm, setSearchTerm] = useState("");
     const [openDropdown, setOpenDropdown] = useState<number | null>(null);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -14,90 +17,8 @@ const CustomerInvoicesPage = () => {
         alert(`Receipt "${file.name}" uploaded successfully!`);
     };
 
-    // Mock invoice data based on your image
-    const invoices = [
-        {
-            id: 1,
-            date: "Oct 25, 2025",
-            issuedBy: "Tech Solutions Ltd",
-            invoiceId: "INV-00123",
-            status: "Paid",
-            dueDate: "Nov 25, 2025",
-            amount: "₦450,000"
-        },
-        {
-            id: 2,
-            date: "Oct 23, 2025",
-            issuedBy: "Solar Nigeria Ltd",
-            invoiceId: "INV-00122",
-            status: "Pending",
-            dueDate: "Nov 25, 2025",
-            amount: "₦85,000"
-        },
-        {
-            id: 3,
-            date: "Oct 25, 2025",
-            issuedBy: "Tech Solutions Ltd",
-            invoiceId: "INV-00123",
-            status: "Paid",
-            dueDate: "Nov 25, 2025",
-            amount: "₦450,000"
-        },
-        {
-            id: 4,
-            date: "Oct 15, 2025",
-            issuedBy: "James Victor",
-            invoiceId: "INV-00121",
-            status: "Paid",
-            dueDate: "Nov 25, 2025",
-            amount: "₦112,000"
-        },
-        {
-            id: 5,
-            date: "Oct 25, 2025",
-            issuedBy: "Tech Solutions Ltd",
-            invoiceId: "INV-00123",
-            status: "Paid",
-            dueDate: "Nov 25, 2025",
-            amount: "₦450,000"
-        },
-        {
-            id: 6,
-            date: "Oct 25, 2025",
-            issuedBy: "Tech Solutions Ltd",
-            invoiceId: "INV-00123",
-            status: "Paid",
-            dueDate: "Nov 25, 2025",
-            amount: "₦450,000"
-        },
-        {
-            id: 7,
-            date: "Oct 23, 2025",
-            issuedBy: "Solar Nigeria Ltd",
-            invoiceId: "INV-00122",
-            status: "Pending",
-            dueDate: "Nov 25, 2025",
-            amount: "₦85,000"
-        },
-        {
-            id: 8,
-            date: "Oct 15, 2025",
-            issuedBy: "James Victor",
-            invoiceId: "INV-00121",
-            status: "Paid",
-            dueDate: "Nov 25, 2025",
-            amount: "₦112,000"
-        },
-        {
-            id: 9,
-            date: "Oct 15, 2025",
-            issuedBy: "Godiya Veronica",
-            invoiceId: "INV-00121",
-            status: "Overdue",
-            dueDate: "Nov 25, 2025",
-            amount: "₦112,000"
-        }
-    ];
+    // Use shared mock data
+    const invoices = mockInvoices;
 
     const getStatusColor = (status: string) => {
         switch (status.toLowerCase()) {
@@ -131,13 +52,13 @@ const CustomerInvoicesPage = () => {
         }
     };
 
-    const handleDropdownAction = (action: string, invoiceId: string) => {
+    const handleDropdownAction = (action: string, invoiceId: number) => {
         setOpenDropdown(null);
         
         switch (action) {
             case 'view':
-                // Navigate to invoice detail page
-                console.log('View detail for invoice:', invoiceId);
+                // Navigate to invoice detail page using the numeric ID
+                router.push(`/customer/invoices/${invoiceId}`);
                 break;
             case 'receipt':
                 // View existing receipt
@@ -239,7 +160,7 @@ const CustomerInvoicesPage = () => {
                                                     {getDropdownOptions(invoice.status).map((option, index) => (
                                                         <button
                                                             key={index}
-                                                            onClick={() => handleDropdownAction(option.action, invoice.invoiceId)}
+                                                            onClick={() => handleDropdownAction(option.action, invoice.id)}
                                                             className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                                                         >
                                                             {option.label}
