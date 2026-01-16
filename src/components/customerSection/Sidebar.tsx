@@ -30,6 +30,8 @@ interface SidebarProps {
         initials: string;
     };
     className?: string;
+    onClose?: () => void;
+    isMobile?: boolean;
 }
 
 const Sidebar = ({ 
@@ -38,7 +40,9 @@ const Sidebar = ({
         email: "chiamakaokeke2905......",
         initials: "CO"
     },
-    className = ""
+    className = "",
+    onClose,
+    isMobile = false
 }: SidebarProps) => {
     const router = useRouter();
     const pathname = usePathname();
@@ -48,8 +52,8 @@ const Sidebar = ({
         {
             icon: HomeIcon,
             label: "Home",
-            path: "/customerFlow",
-            isActive: pathname === "/customerFlow"
+            path: "/customer/dashboard",
+            isActive: pathname === "/customer/dashboard"
         },
         {
             icon: InvoicesIcon,
@@ -67,18 +71,30 @@ const Sidebar = ({
 
     const handleNavigation = (path: string) => {
         router.push(path);
+        if (onClose) onClose();
     };
 
     return (
         <div className={`w-64 bg-gradient-to-b from-[#2F80ED] to-[#1E5FCC] text-white flex flex-col min-h-screen ${className}`}>
             {/* Header with Logo */}
             <div className="p-6 border-b border-blue-400/30">
-                <div className="flex items-center gap-2 mb-6">
+                <div className="flex items-center justify-between mb-6">
                     <img
                         src="/assets/OriginalInvoiceWhiteLogo.svg"
                         alt="Original Invoice"
                         className="h-8 w-auto object-contain"
                     />
+                    {/* Close button for mobile */}
+                    {isMobile && onClose && (
+                        <button 
+                            onClick={onClose}
+                            className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                <path stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    )}
                 </div>
 
                 {/* User Profile */}

@@ -73,8 +73,8 @@ const CustomerPaymentPage = () => {
 
     // Empty State Component
     const EmptyState = () => (
-        <div className="flex flex-col items-center justify-center py-16">
-            <div className="w-24 h-24 mb-6">
+        <div className="flex flex-col items-center justify-center py-12 md:py-16">
+            <div className="w-20 h-20 md:w-24 md:h-24 mb-4 md:mb-6">
                 <svg viewBox="0 0 96 96" fill="none" className="w-full h-full text-gray-300">
                     <circle cx="48" cy="48" r="48" fill="currentColor" fillOpacity="0.1"/>
                     <path d="M32 40h32v24H32V40z" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -83,8 +83,8 @@ const CustomerPaymentPage = () => {
                     <path d="M68 32h8M72 28v8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Payment Receipt Uploaded</h3>
-            <p className="text-gray-500 text-center max-w-md">
+            <h3 className="text-base md:text-lg font-medium text-gray-900 mb-2 text-center">No Payment Receipt Uploaded</h3>
+            <p className="text-gray-500 text-center max-w-md text-sm md:text-base px-4">
                 Once you upload your receipt, it will appear here so you can easily track your payment.
             </p>
         </div>
@@ -92,19 +92,65 @@ const CustomerPaymentPage = () => {
 
     return (
         <CustomerLayout>
-            <div className="flex-1 p-6">
+            <div className="flex-1 p-4 md:p-6">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-2xl font-semibold text-gray-900 mb-2">Payment</h1>
-                    <p className="text-gray-600">Track all receipts uploaded and their status</p>
+                <div className="mb-6 md:mb-8">
+                    <h1 className="text-xl md:text-2xl font-semibold text-gray-900 mb-1 md:mb-2">Payment</h1>
+                    <p className="text-gray-600 text-sm md:text-base">Track all receipts uploaded and their status</p>
                 </div>
 
                 {receipts.length === 0 ? (
                     <EmptyState />
                 ) : (
                     <>
-                        {/* Table Header with Search */}
-                        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                        {/* Mobile Card View */}
+                        <div className="md:hidden space-y-4">
+                            {paginatedReceipts.map((receipt, index) => (
+                                <div key={receipt.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div>
+                                            <p className="font-medium text-gray-900">{receipt.receiptName}</p>
+                                            <p className="text-sm text-gray-500">{receipt.invoiceId}</p>
+                                        </div>
+                                        <div className="relative">
+                                            <button
+                                                onClick={() => setOpenDropdown(openDropdown === receipt.id ? null : receipt.id)}
+                                                className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                            >
+                                                <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                                </svg>
+                                            </button>
+                                            {openDropdown === receipt.id && (
+                                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                                                    <button
+                                                        onClick={() => {
+                                                            setOpenDropdown(null);
+                                                            router.push(`/customer/payments/${receipt.id}`);
+                                                        }}
+                                                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                                    >
+                                                        View Detail
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-lg font-semibold text-gray-900">{receipt.amount}</span>
+                                        <span className={`px-3 py-1 text-xs font-medium rounded-full border ${getStatusColor(receipt.status)}`}>
+                                            {receipt.status}
+                                        </span>
+                                    </div>
+                                    <div className="text-sm text-gray-500">
+                                        <span>Due: {receipt.dueDate}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Desktop Table View */}
+                        <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200">
                             <div className="flex items-center justify-between p-6 border-b border-gray-200">
                                 <h2 className="text-lg font-medium text-gray-900">All Receipts Uploaded</h2>
                                 <div className="relative">
@@ -233,7 +279,44 @@ const CustomerPaymentPage = () => {
                                 </div>
                             )}
                         </div>
+
+                        {/* Mobile Pagination */}
+                        {totalPages > 1 && (
+                            <div className="md:hidden flex items-center justify-center mt-4 space-x-2">
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                    disabled={currentPage === 1}
+                                    className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+                                
+                                <span className="text-sm text-gray-600">
+                                    Page {currentPage} of {totalPages}
+                                </span>
+                                
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                    disabled={currentPage === totalPages}
+                                    className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                            </div>
+                        )}
                     </>
+                )}
+
+                {/* Click outside to close dropdown */}
+                {openDropdown && (
+                    <div 
+                        className="fixed inset-0 z-0" 
+                        onClick={() => setOpenDropdown(null)}
+                    />
                 )}
             </div>
         </CustomerLayout>

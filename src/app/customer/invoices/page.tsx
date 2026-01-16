@@ -78,15 +78,15 @@ const CustomerInvoicesPage = () => {
 
     return (
         <CustomerLayout>
-            <div className="flex-1 p-6">
+            <div className="flex-1 p-4 md:p-6">
                 {/* Header */}
-                <div className="mb-6">
-                    <h1 className="text-2xl font-semibold text-gray-900 mb-2">All Invoice</h1>
+                <div className="mb-4 md:mb-6">
+                    <h1 className="text-xl md:text-2xl font-semibold text-gray-900 mb-2">All Invoice</h1>
                     
                     {/* Search Bar */}
                     <div className="flex justify-end">
                         {/* Search Input */}
-                        <div className="relative">
+                        <div className="relative w-full sm:w-auto">
                             <svg 
                                 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5"
                                 xmlns="http://www.w3.org/2000/svg" 
@@ -107,14 +107,63 @@ const CustomerInvoicesPage = () => {
                                 placeholder="Search invoice"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none w-64"
+                                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none w-full sm:w-64"
                             />
                         </div>
                     </div>
                 </div>
 
-                {/* Invoices Table */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-4">
+                    {filteredInvoices.map((invoice) => (
+                        <div key={invoice.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                            <div className="flex justify-between items-start mb-3">
+                                <div>
+                                    <p className="font-medium text-gray-900">{invoice.issuedBy}</p>
+                                    <p className="text-sm text-gray-500">{invoice.invoiceId}</p>
+                                </div>
+                                <div className="relative">
+                                    <button 
+                                        className="p-1 hover:bg-gray-100 rounded"
+                                        onClick={() => setOpenDropdown(openDropdown === invoice.id ? null : invoice.id)}
+                                    >
+                                        <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                        </svg>
+                                    </button>
+                                    {openDropdown === invoice.id && (
+                                        <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                                            <div className="py-1">
+                                                {getDropdownOptions(invoice.status).map((option, index) => (
+                                                    <button
+                                                        key={index}
+                                                        onClick={() => handleDropdownAction(option.action, invoice.id)}
+                                                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                                    >
+                                                        {option.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="text-lg font-semibold text-gray-900">{invoice.amount}</span>
+                                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(invoice.status)}`}>
+                                    {invoice.status}
+                                </span>
+                            </div>
+                            <div className="flex justify-between text-sm text-gray-500">
+                                <span>Date: {invoice.date}</span>
+                                <span>Due: {invoice.dueDate}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b border-gray-200">
                             <tr>
@@ -177,8 +226,8 @@ const CustomerInvoicesPage = () => {
                 </div>
 
                 {/* Pagination */}
-                <div className="flex items-center justify-end mt-6">
-                    <nav className="flex items-center gap-2">
+                <div className="flex items-center justify-end mt-4 md:mt-6">
+                    <nav className="flex items-center gap-1 md:gap-2">
                         <button className="p-2 text-gray-400 hover:text-gray-600">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -187,7 +236,7 @@ const CustomerInvoicesPage = () => {
                         
                         <button className="px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg">1</button>
                         <button className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">2</button>
-                        <button className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">3</button>
+                        <button className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg hidden sm:block">3</button>
                         
                         <button className="p-2 text-gray-400 hover:text-gray-600">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
