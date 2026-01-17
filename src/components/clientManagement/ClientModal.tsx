@@ -1,6 +1,7 @@
 "use client";
 
 import { X, Mail, Phone } from "lucide-react";
+import CountryDropdown from "@/components/common/CountryDropdown";
 
 interface FormData {
     customerType: string;
@@ -20,13 +21,14 @@ interface ClientModalProps {
     onChange: (data: FormData) => void;
     isLoading?: boolean;
     isEdit?: boolean;
+    error?: string | null;
 }
 
-const ClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading = false, isEdit = false }: ClientModalProps) => {
+const ClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading = false, isEdit = false, error = null }: ClientModalProps) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: '#020D173B' }}>
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto">
                 <button 
                     onClick={onClose}
@@ -40,6 +42,12 @@ const ClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading = 
                     {isEdit ? 'Edit Client' : 'Add New Client'}
                 </h2>
                 <p className="text-sm text-[#667085] mb-6">Save your client's business details to send invoices and track payments easily</p>
+                
+                {error && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-sm text-red-700">{error}</p>
+                    </div>
+                )}
                 
                 <div className="space-y-4">
                     <div>
@@ -132,25 +140,13 @@ const ClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading = 
                         </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-[#344054] mb-2">Country</label>
-                        <select 
-                            value={formData.country || ""}
-                            onChange={(e) => onChange({...formData, country: e.target.value})}
-                            className="w-full px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                            disabled={isLoading}
-                        >
-                            <option value="">Select customer country</option>
-                            <option value="nigeria">Nigeria</option>
-                            <option value="ghana">Ghana</option>
-                            <option value="kenya">Kenya</option>
-                            <option value="south-africa">South Africa</option>
-                            <option value="egypt">Egypt</option>
-                            <option value="morocco">Morocco</option>
-                            <option value="uganda">Uganda</option>
-                            <option value="tanzania">Tanzania</option>
-                        </select>
-                    </div>
+                    <CountryDropdown
+                        value={formData.country || ""}
+                        onChange={(value) => onChange({...formData, country: value})}
+                        label="Country"
+                        placeholder="Select customer country"
+                        disabled={isLoading}
+                    />
                 </div>
 
                 <div className="flex items-center gap-3 mt-6">

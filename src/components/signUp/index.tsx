@@ -102,7 +102,7 @@ export default function SignUp() {
         // Show success message and redirect to dashboard
         showSuccess('Email verified successfully! Welcome to your dashboard.');
         setTimeout(() => {
-          router.push('/dashboard');
+          router.push('/dashboard/overview');
         }, 1500);
       } else {
         const errorMessage = response.error || 'Invalid OTP. Please try again.';
@@ -142,7 +142,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className="w-full h-screen max-h-screen bg-[#FFFFFF] flex flex-col md:flex-row">
+    <div className="w-full h-screen max-h-screen bg-black/10 flex flex-col md:flex-row">
       {/* Left Panel - Hidden on mobile, shown on md and lg */}
       <div className="hidden md:flex md:w-1/2 h-full">
         <LeftIllustrationPanel />

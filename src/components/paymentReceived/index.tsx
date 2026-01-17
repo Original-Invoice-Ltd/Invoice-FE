@@ -1,46 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EmptyState from "./EmptyState";
 import PaymentTableHeader from "./PaymentTableHeader";
 import PaymentTable from "./PaymentTable";
 import Pagination from "./Pagination";
 import Modals from "./Modals";
 import { Payment, ModalType } from "./types";
-
-// Mock data for demonstration
-const mockPayments: Payment[] = [
-  {
-    id: "1",
-    date: "Oct 25, 2025",
-    clientName: "Tech Solutions Ltd",
-    invoiceId: "INV-001",
-    status: "Paid",
-    dueDate: "Nov 25, 2025",
-    amount: 5000,
-    balanceDue: 0,
-  },
-  {
-    id: "2",
-    date: "Oct 23, 2025",
-    clientName: "Creative Hub",
-    invoiceId: "INV-002",
-    status: "Unpaid",
-    dueDate: "Nov 23, 2025",
-    amount: 3500,
-    balanceDue: 3500,
-  },
-  {
-    id: "3",
-    date: "Oct 15, 2025",
-    clientName: "Global Services",
-    invoiceId: "INV-003",
-    status: "Overdue",
-    dueDate: "Oct 30, 2025",
-    amount: 7200,
-    balanceDue: 7200,
-  },
-];
+import { ApiClient } from "@/lib/api";
 
 interface PaymentReceivedProps {
   onCreateInvoice: () => void;
@@ -48,7 +15,8 @@ interface PaymentReceivedProps {
 
 const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
   const [hasPayments, setHasPayments] = useState(false);
-  const [payments, setPayments] = useState<Payment[]>(mockPayments);
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("date");
   const [currentPage, setCurrentPage] = useState(1);
@@ -56,6 +24,52 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
 
   const totalPages = 99;
+
+  // Load paid invoices from API
+  useEffect(() => {
+    const loadPaidInvoices = async () => {
+      try {
+        setIsLoading(true);
+        const response = await ApiClient.getAllUserInvoices();
+        
+        if (response.status === 200 && response.data) {
+          // Filter only PAID invoices and transform to Payment format
+          const paidInvoices = response.data
+            .filter((invoice: any) => invoice.status === 'PAID')
+            .map((invoice: any) => ({
+              id: invoice.id,
+              date: new Date(invoice.creationDate).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: '2-digit' 
+              }),
+              clientName: invoice.billTo?.fullName || invoice.billTo?.businessName || 'Unknown Client',
+              invoiceId: invoice.invoiceNumber || `INV-${invoice.id}`,
+              status: 'Paid' as const,
+              dueDate: new Date(invoice.dueDate).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: '2-digit' 
+              }),
+              amount: invoice.totalDue || 0,
+              balanceDue: 0, // Paid invoices have 0 balance due
+            }));
+          
+          setPayments(paidInvoices);
+          setHasPayments(paidInvoices.length > 0);
+        } else {
+          setHasPayments(false);
+        }
+      } catch (error) {
+        console.error('Error loading paid invoices:', error);
+        setHasPayments(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadPaidInvoices();
+  }, []);
 
   const handleMarkPaid = (payment: Payment) => {
     setSelectedPayment(payment);
@@ -101,32 +115,32 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
     setPayments(payments.filter(p => p.id !== payment.id));
   };
 
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto mb-[200px] p-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED]"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <>
+    <div className="max-w-7xl mx-auto mb-[200px] p-6">
       {/* Header Section */}
       <div className="mb-6">
-        <div className="flex items-center justify-between" style={{ maxWidth: '1108px', height: '68px' }}>
-          <div style={{ maxWidth: '360px', height: '68px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div className="flex items-center justify-between">
+          <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
               Payments
             </h1>
             <p className="text-gray-600 text-sm sm:text-base">
-              View and manage all payments received, pending, or overdue across your invoices.
+              View and manage all payments received from your invoices.
             </p>
           </div>
           <button
             onClick={onCreateInvoice}
-            className="text-white rounded-md font-medium hover:bg-blue-700 transition-colors whitespace-nowrap flex items-center"
-            style={{ 
-              width: '167px', 
-              height: '48px', 
-              gap: '8px',
-              paddingTop: '12px',
-              paddingRight: '16px',
-              paddingBottom: '12px',
-              paddingLeft: '16px',
-              background: 'var(--Button-Primary-Base, #2F80ED)'
-            }}
+            className="text-white rounded-md font-medium hover:bg-blue-700 transition-colors whitespace-nowrap flex items-center px-4 py-3 bg-[#2F80ED]"
           >
             + Create Invoice
           </button>
@@ -135,8 +149,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
 
       {/* Main Content */}
       {!hasPayments ? (
-        <div className="w-full max-w-[1108px] bg-white rounded-lg border border-[#E4E7EC]"
-          style={{ minHeight: '372px' }}>
+        <div className="w-full bg-white rounded-lg border border-[#E4E7EC]" style={{ minHeight: '372px' }}>
           <div className="pt-4 pr-[14px] pl-[14px] flex flex-col sm:flex-row sm:items-center 
           sm:justify-between gap-[18px] border-b border-[#E4E7EC] pb-4">
             <PaymentTableHeader
@@ -149,20 +162,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
           <EmptyState onViewUnpaid={() => setHasPayments(true)} />
         </div>
       ) : (
-        <div 
-          className="w-full rounded-lg" 
-          style={{ 
-            maxWidth: '1108px', 
-            height: '818px',
-            borderRadius: '8px',
-            paddingTop: '16px',
-            paddingRight: '14px',
-            paddingBottom: '32px',
-            paddingLeft: '14px',
-            gap: '18px',
-            background: 'var(--Content-Neutral, #FFFFFF)'
-          }}
-        >
+        <div className="w-full rounded-lg bg-white p-4">
           <div className="flex flex-col sm:flex-row sm:items-center 
           sm:justify-between gap-[18px] border-b border-[#E4E7EC] pb-4">
             <PaymentTableHeader
@@ -207,7 +207,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
           }}
         />
       )}
-    </>
+    </div>
   );
 };
 

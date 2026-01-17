@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Search, Plus, MoreVertical, ChevronDown, Edit, Trash2 } from "lucide-react";
 import { ApiClient } from "@/lib/api";
-
 import { ClientCache } from "@/lib/clientCache";
 import ClientModal from "@/components/clientManagement/ClientModal";
+import DeleteConfirmationModal from "@/components/common/DeleteConfirmationModal";
 
 interface Client {
     id: string;
@@ -42,6 +42,16 @@ const ClientsPage = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [editingClientId, setEditingClientId] = useState<string | null>(null);
     const [sortBy, setSortBy] = useState("name");
+    const [deleteModal, setDeleteModal] = useState<{
+        isOpen: boolean;
+        client: Client | null;
+        isLoading: boolean;
+    }>({
+        isOpen: false,
+        client: null,
+        isLoading: false
+    });
+    const [clientFormError, setClientFormError] = useState<string | null>(null);
     
     const sortDropdownRef = useRef<HTMLDivElement>(null);
     const actionMenuRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -135,9 +145,11 @@ const ClientsPage = () => {
     };
 
     const handleSaveClient = async () => {
+        setClientFormError(null);
+        
         if (!formData.customerType || !formData.title || !formData.fullName || 
             !formData.businessName || !formData.email || !formData.phone) {
-            alert('Please fill in all required fields');
+            setClientFormError('Please fill in all required fields');
             return;
         }
 
@@ -159,10 +171,11 @@ const ClientsPage = () => {
                 resetForm();
                 await loadClients(true); // Force refresh to get latest data
             } else {
-                console.error(`Failed to ${isEditMode ? 'update' : 'add'} client:`, response.error);
+                setClientFormError(response.error || `Failed to ${isEditMode ? 'update' : 'add'} client`);
             }
         } catch (error) {
             console.error('Error saving client:', error);
+            setClientFormError('An error occurred while saving the client');
         } finally {
             setIsLoading(false);
         }
@@ -184,23 +197,40 @@ const ClientsPage = () => {
         setShowActionMenu(null);
     };
 
-    const handleDeleteClient = async (clientId: string) => {
-        if (!confirm('Are you sure you want to delete this client?')) {
-            return;
-        }
+    const handleDeleteClient = async (client: Client) => {
+        setDeleteModal({
+            isOpen: true,
+            client: client,
+            isLoading: false
+        });
+        setShowActionMenu(null);
+    };
+
+    const confirmDeleteClient = async () => {
+        if (!deleteModal.client) return;
+
+        setDeleteModal(prev => ({ ...prev, isLoading: true }));
 
         try {
-            const response = await ApiClient.deleteClient(clientId);
+            const response = await ApiClient.deleteClient(deleteModal.client.id);
             
             if (response.status === 200) {
                 await loadClients(true); // Force refresh to get latest data
+                setDeleteModal({ isOpen: false, client: null, isLoading: false });
             } else {
                 console.error('Failed to delete client:', response.error);
+                setDeleteModal(prev => ({ ...prev, isLoading: false }));
             }
         } catch (error) {
             console.error('Error deleting client:', error);
+            setDeleteModal(prev => ({ ...prev, isLoading: false }));
         }
-        setShowActionMenu(null);
+    };
+
+    const closeDeleteModal = () => {
+        if (!deleteModal.isLoading) {
+            setDeleteModal({ isOpen: false, client: null, isLoading: false });
+        }
     };
 
     const resetForm = () => {
@@ -246,8 +276,8 @@ const ClientsPage = () => {
     const paginatedClients = sortedClients.slice(startIndex, startIndex + 10);
 
     return (
-        <div className="p-6">
-            <div className="max-w-[1108px] mx-auto">
+        <div className="max-w-7xl mx-auto mb-[200px] p-6">
+            <div className="max-w-[1108px]">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-6 h-[68px]">
                     <div className="w-[360px] h-[68px] flex flex-col gap-1">
@@ -336,7 +366,7 @@ const ClientsPage = () => {
                     </div>
                 ) : (
                     /* Table View */
-                    <div className="bg-white rounded-lg border border-[#E4E7EC] pt-4 pr-[14px] pl-[14px] pb-4 h-[792px] flex flex-col gap-[18px]">
+                    <div className="bg-white rounded-lg border border-[#E4E7EC] pt-4 pr-[14px] pl-[14px] pb-4 flex flex-col gap-[18px]">
                         {/* All Clients header with search and sort */}
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <h2 className="text-lg font-semibold text-[#101828]">All Clients</h2>
@@ -397,7 +427,7 @@ const ClientsPage = () => {
 
 
                         {/* Table */}
-                        <div className="overflow-x-auto flex-1">
+                        <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead className="bg-[#F9FAFB] border-y border-[#E4E7EC]">
                                     <tr>
@@ -443,7 +473,7 @@ const ClientsPage = () => {
                                                                 Edit
                                                             </button>
                                                             <button
-                                                                onClick={() => handleDeleteClient(client.id)}
+                                                                onClick={() => handleDeleteClient(client)}
                                                                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#F04438] hover:bg-[#FEF3F2] last:rounded-b-lg"
                                                             >
                                                                 <Trash2 size={14} />
@@ -526,11 +556,12 @@ const ClientsPage = () => {
                     onChange={setFormData}
                     isLoading={isLoading}
                     isEdit={isEditMode}
+                    error={clientFormError}
                 />
 
                 {/* Success Modal */}
                 {showSuccessModal && (
-                    <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: '#020D173B' }}>
+                    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
                         <div className="bg-white rounded-lg w-full max-w-md p-6">
                             <div className="flex justify-end mb-4">
                                 <button onClick={() => setShowSuccessModal(false)} className="text-[#667085]">
@@ -572,6 +603,17 @@ const ClientsPage = () => {
                 )}
 
             </div>
+            
+            {/* Delete Confirmation Modal */}
+            <DeleteConfirmationModal
+                isOpen={deleteModal.isOpen}
+                onClose={closeDeleteModal}
+                onConfirm={confirmDeleteClient}
+                title="Delete Client"
+                message={`Are you sure you want to delete ${deleteModal.client?.fullName}? This action cannot be undone and will remove all associated data.`}
+                type="client"
+                isLoading={deleteModal.isLoading}
+            />
         </div>
     );
 };
