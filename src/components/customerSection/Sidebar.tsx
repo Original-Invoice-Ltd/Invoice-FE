@@ -32,6 +32,8 @@ interface SidebarProps {
     className?: string;
     onClose?: () => void;
     isMobile?: boolean;
+    onSignOutClick?: () => void;
+    showEmailProfile?: boolean;
 }
 
 const Sidebar = ({ 
@@ -42,7 +44,9 @@ const Sidebar = ({
     },
     className = "",
     onClose,
-    isMobile = false
+    isMobile = false,
+    onSignOutClick,
+    showEmailProfile = false
 }: SidebarProps) => {
     const router = useRouter();
     const pathname = usePathname();
@@ -75,7 +79,7 @@ const Sidebar = ({
     };
 
     return (
-        <div className={`w-64 bg-gradient-to-b from-[#2F80ED] to-[#1E5FCC] text-white flex flex-col min-h-screen ${className}`}>
+        <div className={`w-64 bg-gradient-to-b from-[#2F80ED] to-[#1E5FCC] text-white flex flex-col h-screen ${className}`}>
             {/* Header with Logo */}
             <div className="p-6 border-b border-blue-400/30">
                 <div className="flex items-center justify-between mb-6">
@@ -98,47 +102,92 @@ const Sidebar = ({
                 </div>
 
                 {/* User Profile */}
-                <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                                <span className="text-[#2F80ED] font-semibold text-sm">
+                <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm relative">
+                    {showEmailProfile ? (
+                        // Email Profile Mode - Show Get Started Button
+                        <div className="flex flex-col items-center text-center">
+                            {/* Avatar */}
+                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-3">
+                                <span className="text-[#2F80ED] font-semibold text-lg">
                                     {userProfile.initials}
                                 </span>
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-white font-medium text-sm truncate">
+                            
+                            {/* Name */}
+                            <p className="text-white font-medium text-base mb-1">
+                                {userProfile.name}
+                            </p>
+                            
+                            {/* Email */}
+                            <p className="text-blue-200 text-sm truncate w-full mb-4">
+                                {userProfile.email}
+                            </p>
+
+                            {/* Get Started Button */}
+                            <button
+                                onClick={() => router.push('/signUp')}
+                                className="w-full px-4 py-2 bg-white text-[#2F80ED] rounded-lg hover:bg-gray-100 transition-colors font-medium text-sm"
+                            >
+                                Get Started
+                            </button>
+                        </div>
+                    ) : (
+                        // Regular Profile Mode - Show Dropdown
+                        <>
+                            {/* Dropdown Arrow - positioned in top right */}
+                            <button
+                                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                                className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors"
+                            >
+                                <ChevronDown 
+                                    size={20} 
+                                    className={`transform transition-transform ${isProfileOpen ? 'rotate-180' : ''}`}
+                                />
+                            </button>
+
+                            {/* Profile Content - Vertical Layout */}
+                            <div className="flex flex-col items-center text-center">
+                                {/* Avatar */}
+                                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-3">
+                                    <span className="text-[#2F80ED] font-semibold text-lg">
+                                        {userProfile.initials}
+                                    </span>
+                                </div>
+                                
+                                {/* Name */}
+                                <p className="text-white font-medium text-base mb-1">
                                     {userProfile.name}
                                 </p>
-                                <p className="text-blue-200 text-xs truncate">
+                                
+                                {/* Email */}
+                                <p className="text-blue-200 text-sm truncate w-full">
                                     {userProfile.email}
                                 </p>
                             </div>
-                        </div>
-                        <button
-                            onClick={() => setIsProfileOpen(!isProfileOpen)}
-                            className="text-white/70 hover:text-white transition-colors"
-                        >
-                            <ChevronDown 
-                                size={16} 
-                                className={`transform transition-transform ${isProfileOpen ? 'rotate-180' : ''}`}
-                            />
-                        </button>
-                    </div>
-                    
-                    {/* Profile Dropdown */}
-                    {isProfileOpen && (
-                        <div className="mt-3 pt-3 border-t border-white/20">
-                            <button className="w-full text-left text-sm text-blue-200 hover:text-white py-1">
-                                View Profile
-                            </button>
-                            <button className="w-full text-left text-sm text-blue-200 hover:text-white py-1">
-                                Settings
-                            </button>
-                            <button className="w-full text-left text-sm text-blue-200 hover:text-white py-1">
-                                Sign Out
-                            </button>
-                        </div>
+                            
+                            {/* Profile Dropdown */}
+                            {isProfileOpen && (
+                                <div className="mt-4 pt-3 border-t border-white/20">
+                                    <button className="w-full text-left text-sm text-blue-200 hover:text-white py-2">
+                                        View Profile
+                                    </button>
+                                    <button className="w-full text-left text-sm text-blue-200 hover:text-white py-2">
+                                        Settings
+                                    </button>
+                                    <button 
+                                        onClick={() => {
+                                            if (onSignOutClick) {
+                                                onSignOutClick();
+                                            }
+                                            setIsProfileOpen(false);
+                                        }}
+                                        className="w-full text-left text-sm text-blue-200 hover:text-white py-2"
+                                    >
+                                        Sign Out
+                                    </button>
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             </div>
@@ -154,7 +203,7 @@ const Sidebar = ({
                                     onClick={() => handleNavigation(item.path)}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200 ${
                                         item.isActive
-                                            ? 'bg-white/20 text-white border border-white/30'
+                                            ? 'text-white border border-white/50'
                                             : 'text-blue-100 hover:bg-white/10 hover:text-white'
                                     }`}
                                 >
