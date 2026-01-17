@@ -104,11 +104,11 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
   };
 
   const handleEmail = (payment: Payment) => {
-    console.log('Email invoice:', payment);
+    // TODO: Implement email functionality
   };
 
   const handleGetLink = (payment: Payment) => {
-    console.log('Get link for:', payment);
+    // TODO: Implement get link functionality
   };
 
   const handleDelete = (payment: Payment) => {
