@@ -194,7 +194,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice }: Invoice
                         <div className="flex items-center mt-8 justify-center at
                         ">
                             {data.logo ? (
-                                <img src={data.logo} alt="Logo" className="max-w-full max-h-full object-contain" />
+                                <img src={data.logo} alt="Logo" className="w-16 h-16 object-contain" />
                             ) : (
                                 <span className="text-4xl font-medium text-black">Logo</span>
                             )}

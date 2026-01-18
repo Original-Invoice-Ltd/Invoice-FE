@@ -78,7 +78,7 @@ const CompactTemplate = ({ data }: CompactTemplateProps) => {
             <div className="flex justify-between items-start mb-8">
                 <div className="flex items-center">
                     {data.logo ? (
-                        <img src={data.logo} alt="Logo" className="max-w-[120px] max-h-[60px] object-contain" />
+                        <img src={data.logo} alt="Logo" className="w-16 h-16 object-contain" />
                     ) : (
                         <span className="text-2xl font-semibold text-gray-900">Logo</span>
                     )}
