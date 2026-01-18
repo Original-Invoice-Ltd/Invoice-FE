@@ -1,5 +1,13 @@
 // Invoice response types from backend API
 
+export interface InvoiceStatsResponse {
+  totalReceived: number;
+  paid: number;
+  overdue: number;
+  pending: number;
+  unpaid: number;
+}
+
 export interface InvoiceSenderResponse {
   id?: string;
   fullName: string;

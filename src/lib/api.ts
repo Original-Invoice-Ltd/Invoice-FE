@@ -1,4 +1,5 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
+import { InvoiceStatsResponse } from '@/types/invoice';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -368,6 +369,10 @@ export class ApiClient {
 
   static async getInvoiceById(id: string) {
     return this.request('GET', `/api/invoices/${id}`);
+  }
+
+  static async getInvoiceStats(email: string): Promise<ApiResponse<InvoiceStatsResponse>> {
+    return this.request<InvoiceStatsResponse>('GET', '/api/invoices/stats/received', undefined, { email });
   }
 
   static async updateInvoice(id: string, formData: FormData): Promise<ApiResponse<any>> {
