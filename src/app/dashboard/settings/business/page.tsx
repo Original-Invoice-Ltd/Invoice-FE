@@ -70,8 +70,6 @@ const BusinessProfilePage = () => {
 
     try {
       // TODO: Implement business profile update API call
-      console.log("Business profile data:", formData);
-      console.log("Logo file:", logoFile);
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));

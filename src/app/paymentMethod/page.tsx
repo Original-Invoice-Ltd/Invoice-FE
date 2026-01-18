@@ -11,13 +11,11 @@ export default function PaymentMethodPage() {
   };
 
   const handlePaymentSuccess = () => {
-    console.log('Payment successful!');
     // You can add additional logic here, like redirecting to a success page
     // router.push('/dashboard');
   };
 
   const handlePaymentFailed = () => {
-    console.log('Payment failed!');
     // You can add additional logic here, like logging the error
   };
 
