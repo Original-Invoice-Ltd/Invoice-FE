@@ -153,7 +153,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
   };
 
   return (
-    <div className=" w-full max-w-[470px] mx-auto flex flex-col mt-16 gap-2">
+    <div className=" w-full  max-w-[470px] mx-auto flex flex-col mt-16 gap-2">
       {/* Logo - Centered with spacing (mobile only) */}
       <div className="flex justify-center mb-4 md:hidden">
         <Logo/>

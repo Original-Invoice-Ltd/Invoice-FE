@@ -25,8 +25,6 @@ const InvoiceViewPage = () => {
             setLoading(true);
             const response = await ApiClient.getInvoiceById(invoiceId);
             
-            console.log('Invoice API Response:', response);
-            
             if (response.status === 200 && response.data) {
                 setInvoice(response.data);
             } else {

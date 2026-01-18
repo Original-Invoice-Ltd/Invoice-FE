@@ -28,7 +28,6 @@ const BillingPage = () => {
     setIsLoading(true);
     try {
       // TODO: Implement plan cancellation API call
-      console.log("Cancelling plan...");
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -44,12 +43,10 @@ const BillingPage = () => {
 
   const handleUpgrade = () => {
     // TODO: Navigate to upgrade/pricing page or open upgrade modal
-    console.log("Navigating to upgrade...");
   };
 
   const handleViewPricing = () => {
     // TODO: Navigate to pricing page
-    console.log("Navigating to pricing page...");
   };
 
   return (
