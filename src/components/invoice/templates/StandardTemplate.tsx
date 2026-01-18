@@ -77,7 +77,7 @@ const StandardTemplate = ({ data }: StandardTemplateProps) => {
             {/* Logo */}
             <div className="mb-12">
                 {data.logo ? (
-                    <img src={data.logo} alt="Logo" className="max-w-[150px] max-h-[80px] object-contain" />
+                    <img src={data.logo} alt="Logo" className="w-16 h-16 object-contain" />
                 ) : (
                     <span className="text-4xl font-semibold text-gray-900">Logo</span>
                 )}

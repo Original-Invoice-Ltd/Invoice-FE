@@ -84,7 +84,7 @@ const SimpleTemplate = ({ data }: SimpleTemplateProps) => {
                 </div>
                 <div className="text-right">
                     {data.logo ? (
-                        <img src={data.logo} alt="Logo" className="max-w-[150px] max-h-[80px] object-contain" />
+                        <img src={data.logo} alt="Logo" className="w-16 h-16 object-contain" />
                     ) : (
                         <span className="text-3xl font-semibold text-gray-900">Logo</span>
                     )}
