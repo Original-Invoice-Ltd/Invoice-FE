@@ -1,23 +1,91 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { mockInvoices } from "@/lib/mockData";
 import { CustomerLayout } from "@/components/customerSection";
 import { UploadReceiptModal } from "@/components/modals";
+import { useAuth } from "@/contexts/AuthContext";
+import { ApiClient } from "@/lib/api";
+import { InvoiceStatsResponse } from "@/types/invoice";
 
 const CustomerDashboardPage = () => {
     const router = useRouter();
+    const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [stats, setStats] = useState({
+        totalReceived: 0,
+        paid: 0,
+        pending: 0,
+        overdue: 0,
+        unpaid: 0
+    });
+    const [statsLoading, setStatsLoading] = useState(true);
+    const [statsError, setStatsError] = useState<string | null>(null);
 
-    // Calculate stats from actual data
-    const stats = {
-        totalReceived: mockInvoices.length,
-        paid: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'paid').length,
-        pending: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'pending').length,
-        overdue: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'overdue').length
-    };
+    // Fetch invoice statistics from API
+    useEffect(() => {
+        const fetchStats = async () => {
+            if (!user?.email) {
+                // If user is not authenticated, don't show loading state indefinitely
+                setStatsLoading(false);
+                return;
+            }
+
+            try {
+                setStatsLoading(true);
+                setStatsError(null);
+                const response = await ApiClient.getInvoiceStats(user.email);
+                
+                if (response.status === 200 && response.data) {
+                    // Ensure all required fields are present with defaults
+                    const apiData = response.data as InvoiceStatsResponse;
+                    setStats({
+                        totalReceived: apiData.totalReceived || 0,
+                        paid: apiData.paid || 0,
+                        pending: apiData.pending || 0,
+                        overdue: apiData.overdue || 0,
+                        unpaid: apiData.unpaid || 0
+                    });
+                } else {
+                    // Fallback to mock data if API fails
+                    const mockStats = {
+                        totalReceived: mockInvoices.length,
+                        paid: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'paid').length,
+                        pending: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'pending').length,
+                        overdue: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'overdue').length,
+                        unpaid: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'unpaid').length
+                    };
+                    setStats(mockStats);
+                }
+            } catch (error) {
+                console.error('Failed to fetch invoice stats:', error);
+                setStatsError('Failed to load statistics');
+                // Fallback to mock data on error
+                const mockStats = {
+                    totalReceived: mockInvoices.length,
+                    paid: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'paid').length,
+                    pending: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'pending').length,
+                    overdue: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'overdue').length,
+                    unpaid: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'unpaid').length
+                };
+                setStats(mockStats);
+            } finally {
+                setStatsLoading(false);
+            }
+        };
+
+        fetchStats();
+    }, [user?.email]);
+
+    // Calculate stats from actual data (fallback - now replaced by API call above)
+    // const stats = {
+    //     totalReceived: mockInvoices.length,
+    //     paid: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'paid').length,
+    //     pending: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'pending').length,
+    //     overdue: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'overdue').length
+    // };
 
     // Use shared mock data for recent invoices
     const recentInvoices = mockInvoices;
@@ -99,20 +167,56 @@ const CustomerDashboardPage = () => {
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
-                        <div className="text-3xl font-bold text-gray-900 mb-2">{stats.totalReceived}</div>
+                        <div className="text-3xl font-bold text-gray-900 mb-2">
+                            {statsLoading ? (
+                                <div className="animate-pulse bg-gray-300 h-8 w-12 rounded"></div>
+                            ) : (
+                                stats.totalReceived
+                            )}
+                        </div>
                         <div className="text-sm text-gray-600">Total Invoice Received</div>
+                        {statsError && (
+                            <div className="text-xs text-red-500 mt-1">Failed to load</div>
+                        )}
                     </div>
                     <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
-                        <div className="text-3xl font-bold text-gray-900 mb-2">{stats.paid}</div>
+                        <div className="text-3xl font-bold text-gray-900 mb-2">
+                            {statsLoading ? (
+                                <div className="animate-pulse bg-gray-300 h-8 w-12 rounded"></div>
+                            ) : (
+                                stats.paid
+                            )}
+                        </div>
                         <div className="text-sm text-gray-600">Paid Invoice</div>
+                        {statsError && (
+                            <div className="text-xs text-red-500 mt-1">Failed to load</div>
+                        )}
                     </div>
                     <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
-                        <div className="text-3xl font-bold text-gray-900 mb-2">{stats.pending}</div>
+                        <div className="text-3xl font-bold text-gray-900 mb-2">
+                            {statsLoading ? (
+                                <div className="animate-pulse bg-gray-300 h-8 w-12 rounded"></div>
+                            ) : (
+                                stats.pending
+                            )}
+                        </div>
                         <div className="text-sm text-gray-600">Pending Invoice</div>
+                        {statsError && (
+                            <div className="text-xs text-red-500 mt-1">Failed to load</div>
+                        )}
                     </div>
                     <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
-                        <div className="text-3xl font-bold text-gray-900 mb-2">{stats.overdue}</div>
+                        <div className="text-3xl font-bold text-gray-900 mb-2">
+                            {statsLoading ? (
+                                <div className="animate-pulse bg-gray-300 h-8 w-12 rounded"></div>
+                            ) : (
+                                stats.overdue
+                            )}
+                        </div>
                         <div className="text-sm text-gray-600">Overdue Invoice</div>
+                        {statsError && (
+                            <div className="text-xs text-red-500 mt-1">Failed to load</div>
+                        )}
                     </div>
                 </div>
 
