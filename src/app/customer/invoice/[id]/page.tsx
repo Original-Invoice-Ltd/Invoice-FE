@@ -1,53 +1,40 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { CustomerLayout } from "@/components/customerSection";
 import { UploadReceiptModal } from "@/components/modals";
 import { ApiClient } from "@/lib/api";
-import { InvoiceResponse } from "@/types/invoice";
+import { useInvoiceById } from "@/hooks/useCustomerInvoices";
 
 const EmailInvoicePage = () => {
     const params = useParams();
-    const [invoice, setInvoice] = useState<InvoiceResponse | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     
     const invoiceId = params.id as string;
-
-    useEffect(() => {
-        const fetchInvoice = async () => {
-            if (!invoiceId) {
-                setError("Invalid invoice ID");
-                setLoading(false);
-                return;
-            }
-
-            try {
-                setLoading(true);
-                const response = await ApiClient.getInvoiceById(invoiceId);
-                
-                if (response.status === 200 && response.data) {
-                    setInvoice(response.data as InvoiceResponse);
-                } else {
-                    setError(response.error || "Failed to fetch invoice");
-                }
-            } catch (err) {
-                setError("An error occurred while fetching the invoice");
-                console.error("Error fetching invoice:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchInvoice();
-    }, [invoiceId]);
+    
+    // Use custom hook for invoice data
+    const { invoice, loading, error } = useInvoiceById(invoiceId);
 
     const handleUploadReceipt = (file: File) => {
         console.log('Uploaded file:', file);
-        alert(`Receipt "${file.name}" uploaded successfully!`);
+        // The actual upload is handled by the modal with the API
+    };
+
+    const handleModalClose = () => {
         setIsUploadModalOpen(false);
+    };
+
+    const formatCurrency = (amount: number) => {
+        return invoice ? ApiClient.formatCurrency(amount, invoice.currency) : ApiClient.formatCurrency(amount, '₦');
+    };
+
+    const formatDate = (dateString: string) => {
+        return ApiClient.formatDate(dateString);
+    };
+
+    const getStatusColor = (status: string) => {
+        return ApiClient.getStatusColor(status) + ' px-3 py-1 rounded-full text-xs font-medium border';
     };
 
     if (loading) {
@@ -83,49 +70,55 @@ const EmailInvoicePage = () => {
         );
     }
 
-    const formatCurrency = (amount: number) => {
-        return `${invoice.currency}${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    };
-
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-    };
-
-    const getStatusColor = (status: string) => {
-        switch (status.toLowerCase()) {
-            case 'paid':
-                return 'bg-green-100 text-green-700 border-green-200';
-            case 'pending':
-                return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-            case 'overdue':
-                return 'bg-red-100 text-red-700 border-red-200';
-            default:
-                return 'bg-gray-100 text-gray-700 border-gray-200';
-        }
-    };
-
     // Calculate balance due (for unpaid invoices, it's the total due)
     const balanceDue = invoice.status.toLowerCase() === 'paid' ? 0 : invoice.totalDue;
 
     return (
         <CustomerLayout showEmailProfile={true}>
             <div className="max-w-5xl mx-auto p-4 md:p-6">
-                {/* Upload Receipt Button - only show for unpaid invoices */}
-                {invoice.status.toLowerCase() !== 'paid' && (
-                    <div className="mb-4 md:mb-6 flex justify-end">
-                        <button 
-                            onClick={() => setIsUploadModalOpen(true)}
-                            className="flex items-center gap-2 px-3 md:px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors font-medium text-sm md:text-base"
+                {/* Header with Back Button and Upload Button */}
+                <div className="flex items-center justify-between mb-4 md:mb-6">
+                    {/* Back Button with Arrow */}
+                    <button
+                        onClick={() => window.history.back()}
+                        className="flex items-center gap-2 text-[#2F80ED] hover:text-blue-600 transition-colors"
+                    >
+                        <svg 
+                            className="w-5 h-5" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
                         >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                            </svg>
-                            <span className="hidden sm:inline">Upload Receipt</span>
-                            <span className="sm:hidden">Upload</span>
-                        </button>
-                    </div>
-                )}
+                            <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                strokeWidth={2} 
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18" 
+                            />
+                        </svg>
+                    </button>
+
+                    {/* Upload Receipt Button - always show */}
+                    <button 
+                        onClick={() => setIsUploadModalOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors font-medium text-sm md:text-base"
+                    >
+                        <svg 
+                            className="w-4 h-4" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                        >
+                            <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                strokeWidth={2} 
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
+                            />
+                        </svg>
+                        <span>Upload Receipt</span>
+                    </button>
+                </div>
 
                 {/* Invoice Content - White background */}
                 <div className="bg-white rounded-lg shadow-sm relative overflow-hidden">
@@ -367,8 +360,9 @@ const EmailInvoicePage = () => {
                 {/* Upload Receipt Modal */}
                 <UploadReceiptModal
                     isOpen={isUploadModalOpen}
-                    onClose={() => setIsUploadModalOpen(false)}
+                    onClose={handleModalClose}
                     onUpload={handleUploadReceipt}
+                    invoiceId={invoiceId}
                 />
             </div>
         </CustomerLayout>
