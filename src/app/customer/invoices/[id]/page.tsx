@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { CustomerLayout } from "@/components/customerSection";
 import { UploadReceiptModal } from "@/components/modals";
 import { getInvoiceById } from "@/lib/mockData";
+import { ApiClient } from "@/lib/api";
 
 const InvoiceDetailPage = () => {
     const params = useParams();
@@ -16,7 +17,23 @@ const InvoiceDetailPage = () => {
 
     const handleUploadReceipt = (file: File) => {
         console.log('Uploaded file:', file);
-        alert(`Receipt "${file.name}" uploaded successfully!`);
+        // The actual upload is handled by the modal with the API
+    };
+
+    const handleModalClose = () => {
+        setIsUploadModalOpen(false);
+    };
+
+    const formatCurrency = (amount: number) => {
+        return ApiClient.formatCurrency(amount, '₦');
+    };
+
+    const formatDate = (dateString: string) => {
+        return ApiClient.formatDate(dateString);
+    };
+
+    const getStatusColor = (status: string) => {
+        return ApiClient.getStatusColor(status) + ' px-3 py-1 rounded-full text-xs font-medium border';
     };
 
     if (!invoice) {
@@ -38,59 +55,52 @@ const InvoiceDetailPage = () => {
         );
     }
 
-    const formatCurrency = (amount: number) => {
-        return `₦${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    };
-
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-    };
-
-    const getStatusColor = (status: string) => {
-        switch (status.toLowerCase()) {
-            case 'paid':
-                return 'bg-green-100 text-green-700 border-green-200';
-            case 'pending':
-                return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-            case 'overdue':
-                return 'bg-red-100 text-red-700 border-red-200';
-            default:
-                return 'bg-gray-100 text-gray-700 border-gray-200';
-        }
-    };
-
     return (
         <CustomerLayout>
             <div className="max-w-5xl mx-auto p-4 md:p-6">
-                {/* Back Button */}
-                <div className="mb-4">
+                {/* Header with Back Button and Upload Button */}
+                <div className="flex items-center justify-between mb-4 md:mb-6">
+                    {/* Back Button with Arrow */}
                     <button
-                        onClick={() => router.push('/customer/invoices')}
-                        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                        onClick={() => router.back()}
+                        className="flex items-center gap-2 text-[#2F80ED] hover:text-blue-600 transition-colors"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        <svg 
+                            className="w-5 h-5" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                        >
+                            <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                strokeWidth={2} 
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18" 
+                            />
                         </svg>
-                        Back to Invoices
+                    </button>
+
+                    {/* Upload Receipt Button - always show */}
+                    <button 
+                        onClick={() => setIsUploadModalOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors font-medium text-sm md:text-base"
+                    >
+                        <svg 
+                            className="w-4 h-4" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                        >
+                            <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                strokeWidth={2} 
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
+                            />
+                        </svg>
+                        <span>Upload Receipt</span>
                     </button>
                 </div>
-
-                {/* Upload Receipt Button */}
-                {invoice.status.toLowerCase() !== 'paid' && (
-                    <div className="mb-4 md:mb-6 flex justify-end">
-                        <button 
-                            onClick={() => setIsUploadModalOpen(true)}
-                            className="flex items-center gap-2 px-3 md:px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors font-medium text-sm md:text-base"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                            </svg>
-                            <span className="hidden sm:inline">Upload Receipt</span>
-                            <span className="sm:hidden">Upload</span>
-                        </button>
-                    </div>
-                )}
 
                 {/* Invoice Content */}
                 <div className="bg-white rounded-lg shadow-sm relative overflow-hidden">
@@ -281,8 +291,9 @@ const InvoiceDetailPage = () => {
                 {/* Upload Receipt Modal */}
                 <UploadReceiptModal
                     isOpen={isUploadModalOpen}
-                    onClose={() => setIsUploadModalOpen(false)}
+                    onClose={handleModalClose}
                     onUpload={handleUploadReceipt}
+                    invoiceId={invoiceId.toString()}
                 />
             </div>
         </CustomerLayout>

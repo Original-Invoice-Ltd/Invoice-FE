@@ -392,4 +392,86 @@ export class ApiClient {
   static async deleteInvoice(id: string) {
     return this.request('DELETE', `/api/invoices/delete/${id}`);
   }
+
+  // Receipt Management APIs
+  static async uploadReceipt(invoiceId: string, receiptFile: File): Promise<ApiResponse<any>> {
+    try {
+      const formData = new FormData();
+      formData.append('evidence', receiptFile);
+
+      // Use the public endpoint - no authentication required
+      const response = await axios.post(
+        `https://api.originalinvoice.com/api/invoices/${invoiceId}/upload-evidence`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  static async getReceiptByInvoiceId(invoiceId: string) {
+    return this.request('GET', `/api/receipts/invoice/${invoiceId}`);
+  }
+
+  static async getAllUserReceipts() {
+    return this.request('GET', '/api/receipts/all-user');
+  }
+
+  static async getReceiptById(id: string) {
+    return this.request('GET', `/api/receipts/${id}`);
+  }
+
+  // Utility methods for customer invoice operations
+  static getStatusColor(status: string): string {
+    switch (status.toLowerCase()) {
+      case 'paid':
+        return 'bg-green-100 text-green-700 border-green-200';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'overdue':
+        return 'bg-red-100 text-red-700 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
+  }
+
+  static getDropdownOptions(status: string): Array<{ label: string; action: string }> {
+    const baseOptions = [
+      { label: "View Detail", action: "view" }
+    ];
+
+    if (status.toLowerCase() === 'paid') {
+      return [
+        ...baseOptions,
+        { label: "View Receipt", action: "receipt" }
+      ];
+    } else {
+      return [
+        ...baseOptions,
+        { label: "Upload Receipt", action: "upload" }
+      ];
+    }
+  }
+
+  static formatCurrency(amount: number, currency: string = '₦'): string {
+    return `${currency}${amount.toLocaleString('en-US', { 
+      minimumFractionDigits: 2, 
+      maximumFractionDigits: 2 
+    })}`;
+  }
+
+  static formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', { 
+      day: '2-digit', 
+      month: 'short', 
+      year: 'numeric' 
+    });
+  }
 }

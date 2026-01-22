@@ -1,22 +1,47 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { X } from "lucide-react";
+import { useReceiptUpload } from "@/hooks/useReceiptUpload";
 
 interface UploadReceiptModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onUpload: (file: File) => void;
+    onUpload?: (file: File) => void;
+    invoiceId?: string; // Invoice ID for API upload
 }
 
 type UploadState = 'idle' | 'uploading' | 'completed' | 'failed';
 
-const UploadReceiptModal = ({ isOpen, onClose, onUpload }: UploadReceiptModalProps) => {
+const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadReceiptModalProps) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
     const [uploadState, setUploadState] = useState<UploadState>('idle');
-    const [uploadProgress, setUploadProgress] = useState(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    
+    const { uploadReceipt, uploading, progress, error: uploadError, success, reset } = useReceiptUpload();
+
+    // Sync upload state with hook state
+    useEffect(() => {
+        if (uploading) {
+            setUploadState('uploading');
+        } else if (success) {
+            setUploadState('completed');
+        } else if (uploadError) {
+            setUploadState('failed');
+        }
+    }, [uploading, success, uploadError]);
+
+    // Reset state when modal closes
+    useEffect(() => {
+        if (!isOpen) {
+            setTimeout(() => {
+                setSelectedFile(null);
+                setUploadState('idle');
+                reset();
+            }, 300);
+        }
+    }, [isOpen, reset]);
 
     if (!isOpen) return null;
 
@@ -70,51 +95,58 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload }: UploadReceiptModalPro
     };
 
     const handleUpload = async () => {
-        if (selectedFile) {
-            setUploadState('uploading');
-            setUploadProgress(0);
+        if (!selectedFile) return;
+
+        // If invoiceId is provided, use the API
+        if (invoiceId) {
+            const uploadSuccess = await uploadReceipt(invoiceId, selectedFile);
             
-            // Simulate upload progress
+            if (!uploadSuccess) {
+                setUploadState('failed');
+            }
+            // Success state is handled by useEffect watching the success flag
+        } else {
+            // Fallback to callback if no invoiceId (backward compatibility)
+            setUploadState('uploading');
+            
+            // Simulate upload progress for callback mode
             const progressInterval = setInterval(() => {
-                setUploadProgress(prev => {
-                    if (prev >= 100) {
-                        clearInterval(progressInterval);
-                        // Simulate random success/failure for demo
-                        const success = Math.random() > 0.3; // 70% success rate
-                        setUploadState(success ? 'completed' : 'failed');
-                        return 100;
+                setUploadState((prev) => {
+                    if (prev === 'uploading') {
+                        return prev;
                     }
-                    return prev + 10;
+                    clearInterval(progressInterval);
+                    return prev;
                 });
             }, 200);
             
-            // Call the actual upload function
             try {
-                onUpload(selectedFile);
-            } catch (error) {
-                setUploadState('failed');
+                if (onUpload) {
+                    onUpload(selectedFile);
+                }
                 clearInterval(progressInterval);
+                setUploadState('completed');
+            } catch (error) {
+                clearInterval(progressInterval);
+                setUploadState('failed');
             }
         }
     };
 
     const handleRetry = () => {
         setUploadState('idle');
-        setUploadProgress(0);
+        reset();
     };
 
     const handleSave = () => {
         // Handle save action for completed upload
         onClose();
-        setSelectedFile(null);
-        setUploadState('idle');
-        setUploadProgress(0);
     };
 
     const handleCancel = () => {
         setSelectedFile(null);
         setUploadState('idle');
-        setUploadProgress(0);
+        reset();
         onClose();
     };
 
@@ -223,7 +255,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload }: UploadReceiptModalPro
                                         </button>
                                     </div>
                                     <div className="flex items-center gap-2 text-xs text-gray-500">
-                                        <span>{Math.round((selectedFile.size * uploadProgress) / 100 / 1024)} KB of {Math.round(selectedFile.size / 1024)} KB</span>
+                                        <span>{Math.round((selectedFile.size * progress) / 100 / 1024)} KB of {Math.round(selectedFile.size / 1024)} KB</span>
                                         <span>•</span>
                                         <div className="flex items-center gap-1">
                                             <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -233,7 +265,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload }: UploadReceiptModalPro
                                     <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
                                         <div 
                                             className="bg-blue-500 h-1 rounded-full transition-all duration-300"
-                                            style={{ width: `${uploadProgress}%` }}
+                                            style={{ width: `${progress}%` }}
                                         ></div>
                                     </div>
                                 </div>
@@ -328,6 +360,9 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload }: UploadReceiptModalPro
                                         </div>
                                     </div>
                                 </div>
+                                {uploadError && (
+                                    <p className="text-red-600 text-sm mt-2">{uploadError}</p>
+                                )}
                                 <button 
                                     onClick={handleRetry}
                                     className="text-red-500 text-sm font-medium hover:text-red-600 transition-colors"

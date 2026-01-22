@@ -1,80 +1,38 @@
 "use client";
 
 import { CustomerLayout } from "@/components/customerSection";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { UploadReceiptModal } from "@/components/modals";
 import { useRouter } from "next/navigation";
 import { ApiClient } from "@/lib/api";
-import { InvoiceResponse } from "@/types/invoice";
+import { useCustomerInvoices } from "@/hooks/useCustomerInvoices";
 
 const CustomerInvoicesPage = () => {
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState("");
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-    const [invoices, setInvoices] = useState<InvoiceResponse[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    // Fetch invoices from API
-    useEffect(() => {
-        const fetchInvoices = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const response = await ApiClient.getAllUserInvoices();
-                
-                if (response.status === 200 && response.data) {
-                    setInvoices(response.data);
-                } else {
-                    setError(response.error || 'Failed to fetch invoices');
-                }
-            } catch (err) {
-                setError('An error occurred while fetching invoices');
-                console.error('Error fetching invoices:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchInvoices();
-    }, []);
+    const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
+    
+    // Use custom hook for invoices
+    const { invoices, loading, error } = useCustomerInvoices();
 
     const handleUploadReceipt = (file: File) => {
         console.log('Uploaded file:', file);
-        alert(`Receipt "${file.name}" uploaded successfully!`);
+        // The actual upload is handled by the modal with the API
+    };
+
+    const handleModalClose = () => {
+        setIsUploadModalOpen(false);
+        setSelectedInvoiceId(null);
     };
 
     const getStatusColor = (status: string) => {
-        switch (status.toLowerCase()) {
-            case 'paid':
-                return 'bg-green-100 text-green-700 border-green-200';
-            case 'pending':
-                return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-            case 'overdue':
-                return 'bg-red-100 text-red-700 border-red-200';
-            default:
-                return 'bg-gray-100 text-gray-700 border-gray-200';
-        }
+        return ApiClient.getStatusColor(status) + ' inline-flex px-2 py-1 text-xs font-medium rounded-full border';
     };
 
     const getDropdownOptions = (status: string) => {
-        const baseOptions = [
-            { label: "View Detail", action: "view" }
-        ];
-
-        if (status.toLowerCase() === 'paid') {
-            return [
-                ...baseOptions,
-                { label: "View Receipt", action: "receipt" }
-            ];
-        } else {
-            // For pending, overdue, or any unpaid status
-            return [
-                ...baseOptions,
-                { label: "Upload Receipt", action: "upload" }
-            ];
-        }
+        return ApiClient.getDropdownOptions(status);
     };
 
     const handleDropdownAction = (action: string, invoiceId: string) => {
@@ -90,7 +48,8 @@ const CustomerInvoicesPage = () => {
                 console.log('View receipt for invoice:', invoiceId);
                 break;
             case 'upload':
-                // Open upload modal
+                // Open upload modal with invoice ID
+                setSelectedInvoiceId(invoiceId);
                 setIsUploadModalOpen(true);
                 break;
         }
@@ -322,8 +281,9 @@ const CustomerInvoicesPage = () => {
                 {/* Upload Receipt Modal */}
                 <UploadReceiptModal
                     isOpen={isUploadModalOpen}
-                    onClose={() => setIsUploadModalOpen(false)}
+                    onClose={handleModalClose}
                     onUpload={handleUploadReceipt}
+                    invoiceId={selectedInvoiceId || undefined}
                 />
 
                 {/* Click outside to close dropdown */}

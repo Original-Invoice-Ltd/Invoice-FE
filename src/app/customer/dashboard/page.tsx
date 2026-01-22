@@ -1,130 +1,37 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { mockInvoices } from "@/lib/mockData";
 import { CustomerLayout } from "@/components/customerSection";
 import { UploadReceiptModal } from "@/components/modals";
 import { useAuth } from "@/contexts/AuthContext";
 import { ApiClient } from "@/lib/api";
-import { InvoiceStatsResponse } from "@/types/invoice";
+import { useInvoiceStats } from "@/hooks/useCustomerInvoices";
 
 const CustomerDashboardPage = () => {
     const router = useRouter();
     const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [stats, setStats] = useState({
-        totalReceived: 0,
-        paid: 0,
-        pending: 0,
-        overdue: 0,
-        unpaid: 0
-    });
-    const [statsLoading, setStatsLoading] = useState(true);
-    const [statsError, setStatsError] = useState<string | null>(null);
-
-    // Fetch invoice statistics from API
-    useEffect(() => {
-        const fetchStats = async () => {
-            if (!user?.email) {
-                // If user is not authenticated, don't show loading state indefinitely
-                setStatsLoading(false);
-                return;
-            }
-
-            try {
-                setStatsLoading(true);
-                setStatsError(null);
-                const response = await ApiClient.getInvoiceStats(user.email);
-                
-                if (response.status === 200 && response.data) {
-                    // Ensure all required fields are present with defaults
-                    const apiData = response.data as InvoiceStatsResponse;
-                    setStats({
-                        totalReceived: apiData.totalReceived || 0,
-                        paid: apiData.paid || 0,
-                        pending: apiData.pending || 0,
-                        overdue: apiData.overdue || 0,
-                        unpaid: apiData.unpaid || 0
-                    });
-                } else {
-                    // Fallback to mock data if API fails
-                    const mockStats = {
-                        totalReceived: mockInvoices.length,
-                        paid: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'paid').length,
-                        pending: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'pending').length,
-                        overdue: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'overdue').length,
-                        unpaid: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'unpaid').length
-                    };
-                    setStats(mockStats);
-                }
-            } catch (error) {
-                console.error('Failed to fetch invoice stats:', error);
-                setStatsError('Failed to load statistics');
-                // Fallback to mock data on error
-                const mockStats = {
-                    totalReceived: mockInvoices.length,
-                    paid: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'paid').length,
-                    pending: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'pending').length,
-                    overdue: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'overdue').length,
-                    unpaid: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'unpaid').length
-                };
-                setStats(mockStats);
-            } finally {
-                setStatsLoading(false);
-            }
-        };
-
-        fetchStats();
-    }, [user?.email]);
-
-    // Calculate stats from actual data (fallback - now replaced by API call above)
-    // const stats = {
-    //     totalReceived: mockInvoices.length,
-    //     paid: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'paid').length,
-    //     pending: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'pending').length,
-    //     overdue: mockInvoices.filter(invoice => invoice.status.toLowerCase() === 'overdue').length
-    // };
+    
+    // Use custom hook for invoice stats
+    const { stats, loading: statsLoading, error: statsError } = useInvoiceStats(user?.email);
 
     // Use shared mock data for recent invoices
     const recentInvoices = mockInvoices;
 
     const getStatusColor = (status: string) => {
-        switch (status.toLowerCase()) {
-            case 'paid':
-                return 'bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium';
-            case 'pending':
-                return 'bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium';
-            case 'overdue':
-                return 'bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-medium';
-            default:
-                return 'bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium';
-        }
+        return ApiClient.getStatusColor(status) + ' px-3 py-1 rounded-full text-xs font-medium';
     };
 
     const getDropdownOptions = (status: string) => {
-        const baseOptions = [
-            { label: "View Detail", action: "view" }
-        ];
-
-        if (status.toLowerCase() === 'paid') {
-            // For paid invoices - show "View Receipt"
-            return [
-                ...baseOptions,
-                { label: "View Receipt", action: "receipt" }
-            ];
-        } else {
-            // For pending, overdue, or any unpaid status - show "Upload Receipt"
-            return [
-                ...baseOptions,
-                { label: "Upload Receipt", action: "upload" }
-            ];
-        }
+        return ApiClient.getDropdownOptions(status);
     };
 
     const [openDropdown, setOpenDropdown] = useState<number | null>(null);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
 
     const handleDropdownAction = (action: string, invoiceId: number) => {
         setOpenDropdown(null);
@@ -140,6 +47,7 @@ const CustomerDashboardPage = () => {
                 break;
             case 'upload':
                 // Open upload modal for unpaid invoices
+                setSelectedInvoiceId(invoiceId.toString());
                 setIsUploadModalOpen(true);
                 break;
         }
@@ -147,7 +55,12 @@ const CustomerDashboardPage = () => {
 
     const handleUploadReceipt = (file: File) => {
         console.log('Uploaded file:', file);
-        alert(`Receipt "${file.name}" uploaded successfully!`);
+        // The actual upload is handled by the modal with the API
+    };
+
+    const handleModalClose = () => {
+        setIsUploadModalOpen(false);
+        setSelectedInvoiceId(null);
     };
 
     const itemsPerPage = 4;
@@ -370,8 +283,9 @@ const CustomerDashboardPage = () => {
                 {/* Upload Receipt Modal */}
                 <UploadReceiptModal
                     isOpen={isUploadModalOpen}
-                    onClose={() => setIsUploadModalOpen(false)}
+                    onClose={handleModalClose}
                     onUpload={handleUploadReceipt}
+                    invoiceId={selectedInvoiceId || undefined}
                 />
 
                 {/* Click outside to close dropdown */}
