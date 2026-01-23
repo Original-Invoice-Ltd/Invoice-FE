@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 import { CustomerLayout } from "@/components/customerSection";
 import { UploadReceiptModal } from "@/components/modals";
 import { ApiClient } from "@/lib/api";
@@ -54,16 +55,22 @@ const EmailInvoicePage = () => {
         return (
             <CustomerLayout showEmailProfile={true}>
                 <div className="flex items-center justify-center min-h-screen">
-                    <div className="text-center">
-                        <div className="text-red-500 text-6xl mb-4">⚠️</div>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Invoice Not Found</h2>
-                        <p className="text-gray-600 mb-4">{error || "The requested invoice could not be found."}</p>
-                        <button 
-                            onClick={() => window.history.back()}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                            Go Back
-                        </button>
+                    <div className="text-center max-w-md mx-auto px-4">
+                        {/* Empty State SVG */}
+                        <div className="mb-6">
+                            <Image 
+                                src="/assets/icons/emptyInvoicesStates.svg" 
+                                alt="Invoice Not Found" 
+                                width={192}
+                                height={192}
+                                className="mx-auto"
+                            />
+                        </div>
+                        
+                        {/* Error Message */}
+                        <h2 className="text-xl font-semibold text-gray-600 mb-2">Invoice Not Found</h2>
+                        
+    
                     </div>
                 </div>
             </CustomerLayout>

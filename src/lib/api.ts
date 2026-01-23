@@ -368,7 +368,19 @@ export class ApiClient {
   }
 
   static async getInvoiceById(id: string) {
-    return this.request('GET', `/api/invoices/${id}`);
+    return this.request('GET', `/api/invoices/public/${id}`);
+  }
+
+  static async getPublicInvoiceByUuid(uuid: string): Promise<ApiResponse<any>> {
+    try {
+      // Use axios directly for public endpoint - no authentication required
+      const response = await axios.get(
+        `https://api.originalinvoice.com/api/invoices/public/${uuid}`
+      );
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
   }
 
   static async getInvoiceStats(email: string): Promise<ApiResponse<InvoiceStatsResponse>> {
