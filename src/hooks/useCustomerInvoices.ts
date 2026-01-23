@@ -153,3 +153,52 @@ export const useInvoiceById = (id: string): UseInvoiceByIdResult => {
     refetch: fetchInvoice,
   };
 };
+
+interface UsePublicInvoiceByUuidResult {
+  invoice: InvoiceResponse | null;
+  loading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+export const usePublicInvoiceByUuid = (uuid: string): UsePublicInvoiceByUuidResult => {
+  const [invoice, setInvoice] = useState<InvoiceResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchInvoice = async () => {
+    if (!uuid) {
+      setError('Invalid invoice UUID');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await ApiClient.getPublicInvoiceByUuid(uuid);
+      
+      if (response.status === 200 && response.data) {
+        setInvoice(response.data as InvoiceResponse);
+      } else {
+        setError(response.error || 'Failed to fetch invoice');
+      }
+    } catch (err) {
+      setError('An error occurred while fetching the invoice');
+      console.error('Error fetching public invoice:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInvoice();
+  }, [uuid]);
+
+  return {
+    invoice,
+    loading,
+    error,
+    refetch: fetchInvoice,
+  };
+};

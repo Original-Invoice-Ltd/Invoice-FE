@@ -1,77 +1,93 @@
 "use client";
 
 import { useState } from "react";
+import { useParams } from "next/navigation";
+import Image from "next/image";
 import { CustomerLayout } from "@/components/customerSection";
 import { UploadReceiptModal } from "@/components/modals";
+import { ApiClient } from "@/lib/api";
+import { usePublicInvoiceByUuid } from "@/hooks/useCustomerInvoices";
 
 const EmailInvoicePage = () => {
+    const params = useParams();
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    
+    const invoiceUuid = params.id as string;
+    
+    // Use custom hook for public invoice data
+    const { invoice, loading, error } = usePublicInvoiceByUuid(invoiceUuid);
 
     const handleUploadReceipt = (file: File) => {
         console.log('Uploaded file:', file);
-        alert(`Receipt "${file.name}" uploaded successfully!`);
+        // The actual upload is handled by the modal with the API
     };
 
-    // Sample invoice data matching the image
-    const invoice = {
-        id: "INV-002",
-        title: "Invoice",
-        invoiceNumber: "INV-002",
-        creationDate: "2025-11-07",
-        dueDate: "2026-01-06",
-        currency: "NGN",
-        status: "UNPAID",
-        subtotal: 55000,
-        vatAmount: 3750,
-        whtAmount: 250,
-        totalDue: 59000,
-        balanceDue: 59000,
-        logoUrl: "",
-        signatureUrl: "",
-        note: "Kindly make payments via Paystack or bank transfer using the account details provided. Thank you for choosing us.",
-        termsAndConditions: "All payments should be made in the currency stated above. Bank charges are the responsibility of the payer.",
-        paymentTerms: "Net 60",
-        bank: "Zenith Bank Plc",
-        accountNumber: "1234567890",
-        accountName: "Original Invoice Demo Ltd",
-        billFrom: {
-            fullName: "Tech Solution Limited",
-            location: "Nigeria",
-            email: "techsolutionltd@gmail.com"
-        },
-        billTo: {
-            fullName: "Joseph Original Invoice",
-            location: "Lagos, Nigeria",
-            email: "josephoriginal@gmail.com"
-        },
-        items: [
-            {
-                id: "1",
-                itemName: "Cooperate Shoes",
-                description: "",
-                quantity: 5,
-                rate: 1000,
-                amount: 5000
-            },
-            {
-                id: "2",
-                itemName: "MacBook Pro 2020 Laptop",
-                description: "",
-                quantity: 1,
-                rate: 50000,
-                amount: 50000
-            }
-        ]
+    const handleModalClose = () => {
+        setIsUploadModalOpen(false);
     };
 
     const formatCurrency = (amount: number) => {
-        return `${invoice.currency}${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        return invoice ? ApiClient.formatCurrency(amount, invoice.currency) : ApiClient.formatCurrency(amount, '₦');
     };
 
     const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        return ApiClient.formatDate(dateString);
     };
+
+    const getStatusColor = (status: string) => {
+        return ApiClient.getStatusColor(status) + ' px-3 py-1 rounded-full text-xs font-medium border';
+    };
+
+    if (loading) {
+        return (
+            <CustomerLayout showEmailProfile={true}>
+                <div className="flex items-center justify-center min-h-screen">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                        <p className="text-gray-600">Loading invoice...</p>
+                    </div>
+                </div>
+            </CustomerLayout>
+        );
+    }
+
+    if (error || !invoice) {
+        return (
+            <CustomerLayout showEmailProfile={true}>
+                <div className="flex items-center justify-center min-h-screen">
+                    <div className="text-center max-w-md mx-auto px-4">
+                        {/* Empty State SVG */}
+                        <div className="mb-6">
+                            <Image 
+                                src="/assets/icons/emptyInvoicesStates.svg" 
+                                alt="Invoice Not Found" 
+                                width={192}
+                                height={192}
+                                className="mx-auto"
+                            />
+                        </div>
+                        
+                        {/* Error Message */}
+                        <h2 className="text-xl font-semibold text-gray-900 mb-2">Invoice Not Found</h2>
+                        <p className="text-gray-600 mb-6">
+                            {error || "The requested invoice could not be found. It may have been deleted or the link is invalid."}
+                        </p>
+                        
+                        {/* Back Button */}
+                        <button 
+                            onClick={() => window.history.back()}
+                            className="px-6 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+                        >
+                            Go Back
+                        </button>
+                    </div>
+                </div>
+            </CustomerLayout>
+        );
+    }
+
+    // Calculate balance due (for unpaid invoices, it's the total due)
+    const balanceDue = invoice.status.toLowerCase() === 'paid' ? 0 : invoice.totalDue;
 
     return (
         <CustomerLayout showEmailProfile={true}>
