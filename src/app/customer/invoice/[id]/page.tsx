@@ -6,7 +6,7 @@ import Image from "next/image";
 import { CustomerLayout } from "@/components/customerSection";
 import { UploadReceiptModal } from "@/components/modals";
 import { ApiClient } from "@/lib/api";
-import { useInvoiceById } from "@/hooks/useCustomerInvoices";
+import { usePublicInvoiceByUuid } from "@/hooks/useCustomerInvoices";
 
 const EmailInvoicePage = () => {
     const params = useParams();
@@ -14,8 +14,8 @@ const EmailInvoicePage = () => {
     
     const invoiceId = params.id as string;
     
-    // Use custom hook for invoice data
-    const { invoice, loading, error } = useInvoiceById(invoiceId);
+    // Use custom hook for invoice data - public endpoint (no auth required)
+    const { invoice, loading, error } = usePublicInvoiceByUuid(invoiceId);
 
     const handleUploadReceipt = (file: File) => {
         console.log('Uploaded file:', file);
