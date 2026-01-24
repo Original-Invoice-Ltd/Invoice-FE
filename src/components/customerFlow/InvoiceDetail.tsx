@@ -365,6 +365,7 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
       <UploadReceiptModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
+        invoiceId={mockInvoiceData.invoiceId.replace('#', '')}
       />
     </div>
   );

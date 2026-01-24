@@ -102,6 +102,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewDetail }) => {
   const [activeMenu, setActiveMenu] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
 
   const getStatusStyles = (status: string) => {
     switch (status) {
@@ -245,6 +246,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewDetail }) => {
                             setActiveMenu(null);
                           }}
                           onUploadReceipt={() => {
+                            setSelectedInvoiceId(invoice.invoiceId);
                             setIsUploadModalOpen(true);
                             setActiveMenu(null);
                           }}
@@ -303,6 +305,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewDetail }) => {
                           setActiveMenu(null);
                         }}
                         onUploadReceipt={() => {
+                          setSelectedInvoiceId(invoice.invoiceId);
                           setIsUploadModalOpen(true);
                           setActiveMenu(null);
                         }}
@@ -359,7 +362,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewDetail }) => {
       {/* Upload Receipt Modal */}
       <UploadReceiptModal
         isOpen={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
+        onClose={() => {
+          setIsUploadModalOpen(false);
+          setSelectedInvoiceId(null);
+        }}
+        invoiceId={selectedInvoiceId || undefined}
       />
     </div>
   );
