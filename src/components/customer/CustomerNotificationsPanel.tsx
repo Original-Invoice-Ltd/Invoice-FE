@@ -1,15 +1,9 @@
 "use client";
 
-<<<<<<< HEAD
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCustomerNotifications } from "@/hooks/useCustomerNotifications";
-=======
-import { useState } from "react";
-import { X } from "lucide-react";
-import { useRouter } from "next/navigation";
->>>>>>> 1586db6e7eef37b433fbf1dff6b1db7e827cec22
 
 interface Notification {
     id: number;
@@ -30,7 +24,6 @@ interface CustomerNotificationsPanelProps {
 const CustomerNotificationsPanel = ({ isOpen, onClose }: CustomerNotificationsPanelProps) => {
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState("");
-<<<<<<< HEAD
     const { notifications, isLoading, fetchNotifications, markAsRead } = useCustomerNotifications();
 
     // Fetch notifications when panel opens
@@ -43,39 +36,10 @@ const CustomerNotificationsPanel = ({ isOpen, onClose }: CustomerNotificationsPa
     const handleViewReceipt = (notification: Notification) => {
         // Mark as read when viewing
         markAsRead(notification.id.toString());
-=======
-
-    // Mock notifications
-    const notifications: Notification[] = [
-        {
-            id: 1,
-            title: "Receipt Available",
-            message: "Your payment for Invoice INV-004532 has been confirmed by Tech Solution Ltd.",
-            subMessage: "Your receipt has been automatically generated and is attached below.",
-            fileName: "Payment_Receipt_RCT-000983.pdf",
-            fileSize: "0 KB of 120 KB",
-            receiptNumber: "RCT-000983",
-            invoiceNumber: "INV-004532"
-        },
-        {
-            id: 2,
-            title: "Receipt Available",
-            message: "Your payment for Invoice INV-004532 has been confirmed by Tech Solution Ltd.",
-            subMessage: "Your receipt has been automatically generated and is attached below.",
-            fileName: "Payment_Receipt_RCT-000983.pdf",
-            fileSize: "0 KB of 120 KB",
-            receiptNumber: "RCT-000984",
-            invoiceNumber: "INV-004533"
-        }
-    ];
-
-    const handleViewReceipt = (notification: Notification) => {
->>>>>>> 1586db6e7eef37b433fbf1dff6b1db7e827cec22
         onClose();
         router.push(`/customer/receipt/${notification.id}`);
     };
 
-<<<<<<< HEAD
     // Filter notifications based on search term
     const filteredNotifications = notifications.filter(notification =>
         notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -84,8 +48,6 @@ const CustomerNotificationsPanel = ({ isOpen, onClose }: CustomerNotificationsPa
         notification.receiptNumber.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-=======
->>>>>>> 1586db6e7eef37b433fbf1dff6b1db7e827cec22
     if (!isOpen) return null;
 
     return (
@@ -139,7 +101,6 @@ const CustomerNotificationsPanel = ({ isOpen, onClose }: CustomerNotificationsPa
 
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto">
-<<<<<<< HEAD
                     {isLoading ? (
                         <div className="flex items-center justify-center py-8">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED]"></div>
@@ -159,10 +120,6 @@ const CustomerNotificationsPanel = ({ isOpen, onClose }: CustomerNotificationsPa
                     ) : (
                         <div className="divide-y divide-[#E4E7EC]">
                             {filteredNotifications.map((notification) => (
-=======
-                    <div className="divide-y divide-[#E4E7EC]">
-                        {notifications.map((notification) => (
->>>>>>> 1586db6e7eef37b433fbf1dff6b1db7e827cec22
                             <div key={notification.id} className="p-4">
                                 <h4 className="text-sm font-semibold text-[#101828] mb-2">{notification.title}</h4>
                                 <p className="text-sm text-[#667085] mb-1">{notification.message}</p>
@@ -203,14 +160,9 @@ const CustomerNotificationsPanel = ({ isOpen, onClose }: CustomerNotificationsPa
                                     </button>
                                 </div>
                             </div>
-<<<<<<< HEAD
                             ))}
                         </div>
                     )}
-=======
-                        ))}
-                    </div>
->>>>>>> 1586db6e7eef37b433fbf1dff6b1db7e827cec22
                 </div>
             </div>
         </>
