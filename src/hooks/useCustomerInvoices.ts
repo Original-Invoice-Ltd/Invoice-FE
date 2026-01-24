@@ -185,7 +185,6 @@ export const usePublicInvoiceByUuid = (uuid: string): UsePublicInvoiceByUuidResu
       }
     } catch (err) {
       setError('An error occurred while fetching the invoice');
-      console.error('Error fetching public invoice:', err);
     } finally {
       setLoading(false);
     }
