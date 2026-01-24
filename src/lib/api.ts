@@ -458,12 +458,18 @@ export class ApiClient {
       { label: "View Detail", action: "view" }
     ];
 
-    if (status.toLowerCase() === 'paid') {
+    const statusLower = status.toLowerCase();
+    
+    if (statusLower === 'paid') {
       return [
         ...baseOptions,
         { label: "View Receipt", action: "receipt" }
       ];
+    } else if (statusLower === 'pending') {
+      // Pending invoices can only be viewed, no upload allowed
+      return baseOptions;
     } else {
+      // Unpaid/Overdue invoices can upload receipt
       return [
         ...baseOptions,
         { label: "Upload Receipt", action: "upload" }
