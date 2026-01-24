@@ -1,0 +1,12 @@
+<svg width="500" height="500" xmlns="http://www.w3.org/2000/svg">
+  <rect width="500" height="500" fill="#f8f9fa" stroke="#e9ecef" stroke-width="2"/>
+  <text x="250" y="230" font-family="Arial, sans-serif" font-size="22" font-weight="600" text-anchor="middle" fill="#495057">
+    Pioneering Simplicity,
+  </text>
+  <text x="250" y="260" font-family="Arial, sans-serif" font-size="22" font-weight="600" text-anchor="middle" fill="#495057">
+    Reliability, and
+  </text>
+  <text x="250" y="290" font-family="Arial, sans-serif" font-size="22" font-weight="600" text-anchor="middle" fill="#495057">
+    Compliance
+  </text>
+</svg>
