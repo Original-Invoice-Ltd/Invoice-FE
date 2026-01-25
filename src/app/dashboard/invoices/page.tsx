@@ -6,8 +6,10 @@ import Link from "next/link";
 import { ApiClient } from "@/lib/api";
 import { InvoiceResponse } from "@/types/invoice";
 import DeleteConfirmationModal from "@/components/common/DeleteConfirmationModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 const InvoicesPage = () => {
+    const { user } = useAuth();
     const [searchQuery, setSearchQuery] = useState("");
     const [sortBy, setSortBy] = useState("date");
     const [invoices, setInvoices] = useState<InvoiceResponse[]>([]);
@@ -30,12 +32,17 @@ const InvoicesPage = () => {
     // Fetch invoices on component mount
     useEffect(() => {
         fetchInvoices();
-    }, []);
+    }, [user?.id]);
 
     const fetchInvoices = async () => {
+        if (!user?.id) {
+            setLoading(false);
+            return;
+        }
+
         try {
             setLoading(true);
-            const response = await ApiClient.getAllUserInvoices();
+            const response = await ApiClient.getAllUserInvoicesByUserId(user.id);
             
             if (response.status === 200 && response.data) {
                 const invoicesData = Array.isArray(response.data) ? response.data : [];

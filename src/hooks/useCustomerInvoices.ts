@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ApiClient } from '@/lib/api';
 import { InvoiceResponse, InvoiceStatsResponse } from '@/types/invoice';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UseCustomerInvoicesResult {
   invoices: InvoiceResponse[];
@@ -10,18 +11,25 @@ interface UseCustomerInvoicesResult {
 }
 
 export const useCustomerInvoices = (): UseCustomerInvoicesResult => {
+  const { user } = useAuth();
   const [invoices, setInvoices] = useState<InvoiceResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchInvoices = async () => {
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
-      const response = await ApiClient.getAllUserInvoices();
+      const response = await ApiClient.getAllUserInvoicesByUserId(user.id);
       
       if (response.status === 200 && response.data) {
-        setInvoices(response.data);
+        const invoicesData = Array.isArray(response.data) ? response.data : [];
+        setInvoices(invoicesData);
       } else {
         setError(response.error || 'Failed to fetch invoices');
       }
@@ -35,7 +43,7 @@ export const useCustomerInvoices = (): UseCustomerInvoicesResult => {
 
   useEffect(() => {
     fetchInvoices();
-  }, []);
+  }, [user?.id]);
 
   return {
     invoices,

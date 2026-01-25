@@ -86,15 +86,28 @@ const PaymentTable = ({
                         onClick={() => setOpenMenuId(null)}
                       />
                       <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20 max-h-48 overflow-y-auto">
-                        <button
-                          onClick={() => {
-                            payment.status === 'Paid' ? onRevertStatus(payment) : onMarkPaid(payment);
-                            setOpenMenuId(null);
-                          }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          {payment.status === 'Paid' ? 'Mark as Unpaid' : 'Mark Paid'}
-                        </button>
+                        {payment.status !== 'Paid' && (
+                          <button
+                            onClick={() => {
+                              onMarkPaid(payment);
+                              setOpenMenuId(null);
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            Mark Paid
+                          </button>
+                        )}
+                        {payment.status === 'Paid' && (
+                          <button
+                            onClick={() => {
+                              onRevertStatus(payment);
+                              setOpenMenuId(null);
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            Mark as Unpaid
+                          </button>
+                        )}
                         <button
                           onClick={() => {
                             onEmail(payment);
@@ -180,15 +193,28 @@ const PaymentTable = ({
                   onClick={() => setOpenMenuId(null)}
                 />
                 <div className="absolute right-4 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20 max-h-48 overflow-y-auto">
-                  <button
-                    onClick={() => {
-                      payment.status === 'Paid' ? onRevertStatus(payment) : onMarkPaid(payment);
-                      setOpenMenuId(null);
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    {payment.status === 'Paid' ? 'Mark as Unpaid' : 'Mark Paid'}
-                  </button>
+                  {payment.status !== 'Paid' && (
+                    <button
+                      onClick={() => {
+                        onMarkPaid(payment);
+                        setOpenMenuId(null);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Mark Paid
+                    </button>
+                  )}
+                  {payment.status === 'Paid' && (
+                    <button
+                      onClick={() => {
+                        onRevertStatus(payment);
+                        setOpenMenuId(null);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Mark as Unpaid
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       onEmail(payment);
