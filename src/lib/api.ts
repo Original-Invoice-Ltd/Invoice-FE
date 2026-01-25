@@ -108,7 +108,7 @@ export class ApiClient {
   }
 
   private static async request<T>(
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
     endpoint: string,
     data?: any,
     params?: any
@@ -138,6 +138,10 @@ export class ApiClient {
 
   static async put(endpoint: string, data?: any) {
     return this.request('PUT', endpoint, data);
+  }
+
+  static async patch(endpoint: string, data?: any) {
+    return this.request('PATCH', endpoint, data);
   }
 
   static async delete(endpoint: string, params?: any) {
@@ -363,8 +367,12 @@ export class ApiClient {
     }
   }
 
-  static async getAllUserInvoices() {
-    return this.request('GET', '/api/invoices/all-user');
+  static async getAllUserInvoicesByUserId(userId: string) {
+    return this.request('GET', `/api/invoices/all-user/${userId}`);
+  }
+
+  static async markInvoiceAsPaid(invoiceId: string) {
+    return this.request('PATCH', `/api/invoices/${invoiceId}/mark-as-paid`);
   }
 
   static async getInvoiceById(id: string) {
