@@ -1,11 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Info } from "lucide-react";
+import { useToast } from '@/hooks/useToast';
+import { ApiClient } from '@/lib/api';
 
 const LanguagePage = () => {
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const [isLoading, setIsLoading] = useState(false);
+  const {showSuccess, showError} = useToast() 
+const uiToApiLanguageMap: Record<string, string> = {
+  en: 'ENGLISH',
+  ha: 'HAUSA',
+  ig: 'IGBO',
+  yo: 'YORUBA',
+};
+
+ const apiToUiLanguageMap: Record<string, string> = {
+  ENGLISH: 'en',
+  HAUSA: 'ha',
+  IGBO: 'ig',
+  YORUBA: 'yo',
+  };
+  const getLanguagePreference = async () => {
+    setIsLoading(true);
+      try {
+          const response = await ApiClient.getLanguage();
+              if (response.status === 200 && response.data?.data) {
+                  const apiLang = response.data.data;
+      setSelectedLanguage(apiToUiLanguageMap[apiLang] ?? 'en');
+    } else {
+      console.error("response: ", response);
+    }
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const languages = [
     {
@@ -30,6 +60,10 @@ const LanguagePage = () => {
     }
   ];
 
+  useEffect(() => {
+    getLanguagePreference();
+  }, []);
+
   const handleLanguageChange = (languageCode: string) => {
     setSelectedLanguage(languageCode);
   };
@@ -38,16 +72,19 @@ const LanguagePage = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      // TODO: Implement language preference update API call
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      alert("Language preference saved successfully!");
-    } catch (error) {
+     try {
+    const response = await ApiClient.updateLanguage(
+      uiToApiLanguageMap[selectedLanguage]
+    );
+
+    if (response.status === 200) {
+      showSuccess("Language Updated Successfully.");
+    } else {
+      showError("Language Updated Failed.");
+      console.error("response: ", response);
+    }
+  } catch (error) {
       console.error("Error saving language preference:", error);
-      alert("Failed to save language preference. Please try again.");
     } finally {
       setIsLoading(false);
     }
