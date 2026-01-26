@@ -1,7 +1,7 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
 import { InvoiceStatsResponse } from '@/types/invoice';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8089";
 
 // Temporary bypass flag for testing - set to true to skip 401 redirects
 const BYPASS_AUTH_REDIRECT = true;
@@ -108,7 +108,7 @@ export class ApiClient {
   }
 
   private static async request<T>(
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE'| 'PATCH',
     endpoint: string,
     data?: any,
     params?: any
@@ -438,6 +438,83 @@ export class ApiClient {
   static async getReceiptById(id: string) {
     return this.request('GET', `/api/receipts/${id}`);
   }
+
+
+
+  static async getLanguage(){
+  return this.request('GET','/api/settings/language')
+  }
+
+  static async updateLanguage(language: string){
+    return this.request('PATCH', '/api/settings/language', {language: language.toUpperCase()})
+  }
+
+
+  static async getNotificationPreference() {
+  return this.request('GET', '/api/settings/notifications');
+}
+
+static async updateNotificationPreference(settings: {
+  paymentRecorded: boolean;
+  invoiceSent: boolean;
+  invoiceReminder: boolean;
+  clientAdded: boolean;
+  systemAlerts: boolean;
+}) {
+  return this.request('PATCH', '/api/settings/notifications', settings);
+}
+
+  // Business Profile APIs
+  static async getBusinessProfile() {
+    return this.request('GET', '/api/settings/businessProfile');
+  }
+
+  static async updateBusinessProfile(businessProfileData: {
+    businessName?: string;
+    businessFullName?: string;
+    registeredBusinessAddress?: string;
+    emailAddress?: string;
+    phoneNumber?: string;
+    businessType?: string;
+    country?: string;
+    businessRegistrationNumber?: string;
+    businessLogoUrl?: string;
+  }) {
+    return this.request('PATCH', '/api/settings/businessProfile', businessProfileData);
+  }
+
+  static async uploadBusinessLogo(logoFile: File): Promise<ApiResponse<any>> {
+    try {
+      const formData = new FormData();
+      formData.append('logoFile', logoFile);
+
+      const response = await axiosInstance.post('/api/settings/uploadLogo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  // Tax Settings APIs
+  static async getTaxSettings() {
+    return this.request('GET', '/api/settings/taxSettings');
+  }
+
+  static async updateTaxSettings(taxSettingsData: {
+    taxApplied?: string;
+    taxId?: string;
+    enablingVAT?: boolean;
+    enablingWHT?: boolean;
+  }) {
+    return this.request('PATCH', '/api/settings/taxSettings', taxSettingsData);
+  }
+
+
 
   // Utility methods for customer invoice operations
   static getStatusColor(status: string): string {

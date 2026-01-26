@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Info } from "lucide-react";
+import { useToast } from '@/hooks/useToast';
+import { ApiClient } from '@/lib/api';
+
 
 const NotificationsPage = () => {
   const [settings, setSettings] = useState({
@@ -11,7 +14,7 @@ const NotificationsPage = () => {
     clientAdded: true,
     systemAlerts: true,
   });
-
+   const {showSuccess, showError} = useToast()
   const [isLoading, setIsLoading] = useState(false);
 
   const handleToggle = (field: keyof typeof settings) => {
@@ -26,12 +29,15 @@ const NotificationsPage = () => {
     setIsLoading(true);
 
     try {
-      // TODO: Implement notification settings update API call
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      alert("Notification settings saved successfully!");
+       e.preventDefault();
+       setIsLoading(true);
+       const res = await ApiClient.updateNotificationPreference(settings);
+       if (res.status === 200) {
+        showSuccess("Settings updated");
+      } else {
+        showError("Update failed");
+      }
+      setIsLoading(false);
     } catch (error) {
       console.error("Error saving notification settings:", error);
       alert("Failed to save notification settings. Please try again.");
@@ -39,6 +45,15 @@ const NotificationsPage = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    ApiClient.getNotificationPreference()
+    .then(res => {
+      if (res.status === 200 && res.data?.data) {
+        setSettings(res.data.data);
+      }
+    });
+  }, []);
 
   const notificationItems = [
     {
