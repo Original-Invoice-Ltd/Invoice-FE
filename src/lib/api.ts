@@ -374,6 +374,9 @@ export class ApiClient {
   static async markInvoiceAsPaid(invoiceId: string) {
     return this.request('PATCH', `/api/invoices/${invoiceId}/mark-as-paid`);
   }
+   static async getInvoiceDetail(id: string) {
+    return this.request('GET', `/api/invoices/${id}`);
+  }
 
   static async getInvoiceById(id: string) {
     return this.request('GET', `/api/invoices/public/${id}`);

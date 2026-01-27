@@ -291,44 +291,6 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
         </div>
 
         <div className="px-6 pb-6">
-          {/* Large Preview Area - shown for uploading, success, and failed states */}
-          {(modalState === "uploading" || modalState === "success" || modalState === "failed") && filePreviewUrl && (
-            <div className="border-2 border-dashed border-gray-300 rounded-lg mb-4 bg-white min-h-[280px] flex items-center justify-center p-4 overflow-hidden">
-              {selectedFile?.type === 'application/pdf' ? (
-                <div className="flex flex-col items-center justify-center w-full h-full">
-                  <div className="w-20 h-20 bg-red-100 rounded-lg flex items-center justify-center mb-3">
-                    <svg className="w-10 h-10 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
-                      <path d="M8 10a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                      <path d="M8 13a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                    </svg>
-                  </div>
-                  <p className="text-sm font-medium text-gray-900 mb-1">{selectedFile?.name}</p>
-                  <p className="text-xs text-gray-500">PDF Document</p>
-                  {modalState === "success" && (
-                    <div className="mt-3 flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                      <span className="text-green-500 font-medium text-sm">Upload Successful</span>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="relative w-full h-full flex items-center justify-center">
-                  <img 
-                    src={filePreviewUrl} 
-                    alt="Receipt preview" 
-                    className="max-w-full max-h-[280px] object-contain rounded"
-                  />
-                  {modalState === "success" && (
-                    <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span className="text-green-500 font-medium text-sm">Upload Successful</span>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Upload Area (initial state) */}
           {modalState === "initial" && !uploadedFile && (

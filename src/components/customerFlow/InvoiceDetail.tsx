@@ -1,71 +1,44 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowLeft, Upload, Send, FileDown } from "lucide-react";
 import UploadReceiptModal from "./UploadReceiptModal";
-
-interface InvoiceItem {
-  id: number;
-  description: string;
-  qty: number;
-  rate: number;
-  amount: number;
-}
+import { ApiClient } from "@/lib/api";
 
 interface InvoiceDetailProps {
+  invoiceId: string;
   onBack?: () => void;
 }
 
-const mockInvoiceData = {
-  status: "Unpaid",
-  invoiceId: "#INV-002",
-  balanceDue: "₦590000.00",
-  invoiceDate: "07 Nov 2025",
-  paymentTerms: "Net 60",
-  dueDate: "06 Jan 2026",
-  billFrom: {
-    name: "Tech Solution Limited",
-    location: "Nigeria",
-    email: "Techsolutionltd@gmail.com",
-  },
-  billTo: {
-    name: "Joseph Original Invoice",
-    location: "Lagos, Nigeria",
-    email: "josephoriginal@gmail.com",
-  },
-  items: [
-    {
-      id: 1,
-      description: "Cooperate Shoes",
-      qty: 5,
-      rate: 1000,
-      amount: 5000,
-    },
-    {
-      id: 2,
-      description: "MacBook Pro 2020 Laptop",
-      qty: 50000,
-      rate: 50000,
-      amount: 50000,
-    },
-  ],
-  subTotal: 55000,
-  vat: 3750,
-  wht: 250,
-  total: 59000,
-  signature: "Chiamaka",
-  note: "Kindly make payments via Paystack or bank transfer using the account details provided. Thank you for choosing us.",
-  termsOfPayment:
-    "All payments should be made in the currency stated above. Bank charges are the responsibility of the payer.",
-  bankDetails: {
-    bankName: "Zenith Bank Plc",
-    accountNumber: "1234567890",
-    accountName: "Original Invoice Demo Ltd",
-  },
-};
-
-const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
+const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ invoiceId, onBack }) => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [invoice, setInvoice] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchInvoice = async () => {
+      try {
+        setLoading(true);
+        const response = await ApiClient.getInvoiceDetail(invoiceId);
+        
+        if (response.status === 200 && response.data) {
+          setInvoice(response.data);
+        } else {
+          setError(response.error || 'Failed to load invoice');
+        }
+      } catch (err) {
+        console.error('Error fetching invoice:', err);
+        setError('An error occurred while loading the invoice');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (invoiceId) {
+      fetchInvoice();
+    }
+  }, [invoiceId]);
 
   const handleBack = () => {
     if (onBack) {
@@ -84,6 +57,52 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
   const handleDownloadPDF = () => {
     console.log("Download PDF");
   };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  const formatCurrency = (amount: number, currency: string = 'NGN') => {
+    const symbol = currency === 'NGN' ? '₦' : currency;
+    return `${symbol}${amount.toLocaleString()}`;
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status?.toUpperCase()) {
+      case 'PAID':
+        return 'bg-green-100 text-green-700';
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow-700';
+      case 'OVERDUE':
+        return 'bg-red-100 text-red-700';
+      default:
+        return 'bg-yellow-100 text-yellow-700';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error || !invoice) {
+    return (
+      <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error || 'Invoice not found'}</p>
+    
+          <div>Invoice not found</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
@@ -134,25 +153,29 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
 
           {/* Status Badge */}
           <div className="flex justify-end mb-4">
-            <span className="bg-yellow-100 text-yellow-700 px-4 py-1 rounded-full text-sm font-medium">
-              {mockInvoiceData.status}
+            <span className={`${getStatusColor(invoice.status)} px-4 py-1 rounded-full text-sm font-medium`}>
+              {invoice.status || 'Unpaid'}
             </span>
           </div>
 
           {/* Header Section */}
           <div className="flex flex-col md:flex-row justify-between mb-8 gap-6">
             <div>
-              <div className="text-4xl font-bold mb-8">Logo</div>
+              {invoice.billFrom?.logo ? (
+                <img src={invoice.billFrom.logo} alt="Logo" className="h-16 mb-8" />
+              ) : (
+                <div className="text-4xl font-bold mb-8">Logo</div>
+              )}
               <div className="text-sm">
                 <div className="font-semibold mb-2">Bill To</div>
                 <div className="text-gray-700">
-                  {mockInvoiceData.billTo.name}
+                  {invoice.billTo?.businessName || invoice.billTo?.fullName || 'N/A'}
                 </div>
                 <div className="text-gray-600">
-                  {mockInvoiceData.billTo.location}
+                  {invoice.billTo?.address || invoice.billTo?.country || ''}
                 </div>
                 <div className="text-gray-600">
-                  {mockInvoiceData.billTo.email}
+                  {invoice.billTo?.email || ''}
                 </div>
               </div>
             </div>
@@ -162,13 +185,13 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
               <div className="text-sm space-y-2">
                 <div className="font-semibold">Bill From</div>
                 <div className="text-gray-700">
-                  {mockInvoiceData.billFrom.name}
+                  {invoice.billFrom?.businessName || invoice.billFrom?.fullName || 'N/A'}
                 </div>
                 <div className="text-gray-600">
-                  {mockInvoiceData.billFrom.location}
+                  {invoice.billFrom?.address || invoice.billFrom?.country || ''}
                 </div>
                 <div className="text-gray-600">
-                  {mockInvoiceData.billFrom.email}
+                  {invoice.billFrom?.email || ''}
                 </div>
               </div>
             </div>
