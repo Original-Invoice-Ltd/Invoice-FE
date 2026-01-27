@@ -47,7 +47,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
         
         if (response.status === 200 && response.data) {
           // Transform all invoices to Payment format
-          const allInvoices = response.data.map((invoice: any) => ({
+          const allInvoices = (response.data as any[]).map((invoice: any) => ({
             id: invoice.id,
             date: new Date(invoice.creationDate).toLocaleDateString('en-US', { 
               year: 'numeric', 
