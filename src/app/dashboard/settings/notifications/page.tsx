@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Info } from "lucide-react";
+import { useToast } from '@/hooks/useToast';
+import { ApiClient } from '@/lib/api';
+import Toast from '@/components/ui/Toast';
 
 const NotificationsPage = () => {
   const [settings, setSettings] = useState({
@@ -11,8 +14,10 @@ const NotificationsPage = () => {
     clientAdded: true,
     systemAlerts: true,
   });
-
+  
+  const { toast, showSuccess, showError, hideToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   const handleToggle = (field: keyof typeof settings) => {
     setSettings(prev => ({
@@ -26,19 +31,42 @@ const NotificationsPage = () => {
     setIsLoading(true);
 
     try {
-      // TODO: Implement notification settings update API call
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      alert("Notification settings saved successfully!");
+      const response = await ApiClient.updateNotificationPreference(settings);
+      if (response.status === 200) {
+        showSuccess("Notification settings updated successfully!");
+      } else {
+        showError(response.error || "Failed to update notification settings. Please try again.");
+      }
     } catch (error) {
       console.error("Error saving notification settings:", error);
-      alert("Failed to save notification settings. Please try again.");
+      showError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
+
+  const loadNotificationSettings = async () => {
+    try {
+      setIsLoadingData(true);
+      const response = await ApiClient.getNotificationPreference();
+      if (response.status === 200 && response.data) {
+        const responseData = response.data as { data: typeof settings };
+        setSettings(responseData.data);
+      } else {
+        console.error("Failed to load notification settings:", response);
+        showError("Failed to load notification settings. Please refresh the page.");
+      }
+    } catch (error) {
+      console.error("Error loading notification settings:", error);
+      showError("Failed to load notification settings. Please refresh the page.");
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
+
+  useEffect(() => {
+    loadNotificationSettings();
+  }, []);
 
   const notificationItems = [
     {
@@ -68,8 +96,29 @@ const NotificationsPage = () => {
     },
   ];
 
+  // Show loading state while fetching data
+  if (isLoadingData) {
+    return (
+      <div className="p-6">
+        <div className="max-w-2xl">
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED]"></div>
+            <span className="ml-3 text-[#667085]">Loading notification settings...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6">
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+      />
+      
       <div className="max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Notification Settings */}

@@ -1,7 +1,11 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
 import { InvoiceStatsResponse } from '@/types/invoice';
 
+<<<<<<< HEAD
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+=======
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8089";
+>>>>>>> secondRepo/main
 
 // Temporary bypass flag for testing - set to true to skip 401 redirects
 const BYPASS_AUTH_REDIRECT = true;
@@ -108,7 +112,11 @@ export class ApiClient {
   }
 
   private static async request<T>(
+<<<<<<< HEAD
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
+=======
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE'| 'PATCH',
+>>>>>>> secondRepo/main
     endpoint: string,
     data?: any,
     params?: any
@@ -140,10 +148,13 @@ export class ApiClient {
     return this.request('PUT', endpoint, data);
   }
 
+<<<<<<< HEAD
   static async patch(endpoint: string, data?: any) {
     return this.request('PATCH', endpoint, data);
   }
 
+=======
+>>>>>>> secondRepo/main
   static async delete(endpoint: string, params?: any) {
     return this.request('DELETE', endpoint, undefined, params);
   }
@@ -367,6 +378,7 @@ export class ApiClient {
     }
   }
 
+<<<<<<< HEAD
   static async getAllUserInvoicesByUserId(userId: string) {
     return this.request('GET', `/api/invoices/all-user/${userId}`);
   }
@@ -376,6 +388,10 @@ export class ApiClient {
   }
    static async getInvoiceDetail(id: string) {
     return this.request('GET', `/api/invoices/${id}`);
+=======
+  static async getAllUserInvoices() {
+    return this.request('GET', '/api/invoices/all-user');
+>>>>>>> secondRepo/main
   }
 
   static async getInvoiceById(id: string) {
@@ -450,6 +466,126 @@ export class ApiClient {
     return this.request('GET', `/api/receipts/${id}`);
   }
 
+<<<<<<< HEAD
+=======
+
+
+  static async getLanguage(){
+  return this.request('GET','/api/settings/language')
+  }
+
+  static async updateLanguage(language: string){
+    return this.request('PATCH', '/api/settings/language', {language: language.toUpperCase()})
+  }
+
+
+  static async getNotificationPreference() {
+  return this.request('GET', '/api/settings/notifications');
+}
+
+static async updateNotificationPreference(settings: {
+  paymentRecorded: boolean;
+  invoiceSent: boolean;
+  invoiceReminder: boolean;
+  clientAdded: boolean;
+  systemAlerts: boolean;
+}) {
+  return this.request('PATCH', '/api/settings/notifications', settings);
+}
+
+  // Business Profile APIs
+  static async getBusinessProfile() {
+    return this.request('GET', '/api/settings/businessProfile');
+  }
+
+  static async updateBusinessProfile(businessProfileData: {
+    businessName?: string;
+    businessFullName?: string;
+    registeredBusinessAddress?: string;
+    emailAddress?: string;
+    phoneNumber?: string;
+    businessType?: string;
+    country?: string;
+    businessRegistrationNumber?: string;
+    businessLogoUrl?: string;
+  }) {
+    return this.request('PATCH', '/api/settings/businessProfile', businessProfileData);
+  }
+
+  static async uploadBusinessLogo(logoFile: File): Promise<ApiResponse<any>> {
+    try {
+      const formData = new FormData();
+      formData.append('logoFile', logoFile);
+
+      const response = await axiosInstance.post('/api/settings/uploadLogo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  // Tax Settings APIs
+  static async getTaxSettings() {
+    return this.request('GET', '/api/settings/taxSettings');
+  }
+
+  static async updateTaxSettings(taxSettingsData: {
+    taxApplied?: string;
+    taxId?: string;
+    enablingVAT?: boolean;
+    enablingWHT?: boolean;
+  }) {
+    return this.request('PATCH', '/api/settings/taxSettings', taxSettingsData);
+  }
+
+  // Personal Profile APIs
+  static async getPersonalProfile() {
+    return this.request('GET', '/api/settings/personalProfile');
+  }
+
+  static async updatePersonalProfile(profileData: {
+    firstName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    profilePicture?: File;
+  }): Promise<ApiResponse<any>> {
+    try {
+      const formData = new FormData();
+      
+      // Add optional fields only if provided
+      if (profileData.firstName) {
+        formData.append('firstName', profileData.firstName);
+      }
+      if (profileData.lastName) {
+        formData.append('lastName', profileData.lastName);
+      }
+      if (profileData.phoneNumber) {
+        formData.append('phoneNumber', profileData.phoneNumber);
+      }
+      if (profileData.profilePicture) {
+        formData.append('profilePicture', profileData.profilePicture);
+      }
+
+      const response = await axiosInstance.patch('/api/settings/personalProfile', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+
+
+>>>>>>> secondRepo/main
   // Utility methods for customer invoice operations
   static getStatusColor(status: string): string {
     switch (status.toLowerCase()) {
@@ -469,18 +605,26 @@ export class ApiClient {
       { label: "View Detail", action: "view" }
     ];
 
+<<<<<<< HEAD
     const statusLower = status.toLowerCase();
     
     if (statusLower === 'paid') {
+=======
+    if (status.toLowerCase() === 'paid') {
+>>>>>>> secondRepo/main
       return [
         ...baseOptions,
         { label: "View Receipt", action: "receipt" }
       ];
+<<<<<<< HEAD
     } else if (statusLower === 'pending') {
       // Pending invoices can only be viewed, no upload allowed
       return baseOptions;
     } else {
       // Unpaid/Overdue invoices can upload receipt
+=======
+    } else {
+>>>>>>> secondRepo/main
       return [
         ...baseOptions,
         { label: "Upload Receipt", action: "upload" }

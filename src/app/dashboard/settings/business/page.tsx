@@ -1,10 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Upload, X } from "lucide-react";
 import Image from "next/image";
+import { ApiClient } from "@/lib/api";
+import { useToast } from "@/hooks/useToast";
+import Toast from "@/components/ui/Toast";
+
+// TypeScript interfaces for business profile
+interface BusinessProfileDto {
+  businessName?: string;
+  businessFullName?: string;
+  registeredBusinessAddress?: string;
+  emailAddress?: string;
+  phoneNumber?: string;
+  businessType?: string;
+  country?: string;
+  businessRegistrationNumber?: string;
+  businessLogoUrl?: string;
+}
 
 const BusinessProfilePage = () => {
+  const { toast, showSuccess, showError, hideToast } = useToast();
+  
   const [formData, setFormData] = useState({
     businessName: "",
     registeredAddress: "",
@@ -13,11 +31,14 @@ const BusinessProfilePage = () => {
     businessType: "",
     businessRegistrationNumber: "",
     country: "",
+    businessFullName: "", // Maps to businessName2 in UI
   });
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [existingLogoUrl, setExistingLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   const businessTypes = [
     "Sole Proprietorship",
@@ -39,6 +60,45 @@ const BusinessProfilePage = () => {
     "Other",
   ];
 
+  // Load existing business profile on component mount
+  useEffect(() => {
+    loadBusinessProfile();
+  }, []);
+
+  const loadBusinessProfile = async () => {
+    try {
+      setIsLoadingData(true);
+      const response = await ApiClient.getBusinessProfile();
+      
+      if (response.status === 200 && response.data) {
+        const data = response.data as BusinessProfileDto;
+        
+        // Map backend data to UI state
+        setFormData({
+          businessName: data.businessName || "",
+          registeredAddress: data.registeredBusinessAddress || "",
+          emailAddress: data.emailAddress || "",
+          phoneNumber: data.phoneNumber || "",
+          businessType: data.businessType || "",
+          businessRegistrationNumber: data.businessRegistrationNumber || "",
+          country: data.country || "",
+          businessFullName: data.businessFullName || "",
+        });
+
+        // Set existing logo if available
+        if (data.businessLogoUrl) {
+          setExistingLogoUrl(data.businessLogoUrl);
+          setLogoPreview(data.businessLogoUrl);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading business profile:", error);
+      showError("Failed to load business profile. Please refresh the page.");
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -50,6 +110,18 @@ const BusinessProfilePage = () => {
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        showError("Logo file size must be less than 5MB");
+        return;
+      }
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        showError("Please select a valid image file");
+        return;
+      }
+
       setLogoFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -61,7 +133,35 @@ const BusinessProfilePage = () => {
 
   const removeLogo = () => {
     setLogoFile(null);
-    setLogoPreview(null);
+    setLogoPreview(existingLogoUrl); // Revert to existing logo or null
+  };
+
+  // Check if required fields are filled
+  const isFormValid = () => {
+    return (
+      formData.businessName.trim() !== "" &&
+      formData.registeredAddress.trim() !== "" &&
+      formData.emailAddress.trim() !== "" &&
+      formData.phoneNumber.trim() !== "" &&
+      formData.businessType.trim() !== "" &&
+      formData.country.trim() !== ""
+    );
+  };
+
+  // Upload logo (single attempt)
+  const uploadLogo = async (file: File): Promise<string | null> => {
+    try {
+      const response = await ApiClient.uploadBusinessLogo(file);
+      
+      if (response.status === 200 && response.data?.data?.uploadedLogoUrl) {
+        return response.data.data.uploadedLogoUrl;
+      } else {
+        throw new Error(response.error || 'Logo upload failed');
+      }
+    } catch (error) {
+      console.error("Logo upload failed:", error);
+      throw error;
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,38 +169,108 @@ const BusinessProfilePage = () => {
     setIsLoading(true);
 
     try {
-      // TODO: Implement business profile update API call
+      let businessLogoUrl = existingLogoUrl; // Keep existing logo by default
+      let logoUploadFailed = false;
+
+      // If user selected a new logo, try to upload it
+      if (logoFile) {
+        try {
+          businessLogoUrl = await uploadLogo(logoFile);
+        } catch (error) {
+          console.error("Logo upload failed:", error);
+          logoUploadFailed = true;
+          // Continue without logo URL - don't block profile save
+        }
+      }
+
+      // Prepare business profile data (map UI fields to backend DTO)
+      const businessProfileData: BusinessProfileDto = {
+        businessName: formData.businessName,
+        businessFullName: formData.businessFullName, // Maps from businessName2
+        registeredBusinessAddress: formData.registeredAddress,
+        emailAddress: formData.emailAddress,
+        phoneNumber: formData.phoneNumber,
+        businessType: formData.businessType,
+        country: formData.country,
+        businessRegistrationNumber: formData.businessRegistrationNumber,
+        businessLogoUrl: businessLogoUrl || undefined,
+      };
+
+      // Update business profile
+      const response = await ApiClient.updateBusinessProfile(businessProfileData);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Show success message
-      alert("Business profile updated successfully!");
+      if (response.status === 200 && response.data) {
+        const data = response.data as BusinessProfileDto;
+        
+        // Update local state with response data
+        setFormData({
+          businessName: data.businessName || "",
+          businessFullName: data.businessFullName || "",
+          registeredAddress: data.registeredBusinessAddress || "",
+          emailAddress: data.emailAddress || "",
+          phoneNumber: data.phoneNumber || "",
+          businessType: data.businessType || "",
+          businessRegistrationNumber: data.businessRegistrationNumber || "",
+          country: data.country || "",
+        });
+
+        // Update logo state
+        if (data.businessLogoUrl) {
+          setExistingLogoUrl(data.businessLogoUrl);
+          setLogoPreview(data.businessLogoUrl);
+        }
+        
+        // Clear the selected file since it's now processed
+        setLogoFile(null);
+        
+        // Show appropriate success message
+        if (logoUploadFailed) {
+          showSuccess("Logo upload failed, but profile was saved successfully");
+        } else {
+          showSuccess("Business profile updated successfully!");
+        }
+      } else {
+        // Handle OriginalInvoiceBaseException and other errors
+        const errorMessage = response.error || "Failed to update business profile. Please try again.";
+        showError(errorMessage);
+      }
     } catch (error) {
       console.error("Error updating business profile:", error);
-      alert("Failed to update business profile. Please try again.");
+      showError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleCancel = () => {
-    // Reset form or navigate back
-    setFormData({
-      businessName: "",
-      registeredAddress: "",
-      emailAddress: "",
-      phoneNumber: "",
-      businessType: "",
-      businessRegistrationNumber: "",
-      country: "",
-    });
-    setLogoFile(null);
-    setLogoPreview(null);
+    // Reload business profile from server to reset any unsaved changes
+    loadBusinessProfile();
+    setLogoFile(null); // Clear any selected file
   };
+
+  // Show loading state while fetching data
+  if (isLoadingData) {
+    return (
+      <div className="p-6">
+        <div className="max-w-2xl">
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED]"></div>
+            <span className="ml-3 text-[#667085]">Loading business profile...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+      />
+      
       <div className="max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Business Name */}
@@ -113,7 +283,7 @@ const BusinessProfilePage = () => {
               name="businessName"
               value={formData.businessName}
               onChange={handleInputChange}
-              placeholder="Enter full name"
+              placeholder="Enter business name"
               className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
               required
             />
@@ -179,14 +349,16 @@ const BusinessProfilePage = () => {
               />
             </div>
 
-            {/* Business Name (Second Field) */}
+            {/* Business Full Name (Owner's Name) */}
             <div>
               <label className="block text-sm font-medium text-[#101828] mb-2">
                 Business Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                name="businessName2"
+                name="businessFullName"
+                value={formData.businessFullName}
+                onChange={handleInputChange}
                 placeholder="Enter business name"
                 className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
               />
@@ -226,7 +398,7 @@ const BusinessProfilePage = () => {
                 name="businessRegistrationNumber"
                 value={formData.businessRegistrationNumber}
                 onChange={handleInputChange}
-                placeholder="Enter business name"
+                placeholder="Enter registration number"
                 className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
               />
             </div>
@@ -244,7 +416,7 @@ const BusinessProfilePage = () => {
               className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent appearance-none bg-white"
               required
             >
-              <option value="">Select business type</option>
+              <option value="">Select country</option>
               {countries.map((country) => (
                 <option key={country} value={country}>
                   {country}
@@ -307,7 +479,7 @@ const BusinessProfilePage = () => {
             </button>
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !isFormValid()}
               className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Saving..." : "Save"}
