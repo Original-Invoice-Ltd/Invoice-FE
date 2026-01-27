@@ -201,11 +201,11 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ invoiceId, onBack }) => {
           <div className="flex flex-col md:flex-row justify-between mb-6 gap-4">
             <div>
               <div className="text-sm font-semibold text-gray-700">
-                {mockInvoiceData.invoiceId}
+                {invoice.invoiceNumber || 'N/A'}
               </div>
               <div className="text-sm text-gray-600">Balance Due</div>
               <div className="text-2xl font-bold text-gray-900">
-                {mockInvoiceData.balanceDue}
+                {formatCurrency(invoice.totalDue || 0, invoice.currency)}
               </div>
             </div>
           </div>
@@ -214,17 +214,17 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ invoiceId, onBack }) => {
           <div className="bg-blue-600 text-white rounded-lg p-4 mb-6 grid grid-cols-3 gap-4">
             <div>
               <div className="text-sm opacity-90">Invoice Date</div>
-              <div className="font-semibold">{mockInvoiceData.invoiceDate}</div>
+              <div className="font-semibold">{invoice.creationDate ? formatDate(invoice.creationDate) : 'N/A'}</div>
             </div>
             <div>
               <div className="text-sm opacity-90">Payment Terms</div>
               <div className="font-semibold">
-                {mockInvoiceData.paymentTerms}
+                {invoice.paymentTerms || 'N/A'}
               </div>
             </div>
             <div>
               <div className="text-sm opacity-90">Due Date</div>
-              <div className="font-semibold">{mockInvoiceData.dueDate}</div>
+              <div className="font-semibold">{invoice.dueDate ? formatDate(invoice.dueDate) : 'N/A'}</div>
             </div>
           </div>
 
@@ -251,17 +251,23 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ invoiceId, onBack }) => {
                 </tr>
               </thead>
               <tbody>
-                {mockInvoiceData.items.map((item) => (
-                  <tr key={item.id} className="border-b border-gray-200">
-                    <td className="py-4 text-gray-700">{item.id}</td>
-                    <td className="py-4 text-gray-700">{item.description}</td>
-                    <td className="py-4 text-right text-gray-700">{item.qty}</td>
-                    <td className="py-4 text-right text-gray-700">{item.rate}</td>
-                    <td className="py-4 text-right text-gray-700">
-                      ₦{item.amount.toLocaleString()}
-                    </td>
+                {invoice.items && invoice.items.length > 0 ? (
+                  invoice.items.map((item: any, index: number) => (
+                    <tr key={item.id || index} className="border-b border-gray-200">
+                      <td className="py-4 text-gray-700">{index + 1}</td>
+                      <td className="py-4 text-gray-700">{item.itemName || item.description || 'N/A'}</td>
+                      <td className="py-4 text-right text-gray-700">{item.quantity || 0}</td>
+                      <td className="py-4 text-right text-gray-700">{formatCurrency(item.rate || 0, invoice.currency)}</td>
+                      <td className="py-4 text-right text-gray-700">
+                        {formatCurrency(item.amount || 0, invoice.currency)}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="py-4 text-center text-gray-500">No items found</td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -271,80 +277,86 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ invoiceId, onBack }) => {
             <div className="w-full md:w-1/2 space-y-2">
               <div className="flex justify-between text-gray-700">
                 <span>Sub Total</span>
-                <span>{mockInvoiceData.subTotal.toLocaleString()}</span>
+                <span>{formatCurrency(invoice.subTotal || 0, invoice.currency)}</span>
               </div>
-              <div className="flex justify-between text-gray-700">
-                <span>VAT (7.5%)</span>
-                <span>{mockInvoiceData.vat.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-gray-700">
-                <span>WHT (5%)</span>
-                <span>{mockInvoiceData.wht}</span>
-              </div>
+              {invoice.taxes && invoice.taxes.length > 0 && invoice.taxes.map((tax: any, index: number) => (
+                <div key={index} className="flex justify-between text-gray-700">
+                  <span>{tax.name} ({tax.rate}%)</span>
+                  <span>{formatCurrency(tax.amount || 0, invoice.currency)}</span>
+                </div>
+              ))}
               <div className="flex justify-between font-bold text-gray-900 text-lg border-t pt-2">
                 <span>Total</span>
-                <span>₦{mockInvoiceData.total.toLocaleString()}</span>
+                <span>{formatCurrency(invoice.totalDue || 0, invoice.currency)}</span>
               </div>
               <div className="bg-blue-600 text-white p-4 rounded-lg flex justify-between items-center font-bold">
                 <span>Balance Due</span>
-                <span>₦{mockInvoiceData.total.toLocaleString()}</span>
+                <span>{formatCurrency(invoice.totalDue || 0, invoice.currency)}</span>
               </div>
             </div>
           </div>
 
           {/* Signature */}
-          <div className="mb-6">
-            <div className="font-semibold text-gray-900 mb-2">Signature</div>
-            <div
-              className="text-3xl text-gray-700"
-              style={{ fontFamily: "cursive" }}
-            >
-              {mockInvoiceData.signature}
+          {invoice.signature && (
+            <div className="mb-6">
+              <div className="font-semibold text-gray-900 mb-2">Signature</div>
+              <div
+                className="text-3xl text-gray-700"
+                style={{ fontFamily: "cursive" }}
+              >
+                {invoice.signature}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Note */}
-          <div className="mb-6">
-            <div className="font-semibold text-gray-900 mb-2">Note</div>
-            <p className="text-gray-600 text-sm">{mockInvoiceData.note}</p>
-          </div>
+          {invoice.note && (
+            <div className="mb-6">
+              <div className="font-semibold text-gray-900 mb-2">Note</div>
+              <p className="text-gray-600 text-sm">{invoice.note}</p>
+            </div>
+          )}
 
           {/* Terms of Payment */}
-          <div className="mb-6">
-            <div className="font-semibold text-gray-900 mb-2">
-              Terms of Payment
+          {invoice.termsOfPayment && (
+            <div className="mb-6">
+              <div className="font-semibold text-gray-900 mb-2">
+                Terms of Payment
+              </div>
+              <p className="text-gray-600 text-sm">
+                {invoice.termsOfPayment}
+              </p>
             </div>
-            <p className="text-gray-600 text-sm">
-              {mockInvoiceData.termsOfPayment}
-            </p>
-          </div>
+          )}
 
           {/* Payment Method */}
-          <div>
-            <div className="font-semibold text-gray-900 mb-3">
-              Payment Method: Bank Transfer
+          {invoice.bankDetails && (
+            <div>
+              <div className="font-semibold text-gray-900 mb-3">
+                Payment Method: Bank Transfer
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                  <div className="text-gray-600">Bank Name:</div>
+                  <div className="font-semibold text-gray-900">
+                    {invoice.bankDetails.bankName || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-gray-600">Account Number</div>
+                  <div className="font-semibold text-gray-900">
+                    {invoice.bankDetails.accountNumber || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-gray-600">Account Name</div>
+                  <div className="font-semibold text-gray-900">
+                    {invoice.bankDetails.accountName || 'N/A'}
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div>
-                <div className="text-gray-600">Bank Name:</div>
-                <div className="font-semibold text-gray-900">
-                  {mockInvoiceData.bankDetails.bankName}
-                </div>
-              </div>
-              <div>
-                <div className="text-gray-600">Account Number</div>
-                <div className="font-semibold text-gray-900">
-                  {mockInvoiceData.bankDetails.accountNumber}
-                </div>
-              </div>
-              <div>
-                <div className="text-gray-600">Account Name</div>
-                <div className="font-semibold text-gray-900">
-                  {mockInvoiceData.bankDetails.accountName}
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Action Buttons - Mobile */}
@@ -388,10 +400,7 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ invoiceId, onBack }) => {
       <UploadReceiptModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
-<<<<<<< HEAD
-        invoiceId={mockInvoiceData.invoiceId.replace('#', '')}
-=======
->>>>>>> 1586db6e7eef37b433fbf1dff6b1db7e827cec22
+        invoiceId={invoiceId}
       />
     </div>
   );
