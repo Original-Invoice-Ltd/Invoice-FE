@@ -442,16 +442,31 @@ export class ApiClient {
 
 
   static async getLanguage(){
-  return this.request('GET','/api/settings/language')
+    return await axiosInstance.get('/api/settings/language',
+      {
+        withCredentials:true
+      }
+  )
   }
 
   static async updateLanguage(language: string){
-    return this.request('PATCH', '/api/settings/language', {language: language.toUpperCase()})
+    return await axiosInstance.patch('/api/settings/language',
+      {
+        language: language.toUpperCase()
+      },
+      {
+        withCredentials:true
+      }
+    )
   }
 
 
   static async getNotificationPreference() {
-  return this.request('GET', '/api/settings/notifications');
+    return await axiosInstance.get('/api/settings/notifications',
+      {
+        withCredentials:true
+      }
+  );
 }
 
 static async updateNotificationPreference(settings: {
@@ -461,12 +476,20 @@ static async updateNotificationPreference(settings: {
   clientAdded: boolean;
   systemAlerts: boolean;
 }) {
-  return this.request('PATCH', '/api/settings/notifications', settings);
+  return await axiosInstance.patch(
+    '/api/settings/notifications',
+    settings,
+    {
+      withCredentials:true
+    }
+  );
 }
 
   // Business Profile APIs
   static async getBusinessProfile() {
-    return this.request('GET', '/api/settings/businessProfile');
+    return await axiosInstance.get('/api/settings/businessProfile', {
+      withCredentials:true
+    });
   }
 
   static async updateBusinessProfile(businessProfileData: {
@@ -480,7 +503,11 @@ static async updateNotificationPreference(settings: {
     businessRegistrationNumber?: string;
     businessLogoUrl?: string;
   }) {
-    return this.request('PATCH', '/api/settings/businessProfile', businessProfileData);
+    return await axiosInstance.patch('/api/settings/businessProfile', businessProfileData,
+      {
+        withCredentials: true
+      }
+    );
   }
 
   static async uploadBusinessLogo(logoFile: File): Promise<ApiResponse<any>> {
@@ -502,7 +529,9 @@ static async updateNotificationPreference(settings: {
 
   // Tax Settings APIs
   static async getTaxSettings() {
-    return this.request('GET', '/api/settings/taxSettings');
+    return await axiosInstance.get('/api/settings/taxSettings', {
+      withCredentials: true
+    });
   }
 
   static async updateTaxSettings(taxSettingsData: {
@@ -511,12 +540,17 @@ static async updateNotificationPreference(settings: {
     enablingVAT?: boolean;
     enablingWHT?: boolean;
   }) {
-    return this.request('PATCH', '/api/settings/taxSettings', taxSettingsData);
+    return await axiosInstance.patch('/api/settings/taxSettings', taxSettingsData,
+      {
+        withCredentials: true
+      }
+  );
   }
 
-  // Personal Profile APIs
   static async getPersonalProfile() {
-    return this.request('GET', '/api/settings/personalProfile');
+    return await axiosInstance.get('/api/settings/personalProfile', {
+      withCredentials:true
+    });
   }
 
   static async updatePersonalProfile(profileData: {
@@ -528,7 +562,6 @@ static async updateNotificationPreference(settings: {
     try {
       const formData = new FormData();
       
-      // Add optional fields only if provided
       if (profileData.firstName) {
         formData.append('firstName', profileData.firstName);
       }
