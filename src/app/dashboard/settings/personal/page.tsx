@@ -18,7 +18,6 @@ const PersonalProfilePage = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Initialize form data with user information
   useEffect(() => {
     if (user) {
       const nameParts = user.fullName?.split(' ') || ['', ''];
