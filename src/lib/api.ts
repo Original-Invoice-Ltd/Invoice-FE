@@ -514,6 +514,46 @@ static async updateNotificationPreference(settings: {
     return this.request('PATCH', '/api/settings/taxSettings', taxSettingsData);
   }
 
+  // Personal Profile APIs
+  static async getPersonalProfile() {
+    return this.request('GET', '/api/settings/personalProfile');
+  }
+
+  static async updatePersonalProfile(profileData: {
+    firstName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    profilePicture?: File;
+  }): Promise<ApiResponse<any>> {
+    try {
+      const formData = new FormData();
+      
+      // Add optional fields only if provided
+      if (profileData.firstName) {
+        formData.append('firstName', profileData.firstName);
+      }
+      if (profileData.lastName) {
+        formData.append('lastName', profileData.lastName);
+      }
+      if (profileData.phoneNumber) {
+        formData.append('phoneNumber', profileData.phoneNumber);
+      }
+      if (profileData.profilePicture) {
+        formData.append('profilePicture', profileData.profilePicture);
+      }
+
+      const response = await axiosInstance.patch('/api/settings/personalProfile', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
 
 
   // Utility methods for customer invoice operations
