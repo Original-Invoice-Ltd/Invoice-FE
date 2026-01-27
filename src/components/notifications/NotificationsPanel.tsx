@@ -117,6 +117,7 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
                     </div>
                 );
             case 'PAYMENT_RECEIVED':
+            case 'PAYMENT_EVIDENCE_UPLOADED':   
                 return (
                     <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
