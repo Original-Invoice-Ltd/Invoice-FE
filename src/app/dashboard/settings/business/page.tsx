@@ -6,8 +6,8 @@ import Image from "next/image";
 import { ApiClient } from "@/lib/api";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
+import { ApiResponse } from "@/types/invoice";
 
-// TypeScript interfaces for business profile
 interface BusinessProfileDto {
   businessName?: string;
   businessFullName?: string;
@@ -20,18 +20,19 @@ interface BusinessProfileDto {
   businessLogoUrl?: string;
 }
 
+
 const BusinessProfilePage = () => {
   const { toast, showSuccess, showError, hideToast } = useToast();
-  
+
   const [formData, setFormData] = useState({
     businessName: "",
-    registeredAddress: "",
+    businessFullName: "",
+    registeredBusinessAddress: "",
     emailAddress: "",
     phoneNumber: "",
     businessType: "",
     businessRegistrationNumber: "",
-    country: "",
-    businessFullName: "", // Maps to businessName2 in UI
+    country: ""
   });
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -41,24 +42,24 @@ const BusinessProfilePage = () => {
   const [isLoadingData, setIsLoadingData] = useState(true);
 
   const businessTypes = [
-    "Sole Proprietorship",
-    "Partnership",
-    "Limited Liability Company (LLC)",
-    "Corporation",
-    "Non-Profit Organization",
-    "Other",
-  ];
+    { label: "Sole Proprietorship", value: "SOLE_PROPRIETORSHIP" },
+    { label: "Partnership", value: "PARTNERSHIP" },
+    { label: "Limited Liability Company (LLC)", value: "LIMITED_LIABILITY_COMPANY" },
+    { label: "Corporation", value: "COPERATIONS" },
+    { label: "Non-Profit Organization", value: "NON_PROFIT_ORGANIZATION" },
+    { label: "Other", value: "OTHERS" },
+  ] as const;
 
   const countries = [
-    "Nigeria",
-    "Ghana",
-    "Kenya",
-    "South Africa",
-    "United States",
-    "United Kingdom",
-    "Canada",
-    "Other",
-  ];
+    { label: "Nigeria", value: "NIGERIA" },
+    { label: "Ghana", value: "GHANA" },
+    { label: "Kenya", value: "KENYA" },
+    { label: "South Africa", value: "SOUTH_AFRICA" },
+    { label: "United States", value: "US" },
+    { label: "United Kingdom", value: "UK" },
+    { label: "Canada", value: "CANADA" },
+    { label: "Other", value: "OTHERS" },
+  ] as const;
 
   // Load existing business profile on component mount
   useEffect(() => {
@@ -69,28 +70,33 @@ const BusinessProfilePage = () => {
     try {
       setIsLoadingData(true);
       const response = await ApiClient.getBusinessProfile();
-      
-      if (response.status === 200 && response.data) {
-        const data = response.data as BusinessProfileDto;
-        
-        // Map backend data to UI state
-        setFormData({
-          businessName: data.businessName || "",
-          registeredAddress: data.registeredBusinessAddress || "",
-          emailAddress: data.emailAddress || "",
-          phoneNumber: data.phoneNumber || "",
-          businessType: data.businessType || "",
-          businessRegistrationNumber: data.businessRegistrationNumber || "",
-          country: data.country || "",
-          businessFullName: data.businessFullName || "",
-        });
+      console.log("Full API response:", response);
 
-        // Set existing logo if available
-        if (data.businessLogoUrl) {
-          setExistingLogoUrl(data.businessLogoUrl);
-          setLogoPreview(data.businessLogoUrl);
+      if (response.status === 200 && response.data) {
+        const apiResponse = response.data as ApiResponse<BusinessProfileDto>;
+        const data = apiResponse.data;
+        console.log("Business profile data:", data);
+
+        if (data) {
+          setFormData({
+            businessName: data.businessName || "",
+            businessFullName: data.businessFullName || "",
+            registeredBusinessAddress: data.registeredBusinessAddress || "",
+            emailAddress: data.emailAddress || "",
+            phoneNumber: data.phoneNumber || "",
+            businessType: data.businessType || "",
+            businessRegistrationNumber: data.businessRegistrationNumber || "",
+            country: data.country || "",
+          });
+
+          if (data.businessLogoUrl) {
+            setExistingLogoUrl(data.businessLogoUrl);
+            setLogoPreview(data.businessLogoUrl);
+          }
+
         }
       }
+
     } catch (error) {
       console.error("Error loading business profile:", error);
       showError("Failed to load business profile. Please refresh the page.");
@@ -98,6 +104,7 @@ const BusinessProfilePage = () => {
       setIsLoadingData(false);
     }
   };
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -110,7 +117,6 @@ const BusinessProfilePage = () => {
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file size (5MB max)
       if (file.size > 5 * 1024 * 1024) {
         showError("Logo file size must be less than 5MB");
         return;
@@ -133,14 +139,13 @@ const BusinessProfilePage = () => {
 
   const removeLogo = () => {
     setLogoFile(null);
-    setLogoPreview(existingLogoUrl); // Revert to existing logo or null
+    setLogoPreview(existingLogoUrl);
   };
 
-  // Check if required fields are filled
   const isFormValid = () => {
     return (
       formData.businessName.trim() !== "" &&
-      formData.registeredAddress.trim() !== "" &&
+      formData.registeredBusinessAddress.trim() !== "" &&
       formData.emailAddress.trim() !== "" &&
       formData.phoneNumber.trim() !== "" &&
       formData.businessType.trim() !== "" &&
@@ -148,16 +153,19 @@ const BusinessProfilePage = () => {
     );
   };
 
-  // Upload logo (single attempt)
   const uploadLogo = async (file: File): Promise<string | null> => {
     try {
       const response = await ApiClient.uploadBusinessLogo(file);
-      
-      if (response.status === 200 && response.data?.data?.uploadedLogoUrl) {
-        return response.data.data.uploadedLogoUrl;
-      } else {
-        throw new Error(response.error || 'Logo upload failed');
+      console.log("Logo upload response:", response);
+
+      if (response.status === 200 && response.data) {
+        // Try both possible response structures
+        const logoUrl = response.data.uploadedLogoUrl || response.data.data?.uploadedLogoUrl;
+        if (logoUrl) {
+          return logoUrl;
+        }
       }
+      throw new Error(response.error || 'Logo upload failed');
     } catch (error) {
       console.error("Logo upload failed:", error);
       throw error;
@@ -167,12 +175,15 @@ const BusinessProfilePage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
+    if (formData.phoneNumber.length > 0 && !ApiClient.isValidPhone(formData.phoneNumber)) {
+      setIsLoading(false);
+      showError("Phone number must be in international format. Example: +234***********");
+      return;
+    }
     try {
-      let businessLogoUrl = existingLogoUrl; // Keep existing logo by default
+      let businessLogoUrl = existingLogoUrl;
       let logoUploadFailed = false;
 
-      // If user selected a new logo, try to upload it
       if (logoFile) {
         try {
           businessLogoUrl = await uploadLogo(logoFile);
@@ -186,8 +197,8 @@ const BusinessProfilePage = () => {
       // Prepare business profile data (map UI fields to backend DTO)
       const businessProfileData: BusinessProfileDto = {
         businessName: formData.businessName,
-        businessFullName: formData.businessFullName, // Maps from businessName2
-        registeredBusinessAddress: formData.registeredAddress,
+        businessFullName: formData.businessFullName,
+        registeredBusinessAddress: formData.registeredBusinessAddress,
         emailAddress: formData.emailAddress,
         phoneNumber: formData.phoneNumber,
         businessType: formData.businessType,
@@ -198,44 +209,20 @@ const BusinessProfilePage = () => {
 
       // Update business profile
       const response = await ApiClient.updateBusinessProfile(businessProfileData);
-      
-      if (response.status === 200 && response.data) {
-        const data = response.data as BusinessProfileDto;
-        
-        // Update local state with response data
-        setFormData({
-          businessName: data.businessName || "",
-          businessFullName: data.businessFullName || "",
-          registeredAddress: data.registeredBusinessAddress || "",
-          emailAddress: data.emailAddress || "",
-          phoneNumber: data.phoneNumber || "",
-          businessType: data.businessType || "",
-          businessRegistrationNumber: data.businessRegistrationNumber || "",
-          country: data.country || "",
-        });
 
-        // Update logo state
-        if (data.businessLogoUrl) {
-          setExistingLogoUrl(data.businessLogoUrl);
-          setLogoPreview(data.businessLogoUrl);
-        }
-        
-        // Clear the selected file since it's now processed
-        setLogoFile(null);
-        
-        // Show appropriate success message
-        if (logoUploadFailed) {
-          showSuccess("Logo upload failed, but profile was saved successfully");
-        } else {
-          showSuccess("Business profile updated successfully!");
-        }
+      if (response.status !== 200) {
+        showError("Failed to update business profile, Please try again.");
+        return;
+      }
+
+      await loadBusinessProfile();
+      setLogoFile(null);
+      if (logoUploadFailed) {
+        showSuccess("Profile saved, but logo upload failed");
       } else {
-        // Handle OriginalInvoiceBaseException and other errors
-        const errorMessage = response.error || "Failed to update business profile. Please try again.";
-        showError(errorMessage);
+        showSuccess("Business profile updated successfully");
       }
     } catch (error) {
-      console.error("Error updating business profile:", error);
       showError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -270,7 +257,7 @@ const BusinessProfilePage = () => {
         isVisible={toast.isVisible}
         onClose={hideToast}
       />
-      
+
       <div className="max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Business Name */}
@@ -298,8 +285,8 @@ const BusinessProfilePage = () => {
               </label>
               <input
                 type="text"
-                name="registeredAddress"
-                value={formData.registeredAddress}
+                name="registeredBusinessAddress"
+                value={formData.registeredBusinessAddress}
                 onChange={handleInputChange}
                 placeholder="Enter business address"
                 className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
@@ -324,7 +311,7 @@ const BusinessProfilePage = () => {
                 />
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M18.3333 5.00001C18.3333 4.08334 17.5833 3.33334 16.6667 3.33334H3.33333C2.41667 3.33334 1.66667 4.08334 1.66667 5.00001M18.3333 5.00001V15C18.3333 15.9167 17.5833 16.6667 16.6667 16.6667H3.33333C2.41667 16.6667 1.66667 15.9167 1.66667 15V5.00001M18.3333 5.00001L10 10.8333L1.66667 5.00001" stroke="#667085" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M18.3333 5.00001C18.3333 4.08334 17.5833 3.33334 16.6667 3.33334H3.33333C2.41667 3.33334 1.66667 4.08334 1.66667 5.00001M18.3333 5.00001V15C18.3333 15.9167 17.5833 16.6667 16.6667 16.6667H3.33333C2.41667 16.6667 1.66667 15.9167 1.66667 15V5.00001M18.3333 5.00001L10 10.8333L1.66667 5.00001" stroke="#667085" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
               </div>
@@ -381,8 +368,8 @@ const BusinessProfilePage = () => {
               >
                 <option value="">Select business type</option>
                 {businessTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
+                  <option key={type.value} value={type.value}>
+                    {type.label}
                   </option>
                 ))}
               </select>
@@ -418,8 +405,8 @@ const BusinessProfilePage = () => {
             >
               <option value="">Select country</option>
               {countries.map((country) => (
-                <option key={country} value={country}>
-                  {country}
+                <option key={country.value} value={country.value}>
+                  {country.label}
                 </option>
               ))}
             </select>
@@ -431,7 +418,7 @@ const BusinessProfilePage = () => {
               Upload Business Logo
             </label>
             <p className="text-xs text-[#667085] mb-3">Max file size 5MB</p>
-            
+
             {logoPreview ? (
               <div className="relative w-32 h-32 border-2 border-dashed border-[#D0D5DD] rounded-lg flex items-center justify-center bg-[#F9FAFB]">
                 <Image

@@ -78,3 +78,8 @@ export interface InvoiceListResponse {
   page?: number;
   size?: number;
 }
+
+export interface ApiResponse<T>{
+  isSuccessful: boolean,
+  data: T
+}

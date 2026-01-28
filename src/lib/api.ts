@@ -144,6 +144,10 @@ export class ApiClient {
     return this.request('DELETE', endpoint, undefined, params);
   }
 
+  static async patch(endpoint: string, data?: any) {
+    return this.request('PATCH', endpoint, data);
+  }
+
   // Authentication APIs
   static async login(email: string, password: string) {
     
@@ -207,7 +211,9 @@ export class ApiClient {
   }
 
   static async getCurrentUser() {
-    return this.request('GET', '/api/users/me');
+    return await axiosInstance.get('/api/users/me', {
+      withCredentials:true
+    });
   }
 
   static async updateProfile(fullName: string, phoneNumber: string) {
@@ -487,9 +493,7 @@ static async updateNotificationPreference(settings: {
 
   // Business Profile APIs
   static async getBusinessProfile() {
-    return await axiosInstance.get('/api/settings/businessProfile', {
-      withCredentials:true
-    });
+    return this.request('GET', '/api/settings/businessProfile');
   }
 
   static async updateBusinessProfile(businessProfileData: {
@@ -503,11 +507,7 @@ static async updateNotificationPreference(settings: {
     businessRegistrationNumber?: string;
     businessLogoUrl?: string;
   }) {
-    return await axiosInstance.patch('/api/settings/businessProfile', businessProfileData,
-      {
-        withCredentials: true
-      }
-    );
+    return this.request('PATCH', '/api/settings/businessProfile', businessProfileData);
   }
 
   static async uploadBusinessLogo(logoFile: File): Promise<ApiResponse<any>> {
@@ -620,6 +620,9 @@ static async updateNotificationPreference(settings: {
       ];
     }
   }
+  static isValidPhone = (phone: string) => {
+    return /^\+[1-9]\d{7,14}$/.test(phone);
+  };
 
   static formatCurrency(amount: number, currency: string = '₦'): string {
     return `${currency}${amount.toLocaleString('en-US', { 
