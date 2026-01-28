@@ -413,11 +413,6 @@ export class ApiClient {
     return this.request('DELETE', `/api/invoices/delete/${id}`);
   }
 
-<<<<<<< HEAD
-  static async canCreateInvoice() {
-    return this.request('GET', '/api/invoices/can-create');
-  }
-
   // Subscription Management APIs
   static async getCurrentSubscription() {
     return this.request('GET', '/api/subscriptions/current');
@@ -461,7 +456,8 @@ export class ApiClient {
 
   static async disableSubscription() {
     return this.request('POST', '/api/subscriptions/disable');
-=======
+  }
+
   // Receipt Management APIs
   static async uploadReceipt(invoiceId: string, receiptFile: File): Promise<ApiResponse<any>> {
     try {
@@ -548,6 +544,5 @@ export class ApiClient {
       month: 'short', 
       year: 'numeric' 
     });
->>>>>>> 4bd9241a970810ae7e38b0d752eb35351481aa10
   }
 }
