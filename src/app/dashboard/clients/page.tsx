@@ -2,10 +2,13 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Search, Plus, MoreVertical, ChevronDown, Edit, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { ApiClient } from "@/lib/api";
 import { ClientCache } from "@/lib/clientCache";
 import ClientModal from "@/components/clientManagement/ClientModal";
 import DeleteConfirmationModal from "@/components/common/DeleteConfirmationModal";
+import { useInvoiceLimit } from "@/contexts/InvoiceLimitContext";
+import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification";
 
 interface Client {
     id: string;
@@ -30,6 +33,10 @@ interface FormData {
 
 
 const ClientsPage = () => {
+    const router = useRouter();
+    const { canCreateInvoice } = useInvoiceLimit();
+    const { showBlockedNotification } = useInvoiceLimitNotification();
+    
     const [searchQuery, setSearchQuery] = useState("");
     const [showAddModal, setShowAddModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -175,6 +182,17 @@ const ClientsPage = () => {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    // Handle create invoice button click with limit checking
+    const handleCreateInvoice = () => {
+        if (!canCreateInvoice) {
+            showBlockedNotification();
+            return;
+        }
+        
+        setShowSuccessModal(false);
+        router.push('/dashboard/invoices/create');
     };
 
     const handleEditClient = (client: Client) => {
@@ -586,7 +604,7 @@ const ClientsPage = () => {
                                         Cancel
                                     </button>
                                     <button
-                                        onClick={() => setShowSuccessModal(false)}
+                                        onClick={handleCreateInvoice}
                                         className="flex-1 px-6 py-3 bg-[#2F80ED] text-[#FFFFFF] 
                                         rounded-lg text-sm font-medium"
                                     >

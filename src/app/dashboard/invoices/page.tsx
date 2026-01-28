@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Search, MoreHorizontal, Eye, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ApiClient } from "@/lib/api";
 import { InvoiceResponse } from "@/types/invoice";
 import DeleteConfirmationModal from "@/components/common/DeleteConfirmationModal";
@@ -28,6 +29,18 @@ const InvoicesPage = () => {
         isLoading: false,
         error: null
     });
+
+    // Handle create invoice button click with limit checking
+    const handleCreateInvoice = (e: React.MouseEvent) => {
+        e.preventDefault();
+        
+        if (!canCreateInvoice) {
+            showBlockedNotification();
+            return;
+        }
+        
+        router.push('/dashboard/invoices/create');
+    };
 
     // Fetch invoices on component mount
     useEffect(() => {
@@ -176,13 +189,13 @@ const InvoicesPage = () => {
                         top of payments and tax compliance effortlessly.
                     </p>
                 </div>
-                <Link
-                    href="/dashboard/invoices/create"
+                <button
+                    onClick={handleCreateInvoice}
                     className="flex items-center gap-2 px-5 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors text-[16px] font-medium whitespace-nowrap"
                 >
                     <Plus size={20} />
                     Create Invoice
-                </Link>
+                </button>
             </div>
 
             {/* All Invoices Section */}
@@ -240,13 +253,13 @@ const InvoicesPage = () => {
                             }
                         </p>
                         {!searchQuery && (
-                            <Link
-                                href="/dashboard/invoices/create"
+                            <button
+                                onClick={handleCreateInvoice}
                                 className="flex items-center gap-2 px-6 py-3 bg-transparent border-2 border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-[#EFF8FF] transition-colors text-[16px] font-medium"
                             >
                                 <Plus size={20} />
                                 Create Invoice
-                            </Link>
+                            </button>
                         )}
                     </div>
                 ) : (

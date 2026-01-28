@@ -413,6 +413,55 @@ export class ApiClient {
     return this.request('DELETE', `/api/invoices/delete/${id}`);
   }
 
+<<<<<<< HEAD
+  static async canCreateInvoice() {
+    return this.request('GET', '/api/invoices/can-create');
+  }
+
+  // Subscription Management APIs
+  static async getCurrentSubscription() {
+    return this.request('GET', '/api/subscriptions/current');
+  }
+
+  static async canCreateInvoice() {
+    return this.request('GET', '/api/subscriptions/can-create-invoice');
+  }
+
+  static async getSubscriptionPlans() {
+    return this.request('GET', '/api/subscriptions/plans');
+  }
+
+  static async initializeSubscription(data: { plan: string }) {
+    return this.request('POST', '/api/subscriptions/initialize', data);
+  }
+
+  static async initializeCardSubscription(data: { plan: string }) {
+    return this.request('POST', '/api/subscriptions/initialize-card-subscription', data);
+  }
+
+  static async initializeTransactionWithPlan(data: { 
+    plan: string; 
+    channels?: string[]; 
+    callbackUrl?: string; 
+  }) {
+    return this.request('POST', '/api/subscriptions/initialize-transaction', data);
+  }
+
+  static async cancelSubscription() {
+    return this.request('POST', '/api/subscriptions/cancel');
+  }
+
+  static async verifySubscription(reference: string) {
+    return this.request('GET', `/api/subscriptions/verify/${reference}`);
+  }
+
+  static async enableSubscription() {
+    return this.request('POST', '/api/subscriptions/enable');
+  }
+
+  static async disableSubscription() {
+    return this.request('POST', '/api/subscriptions/disable');
+=======
   // Receipt Management APIs
   static async uploadReceipt(invoiceId: string, receiptFile: File): Promise<ApiResponse<any>> {
     try {
@@ -499,5 +548,6 @@ export class ApiClient {
       month: 'short', 
       year: 'numeric' 
     });
+>>>>>>> 4bd9241a970810ae7e38b0d752eb35351481aa10
   }
 }
