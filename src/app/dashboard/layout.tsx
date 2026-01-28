@@ -3,14 +3,32 @@
 import { useState } from "react";
 import DashboardSideBar from "@/components/dashboardSidebar";
 import DashboardHeader from "@/components/dashboardHeader/DashboardHeader";
+import { InvoiceLimitProvider } from "@/contexts/InvoiceLimitContext";
+import InvoiceLimitNotification from "@/components/notifications/InvoiceLimitNotification";
+import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification";
 
 export default function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    return (
+        <InvoiceLimitProvider>
+            <DashboardLayoutContent>
+                {children}
+            </DashboardLayoutContent>
+        </InvoiceLimitProvider>
+    );
+}
+
+function DashboardLayoutContent({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [notificationsOpen, setNotificationsOpen] = useState(false);
+    const { notification, hideNotification, handleUpgrade } = useInvoiceLimitNotification();
 
     return (
         <div className="flex h-screen overflow-hidden bg-[#F9FAFB]">
@@ -36,6 +54,15 @@ export default function DashboardLayout({
                     </div>
                 </main>
             </div>
+
+            {/* Invoice Limit Notification */}
+            <InvoiceLimitNotification
+                isVisible={notification.isVisible}
+                onClose={hideNotification}
+                type={notification.type}
+                invoicesRemaining={notification.invoicesRemaining}
+                onUpgrade={handleUpgrade}
+            />
         </div>
     );
 }

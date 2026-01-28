@@ -6,10 +6,73 @@ import FAQ from "@/components/FAQ";
 import Image from "next/image";
 import arrowDown from './../../../public/assets/icons/Hand-drawn arrow.svg';
 import Testimonials from "@/components/testimonials";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { initializeTransactionWithPlan } from "@/lib/subscription";
 
 const Pricing = ()=>{
     const [currentCard, setCurrentCard] = useState(0);
+    const [isLoading, setIsLoading] = useState<string | null>(null); // Track which button is loading
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // Check for plan parameter in URL and auto-trigger subscription
+    useEffect(() => {
+        const planParam = searchParams.get("plan");
+        if (planParam && (planParam === "ESSENTIALS" || planParam === "PREMIUM")) {
+            // Small delay to ensure component is mounted
+            setTimeout(() => {
+                handleSubscribe(planParam as "ESSENTIALS" | "PREMIUM");
+            }, 500);
+        }
+    }, [searchParams]);
+
+    // Handle subscription for paid plans
+    const handleSubscribe = async (plan: "ESSENTIALS" | "PREMIUM") => {
+        try {
+            setIsLoading(plan);
+            
+            // Initialize transaction with plan
+            const result = await initializeTransactionWithPlan(
+                plan,
+                ["card", "bank_transfer"], // Allow both card and bank transfer
+                `${window.location.origin}/dashboard/subscription/success` // Callback URL
+            );
+
+            if (result.success && result.authorizationUrl) {
+                // Redirect to Paystack checkout
+                window.location.href = result.authorizationUrl;
+            } else {
+                console.error("Failed to initialize subscription:", result.message);
+                
+                // Check if it's an authentication error
+                if (result.message?.includes("authentication") || result.message?.includes("unauthorized")) {
+                    // Redirect to sign in with return URL
+                    const returnUrl = encodeURIComponent(`/pricing?plan=${plan}`);
+                    router.push(`/signIn?returnUrl=${returnUrl}`);
+                } else {
+                    alert("Failed to start subscription process. Please try again.");
+                }
+            }
+        } catch (error: any) {
+            console.error("Error starting subscription:", error);
+            
+            // Check if it's an authentication error
+            if (error.response?.status === 401) {
+                const returnUrl = encodeURIComponent(`/pricing?plan=${plan}`);
+                router.push(`/signIn?returnUrl=${returnUrl}`);
+            } else {
+                alert("An error occurred. Please try again.");
+            }
+        } finally {
+            setIsLoading(null);
+        }
+    };
+
+    // Handle free trial (redirect to sign up)
+    const handleFreeTrial = () => {
+        router.push("/signUp");
+    };
     return(
         <>
             <div className="min-h-screen flex flex-col w-full overflow-hidden">
@@ -121,7 +184,10 @@ const Pricing = ()=>{
                                                 </div>
                                             </div>
                                             
-                                            <button className="w-full h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors">
+                                            <button 
+                                                onClick={handleFreeTrial}
+                                                className="w-full h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors"
+                                            >
                                                 Start Free Trial
                                             </button>
                                             <p className="text-[12px] text-[#333436] text-center mt-[12px]">No credit card required</p>
@@ -163,8 +229,12 @@ const Pricing = ()=>{
                                                 </div>
                                             </div>
                                             
-                                            <button className="h-[46px] w-full bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors">
-                                                Get Started
+                                            <button 
+                                                onClick={() => handleSubscribe("ESSENTIALS")}
+                                                disabled={isLoading === "ESSENTIALS"}
+                                                className="h-[46px] w-full bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {isLoading === "ESSENTIALS" ? "Processing..." : "Get Started"}
                                             </button>
                                             <p className="text-[12px] text-[#333436] text-center mt-[12px]">Perfect for small businesses and freelancers</p>
                                         </div>
@@ -205,8 +275,12 @@ const Pricing = ()=>{
                                                 </div>
                                             </div>
                                             
-                                            <button className="w-full h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors">
-                                                Start Premium
+                                            <button 
+                                                onClick={() => handleSubscribe("PREMIUM")}
+                                                disabled={isLoading === "PREMIUM"}
+                                                className="w-full h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {isLoading === "PREMIUM" ? "Processing..." : "Start Premium"}
                                             </button>
                                             <p className="text-[12px] text-[#333436] text-center mt-[12px]">For growing businesses with high invoice volume</p>
                                         </div>
@@ -274,7 +348,10 @@ const Pricing = ()=>{
                                     </div>
                                 </div>
                                 
-                                <button className="w-[320px] h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors">
+                                <button 
+                                    onClick={handleFreeTrial}
+                                    className="w-[320px] h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors"
+                                >
                                     Start Free Trial
                                 </button>
                                 <p className="text-[12px] text-[#333436] text-center mt-[12px]">No credit card required</p>
@@ -314,8 +391,12 @@ const Pricing = ()=>{
                                     </div>
                                 </div>
                                 
-                                <button className="h-[46px] w-[320px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors">
-                                    Get Started
+                                <button 
+                                    onClick={() => handleSubscribe("ESSENTIALS")}
+                                    disabled={isLoading === "ESSENTIALS"}
+                                    className="h-[46px] w-[320px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isLoading === "ESSENTIALS" ? "Processing..." : "Get Started"}
                                 </button>
                                 <p className="text-[12px] text-[#333436] text-center mt-[12px]">Perfect for small businesses and freelancers</p>
                             </div>
@@ -354,8 +435,12 @@ const Pricing = ()=>{
                                     </div>
                                 </div>
                                 
-                                <button className="w-full h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors">
-                                    Start Premium
+                                <button 
+                                    onClick={() => handleSubscribe("PREMIUM")}
+                                    disabled={isLoading === "PREMIUM"}
+                                    className="w-full h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isLoading === "PREMIUM" ? "Processing..." : "Start Premium"}
                                 </button>
                                 <p className="text-[12px] text-[#333436] text-center mt-[12px]">For growing businesses with high invoice volume</p>
                             </div>
