@@ -1,42 +1,259 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ArrowLeft, Upload, Plus, X } from "lucide-react";
+import { ArrowLeft, Plus, X } from "lucide-react";
 import Link from "next/link";
-
-interface InvoiceItem {
-    id: string;
-    itemName: string;
-    quantity: number;
-    rate: number;
-    tax: number;
-    amount: number;
-}
+import InvoicePreview from "@/components/invoice/InvoicePreview";
+import ColorPicker from "@/components/ColorPicker/ColorPicker";
+import PaymentTermsDropdown from "@/components/invoice/PaymentTermsDropdown";
+import AddProductModal from "@/components/productManagement/AddProductModal";
+import CountryDropdown from "@/components/common/CountryDropdown";
+import TemplateSelector from "@/components/invoice/TemplateSelector";
+import { ApiClient } from "@/lib/api";
+import { buildInvoiceFormData, dataURLtoFile, base64ToFile, CreateInvoiceData, InvoiceItem } from "@/lib/invoiceTypes";
+import { Product } from "@/lib/productCache";
+import { useInvoiceLimit } from "@/contexts/InvoiceLimitContext";
+import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification";
 
 const CreateInvoicePage = () => {
+    const { 
+        canCreateInvoice, 
+        invoicesRemaining, 
+        totalInvoices,
+        isLoading: limitLoading,
+        checkInvoiceLimit, 
+        incrementInvoiceCount,
+        showLimitNotification,
+        showBlockedNotification 
+    } = useInvoiceLimit();
+    const { showWarningNotification, showBlockedNotification: showBlockedNotif } = useInvoiceLimitNotification();
+    
     const [items, setItems] = useState<InvoiceItem[]>([]);
     const [showSignatureModal, setShowSignatureModal] = useState(false);
     const [signature, setSignature] = useState<string | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
+    const [showPreview, setShowPreview] = useState(false);
+    const [isSendingInvoice, setIsSendingInvoice] = useState(false);
 
-    const addNewRow = () => {
-        const newItem: InvoiceItem = {
-            id: Date.now().toString(),
-            itemName: "",
-            quantity: 1,
-            rate: 0,
-            tax: 0,
-            amount: 0
-        };
-        setItems([...items, newItem]);
+    // Client dropdown and modal state
+    const [showClientDropdown, setShowClientDropdown] = useState(false);
+    const [showAddClientModal, setShowAddClientModal] = useState(false);
+    const [selectedClientId, setSelectedClientId] = useState<string>("");
+    const [clients, setClients] = useState<{ id: string; fullName: string; email: string; businessName: string }[]>([]);
+    const [isLoadingClients, setIsLoadingClients] = useState(false);
+    const [clientsLoaded, setClientsLoaded] = useState(false);
+    const [isSavingClient, setIsSavingClient] = useState(false);
+    
+    // New client form state
+    const [newClientForm, setNewClientForm] = useState({
+        customerType: "",
+        title: "Mr",
+        fullName: "",
+        businessName: "",
+        phone: "",
+        email: "",
+        country: ""
+    });
+    const [clientFormError, setClientFormError] = useState<string | null>(null);
+    const [formValidationError, setFormValidationError] = useState<string | null>(null);
+
+    // Products dropdown state
+    const [showProductsDropdown, setShowProductsDropdown] = useState(false);
+    const [products, setProducts] = useState<{ id: string; itemName: string; quantity: number; rate: number; amount: number }[]>([]);
+    const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+    const [productsLoaded, setProductsLoaded] = useState(false);
+
+    // Add Product Modal state
+    const [showAddProductModal, setShowAddProductModal] = useState(false);
+
+    // Bank dropdown state
+    const [showBankDropdown, setShowBankDropdown] = useState(false);
+    const [bankSearchQuery, setBankSearchQuery] = useState("");
+
+    // Nigerian banks list
+    const nigerianBanks = [
+        { category: "Fintechs", banks: ["OPay", "PalmPay", "Moniepoint", "Kuda Bank", "Carbon", "Fairmoney"] },
+        { category: "Commercial Banks", banks: ["Access Bank", "Zenith Bank", "GTBank", "First Bank", "UBA", "Fidelity Bank", "Union Bank", "Stanbic IBTC", "Sterling Bank", "Ecobank", "FCMB", "Wema Bank", "Polaris Bank", "Keystone Bank", "Unity Bank"] }
+    ];
+
+    // Load products from API
+    const loadProducts = async () => {
+        if (productsLoaded || isLoadingProducts) return;
+        
+        try {
+            setIsLoadingProducts(true);
+            const response = await ApiClient.getAllUserProducts();
+            
+            if (response.status === 200) {
+                const productsData = Array.isArray(response.data) ? response.data : [];
+                setProducts(productsData);
+                setProductsLoaded(true);
+            } else {
+                console.error('Failed to load products:', response.error);
+            }
+        } catch (error) {
+            console.error('Error loading products:', error);
+        } finally {
+            setIsLoadingProducts(false);
+        }
     };
 
-    const removeRow = (id: string) => {
+    // Handle products dropdown open
+    const handleProductsDropdownClick = () => {
+        if (!showProductsDropdown) {
+            loadProducts();
+        }
+        setShowProductsDropdown(!showProductsDropdown);
+    };
+
+    // Handle product selection - add to table
+    const handleSelectProduct = (product: { id: string; itemName: string; quantity: number; rate: number; amount: number }) => {
+        const newItem: InvoiceItem = {
+            id: Date.now(),
+            itemName: product.itemName,
+            quantity: product.quantity || 1,
+            rate: product.rate || 0,
+            amount: (product.quantity || 1) * (product.rate || 0)
+        };
+        setItems([...items, newItem]);
+        setShowProductsDropdown(false);
+    };
+
+    // Load clients from API
+    const loadClients = async () => {
+        if (clientsLoaded || isLoadingClients) return;
+        
+        try {
+            setIsLoadingClients(true);
+            const response = await ApiClient.getAllUserClients();
+            
+            if (response.status === 200) {
+                const clientsData = Array.isArray(response.data) ? response.data : [];
+                setClients(clientsData);
+                setClientsLoaded(true);
+            } else {
+                console.error('Failed to load clients:', response.error);
+            }
+        } catch (error) {
+            console.error('Error loading clients:', error);
+        } finally {
+            setIsLoadingClients(false);
+        }
+    };
+
+    // Handle dropdown open - fetch clients
+    const handleClientDropdownClick = () => {
+        if (!showClientDropdown) {
+            loadClients();
+        }
+        setShowClientDropdown(!showClientDropdown);
+    };
+
+    // Save new client to API
+    const handleSaveNewClient = async () => {
+        // Validate required fields
+        setClientFormError(null);
+        
+        if (!newClientForm.customerType || !newClientForm.title || !newClientForm.fullName || 
+            !newClientForm.businessName || !newClientForm.email || !newClientForm.phone) {
+            setClientFormError('Please fill in all required fields');
+            return;
+        }
+
+        try {
+            setIsSavingClient(true);
+            const response = await ApiClient.addClient(newClientForm);
+
+            if (response.status === 201) {
+                // Close modal and reset form
+                setShowAddClientModal(false);
+                setNewClientForm({
+                    customerType: "",
+                    title: "Mr",
+                    fullName: "",
+                    businessName: "",
+                    phone: "",
+                    email: "",
+                    country: ""
+                });
+                // Refresh clients list
+                setClientsLoaded(false);
+                await loadClients();
+            } else {
+                console.error('Failed to add client:', response.error);
+                setClientFormError(response.error || 'Failed to add client');
+            }
+        } catch (error) {
+            console.error('Error saving client:', error);
+            setClientFormError('An error occurred while saving the client');
+        } finally {
+            setIsSavingClient(false);
+        }
+    };
+
+    // Form state
+    const [billFrom, setBillFrom] = useState({
+        fullName: "",
+        email: "",
+        address: "",
+        phoneNumber: "",
+        businessName: ""
+    });
+
+    const [billTo, setBillTo] = useState({
+        customer: "",
+        title: "",
+        invoiceNumber: "",
+        paymentTerms: "",
+        invoiceDate: "",
+        dueDate: ""
+    });
+
+    const [customerNote, setCustomerNote] = useState("");
+    const [termsAndConditions, setTermsAndConditions] = useState("");
+    const [currency, setCurrency] = useState("NGN");
+    const [language, setLanguage] = useState("English");
+    const [color, setColor] = useState("#2F80ED");
+    const [template, setTemplate] = useState("default");
+    const [logo, setLogo] = useState<string | null>(null);
+
+    const [paymentDetails, setPaymentDetails] = useState({
+        bankAccount: "",
+        accountName: "",
+        accountNumber: ""
+    });
+
+    const [vat, setVat] = useState(7.5);
+    const [wht, setWht] = useState(5);
+    const [invoiceTaxRate, setInvoiceTaxRate] = useState(0); // Overall tax rate for the invoice
+
+    const addNewRow = () => {
+        setShowAddProductModal(true);
+    };
+
+    const handleProductSave = (product: Product) => {
+        // Create a new invoice item from the saved product
+        const newItem: InvoiceItem = {
+            id: Date.now(),
+            itemName: product.itemName,
+            quantity: product.quantity || 1,
+            rate: product.rate || 0,
+            amount: product.amount || ((product.quantity || 1) * (product.rate || 0))
+        };
+        
+        // Add the new item to the items array
+        setItems([...items, newItem]);
+        
+        // Close the modal
+        setShowAddProductModal(false);
+    };
+
+    const removeRow = (id: number) => {
         setItems(items.filter(item => item.id !== id));
     };
 
-    const updateItem = (id: string, field: keyof InvoiceItem, value: any) => {
+    const updateItem = (id: number, field: keyof InvoiceItem, value: any) => {
         setItems(items.map(item => {
             if (item.id === id) {
                 const updated = { ...item, [field]: value };
@@ -54,11 +271,47 @@ const CreateInvoicePage = () => {
     };
 
     const calculateTax = () => {
-        return items.reduce((sum, item) => sum + (item.amount * item.tax / 100), 0);
+        const subtotal = calculateSubtotal();
+        return subtotal * invoiceTaxRate / 100;
     };
 
     const calculateTotal = () => {
         return calculateSubtotal() + calculateTax();
+    };
+
+    // Form validation
+    const isFormValid = () => {
+        // Required fields for billFrom
+        const billFromValid = billFrom.fullName.trim() !== "" && 
+                             billFrom.email.trim() !== "" && 
+                             billFrom.phoneNumber.trim() !== "" && 
+                             billFrom.businessName.trim() !== "";
+        
+        // Required fields for billTo
+        const billToValid = billTo.customer.trim() !== "" && 
+                           billTo.title.trim() !== "" && 
+                           billTo.invoiceDate.trim() !== "" && 
+                           billTo.dueDate.trim() !== "";
+        
+        // At least one item is required
+        const itemsValid = items.length > 0;
+        
+        // Payment details are required
+        const paymentDetailsValid = paymentDetails.bankAccount.trim() !== "" && 
+                                   paymentDetails.accountName.trim() !== "" && 
+                                   paymentDetails.accountNumber.trim() !== "";
+        
+        return billFromValid && billToValid && itemsValid && paymentDetailsValid;
+    };
+
+    // Submit invoice to backend (Save as Draft - without sending)
+    const handleSaveDraft = async () => {
+        setFormValidationError(null);
+        if (!isFormValid()) {
+            setFormValidationError("Please fill in all required fields before saving as draft.");
+            return;
+        }
+        // TODO: Implement save as draft functionality
     };
 
     // Canvas drawing functions
@@ -125,210 +378,568 @@ const CreateInvoicePage = () => {
         setShowSignatureModal(false);
     };
 
-    return (
-        <div>
-                    <div className="max-w-7xl mx-auto">
-                        {/* Header */}
-                        <div className="mb-6 flex items-center gap-4">
-                            <Link href="/dashboard/invoices" className="p-2 hover:bg-gray-100 rounded-lg">
-                                <ArrowLeft size={24} />
-                            </Link>
-                            <h1 className="text-2xl font-semibold text-[#101828]">Create New Invoice</h1>
-                        </div>
+    const handlePreviewInvoice = () => {
+        setFormValidationError(null);
+        
+        // Check if user can create invoice
+        if (!canCreateInvoice) {
+            showBlockedNotif();
+            return;
+        }
+        
+        if (!isFormValid()) {
+            setFormValidationError("Please fill in all required fields before previewing the invoice.");
+            return;
+        }
+        setShowPreview(true);
+    };
 
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Left Column - Form */}
-                            <div className="lg:col-span-2 space-y-6">
-                                {/* Invoice Header */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <h2 className="text-lg font-semibold mb-4">Invoice</h2>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Upload your Logo
-                                            </label>
-                                            <div className="border-2 border-dashed border-[#D0D5DD] rounded-lg p-4 text-center cursor-pointer hover:border-[#2F80ED]">
-                                                <Upload className="mx-auto mb-2 text-[#667085]" size={24} />
-                                                <p className="text-sm text-[#667085]">Max file size</p>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Invoice Name
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="INV-0001"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                            />
-                                        </div>
+    // Transform form data to InvoiceResponse structure for preview
+    const getPreviewData = () => {
+        return {
+            id: "preview",
+            title: billTo.title || "Invoice",
+            invoiceNumber: billTo.title || "INV-PREVIEW",
+            creationDate: billTo.invoiceDate,
+            dueDate: billTo.dueDate,
+            currency: currency,
+            invoiceColor: color,
+            status: "DRAFT" as const,
+            subtotal: items.reduce((sum, item) => sum + item.amount, 0),
+            totalTaxAmount: calculateTax(),
+            totalDue: calculateTotal(),
+            logoUrl: logo || undefined,
+            signatureUrl: signature || undefined,
+            note: customerNote,
+            termsAndConditions: termsAndConditions,
+            paymentTerms: billTo.paymentTerms,
+            bank: paymentDetails.bankAccount,
+            accountNumber: paymentDetails.accountNumber,
+            accountName: paymentDetails.accountName,
+            billFrom: {
+                fullName: billFrom.fullName,
+                email: billFrom.email,
+                phone: billFrom.phoneNumber,
+                address: billFrom.address
+            },
+            billTo: {
+                id: "preview-client",
+                customerType: "",
+                title: "",
+                fullName: billTo.customer,
+                businessName: billTo.customer,
+                email: "",
+                phone: "",
+                country: ""
+            },
+            items: items.map(item => ({
+                id: item.id,
+                itemName: item.itemName,
+                quantity: item.quantity,
+                rate: item.rate,
+                amount: item.amount,
+                description: ""
+            })),
+            appliedTaxes: []
+        };
+    };
+
+    const handleBackToEdit = () => {
+        setShowPreview(false);
+    };
+
+    // Send invoice to backend (called from preview page)
+    const handleSendInvoice = async (): Promise<{ success: boolean; error?: string }> => {
+        setFormValidationError(null);
+        
+        // Check if user can create invoice
+        if (!canCreateInvoice) {
+            showBlockedNotif();
+            return { success: false, error: "Invoice limit reached" };
+        }
+        
+        if (!isFormValid()) {
+            setFormValidationError("Please fill in all required fields before sending the invoice.");
+            return { success: false, error: "Form validation failed" };
+        }
+
+        try {
+            setIsSendingInvoice(true);
+            
+            // Prepare logo file from base64 if exists
+            let logoFile: File | null = null;
+            if (logo) {
+                logoFile = base64ToFile(logo, 'logo.png');
+            }
+
+            // Prepare signature file from base64 if exists
+            let signatureFile: File | null = null;
+            if (signature) {
+                signatureFile = dataURLtoFile(signature, 'signature.png');
+            }
+
+            // Calculate totals
+            const subtotal = calculateSubtotal();
+            const totalDue = calculateTotal();
+
+            // Build the invoice data object matching backend CreateInvoiceRequest
+            const invoiceData: CreateInvoiceData = {
+                logo: logoFile,
+                billFrom: {
+                    fullName: billFrom.fullName,
+                    email: billFrom.email,
+                    address: billFrom.address,
+                    phoneNumber: billFrom.phoneNumber,
+                    businessName: billFrom.businessName,
+                },
+                billTo: {
+                    clientId: selectedClientId,
+                    title: billTo.title,
+                    invoiceNumber: billTo.invoiceNumber,
+                    paymentTerms: billTo.paymentTerms,
+                    invoiceDate: billTo.invoiceDate,
+                    dueDate: billTo.dueDate,
+                },
+                items: items.map(item => ({
+                    id: item.id,
+                    itemName: item.itemName,
+                    quantity: item.quantity,
+                    rate: item.rate,
+                    amount: item.amount,
+                })),
+                note: customerNote,
+                termsAndConditions: termsAndConditions,
+                signature: signatureFile,
+                language: language,
+                currency: currency,
+                invoiceColor: color,
+                subtotal: subtotal,
+                totalDue: totalDue,
+                paymentDetails: {
+                    accountNumber: paymentDetails.accountNumber,
+                    accountName: paymentDetails.accountName,
+                    bank: paymentDetails.bankAccount,
+                },
+            };
+
+            // Build FormData for multipart/form-data request
+            const formData = buildInvoiceFormData(invoiceData);
+
+            // Send to backend
+            const response = await ApiClient.createInvoice(formData);
+
+            if (response.status === 201 || response.status === 200) {
+                // Redirect to invoices list after short delay
+                setTimeout(() => {
+                    window.location.href = '/dashboard/invoices';
+                }, 1500);
+                return { success: true };
+            } else {
+                setFormValidationError(response.error || 'Failed to create invoice');
+                return { success: false, error: response.error || 'Failed to create invoice' };
+            }
+        } catch (error) {
+            console.error('Error creating invoice:', error);
+            setFormValidationError('An unexpected error occurred while sending the invoice.');
+            return { success: false, error: 'An unexpected error occurred' };
+        } finally {
+            setIsSendingInvoice(false);
+        }
+    };
+
+    if (showPreview) {
+        return (
+            <InvoicePreview
+                data={{
+                    logo,
+                    billFrom,
+                    billTo,
+                    items: items.map(item => ({ ...item, tax: 0 })), // Add tax property for InvoicePreview compatibility
+                    customerNote,
+                    termsAndConditions,
+                    signature,
+                    currency,
+                    language,
+                    color,
+                    template,
+                    paymentDetails,
+                    vat,
+                    wht,
+                    selectedClientId
+                }}
+                onEdit={handleBackToEdit}
+                onEmailInvoice={() => {
+                    // Handle email invoice
+                }}
+                onSendInvoice={handleSendInvoice}
+            />
+        );
+    }
+
+    return (
+        <>
+        <div className="mt-[6px] mx-4 ">   {/* Header */}
+            <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Link href="/dashboard/invoices" className="p-2 text-[#2F80ED] ">
+                       <ArrowLeft size={24} />
+                    </Link>
+                    <h1 className="text-[20px] font-semibold text-[#101828]">Create New Invoice</h1>
+                </div>
+                
+                {/* Invoice Count Display */}
+                <div className="flex items-center gap-2 px-3 py-2 bg-[#F9FAFB] border border-[#E4E7EC] rounded-lg">
+                    <div className={`w-2 h-2 rounded-full ${
+                        limitLoading ? 'bg-[#667085]' : 
+                        totalInvoices === -1 ? 'bg-[#10B981]' : 
+                        invoicesRemaining > 2 ? 'bg-[#10B981]' : 
+                        invoicesRemaining > 0 ? 'bg-[#F59E0B]' : 'bg-[#EF4444]'
+                    }`}></div>
+                    <span className="text-[14px] font-medium text-[#344054]">
+                        {limitLoading ? (
+                            "Loading..."
+                        ) : totalInvoices === -1 ? (
+                            "Unlimited invoices"
+                        ) : (
+                            `${invoicesRemaining}/${totalInvoices} invoices left this month`
+                        )}
+                    </span>
+                </div>
+            </div>
+            <div className="flex gap-[22px] mb-14">
+                  <div className="w-[630px]">
+                {/* Left Column - Form */}
+                <div className="lg:col-span-3 bg-white rounded-lg p-4 space-y-6">
+                    {/* First Border: Invoice Header + Bill From + Bill To */}
+                    <div className="bg-white rounded-lg border border-[#E4E7EC] p-4 space-y-6">
+                        {/* Invoice Header */}
+                        <div>
+                            <div className="flex items-center justify-between gap-12">
+                                <div className="flex-shrink-0">
+                                    <div className="bg-[#F8F8FA] flex items-center justify-center border border-[#EDEDED] rounded-lg px-16 py-1">
+                                        <h2 className="text-[18px] font-medium text-[#101828]">Invoice</h2>
                                     </div>
                                 </div>
-
-                                {/* Bill From */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <h2 className="text-lg font-semibold mb-4">Bill From</h2>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Full Name <span className="text-red-500">*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="Enter full name"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                            />
+                                <div className="flex-1 max-w-[200px] ml-auto">
+                                    <input
+                                        type="file"
+                                        id="logo-upload"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file && file.size <= 5 * 1024 * 1024) {
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                    setLogo(reader.result as string);
+                                                };
+                                                reader.readAsDataURL(file);
+                                            } else {
+                                                alert('File size must be less than 5MB');
+                                            }
+                                        }}
+                                    />
+                                    <label htmlFor="logo-upload" className="block border border-dashed border-[#E5E5E5] rounded-lg py-1 px-1 text-center cursor-pointer hover:border-[#2F80ED] transition-colors">
+                                        <div className="flex flex-col items-center">
+                                           <div className="border-gray-100 border border-2 p-1 w-12 h-12 rounded-lg">
+                                                 <div className="mb-2 text-[#2F80ED] items-center flex  bg-gray-100 px-1 py-1 rounded-lg">
+                                               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M18 2.25C20.0711 2.25 21.75 3.92893 21.75 6V18C21.75 20.0711 20.0711 21.75 18 21.75H6C5.28598 21.75 4.61621 21.55 4.04688 21.2021C3.79222 21.0466 3.55825 20.861 3.34863 20.6514C2.67084 19.9736 2.25 19.0353 2.25 18V6C2.25 3.92893 3.92893 2.25 6 2.25H18ZM6 3.75C4.75736 3.75 3.75 4.75736 3.75 6V18C3.75 18.6215 4.00119 19.1828 4.40918 19.5908C4.53542 19.7171 4.67626 19.8285 4.8291 19.9219C5.16966 20.1299 5.56969 20.25 6 20.25H18C19.2426 20.25 20.25 19.2426 20.25 18V6C20.25 4.75736 19.2426 3.75 18 3.75H6ZM12.6211 10.8154C13.4764 9.92021 14.9098 10.1204 15.5176 11.1807L17.5723 14.7637C18.0473 15.5923 17.5123 16.7498 16.4551 16.75H7.54492C6.45827 16.7497 5.93366 15.5372 6.45996 14.7109L7.54004 13.0156C8.04626 12.2208 9.06446 11.9222 9.91309 12.3662L10.5293 12.6885C10.6466 12.7498 10.7915 12.732 10.8965 12.6221L12.6211 10.8154ZM14.2168 11.9268C14.0958 11.7156 13.8525 11.6985 13.7061 11.8516L11.9805 13.6582C11.4227 14.2418 10.555 14.3948 9.83398 14.0176L9.21777 13.6953C9.08415 13.6254 8.90762 13.6597 8.80469 13.8213L7.89453 15.25H16.1221L14.2168 11.9268ZM9 8C9.55228 8 10 8.44772 10 9C10 9.55228 9.55228 10 9 10C8.44772 10 8 9.55228 8 9C8 8.44772 8.44772 8 9 8Z" fill="#2F80ED"/>
+                                                    </svg>
+                                            </div>
+                                           </div>
+                                            <p className="text-[16px] font-medium text-[#101828] mb-1">Upload Business Logo</p>
+                                            <p className="text-[12px] text-[#667085]">Max file size 5MB</p>
                                         </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Address
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="Enter your address"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Email <span className="text-red-500">*</span>
-                                            </label>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        {/* Bill From */}
+                        <div>
+                            <h2 className="text-[20px] font-semibold text-[#101828] mb-4">Bill From</h2>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                        Full Name <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter full name"
+                                        value={billFrom.fullName}
+                                        onChange={(e) => setBillFrom({ ...billFrom, fullName: e.target.value })}
+                                        className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                            Email <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="relative">
                                             <input
                                                 type="email"
                                                 placeholder="Enter email address"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                value={billFrom.email}
+                                                onChange={(e) => setBillFrom({ ...billFrom, email: e.target.value })}
+                                                className="w-full px-3 py-2.5 pr-10 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                             />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Business Name <span className="text-red-500">*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="Enter business name"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Phone Number <span className="text-red-500">*</span>
-                                            </label>
-                                            <input
-                                                type="tel"
-                                                placeholder="Enter phone number"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                            />
+                                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085]">
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M3.33334 3.33334H16.6667C17.5833 3.33334 18.3333 4.08334 18.3333 5.00001V15C18.3333 15.9167 17.5833 16.6667 16.6667 16.6667H3.33334C2.41668 16.6667 1.66668 15.9167 1.66668 15V5.00001C1.66668 4.08334 2.41668 3.33334 3.33334 3.33334Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                    <path d="M18.3333 5L10 10.8333L1.66666 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                </svg>
+                                            </div>
                                         </div>
                                     </div>
+                                    <div>
+                                        <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                            Address
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="Enter address"
+                                            value={billFrom.address}
+                                            onChange={(e) => setBillFrom({ ...billFrom, address: e.target.value })}
+                                            className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                            Phone Number <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            placeholder="Enter phone number"
+                                            value={billFrom.phoneNumber}
+                                            onChange={(e) => setBillFrom({ ...billFrom, phoneNumber: e.target.value })}
+                                            className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                            Business Name <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="Enter business name"
+                                            value={billFrom.businessName}
+                                            onChange={(e) => setBillFrom({ ...billFrom, businessName: e.target.value })}
+                                            className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                                 </div>
 
-                                {/* Bill To */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <h2 className="text-lg font-semibold mb-4">Bill To</h2>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="col-span-2">
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
+                        {/* Bill To */}
+                        <div>
+                                    <h2 className="text-[20px] font-semibold text-[#101828] mb-4">Bill To</h2>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-[14px] font-medium text-[#344054] mb-2">
                                                 Customer <span className="text-red-500">*</span>
                                             </label>
-                                            <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
-                                                <option>Select from saved client</option>
-                                            </select>
+                                            <div className="relative">
+                                                <div
+                                                    onClick={handleClientDropdownClick}
+                                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#98A2B3] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2F80ED] flex justify-between items-center"
+                                                >
+                                                    <span>{billTo.customer || 'Select from added client'}</span>
+                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                    </svg>
+                                                </div>
+                                                
+                                                {/* Client Dropdown */}
+                                                {showClientDropdown && (
+                                                    <div className="absolute z-10 w-full mt-1 bg-white border border-[#D0D5DD] rounded-lg shadow-lg max-h-80 overflow-y-auto">
+                                                        {/* Loading State */}
+                                                        {isLoadingClients && (
+                                                            <div className="flex items-center justify-center py-4">
+                                                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#2F80ED]"></div>
+                                                                <span className="ml-2 text-sm text-[#667085]">Loading clients...</span>
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {/* Empty State */}
+                                                        {!isLoadingClients && clients.length === 0 && (
+                                                            <div className="px-4 py-3 text-sm text-[#667085] text-center">
+                                                                No clients found
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {/* Client List */}
+                                                        {!isLoadingClients && clients.map((client, index) => (
+                                                            <div
+                                                                key={client.id}
+                                                                onClick={() => {
+                                                                    setBillTo({ ...billTo, customer: client.fullName });
+                                                                    setSelectedClientId(client.id);
+                                                                    setShowClientDropdown(false);
+                                                                }}
+                                                                className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 ${
+                                                                    selectedClientId === client.id ? 'bg-[#2F80ED] text-white hover:bg-[#2F80ED]' : ''
+                                                                }`}
+                                                            >
+                                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-semibold ${
+                                                                    selectedClientId === client.id ? 'bg-white text-[#2F80ED]' : 'bg-gray-100 text-gray-600'
+                                                                }`}>
+                                                                    {client.fullName?.charAt(0)?.toUpperCase() || 'C'}
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <p className={`font-medium ${selectedClientId === client.id ? 'text-white' : 'text-gray-900'}`}>
+                                                                        {client.fullName}
+                                                                    </p>
+                                                                    <div className="flex items-center gap-1 text-sm">
+                                                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                            <path d="M2.66667 2.66667H13.3333C14.0667 2.66667 14.6667 3.26667 14.6667 4V12C14.6667 12.7333 14.0667 13.3333 13.3333 13.3333H2.66667C1.93333 13.3333 1.33333 12.7333 1.33333 12V4C1.33333 3.26667 1.93333 2.66667 2.66667 2.66667Z" stroke={selectedClientId === client.id ? 'white' : 'currentColor'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                                            <path d="M14.6667 4L8 8.66667L1.33333 4" stroke={selectedClientId === client.id ? 'white' : 'currentColor'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                                        </svg>
+                                                                        <span className={selectedClientId === client.id ? 'text-white' : 'text-gray-600'}>{client.email}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                        
+                                                        {/* Add New Client Button */}
+                                                        <div
+                                                            onClick={() => {
+                                                                setShowClientDropdown(false);
+                                                                setShowAddClientModal(true);
+                                                            }}
+                                                            className="flex items-center gap-2 px-4 py-3 cursor-pointer hover:bg-gray-50 text-[#2F80ED] border-t border-gray-200"
+                                                        >
+                                                            <Plus size={20} />
+                                                            <span className="font-medium">Add New Client</span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Invoice Date <span className="text-red-500">*</span>
-                                            </label>
-                                            <input
-                                                type="date"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                            />
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                                    Invoice Name
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="INV-0012"
+                                                    value={billTo.title}
+                                                    onChange={(e) => setBillTo({ ...billTo, title: e.target.value })}
+                                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                                    Payment Terms
+                                                </label>
+                                                <PaymentTermsDropdown
+                                                    value={billTo.paymentTerms}
+                                                    onChange={(value) => setBillTo({ ...billTo, paymentTerms: value })}
+                                                    placeholder="Select payment terms"
+                                                />
+                                            </div>
                                         </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Payment Terms
-                                            </label>
-                                            <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
-                                                <option>Select</option>
-                                                <option>Net 15</option>
-                                                <option>Net 30</option>
-                                                <option>Net 60</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Due Date <span className="text-red-500">*</span>
-                                            </label>
-                                            <input
-                                                type="date"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                            />
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                                    Invoice Date <span className="text-red-500">*</span>
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    value={billTo.invoiceDate}
+                                                    onChange={(e) => setBillTo({ ...billTo, invoiceDate: e.target.value })}
+                                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[14px] font-medium text-[#344054] mb-2">
+                                                    Due Date
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    value={billTo.dueDate}
+                                                    onChange={(e) => setBillTo({ ...billTo, dueDate: e.target.value })}
+                                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                />
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                        </div>
+                    </div>
 
-                                {/* Table Items */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <h2 className="text-lg font-semibold mb-4">Table Item</h2>
+                    {/* Second Border: Table Items */}
+                    <div className="bg-white rounded-lg border border-[#E4E7EC] p-4">
+                                    <h2 className="text-[20px] font-semibold text-[#101828] mb-4">Table Item</h2>
                                     <div className="overflow-x-auto">
                                         <table className="w-full">
                                             <thead>
-                                                <tr className="border-b border-[#E4E7EC]">
-                                                    <th className="text-left py-3 px-2 text-sm font-medium text-[#667085]">Item/Desc</th>
-                                                    <th className="text-left py-3 px-2 text-sm font-medium text-[#667085]">Quantity</th>
-                                                    <th className="text-left py-3 px-2 text-sm font-medium text-[#667085]">Rate</th>
-                                                    <th className="text-left py-3 px-2 text-sm font-medium text-[#667085]">Tax</th>
-                                                    <th className="text-left py-3 px-2 text-sm font-medium text-[#667085]">Amount</th>
+                                                <tr className="border-b border-[#E4E7EC] bg-[#E5E5E5]">
+                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] w-[150px] border-r border-[#E4E7EC]">Item Detail</th>
+                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] w-[200px] border-r border-[#E4E7EC]">Description</th>
+                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">Quantity</th>
+                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">Rate</th>
+                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">Amount</th>
                                                     <th className="w-10"></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {items.map((item) => (
                                                     <tr key={item.id} className="border-b border-[#E4E7EC]">
-                                                        <td className="py-3 px-2">
+                                                        <td className="py-4 px-4 border-r border-[#E4E7EC]">
                                                             <input
                                                                 type="text"
                                                                 value={item.itemName}
                                                                 onChange={(e) => updateItem(item.id, 'itemName', e.target.value)}
-                                                                placeholder="Item name"
-                                                                className="w-full px-2 py-1 border border-[#D0D5DD] rounded focus:outline-none focus:ring-1 focus:ring-[#2F80ED]"
+                                                                className="w-full text-[14px] font-medium text-[#101828] focus:outline-none bg-transparent"
                                                             />
                                                         </td>
-                                                        <td className="py-3 px-2">
+                                                        <td className="py-4 px-4 border-r border-[#E4E7EC]">
+                                                            <input
+                                                                type="text"
+                                                                value={item.description || ""}
+                                                                onChange={(e) => updateItem(item.id, 'description', e.target.value)}
+                                                                className="w-full text-[14px] text-[#101828] focus:outline-none bg-transparent"
+                                                                placeholder="Enter description"
+                                                            />
+                                                        </td>
+                                                        <td className="py-4 px-4 border-r border-[#E4E7EC]">
                                                             <input
                                                                 type="number"
                                                                 value={item.quantity}
-                                                                onChange={(e) => updateItem(item.id, 'quantity', parseInt(e.target.value) || 0)}
-                                                                className="w-20 px-2 py-1 border border-[#D0D5DD] rounded focus:outline-none focus:ring-1 focus:ring-[#2F80ED]"
+                                                                onChange={(e) => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
+                                                                className="w-full text-[14px] text-[#101828] focus:outline-none bg-transparent"
+                                                                min="0"
+                                                                step="0.01"
                                                             />
                                                         </td>
-                                                        <td className="py-3 px-2">
+                                                        <td className="py-4 px-4 border-r border-[#E4E7EC]">
                                                             <input
                                                                 type="number"
                                                                 value={item.rate}
                                                                 onChange={(e) => updateItem(item.id, 'rate', parseFloat(e.target.value) || 0)}
-                                                                className="w-24 px-2 py-1 border border-[#D0D5DD] rounded focus:outline-none focus:ring-1 focus:ring-[#2F80ED]"
+                                                                className="w-full text-[14px] text-[#101828] focus:outline-none bg-transparent"
+                                                                min="0"
                                                             />
                                                         </td>
-                                                        <td className="py-3 px-2">
-                                                            <select
-                                                                value={item.tax}
-                                                                onChange={(e) => updateItem(item.id, 'tax', parseFloat(e.target.value))}
-                                                                className="w-20 px-2 py-1 border border-[#D0D5DD] rounded focus:outline-none focus:ring-1 focus:ring-[#2F80ED]"
-                                                            >
-                                                                <option value="0">0%</option>
-                                                                <option value="5">5%</option>
-                                                                <option value="10">10%</option>
-                                                            </select>
+                                                        <td className="py-4 px-4 border-r border-[#E4E7EC]">
+                                                            <input
+                                                                type="number"
+                                                                value={item.amount}
+                                                                onChange={(e) => updateItem(item.id, 'amount', parseFloat(e.target.value) || 0)}
+                                                                className="w-full text-[14px] font-semibold text-[#101828] focus:outline-none bg-transparent"
+                                                                min="0"
+                                                            />
                                                         </td>
-                                                        <td className="py-3 px-2 font-medium">
-                                                            ₦{item.amount.toFixed(2)}
-                                                        </td>
-                                                        <td className="py-3 px-2">
+                                                        <td className="py-4 px-4">
                                                             <button
                                                                 onClick={() => removeRow(item.id)}
-                                                                className="text-red-500 hover:text-red-700"
+                                                                className="text-[#F04438] hover:text-red-700"
                                                             >
-                                                                <X size={18} />
+                                                                <X size={20} />
                                                             </button>
                                                         </td>
                                                     </tr>
@@ -336,220 +947,583 @@ const CreateInvoicePage = () => {
                                             </tbody>
                                         </table>
                                     </div>
-                                    <button
-                                        onClick={addNewRow}
-                                        className="mt-4 flex items-center gap-2 text-[#2F80ED] hover:text-[#2563EB]"
-                                    >
-                                        <Plus size={20} />
-                                        Add New Row
-                                    </button>
-                                </div>
-
-                                {/* Additional Fields */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Customer Note
-                                            </label>
-                                            <textarea
-                                                placeholder="Description"
-                                                rows={3}
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Terms & Conditions
-                                            </label>
-                                            <textarea
-                                                placeholder="Description"
-                                                rows={3}
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                            />
+                                    <div className="mt-4 flex items-center justify-between">
+                                        <button
+                                            onClick={addNewRow}
+                                            className="flex items-center gap-2 px-4 py-2.5 text-[#2F80ED] border border-[#D0D5DD] rounded-lg hover:bg-[#F0F7FF] transition-colors text-[14px] font-medium"
+                                        >
+                                            <Plus size={18} />
+                                            Add New Row
+                                        </button>
+                                    
+                                        {/* Select Products Dropdown */}
+                                        <div className="relative">
+                                            <button
+                                                onClick={handleProductsDropdownClick}
+                                                className="flex items-center gap-2 px-4 py-2.5 text-[#344054] text-[14px] font-medium"
+                                            >
+                                                Select products
+                                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                </svg>
+                                            </button>
+                                            
+                                            {showProductsDropdown && (
+                                                <div className="absolute z-10 right-0 mt-1 w-72 bg-white border border-[#D0D5DD] rounded-lg shadow-lg max-h-80 overflow-y-auto">
+                                                    {/* Loading State */}
+                                                    {isLoadingProducts && (
+                                                        <div className="flex items-center justify-center py-4">
+                                                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#2F80ED]"></div>
+                                                            <span className="ml-2 text-sm text-[#667085]">Loading products...</span>
+                                                        </div>
+                                                    )}
+                                                    
+                                                    {/* Empty State */}
+                                                    {!isLoadingProducts && products.length === 0 && (
+                                                        <div className="px-4 py-3 text-sm text-[#667085] text-center">
+                                                            No products found
+                                                        </div>
+                                                    )}
+                                                    
+                                                    {/* Products List */}
+                                                    {!isLoadingProducts && products.map((product) => (
+                                                        <div
+                                                            key={product.id}
+                                                            onClick={() => handleSelectProduct(product)}
+                                                            className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 border-b border-[#E4E7EC] last:border-b-0"
+                                                        >
+                                                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg font-semibold text-gray-600">
+                                                                {product.itemName?.charAt(0)?.toUpperCase() || 'P'}
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <p className="font-medium text-gray-900">{product.itemName}</p>
+                                                                <p className="text-sm text-gray-600">₦{product.rate?.toLocaleString() || 0}</p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                </div>
+                    </div>
 
-                                {/* Signature */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <label className="block text-sm font-medium text-[#344054] mb-2">
-                                        Add Signature
-                                    </label>
-                                    <button
-                                        onClick={() => setShowSignatureModal(true)}
-                                        className="px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB]"
-                                    >
-                                        {signature ? 'Edit Signature' : 'Add Signature'}
-                                    </button>
-                                </div>
+                    {/* Third Border: Additional Fields + Signature */}
+                    <div className="bg-white rounded-lg border border-[#E4E7EC] p-4 space-y-6">
+                        <div>
+                            <label className="block text-[16px] font-medium text-[#101828] mb-3">
+                                Customer Note
+                            </label>
+                            <textarea
+                                placeholder="Placeholder"
+                                rows={4}
+                                value={customerNote}
+                                onChange={(e) => setCustomerNote(e.target.value)}
+                                className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] resize-none"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-[16px] font-medium text-[#101828] mb-3">
+                                Terms & Conditions
+                            </label>
+                            <textarea
+                                placeholder="Placeholder"
+                                rows={4}
+                                value={termsAndConditions}
+                                onChange={(e) => setTermsAndConditions(e.target.value)}
+                                className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] resize-none"
+                            />
+                        </div>
+                        {/* Signature */}
+                        <div className="flex items-center gap-4">
+                            <label className="text-[16px] font-medium text-[#101828]">
+                                Add Signature
+                            </label>
+                            <button
+                                onClick={() => setShowSignatureModal(true)}
+                                className="flex items-center justify-center w-10 h-10 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
+                            >
+                                <Plus size={20} />
+                            </button>
+                        </div>
+                    </div>
 
-                                {/* Action Buttons */}
-                                <div className="flex gap-4">
-                                    <button className="px-6 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50">
-                                        Cancel
-                                    </button>
-                                    <button className="px-6 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50">
-                                        Save as Draft
-                                    </button>
-                                    <button className="px-6 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB]">
-                                        Preview Invoice
-                                    </button>
-                                </div>
+                    {/* Action Buttons - No Border */}
+                    <div className="flex justify-between items-center">
+                            <div className="flex gap-4">
+                                <Link href="/dashboard/invoices" className="px-8 py-3 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50 text-[14px] font-medium">
+                                    Cancel
+                                </Link>
+                                <button 
+                                    onClick={handleSaveDraft}
+                                    disabled={!isFormValid()}
+                                    className={`px-8 py-3 border border-[#D0D5DD] rounded-lg text-[14px] font-medium transition-colors ${
+                                        isFormValid() 
+                                            ? 'text-[#344054] hover:bg-gray-50 cursor-pointer' 
+                                            : 'text-gray-400 bg-gray-50 cursor-not-allowed'
+                                    }`}
+                                >
+                                    Save as Draft
+                                </button>
+                            </div>
+                            <button 
+                                onClick={() => setShowPreview(true)}
+                                className="flex items-center gap-2 px-8 py-3 rounded-lg text-[14px] font-medium transition-colors bg-[#2F80ED] text-white hover:bg-[#2563EB] cursor-pointer"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12.7578 1.25C13.2987 1.25007 13.8276 1.36713 14.3105 1.58691C14.7155 1.77119 15.0885 2.02799 15.4092 2.34863L19.6514 6.59082C19.972 6.91146 20.2288 7.28452 20.4131 7.68945C20.6329 8.17244 20.7499 8.70127 20.75 9.24219V19C20.75 21.0711 19.0711 22.75 17 22.75H7C4.92893 22.75 3.25 21.0711 3.25 19V5C3.25 2.92893 4.92893 1.25 7 1.25H12.7578ZM7 2.75C5.75736 2.75 4.75 3.75736 4.75 5V19C4.75 20.2426 5.75736 21.25 7 21.25H17C18.2426 21.25 19.25 20.2426 19.25 19V9.24219C19.2499 8.9177 19.1797 8.60037 19.0479 8.31055C18.9987 8.20264 18.9398 8.09929 18.874 8H15C14.4477 8 14 7.55228 14 7V3.12598C13.9007 3.06015 13.7974 3.00126 13.6895 2.95215C13.3996 2.82026 13.0823 2.75007 12.7578 2.75H7ZM15.25 10.75C15.6642 10.75 16 11.0858 16 11.5V11.8662C16.5728 12.0136 17.0489 12.3242 17.3613 12.7217C17.6172 13.0473 17.5608 13.5194 17.2354 13.7754C16.9097 14.0313 16.4376 13.975 16.1816 13.6494C16.0477 13.479 15.732 13.2725 15.25 13.2725C14.4818 13.2725 14.25 13.7402 14.25 13.8867C14.2501 14.2045 14.3442 14.2907 14.4092 14.3359C14.5279 14.4186 14.78 14.5 15.25 14.5C15.83 14.5 16.4535 14.5891 16.9473 14.9326C17.4946 15.3135 17.7499 15.9094 17.75 16.6133C17.75 17.5939 16.9913 18.3658 16 18.6289V19C16 19.4142 15.6642 19.75 15.25 19.75C14.8358 19.75 14.5 19.4142 14.5 19V18.6328C13.9273 18.4854 13.4511 18.1757 13.1387 17.7783C12.8828 17.4527 12.9392 16.9806 13.2646 16.7246C13.5903 16.4687 14.0624 16.525 14.3184 16.8506C14.4523 17.021 14.768 17.2275 15.25 17.2275C16.0182 17.2275 16.25 16.7598 16.25 16.6133C16.2499 16.2955 16.1558 16.2093 16.0908 16.1641C15.9721 16.0814 15.72 16 15.25 16C14.67 16 14.0465 15.9109 13.5527 15.5674C13.0054 15.1865 12.7501 14.5906 12.75 13.8867C12.75 12.906 13.5086 12.1332 14.5 11.8701V11.5C14.5 11.0858 14.8358 10.75 15.25 10.75ZM12 9.25C12.4142 9.25 12.75 9.58579 12.75 10C12.75 10.4142 12.4142 10.75 12 10.75H7C6.58579 10.75 6.25 10.4142 6.25 10C6.25 9.58579 6.58579 9.25 7 9.25H12ZM11 5.25C11.4142 5.25 11.75 5.58579 11.75 6C11.75 6.41421 11.4142 6.75 11 6.75H7C6.58579 6.75 6.25 6.41421 6.25 6C6.25 5.58579 6.58579 5.25 7 5.25H11Z" fill="white"/>
+                                </svg>
+                                Preview Invoice
+                            </button>
+                    </div>
+                </div>
+
+                {/* Signature Modal */}
+                {showSignatureModal && (
+                    <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
+                        <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-semibold text-[#101828]">Add Signature</h3>
+                                <button 
+                                    onClick={() => {
+                                        setShowSignatureModal(false);
+                                        clearCanvas();
+                                    }}
+                                    className="text-[#667085] hover:text-[#101828]"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
+                            
+                            <div className="mb-4">
+                                <canvas
+                                    ref={canvasRef}
+                                    width={400}
+                                    height={200}
+                                    onMouseDown={startDrawing}
+                                    onMouseMove={draw}
+                                    onMouseUp={stopDrawing}
+                                    onMouseLeave={stopDrawing}
+                                    className="w-full border-2 border-[#D0D5DD] rounded-lg cursor-crosshair bg-white"
+                                />
                             </div>
 
-                            {/* Right Column - Summary */}
-                            <div className="space-y-6">
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={clearCanvas}
+                                    className="px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50"
+                                >
+                                    Clear
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowSignatureModal(false);
+                                        clearCanvas();
+                                    }}
+                                    className="flex-1 px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={saveSignature}
+                                    className="flex-1 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB]"
+                                >
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Right Column - Summary */}
+            <div className="bg-white rounded-lg w-[320px] self-start">
+                    <div className="space-y-6">
                                 {/* Language & Currency */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <h3 className="font-semibold mb-4">Language</h3>
-                                    <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg mb-4">
-                                        <option>English</option>
-                                    </select>
-                                    <h3 className="font-semibold mb-4">Currency</h3>
-                                    <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg">
-                                        <option>NGN</option>
+                                <div className=" rounded-lg   p-4">
+                                    <h3 className="font-medium text-[16px] mb-2">Language</h3>
+                                    <div className="relative mb-4">
+                                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center">
+                                            <div className="w-6 h-6 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center">
+                                                <svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M0 9.37797C0 13.6777 2.71375 17.343 6.52176 18.756V0C2.71375 1.41289 0 5.07836 0 9.37797Z" fill="#6DA544"/>
+                                                    <path d="M20.0003 9.37797C20.0003 5.07836 17.2865 1.41289 13.4785 0V18.7561C17.2865 17.343 20.0003 13.6777 20.0003 9.37797Z" fill="#6DA544"/>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <select className="w-full pl-12 pr-3 py-2 border border-[#D0D5DD] rounded-lg appearance-none">
+                                            <option>English</option>
+                                            <option>Hausa</option>
+                                            <option>Igbo</option>
+                                            <option>Yoruba</option>
+                                        </select>
+                                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <h3 className="font-medium text-[16px] mb-2">Currency <span className="text-red-500">*</span></h3>
+                                    <select 
+                                        value={currency}
+                                        onChange={(e) => setCurrency(e.target.value)}
+                                        className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg"
+                                    >
+                                        <option value="NGN">NGN</option>
                                     </select>
                                 </div>
 
                                 {/* Color Selection */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <h3 className="font-semibold mb-4">Select Color</h3>
-                                    <div className="flex gap-2">
-                                        <button className="w-8 h-8 rounded bg-[#2F80ED] border-2 border-gray-300"></button>
-                                    </div>
+                                <div className="bg-white rounded-lg px-4">
+                                    <h3 className="font-medium text-[16px] mb-2">Select Color</h3>
+                                    <ColorPicker
+                                        initialColor={color}
+                                        onColorChange={(newColor) => setColor(newColor)}
+                                    />
                                 </div>
 
                                 {/* Template Selection */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <h3 className="font-semibold mb-4">Select Template</h3>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {['Default', 'Compact', 'Modern', 'Pro'].map((template) => (
-                                            <div key={template} className="border border-[#D0D5DD] rounded p-2 text-center cursor-pointer hover:border-[#2F80ED]">
-                                                <div className="h-16 bg-gray-100 rounded mb-2"></div>
-                                                <p className="text-xs">{template}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
+                                <TemplateSelector 
+                                  selectedTemplate={template}
+                                  onTemplateChange={setTemplate}
+                                />
 
                                 {/* Summary */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
+                                <div className="bg-white rounded-lg  px-4">
                                     <div className="space-y-3">
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Subtotal</span>
-                                            <span className="font-medium">₦{calculateSubtotal().toFixed(2)}</span>
+                                            <h3 className=" text-[16px] font-medium">Subtotal</h3>
+                                            <span className=" text-[18px] font-semibold">₦{calculateSubtotal().toFixed(2)}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[#667085] text-[18px]">Tax</span>
+                                                <div className="relative inline-flex items-center">
+                                                    <select
+                                                        value={invoiceTaxRate}
+                                                        onChange={(e) => setInvoiceTaxRate(parseFloat(e.target.value))}
+                                                        className="appearance-none bg-transparent text-[14px] text-[#667085] pr-6 focus:outline-none cursor-pointer"
+                                                    >
+                                                        <option value="0">0%</option>
+                                                        <option value="5">5%</option>
+                                                        <option value="7.5">7.5%</option>
+                                                        <option value="10">10%</option>
+                                                        <option value="15">15%</option>
+                                                        <option value="20">20%</option>
+                                                    </select>
+                                                    <svg className="absolute right-0 pointer-events-none" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <span className=" text-[18px] font-semibold">₦{calculateTax().toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">VAT (7.5%)</span>
-                                            <span className="font-medium">₦{calculateTax().toFixed(2)}</span>
+                                            <span className="text-[#667085] text-[18px]">WHT (5%)</span>
+                                            <span className=" text-[18px] font-semibold">₦0.00</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">WHT (5%)</span>
-                                            <span className="font-medium">₦0.00</span>
-                                        </div>
-                                        <div className="border-t border-[#E4E7EC] pt-3 flex justify-between">
-                                            <span className="font-semibold">Total Due</span>
-                                            <span className="font-semibold text-lg">₦{calculateTotal().toFixed(2)}</span>
+                                            <span className="text-[18px] text-[#667085]">Total Due</span>
+                                            <span className=" text-[18px] font-semibold">₦{calculateTotal().toFixed(2)}</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Payment Details */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                                    <h3 className="font-semibold mb-4">Payment Details</h3>
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Bank Account <span className="text-red-500">*</span>
-                                            </label>
-                                            <select className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg">
-                                                <option>Select</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Account Name
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="Enter account name"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Account Number
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="Enter account number"
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg"
-                                            />
-                                        </div>
+                        {/* Payment Details */}
+                        <div className="p-4">
+                            <h3 className="font-medium mb-2 text-[16px]">Payment Details</h3>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-[#344054] mb-2">
+                                        Bank Account <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Enter bank name or select"
+                                            value={paymentDetails.bankAccount}
+                                            onChange={(e) => setPaymentDetails({ ...paymentDetails, bankAccount: e.target.value })}
+                                            className="w-full px-3 py-2.5 pr-10 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowBankDropdown(!showBankDropdown)}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085] hover:text-[#344054]"
+                                        >
+                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                            </svg>
+                                        </button>
+                                        
+                                        {/* Bank Dropdown */}
+                                        {showBankDropdown && (
+                                            <div className="absolute z-10 w-full mt-1 bg-white border border-[#D0D5DD] rounded-lg shadow-lg max-h-80 overflow-hidden">
+                                                {/* Search Bar */}
+                                                <div className="p-3 border-b border-[#E4E7EC] sticky top-0 bg-white">
+                                                    <div className="relative">
+                                                        <svg className="absolute left-3 top-1/2 transform -translate-y-1/2" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M14 14L10 10M11.3333 6.66667C11.3333 9.244 9.244 11.3333 6.66667 11.3333C4.08934 11.3333 2 9.244 2 6.66667C2 4.08934 4.08934 2 6.66667 2C9.244 2 11.3333 4.08934 11.3333 6.66667Z" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                        </svg>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Search bank..."
+                                                            value={bankSearchQuery}
+                                                            onChange={(e) => setBankSearchQuery(e.target.value)}
+                                                            className="w-full pl-9 pr-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="max-h-60 overflow-y-auto">
+                                                    {nigerianBanks.map((group) => {
+                                                        const filteredBanks = group.banks.filter(bank => 
+                                                            bank.toLowerCase().includes(bankSearchQuery.toLowerCase())
+                                                        );
+                                                        if (filteredBanks.length === 0) return null;
+                                                        return (
+                                                            <div key={group.category}>
+                                                                <div className="px-4 py-2 text-xs font-semibold text-[#667085] bg-gray-50 sticky top-0">
+                                                                    {group.category}
+                                                                </div>
+                                                                {filteredBanks.map((bank) => (
+                                                                    <div
+                                                                        key={bank}
+                                                                        onClick={() => {
+                                                                            setPaymentDetails({ ...paymentDetails, bankAccount: bank });
+                                                                            setShowBankDropdown(false);
+                                                                            setBankSearchQuery("");
+                                                                        }}
+                                                                        className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 ${
+                                                                            paymentDetails.bankAccount === bank ? 'bg-[#2F80ED] text-white hover:bg-[#2F80ED]' : ''
+                                                                        }`}
+                                                                    >
+                                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                                                                            paymentDetails.bankAccount === bank ? 'bg-white text-[#2F80ED]' : 'bg-gray-100 text-gray-600'
+                                                                        }`}>
+                                                                            {bank.charAt(0)}
+                                                                        </div>
+                                                                        <span className={`font-medium ${paymentDetails.bankAccount === bank ? 'text-white' : 'text-gray-900'}`}>
+                                                                            {bank}
+                                                                        </span>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                    {nigerianBanks.every(group => 
+                                                        group.banks.filter(bank => bank.toLowerCase().includes(bankSearchQuery.toLowerCase())).length === 0
+                                                    ) && (
+                                                        <div className="px-4 py-3 text-sm text-[#667085] text-center">
+                                                            No banks found
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-[#344054] mb-2">
+                                        Account Name <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter account name"
+                                        value={paymentDetails.accountName}
+                                        onChange={(e) => setPaymentDetails({ ...paymentDetails, accountName: e.target.value })}
+                                        className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-[#344054] mb-2">
+                                        Account Number <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter account number"
+                                        value={paymentDetails.accountNumber}
+                                        onChange={(e) => setPaymentDetails({ ...paymentDetails, accountNumber: e.target.value })}
+                                        className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg"
+                                    />
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
 
-            {/* Signature Modal */}
-            {showSignatureModal && (
-                <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-semibold text-[#101828]">Add Signature</h3>
-                            <button 
-                                onClick={() => {
-                                    setShowSignatureModal(false);
-                                    clearCanvas();
-                                }}
-                                className="text-[#667085] hover:text-[#101828]"
-                            >
-                                <X size={24} />
-                            </button>
+        {/* Add New Client Modal */}
+        {showAddClientModal && (
+            <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+                <div className="bg-white rounded-2xl p-5 w-[500px] shadow-2xl [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
+                    <div className="flex justify-between items-center mb-1">
+                        <h3 className="text-xl font-semibold text-[#101828]">Add New Client</h3>
+                        <button 
+                            onClick={() => setShowAddClientModal(false)}
+                            className="text-[#667085] hover:text-[#101828]"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
+                    <p className="text-[13px] text-[#667085] mb-3">Save your client's business details to send invoices and track payments easily</p>
+                    
+                    {clientFormError && (
+                        <div className="mb-3 p-2.5 bg-red-50 border border-red-200 rounded-lg">
+                            <p className="text-[13px] text-red-700">{clientFormError}</p>
                         </div>
-                        
-                        <div className="mb-4">
-                            <canvas
-                                ref={canvasRef}
-                                width={400}
-                                height={200}
-                                onMouseDown={startDrawing}
-                                onMouseMove={draw}
-                                onMouseUp={stopDrawing}
-                                onMouseLeave={stopDrawing}
-                                className="w-full border-2 border-[#D0D5DD] rounded-lg cursor-crosshair bg-white"
+                    )}
+                    
+                    <div className="space-y-2.5">
+                        <div>
+                            <label className="block text-[13px] font-medium text-[#344054] mb-1">
+                                Customer Type<span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                                <select 
+                                    value={newClientForm.customerType}
+                                    onChange={(e) => setNewClientForm({ ...newClientForm, customerType: e.target.value })}
+                                    className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
+                                    <option value="">Select customer type</option>
+                                    <option value="Individual">Individual</option>
+                                    <option value="Business">Business</option>
+                                    <option value="Corporate">Corporate</option>
+                                    <option value="Government">Government</option>
+                                    <option value="Non-Profit">Non-Profit</option>
+                                </select>
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3">
+                            <div>
+                                <label className="block text-[13px] font-medium text-[#344054] mb-1">
+                                    Title<span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <select 
+                                        value={newClientForm.title}
+                                        onChange={(e) => setNewClientForm({ ...newClientForm, title: e.target.value })}
+                                        className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] text-[#98A2B3] appearance-none focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
+                                        <option value="Mr">Mr</option>
+                                        <option value="Ms">Ms</option>
+                                        <option value="Mrs">Mrs</option>
+                                        <option value="Dr">Dr</option>
+                                    </select>
+                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-span-2">
+                                <label className="block text-[13px] font-medium text-[#344054] mb-1">
+                                    Client Full Name<span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter client full name"
+                                    value={newClientForm.fullName}
+                                    onChange={(e) => setNewClientForm({ ...newClientForm, fullName: e.target.value })}
+                                    className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-[13px] font-medium text-[#344054] mb-1">
+                                Business Name<span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="Enter business name"
+                                value={newClientForm.businessName}
+                                onChange={(e) => setNewClientForm({ ...newClientForm, businessName: e.target.value })}
+                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[13px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                             />
                         </div>
 
-                        <div className="flex gap-3">
-                            <button
-                                onClick={clearCanvas}
-                                className="px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50"
-                            >
-                                Clear
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setShowSignatureModal(false);
-                                    clearCanvas();
-                                }}
-                                className="flex-1 px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={saveSignature}
-                                className="flex-1 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB]"
-                            >
-                                Save
-                            </button>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-[13px] font-medium text-[#344054] mb-1">
+                                    Email Address<span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="email"
+                                        placeholder="Enter client email"
+                                        value={newClientForm.email}
+                                        onChange={(e) => setNewClientForm({ ...newClientForm, email: e.target.value })}
+                                        className="w-full px-3 py-2 pr-10 border border-[#D0D5DD] rounded-lg text-[13px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                    />
+                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085]">
+                                        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M3.33334 3.33334H16.6667C17.5833 3.33334 18.3333 4.08334 18.3333 5.00001V15C18.3333 15.9167 17.5833 16.6667 16.6667 16.6667H3.33334C2.41668 16.6667 1.66668 15.9167 1.66668 15V5.00001C1.66668 4.08334 2.41668 3.33334 3.33334 3.33334Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                            <path d="M18.3333 5L10 10.8333L1.66666 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-[13px] font-medium text-[#344054] mb-1">
+                                    Phone Number<span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="tel"
+                                        placeholder="Enter client phone number"
+                                        value={newClientForm.phone}
+                                        onChange={(e) => setNewClientForm({ ...newClientForm, phone: e.target.value })}
+                                        className="w-full px-3 py-2 pr-10 border border-[#D0D5DD] rounded-lg text-[13px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                    />
+                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085]">
+                                        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M18.3333 14.1V16.6C18.3343 16.8321 18.2867 17.0618 18.1937 17.2745C18.1008 17.4871 17.9644 17.678 17.7934 17.8349C17.6224 17.9918 17.4205 18.1112 17.2006 18.1856C16.9808 18.26 16.7478 18.2876 16.5167 18.2667C13.9523 17.988 11.489 17.1118 9.32498 15.7083C7.31151 14.4289 5.60443 12.7218 4.32498 10.7083C2.91663 8.53438 2.04019 6.05916 1.76665 3.48334C1.74583 3.25292 1.77321 3.02069 1.84707 2.80139C1.92092 2.58209 2.03963 2.38061 2.19562 2.2098C2.35162 2.03899 2.54149 1.90258 2.75314 1.80943C2.9648 1.71627 3.19348 1.66847 3.42498 1.66834H5.92498C6.32953 1.66445 6.72148 1.80628 7.02812 2.06942C7.33476 2.33256 7.53505 2.69956 7.59165 3.10001C7.69717 3.90006 7.89286 4.68562 8.17498 5.44167C8.28712 5.74037 8.31137 6.06396 8.24491 6.37531C8.17844 6.68666 8.02404 6.97334 7.79998 7.20001L6.74165 8.25834C7.92795 10.3446 9.65536 12.072 11.7417 13.2583L12.8 12.2C13.0267 11.976 13.3133 11.8216 13.6247 11.7551C13.936 11.6886 14.2596 11.7129 14.5583 11.825C15.3144 12.1071 16.0999 12.3028 16.9 12.4083C17.3048 12.4654 17.6755 12.6693 17.9388 12.9812C18.2021 13.2931 18.3402 13.6913 18.3333 14.1Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <CountryDropdown
+                            value={newClientForm.country}
+                            onChange={(value) => setNewClientForm({ ...newClientForm, country: value })}
+                            label="Country"
+                            placeholder="Select customer country"
+                        />
+                    </div>
+
+                    <div className="flex gap-3 mt-3">
+                        <button
+                            onClick={() => setShowAddClientModal(false)}
+                            className="flex-1 px-6 py-2 border border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-blue-50 transition-colors text-[14px]"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleSaveNewClient}
+                            disabled={isSavingClient}
+                            className="flex-1 px-6 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors text-[14px] disabled:bg-blue-400"
+                        >
+                            {isSavingClient ? 'Saving...' : 'Save Client'}
+                        </button>
                     </div>
                 </div>
-            )}
-        </div>
+            </div>
+        )}
+
+        {/* Add Product Modal */}
+        {showAddProductModal && (
+            <AddProductModal
+                product={null}
+                onClose={() => setShowAddProductModal(false)}
+                onSave={handleProductSave}
+            />
+        )}
+        </>
     );
 };
 

@@ -3,7 +3,7 @@
  * 
  * Main component that orchestrates the forgot password flow:
  * 1. Forgot Password screen - Email input
- * 2. Verify Code screen - 6-digit code input
+ * 2. Verify Code screen - 4-digit code input
  * 3. Create New Password screen - Password and confirm password
  * 4. Password Updated Success screen - Success message
  * 
@@ -13,37 +13,88 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Logo from '../signUp/Logo';
 import LeftIllustrationPanel from '../signUp/LeftIllustrationPanel';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import VerifyCodeForm from './VerifyCodeForm';
 import CreateNewPasswordForm from './CreateNewPasswordForm';
 import PasswordUpdatedSuccess from './PasswordUpdatedSuccess';
+import Toast from '@/components/ui/Toast';
+import { useToast } from '@/hooks/useToast';
+import { ApiClient } from '@/lib/api';
 
 type Screen = 'forgot-password' | 'verify-code' | 'create-password' | 'success';
 
 export default function ForgotPassword() {
+  const router = useRouter();
+  const { toast, showSuccess, showError, hideToast } = useToast();
   const [currentScreen, setCurrentScreen] = useState<Screen>('forgot-password');
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you would send the email to the backend
-    console.log('Sending reset code to:', email);
-    setCurrentScreen('verify-code');
+    setLoading(true);
+
+    try {
+      const response = await ApiClient.forgotPassword(email);
+
+      if (response.success) {
+        showSuccess('Password reset code sent to your email!');
+        setCurrentScreen('verify-code');
+      } else {
+        showError(response.error || 'Failed to send reset code. Please try again.');
+      }
+    } catch (err) {
+      showError('An unexpected error occurred. Please try again.');
+      console.error('Forgot password error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleCodeComplete = (code: string) => {
-    // In a real app, you would verify the code with the backend
-    console.log('Verifying code:', code);
-    setCurrentScreen('create-password');
+  const handleCodeComplete = async (code: string) => {
+    setLoading(true);
+    setVerificationCode(code);
+
+    try {
+      const response = await ApiClient.verifyPasswordResetOTP(email, code);
+
+      if (response.success) {
+        showSuccess('Code verified successfully!');
+        setCurrentScreen('create-password');
+      } else {
+        showError(response.error || 'Invalid code. Please try again.');
+      }
+    } catch (err) {
+      showError('An unexpected error occurred. Please try again.');
+      console.error('Verify code error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleResendCode = () => {
-    // In a real app, you would resend the code
-    console.log('Resending code to:', email);
+  const handleResendCode = async () => {
+    setLoading(true);
+
+    try {
+      const response = await ApiClient.forgotPassword(email);
+
+      if (response.success) {
+        showSuccess('Reset code resent to your email!');
+      } else {
+        showError(response.error || 'Failed to resend code. Please try again.');
+      }
+    } catch (err) {
+      showError('An unexpected error occurred. Please try again.');
+      console.error('Resend code error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePasswordChange = (newPassword: string, newConfirmPassword: string) => {
@@ -51,24 +102,39 @@ export default function ForgotPassword() {
     setConfirmPassword(newConfirmPassword);
   };
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      showError('Passwords do not match');
       return;
     }
-    if (password.length < 8) {
-      alert('Password must be at least 8 characters');
+    if (password.length < 6) {
+      showError('Password must be at least 6 characters');
       return;
     }
-    // In a real app, you would send the new password to the backend
-    console.log('Updating password for:', email);
-    setCurrentScreen('success');
+
+    setLoading(true);
+
+    try {
+      const response = await ApiClient.resetPasswordWithOTP(email, verificationCode, password);
+
+      if (response.success) {
+        showSuccess('Password reset successfully!');
+        setCurrentScreen('success');
+      } else {
+        showError(response.error || 'Failed to reset password. Please try again.');
+      }
+    } catch (err) {
+      showError('An unexpected error occurred. Please try again.');
+      console.error('Reset password error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSignIn = () => {
-    // Navigate to sign in page
-    window.location.href = '/signIn';
+    router.push('/signIn');
   };
 
   const handleGoBack = () => {
@@ -122,6 +188,14 @@ export default function ForgotPassword() {
           )}
         </div>
       </div>
+
+      {/* Toast Notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+      />
     </div>
   );
 }

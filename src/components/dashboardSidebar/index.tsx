@@ -5,13 +5,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Settings, LogOut } from "lucide-react";
 import siderLogo from './../../../public/assets/header logo.svg';
+import { AuthService } from '@/lib/auth';
 
 interface DashboardSideBarProps {
     isOpen?: boolean;
     onClose?: () => void;
+    notificationsOpen?: boolean;
 }
 
-const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => {
+const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }: DashboardSideBarProps) => {
     const pathname = usePathname();
     
     const menuItems = [
@@ -87,9 +89,13 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
     };
 
     const bottomItems = [
-        { icon: Settings, label: "Account Settings", href: "/dashboard/settings" },
-        { icon: LogOut, label: "Logout", href: "/logout" },
+        { icon: Settings, label: "Account Settings", href: "/dashboard/settings/account", isLogout: false },
+        { icon: LogOut, label: "Logout", href: "#", isLogout: true },
     ];
+
+    const handleLogout = async () => {
+        await AuthService.logout();
+    };
 
     return (
         <>
@@ -105,10 +111,10 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
             <div className={`
                 fixed lg:relative inset-y-0 left-0 z-50
                 h-screen w-[268px] 
-                bg-white border-r border-[#E4E7EC] 
+                ${notificationsOpen ? 'bg-white/70 backdrop-blur-sm' : 'bg-white'} border-r border-[#E4E7EC] 
                 flex flex-col justify-between
                 px-[16px] pt-[24px] pb-[32px]
-                transition-transform duration-300 ease-in-out
+                transition-all duration-300 ease-in-out
                 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
             `}>
                 <div className="flex flex-col gap-[32px]">
@@ -147,6 +153,22 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
                 <div className="flex flex-col gap-[8px]">
                     {bottomItems.map((item) => {
                         const Icon = item.icon;
+                        
+                        if (item.isLogout) {
+                            return (
+                                <button
+                                    key={item.label}
+                                    onClick={handleLogout}
+                                    className="flex items-center gap-[12px] px-[12px] 
+                                    py-[10px] rounded-[8px] text-[#667085] 
+                                    hover:bg-[#F9FAFB] transition-colors duration-200 w-full text-left"
+                                >
+                                    <Icon size={20} />
+                                    <span className="text-[14px] font-medium">{item.label}</span>
+                                </button>
+                            );
+                        }
+                        
                         return (
                             <Link
                                 key={item.label}

@@ -2,8 +2,23 @@
 
 import { Search, ChevronDown, Plus } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
+import { useState, useEffect } from 'react';
 
 const DashboardContent = () => {
+    const { user } = useAuth();
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    // Get user's first name for welcome message
+    const getFirstName = () => {
+        if (!user?.fullName) return 'User';
+        return user.fullName.split(' ')[0];
+    };
     // Sample data for charts
     const paymentTrendsData = [
         { month: 'Jan', value: 50000 },
@@ -41,22 +56,22 @@ const DashboardContent = () => {
     };
 
     return (
-        <div className="w-full max-w-[1108px]">
+        <div className="max-w-7xl mx-auto mb-[200px] p-6">
             {/* Welcome Section */}
             <div className="mb-6">
-                <h1 className="text-xl lg:text-2xl font-semibold text-[#101828] mb-1">Welcome, Victor</h1>
+                <h1 className="text-xl lg:text-2xl font-semibold text-[#101828] mb-1">Welcome, {getFirstName()}</h1>
                 <p className="text-sm text-[#667085]">Here's your business performance at a glance</p>
             </div>
 
             {/* Action Buttons */}
             <div className="flex gap-3 mb-6">
-                <button className="flex-1 lg:flex-none lg:px-6 border border-[#2F80ED] text-[#2F80ED] rounded-lg text-sm font-medium hover:bg-[#EFF8FF] h-12 flex items-center justify-center">
+                <Link href="/dashboard/clients" className="flex-1 lg:flex-none lg:px-6 border border-[#2F80ED] text-[#2F80ED] rounded-lg text-sm font-medium hover:bg-[#EFF8FF] h-12 flex items-center justify-center">
                     Add Client
-                </button>
-                <button className="flex-1 lg:flex-none lg:px-6 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] h-12 flex items-center justify-center gap-2">
+                </Link>
+                <Link href="/dashboard/invoices/create" className="flex-1 lg:flex-none lg:px-6 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] h-12 flex items-center justify-center gap-2">
                     <Plus size={18} />
                     Create Invoice
-                </button>
+                </Link>
             </div>
 
             {/* Stats Cards */}
@@ -94,33 +109,35 @@ const DashboardContent = () => {
                         <ChevronDown size={16} />
                     </button>
                 </div>
-                <div className="h-[200px] lg:h-[280px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={paymentTrendsData}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#E8E9ED" />
-                            <XAxis 
-                                dataKey="month" 
-                                tick={{ fill: '#333436', fontSize: 10 }}
-                                axisLine={{ stroke: '#E4E7EC' }}
-                            />
-                            <YAxis 
-                                tick={{ fill: '#667085', fontSize: 10 }}
-                                axisLine={{ stroke: '#E4E7EC' }}
-                                tickFormatter={(value) => `₦${value / 1000}k`}
-                            />
-                            <Tooltip 
-                                formatter={(value: any) => [`₦${value.toLocaleString()}`, 'Amount']}
-                                contentStyle={{ borderRadius: '8px', border: '1px solid #E4E7EC', fontSize: '12px' }}
-                            />
-                            <Line 
-                                type="monotone" 
-                                dataKey="value" 
-                                stroke="#2F80ED" 
-                                strokeWidth={2}
-                                dot={false}
-                            />
-                        </LineChart>
-                    </ResponsiveContainer>
+                <div className="w-full h-[200px] lg:h-[280px]" style={{ minWidth: '300px', minHeight: '200px' }}>
+                    {isClient && (
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={paymentTrendsData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#E8E9ED" />
+                                <XAxis 
+                                    dataKey="month" 
+                                    tick={{ fill: '#333436', fontSize: 10 }}
+                                    axisLine={{ stroke: '#E4E7EC' }}
+                                />
+                                <YAxis 
+                                    tick={{ fill: '#667085', fontSize: 10 }}
+                                    axisLine={{ stroke: '#E4E7EC' }}
+                                    tickFormatter={(value) => `₦${value / 1000}k`}
+                                />
+                                <Tooltip 
+                                    formatter={(value: any) => [`₦${value.toLocaleString()}`, 'Amount']}
+                                    contentStyle={{ borderRadius: '8px', border: '1px solid #E4E7EC', fontSize: '12px' }}
+                                />
+                                <Line 
+                                    type="monotone" 
+                                    dataKey="value" 
+                                    stroke="#2F80ED" 
+                                    strokeWidth={2}
+                                    dot={false}
+                                />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    )}
                 </div>
             </div>
 
@@ -135,33 +152,35 @@ const DashboardContent = () => {
                             <ChevronDown size={16} />
                         </button>
                     </div>
-                    <div className="h-[280px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={paymentTrendsData}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#E8E9ED" />
-                                <XAxis 
-                                    dataKey="month" 
-                                    tick={{ fill: '#333436', fontSize: 12 }}
-                                    axisLine={{ stroke: '#E4E7EC' }}
-                                />
-                                <YAxis 
-                                    tick={{ fill: '#667085', fontSize: 12 }}
-                                    axisLine={{ stroke: '#E4E7EC' }}
-                                    tickFormatter={(value) => `₦${value / 1000}k`}
-                                />
-                                <Tooltip 
-                                    formatter={(value: any) => [`₦${value.toLocaleString()}`, 'Amount']}
-                                    contentStyle={{ borderRadius: '8px', border: '1px solid #E4E7EC' }}
-                                />
-                                <Line 
-                                    type="monotone" 
-                                    dataKey="value" 
-                                    stroke="#2F80ED" 
-                                    strokeWidth={2}
-                                    dot={false}
-                                />
-                            </LineChart>
-                        </ResponsiveContainer>
+                    <div className="w-full h-[280px]" style={{ minWidth: '400px', minHeight: '280px' }}>
+                        {isClient && (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={paymentTrendsData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#E8E9ED" />
+                                    <XAxis 
+                                        dataKey="month" 
+                                        tick={{ fill: '#333436', fontSize: 12 }}
+                                        axisLine={{ stroke: '#E4E7EC' }}
+                                    />
+                                    <YAxis 
+                                        tick={{ fill: '#667085', fontSize: 12 }}
+                                        axisLine={{ stroke: '#E4E7EC' }}
+                                        tickFormatter={(value) => `₦${value / 1000}k`}
+                                    />
+                                    <Tooltip 
+                                        formatter={(value: any) => [`₦${value.toLocaleString()}`, 'Amount']}
+                                        contentStyle={{ borderRadius: '8px', border: '1px solid #E4E7EC' }}
+                                    />
+                                    <Line 
+                                        type="monotone" 
+                                        dataKey="value" 
+                                        stroke="#2F80ED" 
+                                        strokeWidth={2}
+                                        dot={false}
+                                    />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        )}
                     </div>
                 </div>
 
@@ -174,24 +193,26 @@ const DashboardContent = () => {
                             <ChevronDown size={16} />
                         </button>
                     </div>
-                    <div className="h-[180px] flex items-center justify-center">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie
-                                    data={statusDistributionData}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={60}
-                                    outerRadius={80}
-                                    paddingAngle={5}
-                                    dataKey="value"
-                                >
-                                    {statusDistributionData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
+                    <div className="w-full h-[180px] flex items-center justify-center" style={{ minWidth: '300px', minHeight: '180px' }}>
+                        {isClient && (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={statusDistributionData}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={60}
+                                        outerRadius={80}
+                                        paddingAngle={5}
+                                        dataKey="value"
+                                    >
+                                        {statusDistributionData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Pie>
+                                </PieChart>
+                            </ResponsiveContainer>
+                        )}
                     </div>
                     <div className="space-y-2 mt-4">
                         {statusDistributionData.map((item) => (
@@ -216,24 +237,26 @@ const DashboardContent = () => {
                         <ChevronDown size={16} />
                     </button>
                 </div>
-                <div className="h-[180px] flex items-center justify-center">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                            <Pie
-                                data={statusDistributionData}
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={50}
-                                outerRadius={70}
-                                paddingAngle={5}
-                                dataKey="value"
-                            >
-                                {statusDistributionData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                ))}
-                            </Pie>
-                        </PieChart>
-                    </ResponsiveContainer>
+                <div className="w-full h-[180px] flex items-center justify-center" style={{ minWidth: '250px', minHeight: '180px' }}>
+                    {isClient && (
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={statusDistributionData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={50}
+                                    outerRadius={70}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    {statusDistributionData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))}
+                                </Pie>
+                            </PieChart>
+                        </ResponsiveContainer>
+                    )}
                 </div>
                 <div className="space-y-2 mt-4">
                     {statusDistributionData.map((item) => (
