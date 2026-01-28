@@ -17,6 +17,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
     const [uploadState, setUploadState] = useState<UploadState>('idle');
+    const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     
     const { uploadReceipt, uploading, progress, error: uploadError, success, reset } = useReceiptUpload();
@@ -38,10 +39,24 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
             setTimeout(() => {
                 setSelectedFile(null);
                 setUploadState('idle');
+                setFilePreviewUrl(null);
                 reset();
             }, 300);
         }
     }, [isOpen, reset]);
+
+    // Create preview URL when file is selected
+    useEffect(() => {
+        if (selectedFile) {
+            const url = URL.createObjectURL(selectedFile);
+            setFilePreviewUrl(url);
+            
+            // Cleanup URL when component unmounts or file changes
+            return () => {
+                URL.revokeObjectURL(url);
+            };
+        }
+    }, [selectedFile]);
 
     if (!isOpen) return null;
 
@@ -135,6 +150,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
 
     const handleRetry = () => {
         setUploadState('idle');
+        setFilePreviewUrl(null);
         reset();
     };
 
@@ -146,6 +162,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
     const handleCancel = () => {
         setSelectedFile(null);
         setUploadState('idle');
+        setFilePreviewUrl(null);
         reset();
         onClose();
     };
@@ -224,22 +241,35 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
                     )}
 
                     {/* Uploading State */}
-                    {uploadState === 'uploading' && selectedFile && (
+                    {uploadState === 'uploading' && selectedFile && filePreviewUrl && (
                         <div className="space-y-4">
-                            {/* Receipt Preview - Full Color During Upload */}
-                            <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 bg-gray-50">
-                                <div className="text-center space-y-2">
-                                    <p className="text-sm text-gray-700">Transfer from IYATUN EMMANUEL</p>
-                                    <p className="text-2xl font-bold text-gray-900">₦8,000.00</p>
-                                    <div className="flex items-center justify-center gap-2">
-                                        <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            {/* Receipt Preview - Actual Uploaded File */}
+                            <div className="border-2 border-dashed border-gray-300 rounded-xl bg-white overflow-hidden" style={{ minHeight: '280px' }}>
+                                {selectedFile.type === 'application/pdf' ? (
+                                    <div className="flex flex-col items-center justify-center h-full p-8">
+                                        <div className="w-20 h-20 bg-red-100 rounded-lg flex items-center justify-center mb-3">
+                                            <svg className="w-10 h-10 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                                                <path d="M8 10a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                                                <path d="M8 13a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
                                             </svg>
                                         </div>
-                                        <span className="text-green-500 font-medium">Successful</span>
+                                        <p className="text-sm font-medium text-gray-900 mb-1">{selectedFile.name}</p>
+                                        <p className="text-xs text-gray-500">PDF Document - Uploading...</p>
                                     </div>
-                                </div>
+                                ) : (
+                                    <div className="relative w-full h-full flex items-center justify-center p-4">
+                                        <img 
+                                            src={filePreviewUrl} 
+                                            alt="Receipt preview" 
+                                            className="max-w-full max-h-[280px] object-contain rounded"
+                                        />
+                                        <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2">
+                                            <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                            <span className="text-gray-700 text-sm">Uploading...</span>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             
                             {/* File Upload Progress */}
@@ -274,22 +304,47 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
                     )}
 
                     {/* Completed State */}
-                    {uploadState === 'completed' && selectedFile && (
+                    {uploadState === 'completed' && selectedFile && filePreviewUrl && (
                         <div className="space-y-4">
-                            {/* Receipt Preview with Dashed Border */}
-                            <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 bg-white">
-                                <div className="text-center space-y-3">
-                                    <p className="text-lg font-medium text-gray-700">Transfer from IYATUN EMMANUEL</p>
-                                    <p className="text-4xl font-bold text-gray-900">₦8,000.00</p>
-                                    <div className="flex items-center justify-center gap-2">
-                                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            {/* Receipt Preview - Actual Uploaded File */}
+                            <div className="border-2 border-dashed border-gray-300 rounded-xl bg-white overflow-hidden" style={{ minHeight: '280px' }}>
+                                {selectedFile.type === 'application/pdf' ? (
+                                    <div className="flex flex-col items-center justify-center h-full p-8">
+                                        <div className="w-20 h-20 bg-red-100 rounded-lg flex items-center justify-center mb-3">
+                                            <svg className="w-10 h-10 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                                                <path d="M8 10a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                                                <path d="M8 13a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
                                             </svg>
                                         </div>
-                                        <span className="text-green-500 font-medium text-lg">Successful</span>
+                                        <p className="text-sm font-medium text-gray-900 mb-1">{selectedFile.name}</p>
+                                        <p className="text-xs text-gray-500 mb-3">PDF Document</p>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            </div>
+                                            <span className="text-green-500 font-medium text-sm">Upload Successful</span>
+                                        </div>
                                     </div>
-                                </div>
+                                ) : (
+                                    <div className="relative w-full h-full flex items-center justify-center p-4">
+                                        <img 
+                                            src={filePreviewUrl} 
+                                            alt="Receipt preview" 
+                                            className="max-w-full max-h-[280px] object-contain rounded"
+                                        />
+                                        <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2">
+                                            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            </div>
+                                            <span className="text-green-500 font-medium text-sm">Upload Successful</span>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             
                             {/* File Completed */}

@@ -12,8 +12,22 @@ import TemplateSelector from "@/components/invoice/TemplateSelector";
 import { ApiClient } from "@/lib/api";
 import { buildInvoiceFormData, dataURLtoFile, base64ToFile, CreateInvoiceData, InvoiceItem } from "@/lib/invoiceTypes";
 import { Product } from "@/lib/productCache";
+import { useInvoiceLimit } from "@/contexts/InvoiceLimitContext";
+import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification";
 
 const CreateInvoicePage = () => {
+    const { 
+        canCreateInvoice, 
+        invoicesRemaining, 
+        totalInvoices,
+        isLoading: limitLoading,
+        checkInvoiceLimit, 
+        incrementInvoiceCount,
+        showLimitNotification,
+        showBlockedNotification 
+    } = useInvoiceLimit();
+    const { showWarningNotification, showBlockedNotification: showBlockedNotif } = useInvoiceLimitNotification();
+    
     const [items, setItems] = useState<InvoiceItem[]>([]);
     const [showSignatureModal, setShowSignatureModal] = useState(false);
     const [signature, setSignature] = useState<string | null>(null);
@@ -366,6 +380,13 @@ const CreateInvoicePage = () => {
 
     const handlePreviewInvoice = () => {
         setFormValidationError(null);
+        
+        // Check if user can create invoice
+        if (!canCreateInvoice) {
+            showBlockedNotif();
+            return;
+        }
+        
         if (!isFormValid()) {
             setFormValidationError("Please fill in all required fields before previewing the invoice.");
             return;
@@ -430,6 +451,13 @@ const CreateInvoicePage = () => {
     // Send invoice to backend (called from preview page)
     const handleSendInvoice = async (): Promise<{ success: boolean; error?: string }> => {
         setFormValidationError(null);
+        
+        // Check if user can create invoice
+        if (!canCreateInvoice) {
+            showBlockedNotif();
+            return { success: false, error: "Invoice limit reached" };
+        }
+        
         if (!isFormValid()) {
             setFormValidationError("Please fill in all required fields before sending the invoice.");
             return { success: false, error: "Form validation failed" };
@@ -526,7 +554,7 @@ const CreateInvoicePage = () => {
                     logo,
                     billFrom,
                     billTo,
-                    items,
+                    items: items.map(item => ({ ...item, tax: 0 })), // Add tax property for InvoicePreview compatibility
                     customerNote,
                     termsAndConditions,
                     signature,
@@ -537,8 +565,7 @@ const CreateInvoicePage = () => {
                     paymentDetails,
                     vat,
                     wht,
-                    selectedClientId,
-                    invoiceTaxRate
+                    selectedClientId
                 }}
                 onEdit={handleBackToEdit}
                 onEmailInvoice={() => {
@@ -552,11 +579,32 @@ const CreateInvoicePage = () => {
     return (
         <>
         <div className="mt-[6px] mx-4 ">   {/* Header */}
-            <div className="mb-4 flex items-center gap-4">
-                <Link href="/dashboard/invoices" className="p-2 text-[#2F80ED] ">
-                   <ArrowLeft size={24} />
-                </Link>
-                <h1 className="text-[20px] font-semibold text-[#101828]">Create New Invoice</h1>
+            <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Link href="/dashboard/invoices" className="p-2 text-[#2F80ED] ">
+                       <ArrowLeft size={24} />
+                    </Link>
+                    <h1 className="text-[20px] font-semibold text-[#101828]">Create New Invoice</h1>
+                </div>
+                
+                {/* Invoice Count Display */}
+                <div className="flex items-center gap-2 px-3 py-2 bg-[#F9FAFB] border border-[#E4E7EC] rounded-lg">
+                    <div className={`w-2 h-2 rounded-full ${
+                        limitLoading ? 'bg-[#667085]' : 
+                        totalInvoices === -1 ? 'bg-[#10B981]' : 
+                        invoicesRemaining > 2 ? 'bg-[#10B981]' : 
+                        invoicesRemaining > 0 ? 'bg-[#F59E0B]' : 'bg-[#EF4444]'
+                    }`}></div>
+                    <span className="text-[14px] font-medium text-[#344054]">
+                        {limitLoading ? (
+                            "Loading..."
+                        ) : totalInvoices === -1 ? (
+                            "Unlimited invoices"
+                        ) : (
+                            `${invoicesRemaining}/${totalInvoices} invoices left this month`
+                        )}
+                    </span>
+                </div>
             </div>
             <div className="flex gap-[22px] mb-14">
                   <div className="w-[630px]">

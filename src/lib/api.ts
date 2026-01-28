@@ -108,7 +108,7 @@ export class ApiClient {
   }
 
   private static async request<T>(
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
     endpoint: string,
     data?: any,
     params?: any
@@ -138,6 +138,10 @@ export class ApiClient {
 
   static async put(endpoint: string, data?: any) {
     return this.request('PUT', endpoint, data);
+  }
+
+  static async patch(endpoint: string, data?: any) {
+    return this.request('PATCH', endpoint, data);
   }
 
   static async delete(endpoint: string, params?: any) {
@@ -363,8 +367,12 @@ export class ApiClient {
     }
   }
 
-  static async getAllUserInvoices() {
-    return this.request('GET', '/api/invoices/all-user');
+  static async getAllUserInvoicesByUserId(userId: string) {
+    return this.request('GET', `/api/invoices/all-user/${userId}`);
+  }
+
+  static async markInvoiceAsPaid(invoiceId: string) {
+    return this.request('PATCH', `/api/invoices/${invoiceId}/mark-as-paid`);
   }
 
   static async getInvoiceById(id: string) {
@@ -403,6 +411,51 @@ export class ApiClient {
 
   static async deleteInvoice(id: string) {
     return this.request('DELETE', `/api/invoices/delete/${id}`);
+  }
+
+  // Subscription Management APIs
+  static async getCurrentSubscription() {
+    return this.request('GET', '/api/subscriptions/current');
+  }
+
+  static async canCreateInvoice() {
+    return this.request('GET', '/api/subscriptions/can-create-invoice');
+  }
+
+  static async getSubscriptionPlans() {
+    return this.request('GET', '/api/subscriptions/plans');
+  }
+
+  static async initializeSubscription(data: { plan: string }) {
+    return this.request('POST', '/api/subscriptions/initialize', data);
+  }
+
+  static async initializeCardSubscription(data: { plan: string }) {
+    return this.request('POST', '/api/subscriptions/initialize-card-subscription', data);
+  }
+
+  static async initializeTransactionWithPlan(data: { 
+    plan: string; 
+    channels?: string[]; 
+    callbackUrl?: string; 
+  }) {
+    return this.request('POST', '/api/subscriptions/initialize-transaction', data);
+  }
+
+  static async cancelSubscription() {
+    return this.request('POST', '/api/subscriptions/cancel');
+  }
+
+  static async verifySubscription(reference: string) {
+    return this.request('GET', `/api/subscriptions/verify/${reference}`);
+  }
+
+  static async enableSubscription() {
+    return this.request('POST', '/api/subscriptions/enable');
+  }
+
+  static async disableSubscription() {
+    return this.request('POST', '/api/subscriptions/disable');
   }
 
   // Receipt Management APIs
@@ -458,12 +511,18 @@ export class ApiClient {
       { label: "View Detail", action: "view" }
     ];
 
-    if (status.toLowerCase() === 'paid') {
+    const statusLower = status.toLowerCase();
+    
+    if (statusLower === 'paid') {
       return [
         ...baseOptions,
         { label: "View Receipt", action: "receipt" }
       ];
+    } else if (statusLower === 'pending') {
+      // Pending invoices can only be viewed, no upload allowed
+      return baseOptions;
     } else {
+      // Unpaid/Overdue invoices can upload receipt
       return [
         ...baseOptions,
         { label: "Upload Receipt", action: "upload" }
