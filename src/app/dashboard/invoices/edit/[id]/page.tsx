@@ -28,8 +28,6 @@ const InvoiceEditPage = () => {
             setLoading(true);
             const response = await ApiClient.getInvoiceById(invoiceId);
             
-            console.log('Invoice API Response for Edit:', response);
-            
             if (response.status === 200 && response.data) {
                 setInvoice(response.data);
                 setEditedInvoice({ ...response.data });
@@ -103,7 +101,6 @@ const InvoiceEditPage = () => {
                 setIsEditing(false);
                 
                 // Show success message (you can add a toast notification here)
-                console.log('Invoice updated successfully');
             } else {
                 setError(response.error || response.message || "Failed to update invoice");
             }

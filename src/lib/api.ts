@@ -1,6 +1,10 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
+import { InvoiceStatsResponse } from '@/types/invoice';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+// Temporary bypass flag for testing - set to true to skip 401 redirects
+const BYPASS_AUTH_REDIRECT = true;
 
 // Configure axios defaults
 const axiosInstance = axios.create({
@@ -29,8 +33,13 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       
+      // Skip redirect if bypass flag is enabled (for testing)
+      if (BYPASS_AUTH_REDIRECT) {
+        return Promise.reject(error);
+      }
+      
       // Skip redirect for certain API endpoints that may return 401 for empty data
-      const skipRedirectEndpoints = ['/api/product/', '/api/client/', '/api/tax/'];
+      const skipRedirectEndpoints = ['/api/product/', '/api/client/', '/api/tax/', '/api/notifications/', '/api/invoices/all-user'];
       const requestUrl = error.config?.url || '';
       const shouldSkipRedirect = skipRedirectEndpoints.some(endpoint => requestUrl.includes(endpoint));
       
@@ -49,7 +58,6 @@ axiosInstance.interceptors.response.use(
             !currentPath.includes('/signIn') && 
             !currentPath.includes('/signUp')) {
           window.location.href = '/signIn';
-        } else {
         }
       }
     }
@@ -100,15 +108,11 @@ export class ApiClient {
   }
 
   private static async request<T>(
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
     endpoint: string,
     data?: any,
     params?: any
   ): Promise<ApiResponse<T>> {
-    console.log('URL:', `${API_BASE_URL}${endpoint}`);
-    console.log('Method:', method);
-    console.log('Body:', data);
-    
     try {
       const response = await axiosInstance.request({
         method,
@@ -134,6 +138,10 @@ export class ApiClient {
 
   static async put(endpoint: string, data?: any) {
     return this.request('PUT', endpoint, data);
+  }
+
+  static async patch(endpoint: string, data?: any) {
+    return this.request('PATCH', endpoint, data);
   }
 
   static async delete(endpoint: string, params?: any) {
@@ -359,12 +367,32 @@ export class ApiClient {
     }
   }
 
-  static async getAllUserInvoices() {
-    return this.request('GET', '/api/invoices/all-user');
+  static async getAllUserInvoicesByUserId(userId: string) {
+    return this.request('GET', `/api/invoices/all-user/${userId}`);
+  }
+
+  static async markInvoiceAsPaid(invoiceId: string) {
+    return this.request('PATCH', `/api/invoices/${invoiceId}/mark-as-paid`);
   }
 
   static async getInvoiceById(id: string) {
-    return this.request('GET', `/api/invoices/${id}`);
+    return this.request('GET', `/api/invoices/public/${id}`);
+  }
+
+  static async getPublicInvoiceByUuid(uuid: string): Promise<ApiResponse<any>> {
+    try {
+      // Use axios directly for public endpoint - no authentication required
+      const response = await axios.get(
+        `https://api.originalinvoice.com/api/invoices/public/${uuid}`
+      );
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  static async getInvoiceStats(email: string): Promise<ApiResponse<InvoiceStatsResponse>> {
+    return this.request<InvoiceStatsResponse>('GET', '/api/invoices/stats/received', undefined, { email });
   }
 
   static async updateInvoice(id: string, formData: FormData): Promise<ApiResponse<any>> {
@@ -385,6 +413,7 @@ export class ApiClient {
     return this.request('DELETE', `/api/invoices/delete/${id}`);
   }
 
+<<<<<<< HEAD
   static async canCreateInvoice() {
     return this.request('GET', '/api/invoices/can-create');
   }
@@ -432,5 +461,93 @@ export class ApiClient {
 
   static async disableSubscription() {
     return this.request('POST', '/api/subscriptions/disable');
+=======
+  // Receipt Management APIs
+  static async uploadReceipt(invoiceId: string, receiptFile: File): Promise<ApiResponse<any>> {
+    try {
+      const formData = new FormData();
+      formData.append('evidence', receiptFile);
+
+      // Use the public endpoint - no authentication required
+      const response = await axios.post(
+        `https://api.originalinvoice.com/api/invoices/${invoiceId}/upload-evidence`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  static async getReceiptByInvoiceId(invoiceId: string) {
+    return this.request('GET', `/api/receipts/invoice/${invoiceId}`);
+  }
+
+  static async getAllUserReceipts() {
+    return this.request('GET', '/api/receipts/all-user');
+  }
+
+  static async getReceiptById(id: string) {
+    return this.request('GET', `/api/receipts/${id}`);
+  }
+
+  // Utility methods for customer invoice operations
+  static getStatusColor(status: string): string {
+    switch (status.toLowerCase()) {
+      case 'paid':
+        return 'bg-green-100 text-green-700 border-green-200';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'overdue':
+        return 'bg-red-100 text-red-700 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
+  }
+
+  static getDropdownOptions(status: string): Array<{ label: string; action: string }> {
+    const baseOptions = [
+      { label: "View Detail", action: "view" }
+    ];
+
+    const statusLower = status.toLowerCase();
+    
+    if (statusLower === 'paid') {
+      return [
+        ...baseOptions,
+        { label: "View Receipt", action: "receipt" }
+      ];
+    } else if (statusLower === 'pending') {
+      // Pending invoices can only be viewed, no upload allowed
+      return baseOptions;
+    } else {
+      // Unpaid/Overdue invoices can upload receipt
+      return [
+        ...baseOptions,
+        { label: "Upload Receipt", action: "upload" }
+      ];
+    }
+  }
+
+  static formatCurrency(amount: number, currency: string = '₦'): string {
+    return `${currency}${amount.toLocaleString('en-US', { 
+      minimumFractionDigits: 2, 
+      maximumFractionDigits: 2 
+    })}`;
+  }
+
+  static formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', { 
+      day: '2-digit', 
+      month: 'short', 
+      year: 'numeric' 
+    });
+>>>>>>> 4bd9241a970810ae7e38b0d752eb35351481aa10
   }
 }

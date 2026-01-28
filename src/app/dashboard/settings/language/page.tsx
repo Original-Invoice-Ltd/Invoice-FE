@@ -40,7 +40,6 @@ const LanguagePage = () => {
 
     try {
       // TODO: Implement language preference update API call
-      console.log("Selected language:", selectedLanguage);
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));

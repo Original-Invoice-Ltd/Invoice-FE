@@ -64,7 +64,6 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
             `user-${user.id}`,
             'notification',
             (data: any) => {
-                console.log('New notification received:', data);
                 // Increment unread count
                 setUnreadCount(prev => prev + 1);
                 

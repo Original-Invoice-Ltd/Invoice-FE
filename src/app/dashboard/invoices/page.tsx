@@ -7,13 +7,10 @@ import { useRouter } from "next/navigation";
 import { ApiClient } from "@/lib/api";
 import { InvoiceResponse } from "@/types/invoice";
 import DeleteConfirmationModal from "@/components/common/DeleteConfirmationModal";
-import { useInvoiceLimit } from "@/contexts/InvoiceLimitContext";
-import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification";
+import { useAuth } from "@/contexts/AuthContext";
 
 const InvoicesPage = () => {
-    const router = useRouter();
-    const { canCreateInvoice } = useInvoiceLimit();
-    const { showBlockedNotification } = useInvoiceLimitNotification();
+    const { user } = useAuth();
     const [searchQuery, setSearchQuery] = useState("");
     const [sortBy, setSortBy] = useState("date");
     const [invoices, setInvoices] = useState<InvoiceResponse[]>([]);
@@ -48,24 +45,22 @@ const InvoicesPage = () => {
     // Fetch invoices on component mount
     useEffect(() => {
         fetchInvoices();
-    }, []);
+    }, [user?.id]);
 
     const fetchInvoices = async () => {
+        if (!user?.id) {
+            setLoading(false);
+            return;
+        }
+
         try {
             setLoading(true);
-            const response = await ApiClient.getAllUserInvoices();
-            
-            // Console log the response to see what backend is returning
-            console.log('Invoice API Response:', response);
-            console.log('Response status:', response.status);
-            console.log('Response data:', response.data);
+            const response = await ApiClient.getAllUserInvoicesByUserId(user.id);
             
             if (response.status === 200 && response.data) {
                 const invoicesData = Array.isArray(response.data) ? response.data : [];
-                console.log('Processed invoices data:', invoicesData);
                 setInvoices(invoicesData);
             } else {
-                console.log('API Error:', response.error || response.message);
                 setError(response.error || response.message || "Failed to fetch invoices");
             }
         } catch (err) {

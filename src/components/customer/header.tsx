@@ -1,54 +1,69 @@
 "use client";
 
+import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import Image from "next/image";
+import CustomerNotificationsPanel from "./CustomerNotificationsPanel";
+import { useCustomerNotifications } from "@/hooks/useCustomerNotifications";
 
-const CustomerHeader = () => {
+interface CustomerHeaderProps {
+    onMenuClick?: () => void;
+}
+
+const CustomerHeader = ({ onMenuClick }: CustomerHeaderProps) => {
+    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+    const { unreadCount } = useCustomerNotifications();
+
     return (
-        <header className="h-[72px] bg-white border-b border-[#E4E7EC] flex items-center justify-between px-6 shadow-sm">
-            {/* Left Section - Logo */}
-            <div className="flex items-center">
-                <Image
-                    src="/assets/header logo.svg"
-                    alt="Original Invoice"
-                    width={140}
-                    height={36}
-                />
-            </div>
-
-            {/* Center Section - Page Title */}
-            <div className="flex-1 text-center">
-                <h1 className="text-xl font-semibold text-[#101828]">Invoice Preview</h1>
-                <p className="text-sm text-[#667085]">View and download your invoice</p>
-            </div>
-
-            {/* Right Section - Language & Support */}
-            <div className="flex items-center gap-4">
-                {/* Language Selector */}
-                <div className="relative">
-                    <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#344054] hover:bg-gray-50 rounded-lg border border-[#E4E7EC]">
-                        <div className="w-5 h-5 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center">
-                            <svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M0 9.37797C0 13.6777 2.71375 17.343 6.52176 18.756V0C2.71375 1.41289 0 5.07836 0 9.37797Z" fill="#6DA544"/>
-                                <path d="M20.0003 9.37797C20.0003 5.07836 17.2865 1.41289 13.4785 0V18.7561C17.2865 17.343 20.0003 13.6777 20.0003 9.37797Z" fill="#6DA544"/>
-                            </svg>
-                        </div>
-                        EN
-                        <ChevronDown size={14} className="text-[#667085]" />
+        <>
+            <header className="h-[72px] bg-[#eff8ff] border-b border-[#E4E7EC] flex items-center justify-between px-4 md:px-6 shadow-sm">
+                {/* Left Section - Hamburger on mobile, Home on desktop */}
+                <div className="flex items-center gap-3">
+                    {/* Hamburger Menu - Mobile only */}
+                    <button 
+                        onClick={onMenuClick}
+                        className="p-2 hover:bg-white rounded-lg transition-colors md:hidden"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="#101828" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12h18M3 6h18M3 18h18"/>
+                        </svg>
                     </button>
+                    <h1 className="text-[#101828] font-medium text-lg hidden md:block">Home</h1>
                 </div>
 
-                {/* Support Button */}
-                <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#2F80ED] hover:bg-blue-50 rounded-lg border border-[#2F80ED] transition-colors">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8 14.6667C11.6819 14.6667 14.6667 11.6819 14.6667 8.00004C14.6667 4.31814 11.6819 1.33337 8 1.33337C4.31811 1.33337 1.33334 4.31814 1.33334 8.00004C1.33334 11.6819 4.31811 14.6667 8 14.6667Z" stroke="#2F80ED" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M6.06 6.00004C6.21674 5.55448 6.52609 5.17878 6.93198 4.93946C7.33787 4.70014 7.81 4.61267 8.27 4.69251C8.73 4.77235 9.14613 5.01436 9.43892 5.37573C9.73171 5.7371 9.88 6.19439 9.86 6.66671C9.86 8.00004 7.86 8.66671 7.86 8.66671" stroke="#2F80ED" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M8 11.3334H8.00667" stroke="#2F80ED" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    Support
-                </button>
-            </div>
-        </header>
+                {/* Center Section - Empty */}
+                <div className="flex-1"></div>
+
+                {/* Right Section - Notification & Language */}
+                <div className="flex items-center gap-2 md:gap-4">
+                    {/* Notification Bell */}
+                    <button 
+                        onClick={() => setIsNotificationsOpen(true)}
+                        className="relative p-2 bg-white rounded-lg transition-colors hover:bg-gray-50"
+                    >
+                        <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        {unreadCount > 0 && (
+                            <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+                        )}
+                    </button>
+
+                    {/* Language Selector */}
+                    <div className="relative">
+                        <button className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-2 text-sm font-medium text-[#2F80ED] hover:bg-gray-50 rounded-lg transition-colors">
+                            EN
+                            <ChevronDown size={14} className="text-[#667085]" />
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            {/* Notifications Panel */}
+            <CustomerNotificationsPanel 
+                isOpen={isNotificationsOpen} 
+                onClose={() => setIsNotificationsOpen(false)} 
+            />
+        </>
     );
 };
 

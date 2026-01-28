@@ -115,9 +115,6 @@ const ClientsPage = () => {
             
             const response = await ApiClient.getAllUserClients();
             
-            // Log the response to see what backend is returning
-            console.log('Backend response:', response);
-            
             if (response.status === 200) {
                 // Handle both cases: data exists (array) or data is null/undefined (empty list)
                 const clientsData = Array.isArray(response.data) ? response.data : [];
@@ -126,7 +123,6 @@ const ClientsPage = () => {
                 ClientCache.set(clientsData);
             } else {
                 // Only handle actual API errors, not empty lists
-                console.log('API error response:', response);
                 const cachedClients = ClientCache.get();
                 if (cachedClients) {
                     setClients(cachedClients);
