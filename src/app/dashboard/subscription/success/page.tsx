@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, AlertCircle, Loader2 } from "lucide-react";
 import { verifySubscription } from "@/lib/subscription";
 
-const SubscriptionSuccessPage = () => {
+const SubscriptionSuccessContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const reference = searchParams.get("reference");
@@ -134,6 +134,28 @@ const SubscriptionSuccessPage = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const SubscriptionSuccessPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow-sm border border-[#E4E7EC] p-8 max-w-md w-full mx-4 text-center">
+          <div className="flex justify-center mb-6">
+            <Loader2 className="w-12 h-12 text-[#2F80ED] animate-spin" />
+          </div>
+          <h2 className="text-xl font-semibold text-[#101828] mb-2">
+            Loading...
+          </h2>
+          <p className="text-[#667085]">
+            Please wait while we load your subscription details...
+          </p>
+        </div>
+      </div>
+    }>
+      <SubscriptionSuccessContent />
+    </Suspense>
   );
 };
 

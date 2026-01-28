@@ -6,11 +6,11 @@ import FAQ from "@/components/FAQ";
 import Image from "next/image";
 import arrowDown from './../../../public/assets/icons/Hand-drawn arrow.svg';
 import Testimonials from "@/components/testimonials";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { initializeTransactionWithPlan } from "@/lib/subscription";
 
-const Pricing = ()=>{
+const PricingContent = ()=>{
     const [currentCard, setCurrentCard] = useState(0);
     const [isLoading, setIsLoading] = useState<string | null>(null); // Track which button is loading
     const router = useRouter();
@@ -455,4 +455,20 @@ const Pricing = ()=>{
         </>
     )
 }
+
+const Pricing = () => {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED] mx-auto mb-4"></div>
+                    <p className="text-[#667085]">Loading pricing...</p>
+                </div>
+            </div>
+        }>
+            <PricingContent />
+        </Suspense>
+    );
+}
+
 export default Pricing
