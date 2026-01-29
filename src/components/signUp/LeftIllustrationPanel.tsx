@@ -22,11 +22,11 @@ export default function LeftIllustrationPanel() {
     </div>
 
     {/* Bottom Section - Illustration Image */}
-    <div className="flex items-end justify-center pb-4 md:pb-6 lg:pb-0">
+    <div className="flex items-end justify-center pb-4 md:pb-6 lg:pb-12 lg:pb-0">
        <img
         src="/assets/automated_invoice.svg"
         alt="automated_invoice"
-        className="w-full max-w-[90%] md:max-w-[85%] lg:max-w-[320px] h-auto object-contain"
+        className="w-full max-w-[90%] md:max-w-[85%] lg:w-[100%] lg:max-w-[350px] h-auto object-contain"
       /> 
     </div>
   </div>
