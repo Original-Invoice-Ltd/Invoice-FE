@@ -5,6 +5,7 @@ import { Info } from "lucide-react";
 import { ApiClient } from "@/lib/api";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
+import { ApiResponse } from "@/types/invoice";
 
 // TypeScript interfaces for tax settings
 interface TaxSettingsDto {
@@ -35,6 +36,7 @@ const TaxSettingsPage = () => {
   // Load existing tax settings on component mount
   useEffect(() => {
     loadTaxSettings();
+    console.log("settings fetched: ", settings)
   }, []);
 
   const loadTaxSettings = async () => {
@@ -43,18 +45,17 @@ const TaxSettingsPage = () => {
       const response = await ApiClient.getTaxSettings();
       
       if (response.status === 200 && response.data) {
-        const data = response.data as TaxSettingsDto;
+        const data = response.data as ApiResponse<TaxSettingsDto>;
         
-        // Map backend data to UI state
         setSettings({
-          enableVAT: data.enablingVAT || false,
-          enableWHT: data.enablingWHT || false,
-          defaultTax: mapTaxAppliedToDefaultTax(data.taxApplied),
-          taxId: data.taxId || "",
+          enableVAT: data.data.enablingVAT || false,
+          enableWHT: data.data.enablingWHT || false,
+          defaultTax: mapTaxAppliedToDefaultTax(data.data.taxApplied),
+          taxId: data.data.taxId || "",
         });
       }
     } catch (error) {
-      console.error("Error loading tax settings:", error);
+      // console.error("Error loading tax settings:", error);
       showError("Failed to load tax settings. Please refresh the page.");
     } finally {
       setIsLoadingData(false);
@@ -132,21 +133,20 @@ const TaxSettingsPage = () => {
       const response = await ApiClient.updateTaxSettings(taxSettingsData);
       
       if (response.status === 200 && response.data) {
-        // Update local state with response data
-        const data = response.data as TaxSettingsDto;
+        const data = response.data as ApiResponse<TaxSettingsDto>;
         setSettings({
-          enableVAT: data.enablingVAT || false,
-          enableWHT: data.enablingWHT || false,
-          defaultTax: mapTaxAppliedToDefaultTax(data.taxApplied),
-          taxId: data.taxId || "",
+          enableVAT: data.data.enablingVAT || false,
+          enableWHT: data.data.enablingWHT || false,
+          defaultTax: mapTaxAppliedToDefaultTax(data.data.taxApplied),
+          taxId: data.data.taxId || "",
         });
         
         showSuccess("Tax settings saved successfully!");
       } else {
-        showError(response.error || "Failed to save tax settings. Please try again.");
+        showError("Failed to save tax settings. Please try again.");
       }
     } catch (error) {
-      console.error("Error saving tax settings:", error);
+      // console.error("Error saving tax settings:", error);
       showError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);

@@ -4,9 +4,14 @@ import { useState, useEffect } from "react";
 import { Camera, X } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/useToast";
+import Toast from "@/components/ui/Toast";
+import { ApiClient } from "@/lib/api";
 
 const PersonalProfilePage = () => {
-  const { user, updateUserProfile, uploadProfilePhoto } = useAuth();
+  const { user, refreshUser, updateUserProfile, uploadProfilePhoto } = useAuth();
+  const { toast, showSuccess, showError, hideToast } = useToast();
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -19,16 +24,20 @@ const PersonalProfilePage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+
     if (user) {
       const nameParts = user.fullName?.split(' ') || ['', ''];
       setFormData({
         firstName: nameParts[0] || '',
         lastName: nameParts.slice(1).join(' ') || '',
         emailAddress: user.email || '',
-        phoneNumber: user.phoneNumber || '',
+        phoneNumber: user.phone || '',
       });
       setProfileImage(user.imageUrl || null);
+    } else {
+      refreshUser();
     }
+
   }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,12 +68,16 @@ const PersonalProfilePage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
+  if (formData.phoneNumber.length > 0 && !ApiClient.isValidPhone(formData.phoneNumber)) {
+        setIsLoading(false);
+        showError("Phone number must be in international format. Example: +234***********");
+        return;
+      }
     try {
       // Update profile information
-      const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+      const fullName = `${formData.firstName.trim} ${formData.lastName.trim()}`.trim();
       const success = await updateUserProfile(fullName, formData.phoneNumber);
-      
+
       if (!success) {
         throw new Error("Failed to update profile");
       }
@@ -73,14 +86,21 @@ const PersonalProfilePage = () => {
       if (imageFile) {
         const imageSuccess = await uploadProfilePhoto(imageFile);
         if (!imageSuccess) {
-          console.warn("Profile updated but image upload failed");
+          showSuccess("Profile updated but image upload failed");
         }
       }
+      refreshUser();
+       setFormData({
+        firstName: user?.fullName.split(" ")[0] || '',
+        lastName: user?.fullName.split(" ")[1] || '',
+        emailAddress: user?.email || '',
+        phoneNumber: user?.phone || '',
+      });
+      showSuccess("Profile updated successfully!");
 
-      alert("Profile updated successfully!");
     } catch (error) {
-      console.error("Error updating profile:", error);
-      alert("Failed to update profile. Please try again.");
+      // console.error("Error updating profile:", error);
+      showError("Failed to update profile. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -95,6 +115,12 @@ const PersonalProfilePage = () => {
 
   return (
     <div className="p-6">
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+      />
       <div className="max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Profile Picture */}
@@ -115,7 +141,7 @@ const PersonalProfilePage = () => {
                   {getInitials()}
                 </div>
               )}
-              
+
               <button
                 type="button"
                 onClick={() => document.getElementById('profile-image-upload')?.click()}
@@ -123,7 +149,7 @@ const PersonalProfilePage = () => {
               >
                 <Camera size={14} />
               </button>
-              
+
               <input
                 type="file"
                 id="profile-image-upload"
@@ -132,7 +158,7 @@ const PersonalProfilePage = () => {
                 className="hidden"
               />
             </div>
-            
+
             {imageFile && (
               <button
                 type="button"
@@ -193,7 +219,7 @@ const PersonalProfilePage = () => {
                 />
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M18.3333 5.00001C18.3333 4.08334 17.5833 3.33334 16.6667 3.33334H3.33333C2.41667 3.33334 1.66667 4.08334 1.66667 5.00001M18.3333 5.00001V15C18.3333 15.9167 17.5833 16.6667 16.6667 16.6667H3.33333C2.41667 16.6667 1.66667 15.9167 1.66667 15V5.00001M18.3333 5.00001L10 10.8333L1.66667 5.00001" stroke="#667085" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M18.3333 5.00001C18.3333 4.08334 17.5833 3.33334 16.6667 3.33334H3.33333C2.41667 3.33334 1.66667 4.08334 1.66667 5.00001M18.3333 5.00001V15C18.3333 15.9167 17.5833 16.6667 16.6667 16.6667H3.33333C2.41667 16.6667 1.66667 15.9167 1.66667 15V5.00001M18.3333 5.00001L10 10.8333L1.66667 5.00001" stroke="#667085" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
               </div>
