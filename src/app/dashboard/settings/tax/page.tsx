@@ -1,9 +1,35 @@
 "use client";
 
+<<<<<<< HEAD
 import { useState } from "react";
 import { Info } from "lucide-react";
 
 const TaxSettingsPage = () => {
+=======
+import { useState, useEffect } from "react";
+import { Info } from "lucide-react";
+import { ApiClient } from "@/lib/api";
+import { useToast } from "@/hooks/useToast";
+import Toast from "@/components/ui/Toast";
+import { ApiResponse } from "@/types/invoice";
+
+// TypeScript interfaces for tax settings
+interface TaxSettingsDto {
+  taxApplied?: string;
+  taxId?: string;
+  enablingVAT?: boolean;
+  enablingWHT?: boolean;
+}
+
+interface TaxSettingsResponse {
+  isSuccessful: boolean;
+  data: TaxSettingsDto;
+}
+
+const TaxSettingsPage = () => {
+  const { toast, showSuccess, showError, hideToast } = useToast();
+  
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
   const [settings, setSettings] = useState({
     enableVAT: false,
     enableWHT: false,
@@ -12,6 +38,73 @@ const TaxSettingsPage = () => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+<<<<<<< HEAD
+=======
+  const [isLoadingData, setIsLoadingData] = useState(true);
+
+  // Load existing tax settings on component mount
+  useEffect(() => {
+    loadTaxSettings();
+    console.log("settings fetched: ", settings)
+  }, []);
+
+  const loadTaxSettings = async () => {
+    try {
+      setIsLoadingData(true);
+      const response = await ApiClient.getTaxSettings();
+      
+      if (response.status === 200 && response.data) {
+        const data = response.data as ApiResponse<TaxSettingsDto>;
+        
+        setSettings({
+          enableVAT: data.data.enablingVAT || false,
+          enableWHT: data.data.enablingWHT || false,
+          defaultTax: mapTaxAppliedToDefaultTax(data.data.taxApplied),
+          taxId: data.data.taxId || "",
+        });
+      }
+    } catch (error) {
+      // console.error("Error loading tax settings:", error);
+      showError("Failed to load tax settings. Please refresh the page.");
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
+
+  // Map backend taxApplied enum to UI defaultTax
+  const mapTaxAppliedToDefaultTax = (taxApplied?: string): string => {
+    if (!taxApplied) return 'vat'; // Default fallback
+    
+    switch (taxApplied.toLowerCase()) {
+      case 'vat':
+        return 'vat';
+      case 'wht':
+        return 'wht';
+      case 'both':
+        return 'both';
+      case 'none':
+        return 'none';
+      default:
+        return 'vat';
+    }
+  };
+
+  // Map UI defaultTax to backend taxApplied enum
+  const mapDefaultTaxToTaxApplied = (defaultTax: string): string => {
+    switch (defaultTax) {
+      case 'vat':
+        return 'VAT';
+      case 'wht':
+        return 'WHT';
+      case 'both':
+        return 'BOTH';
+      case 'none':
+        return 'NONE';
+      default:
+        return 'VAT';
+    }
+  };
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 
   const handleToggle = (field: 'enableVAT' | 'enableWHT') => {
     setSettings(prev => ({
@@ -39,6 +132,7 @@ const TaxSettingsPage = () => {
     setIsLoading(true);
 
     try {
+<<<<<<< HEAD
       // TODO: Implement tax settings update API call
       
       // Simulate API call
@@ -48,12 +142,41 @@ const TaxSettingsPage = () => {
     } catch (error) {
       console.error("Error saving tax settings:", error);
       alert("Failed to save tax settings. Please try again.");
+=======
+      // Prepare data for backend
+      const taxSettingsData = {
+        taxApplied: mapDefaultTaxToTaxApplied(settings.defaultTax),
+        taxId: settings.taxId,
+        enablingVAT: settings.enableVAT,
+        enablingWHT: settings.enableWHT,
+      };
+
+      const response = await ApiClient.updateTaxSettings(taxSettingsData);
+      
+      if (response.status === 200 && response.data) {
+        const data = response.data as ApiResponse<TaxSettingsDto>;
+        setSettings({
+          enableVAT: data.data.enablingVAT || false,
+          enableWHT: data.data.enablingWHT || false,
+          defaultTax: mapTaxAppliedToDefaultTax(data.data.taxApplied),
+          taxId: data.data.taxId || "",
+        });
+        
+        showSuccess("Tax settings saved successfully!");
+      } else {
+        showError("Failed to save tax settings. Please try again.");
+      }
+    } catch (error) {
+      // console.error("Error saving tax settings:", error);
+      showError("An unexpected error occurred. Please try again.");
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleCancel = () => {
+<<<<<<< HEAD
     // Reset to default values or previous saved values
     setSettings({
       enableVAT: false,
@@ -65,6 +188,35 @@ const TaxSettingsPage = () => {
 
   return (
     <div className="p-6">
+=======
+    // Reload settings from server to reset any unsaved changes
+    loadTaxSettings();
+  };
+
+  // Show loading state while fetching data
+  if (isLoadingData) {
+    return (
+      <div className="p-6">
+        <div className="max-w-2xl">
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED]"></div>
+            <span className="ml-3 text-[#667085]">Loading tax settings...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6">
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+      />
+      
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
       <div className="max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Enable VAT */}

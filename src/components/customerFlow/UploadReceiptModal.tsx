@@ -1,13 +1,21 @@
 "use client";
 
+<<<<<<< HEAD
 import React, { useState, useRef, useEffect } from "react";
 import { X, Upload as UploadIcon, Trash2, CheckCircle, XCircle } from "lucide-react";
 import { useReceiptUpload } from "@/hooks/useReceiptUpload";
+=======
+import React, { useState, useRef } from "react";
+import { X, Upload as UploadIcon, Trash2, CheckCircle, XCircle } from "lucide-react";
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 
 interface UploadReceiptModalProps {
   isOpen: boolean;
   onClose: () => void;
+<<<<<<< HEAD
   invoiceId?: string;
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
   testMode?: boolean;
 }
 
@@ -24,12 +32,16 @@ interface UploadedFile {
 const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
   isOpen,
   onClose,
+<<<<<<< HEAD
   invoiceId,
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
   testMode = false,
 }) => {
   const [modalState, setModalState] = useState<ModalState>("initial");
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+<<<<<<< HEAD
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -103,6 +115,15 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
       return;
     }
     
+=======
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  if (!isOpen) return null;
+
+  const handleFileSelect = (file: File) => {
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
     if (file.size > maxSize) {
       setUploadedFile({
         name: file.name,
@@ -115,7 +136,10 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
       return;
     }
 
+<<<<<<< HEAD
     setSelectedFile(file);
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
     setUploadedFile({
       name: file.name,
       size: 0,
@@ -125,6 +149,7 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
     });
     setModalState("uploading");
 
+<<<<<<< HEAD
     // If invoiceId is provided, use real API upload
     if (invoiceId) {
       const uploadSuccess = await uploadReceipt(invoiceId, file);
@@ -135,10 +160,22 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
         );
         setModalState("success");
       } else {
+=======
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 10;
+      setUploadedFile((prev) =>
+        prev ? { ...prev, progress, size: Math.floor((progress / 100) * 120) } : null
+      );
+
+      if (progress === 30 && (Math.random() < 0.2 || file.name.toLowerCase().includes('fail') || file.name.toLowerCase().includes('error'))) {
+        clearInterval(interval);
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
         setUploadedFile((prev) =>
           prev ? { ...prev, status: "failed", progress: 0, size: 0 } : null
         );
         setModalState("failed");
+<<<<<<< HEAD
       }
     } else {
       // Fallback to mock upload if no invoiceId (for testing)
@@ -167,6 +204,19 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
         }
       }, 200);
     }
+=======
+        return;
+      }
+
+      if (progress >= 100) {
+        clearInterval(interval);
+        setUploadedFile((prev) =>
+          prev ? { ...prev, status: "completed", progress: 100, size: 120 } : null
+        );
+        setModalState("success");
+      }
+    }, 200);
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
   };
 
   const handleBrowseClick = () => {
@@ -200,18 +250,26 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
 
   const handleTryAgain = () => {
     setUploadedFile(null);
+<<<<<<< HEAD
     setSelectedFile(null);
     setFilePreviewUrl(null);
     setModalState("initial");
     reset();
+=======
+    setModalState("initial");
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
   };
 
   const handleDelete = () => {
     setUploadedFile(null);
+<<<<<<< HEAD
     setSelectedFile(null);
     setFilePreviewUrl(null);
     setModalState("initial");
     reset();
+=======
+    setModalState("initial");
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
   };
 
   const handleSave = () => {
@@ -219,9 +277,12 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
     setTimeout(() => {
       setModalState("initial");
       setUploadedFile(null);
+<<<<<<< HEAD
       setSelectedFile(null);
       setFilePreviewUrl(null);
       reset();
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
     }, 300);
   };
 
@@ -230,9 +291,12 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
     setTimeout(() => {
       setModalState("initial");
       setUploadedFile(null);
+<<<<<<< HEAD
       setSelectedFile(null);
       setFilePreviewUrl(null);
       reset();
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
     }, 300);
   };
 
@@ -292,6 +356,7 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
 
         <div className="px-6 pb-6">
           {/* Large Preview Area - shown for uploading, success, and failed states */}
+<<<<<<< HEAD
           {(modalState === "uploading" || modalState === "success" || modalState === "failed") && filePreviewUrl && (
             <div className="border-2 border-dashed border-gray-300 rounded-lg mb-4 bg-white min-h-[280px] flex items-center justify-center p-4 overflow-hidden">
               {selectedFile?.type === 'application/pdf' ? (
@@ -323,6 +388,45 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
                     <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-green-500" />
                       <span className="text-green-500 font-medium text-sm">Upload Successful</span>
+=======
+          {(modalState === "uploading" || modalState === "success" || modalState === "failed") && (
+            <div className="border-2 border-gray-200 rounded-lg mb-4 bg-[#F5F7FA] min-h-[280px] flex items-center justify-center p-6">
+              {(modalState === "uploading" || modalState === "success") && (
+                <div className="text-center w-full">
+                  <div className="text-sm text-gray-600 mb-1">
+                    Transfer from IYATUN EMMANUEL
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 mb-2">
+                    ₦8,000.00
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-green-500" />
+                    <span className="text-green-500 font-medium">Successful</span>
+                  </div>
+
+                  {modalState === "success" && (
+                    <div className="text-xs text-gray-500 space-y-1 mt-4">
+                      <div className="flex justify-between">
+                        <span>Transaction Details</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Credit Account:</span>
+                        <span className="text-right">Available Balance</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Sender Details:</span>
+                        <span className="text-right">
+                          IYATUN EMMANUEL<br />
+                          MONIEPOINT | 8127***186
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Remark:</span>
+                        <span className="text-right text-xs">
+                          Confirmation:8531YESEC24JZPG1...
+                        </span>
+                      </div>
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                     </div>
                   )}
                 </div>

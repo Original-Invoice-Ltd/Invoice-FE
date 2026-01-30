@@ -6,6 +6,7 @@ import FAQ from "@/components/FAQ";
 import Image from "next/image";
 import arrowDown from './../../../public/assets/icons/Hand-drawn arrow.svg';
 import Testimonials from "@/components/testimonials";
+<<<<<<< HEAD
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { initializeTransactionWithPlan } from "@/lib/subscription";
@@ -73,6 +74,12 @@ const PricingContent = ()=>{
     const handleFreeTrial = () => {
         router.push("/signUp");
     };
+=======
+import { useState } from "react";
+
+const Pricing = ()=>{
+    const [currentCard, setCurrentCard] = useState(0);
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
     return(
         <>
             <div className="min-h-screen flex flex-col w-full overflow-hidden">
@@ -184,10 +191,14 @@ const PricingContent = ()=>{
                                                 </div>
                                             </div>
                                             
+<<<<<<< HEAD
                                             <button 
                                                 onClick={handleFreeTrial}
                                                 className="w-full h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors"
                                             >
+=======
+                                            <button className="w-full h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors">
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                                                 Start Free Trial
                                             </button>
                                             <p className="text-[12px] text-[#333436] text-center mt-[12px]">No credit card required</p>
@@ -229,12 +240,17 @@ const PricingContent = ()=>{
                                                 </div>
                                             </div>
                                             
+<<<<<<< HEAD
                                             <button 
                                                 onClick={() => handleSubscribe("ESSENTIALS")}
                                                 disabled={isLoading === "ESSENTIALS"}
                                                 className="h-[46px] w-full bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
                                                 {isLoading === "ESSENTIALS" ? "Processing..." : "Get Started"}
+=======
+                                            <button className="h-[46px] w-full bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors">
+                                                Get Started
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                                             </button>
                                             <p className="text-[12px] text-[#333436] text-center mt-[12px]">Perfect for small businesses and freelancers</p>
                                         </div>
@@ -275,12 +291,17 @@ const PricingContent = ()=>{
                                                 </div>
                                             </div>
                                             
+<<<<<<< HEAD
                                             <button 
                                                 onClick={() => handleSubscribe("PREMIUM")}
                                                 disabled={isLoading === "PREMIUM"}
                                                 className="w-full h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
                                                 {isLoading === "PREMIUM" ? "Processing..." : "Start Premium"}
+=======
+                                            <button className="w-full h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors">
+                                                Start Premium
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                                             </button>
                                             <p className="text-[12px] text-[#333436] text-center mt-[12px]">For growing businesses with high invoice volume</p>
                                         </div>
@@ -348,10 +369,14 @@ const PricingContent = ()=>{
                                     </div>
                                 </div>
                                 
+<<<<<<< HEAD
                                 <button 
                                     onClick={handleFreeTrial}
                                     className="w-[320px] h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors"
                                 >
+=======
+                                <button className="w-[320px] h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors">
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                                     Start Free Trial
                                 </button>
                                 <p className="text-[12px] text-[#333436] text-center mt-[12px]">No credit card required</p>
@@ -391,12 +416,17 @@ const PricingContent = ()=>{
                                     </div>
                                 </div>
                                 
+<<<<<<< HEAD
                                 <button 
                                     onClick={() => handleSubscribe("ESSENTIALS")}
                                     disabled={isLoading === "ESSENTIALS"}
                                     className="h-[46px] w-[320px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isLoading === "ESSENTIALS" ? "Processing..." : "Get Started"}
+=======
+                                <button className="h-[46px] w-[320px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors">
+                                    Get Started
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                                 </button>
                                 <p className="text-[12px] text-[#333436] text-center mt-[12px]">Perfect for small businesses and freelancers</p>
                             </div>
@@ -435,12 +465,17 @@ const PricingContent = ()=>{
                                     </div>
                                 </div>
                                 
+<<<<<<< HEAD
                                 <button 
                                     onClick={() => handleSubscribe("PREMIUM")}
                                     disabled={isLoading === "PREMIUM"}
                                     className="w-full h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isLoading === "PREMIUM" ? "Processing..." : "Start Premium"}
+=======
+                                <button className="w-full h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors">
+                                    Start Premium
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                                 </button>
                                 <p className="text-[12px] text-[#333436] text-center mt-[12px]">For growing businesses with high invoice volume</p>
                             </div>
@@ -455,6 +490,7 @@ const PricingContent = ()=>{
         </>
     )
 }
+<<<<<<< HEAD
 
 const Pricing = () => {
     return (
@@ -471,4 +507,6 @@ const Pricing = () => {
     );
 }
 
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 export default Pricing

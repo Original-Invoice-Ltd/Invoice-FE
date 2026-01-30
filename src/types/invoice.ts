@@ -77,4 +77,12 @@ export interface InvoiceListResponse {
   totalCount?: number;
   page?: number;
   size?: number;
+<<<<<<< HEAD
+=======
+}
+
+export interface ApiResponse<T>{
+  isSuccessful: boolean,
+  data: T
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 }

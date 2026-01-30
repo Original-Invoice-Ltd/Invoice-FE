@@ -366,9 +366,12 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
 <<<<<<< HEAD
+<<<<<<< HEAD
         invoiceId={mockInvoiceData.invoiceId.replace('#', '')}
 =======
 >>>>>>> 1586db6e7eef37b433fbf1dff6b1db7e827cec22
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
       />
     </div>
   );

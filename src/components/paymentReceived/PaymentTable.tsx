@@ -86,6 +86,7 @@ const PaymentTable = ({
                         onClick={() => setOpenMenuId(null)}
                       />
                       <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20 max-h-48 overflow-y-auto">
+<<<<<<< HEAD
                         {payment.status !== 'Paid' && (
                           <button
                             onClick={() => {
@@ -108,6 +109,17 @@ const PaymentTable = ({
                             Mark as Unpaid
                           </button>
                         )}
+=======
+                        <button
+                          onClick={() => {
+                            payment.status === 'Paid' ? onRevertStatus(payment) : onMarkPaid(payment);
+                            setOpenMenuId(null);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          {payment.status === 'Paid' ? 'Mark as Unpaid' : 'Mark Paid'}
+                        </button>
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                         <button
                           onClick={() => {
                             onEmail(payment);
@@ -193,6 +205,7 @@ const PaymentTable = ({
                   onClick={() => setOpenMenuId(null)}
                 />
                 <div className="absolute right-4 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20 max-h-48 overflow-y-auto">
+<<<<<<< HEAD
                   {payment.status !== 'Paid' && (
                     <button
                       onClick={() => {
@@ -215,6 +228,17 @@ const PaymentTable = ({
                       Mark as Unpaid
                     </button>
                   )}
+=======
+                  <button
+                    onClick={() => {
+                      payment.status === 'Paid' ? onRevertStatus(payment) : onMarkPaid(payment);
+                      setOpenMenuId(null);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    {payment.status === 'Paid' ? 'Mark as Unpaid' : 'Mark Paid'}
+                  </button>
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                   <button
                     onClick={() => {
                       onEmail(payment);

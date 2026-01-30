@@ -1,15 +1,21 @@
 "use client";
 
 import { Search, Bell, ChevronDown, Menu } from "lucide-react";
+<<<<<<< HEAD
 import { useRouter } from "next/navigation";
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 
 interface DashboardHeaderProps {
     onMenuClick?: () => void;
 }
 
 const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
+<<<<<<< HEAD
     const router = useRouter();
 
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
     return (
         <div 
             className="bg-white border-b border-[#E4E7EC] flex items-center justify-between"
@@ -143,7 +149,10 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
                 
                 {/* Upgrade Now Button */}
                 <button 
+<<<<<<< HEAD
                     onClick={() => router.push("/dashboard/pricing")}
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                     style={{
                         minWidth: '131px',
                         height: '46px',

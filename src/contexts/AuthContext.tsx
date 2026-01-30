@@ -7,7 +7,11 @@ interface User {
   id: string;
   email: string;
   fullName: string;
+<<<<<<< HEAD
   phoneNumber?: string;
+=======
+  phone?: string;
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
   isVerified: boolean;
   roles: string[];
   imageUrl?: string;
@@ -38,7 +42,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setUser(null);
       }
+<<<<<<< HEAD
     } catch (error: any) {
+=======
+    } catch (error: any) {  
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
       // Silently handle 401 errors - they're expected when not authenticated
       if (error.response?.status !== 401) {
         console.error('Failed to fetch user:', error);
@@ -57,7 +65,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await ApiClient.updateProfile(fullName, phoneNumber);
       if (response.status === 200) {
+<<<<<<< HEAD
         // Refresh user data after successful update
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
         await refreshUser();
         return true;
       }

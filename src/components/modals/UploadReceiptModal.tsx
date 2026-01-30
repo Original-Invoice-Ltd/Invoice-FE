@@ -17,7 +17,10 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
     const [uploadState, setUploadState] = useState<UploadState>('idle');
+<<<<<<< HEAD
     const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
     const fileInputRef = useRef<HTMLInputElement>(null);
     
     const { uploadReceipt, uploading, progress, error: uploadError, success, reset } = useReceiptUpload();
@@ -39,12 +42,16 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
             setTimeout(() => {
                 setSelectedFile(null);
                 setUploadState('idle');
+<<<<<<< HEAD
                 setFilePreviewUrl(null);
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                 reset();
             }, 300);
         }
     }, [isOpen, reset]);
 
+<<<<<<< HEAD
     // Create preview URL when file is selected
     useEffect(() => {
         if (selectedFile) {
@@ -58,6 +65,8 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
         }
     }, [selectedFile]);
 
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
     if (!isOpen) return null;
 
     const handleFileSelect = (file: File) => {
@@ -150,7 +159,10 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
 
     const handleRetry = () => {
         setUploadState('idle');
+<<<<<<< HEAD
         setFilePreviewUrl(null);
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
         reset();
     };
 
@@ -162,7 +174,10 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
     const handleCancel = () => {
         setSelectedFile(null);
         setUploadState('idle');
+<<<<<<< HEAD
         setFilePreviewUrl(null);
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
         reset();
         onClose();
     };
@@ -241,6 +256,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
                     )}
 
                     {/* Uploading State */}
+<<<<<<< HEAD
                     {uploadState === 'uploading' && selectedFile && filePreviewUrl && (
                         <div className="space-y-4">
                             {/* Receipt Preview - Actual Uploaded File */}
@@ -270,6 +286,24 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
                                         </div>
                                     </div>
                                 )}
+=======
+                    {uploadState === 'uploading' && selectedFile && (
+                        <div className="space-y-4">
+                            {/* Receipt Preview - Full Color During Upload */}
+                            <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 bg-gray-50">
+                                <div className="text-center space-y-2">
+                                    <p className="text-sm text-gray-700">Transfer from IYATUN EMMANUEL</p>
+                                    <p className="text-2xl font-bold text-gray-900">₦8,000.00</p>
+                                    <div className="flex items-center justify-center gap-2">
+                                        <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </div>
+                                        <span className="text-green-500 font-medium">Successful</span>
+                                    </div>
+                                </div>
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                             </div>
                             
                             {/* File Upload Progress */}
@@ -304,6 +338,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
                     )}
 
                     {/* Completed State */}
+<<<<<<< HEAD
                     {uploadState === 'completed' && selectedFile && filePreviewUrl && (
                         <div className="space-y-4">
                             {/* Receipt Preview - Actual Uploaded File */}
@@ -345,6 +380,24 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
                                         </div>
                                     </div>
                                 )}
+=======
+                    {uploadState === 'completed' && selectedFile && (
+                        <div className="space-y-4">
+                            {/* Receipt Preview with Dashed Border */}
+                            <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 bg-white">
+                                <div className="text-center space-y-3">
+                                    <p className="text-lg font-medium text-gray-700">Transfer from IYATUN EMMANUEL</p>
+                                    <p className="text-4xl font-bold text-gray-900">₦8,000.00</p>
+                                    <div className="flex items-center justify-center gap-2">
+                                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </div>
+                                        <span className="text-green-500 font-medium text-lg">Successful</span>
+                                    </div>
+                                </div>
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                             </div>
                             
                             {/* File Completed */}

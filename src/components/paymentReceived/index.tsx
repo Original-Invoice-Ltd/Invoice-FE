@@ -8,14 +8,20 @@ import Pagination from "./Pagination";
 import Modals from "./Modals";
 import { Payment, ModalType } from "./types";
 import { ApiClient } from "@/lib/api";
+<<<<<<< HEAD
 import { useAuth } from "@/contexts/AuthContext";
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 
 interface PaymentReceivedProps {
   onCreateInvoice: () => void;
 }
 
 const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
+<<<<<<< HEAD
   const { user } = useAuth();
+=======
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
   const [hasPayments, setHasPayments] = useState(false);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,6 +31,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
   const [modalType, setModalType] = useState<ModalType>(null);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
 
+<<<<<<< HEAD
   const itemsPerPage = 10;
   const totalPages = Math.ceil(payments.length / itemsPerPage);
   
@@ -70,21 +77,68 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
           
           setPayments(allInvoices);
           setHasPayments(allInvoices.length > 0);
+=======
+  const totalPages = 99;
+
+  // Load paid invoices from API
+  useEffect(() => {
+    const loadPaidInvoices = async () => {
+      try {
+        setIsLoading(true);
+        const response = await ApiClient.getAllUserInvoices();
+        
+        if (response.status === 200 && response.data) {
+          // Filter only PAID invoices and transform to Payment format
+          const paidInvoices = response.data
+            .filter((invoice: any) => invoice.status === 'PAID')
+            .map((invoice: any) => ({
+              id: invoice.id,
+              date: new Date(invoice.creationDate).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: '2-digit' 
+              }),
+              clientName: invoice.billTo?.fullName || invoice.billTo?.businessName || 'Unknown Client',
+              invoiceId: invoice.invoiceNumber || `INV-${invoice.id}`,
+              status: 'Paid' as const,
+              dueDate: new Date(invoice.dueDate).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: '2-digit' 
+              }),
+              amount: invoice.totalDue || 0,
+              balanceDue: 0, // Paid invoices have 0 balance due
+            }));
+          
+          setPayments(paidInvoices);
+          setHasPayments(paidInvoices.length > 0);
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
         } else {
           setHasPayments(false);
         }
       } catch (error) {
+<<<<<<< HEAD
         console.error('Error loading invoices:', error);
+=======
+        console.error('Error loading paid invoices:', error);
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
         setHasPayments(false);
       } finally {
         setIsLoading(false);
       }
     };
 
+<<<<<<< HEAD
     loadInvoices();
   }, [user?.id]);
 
   const handleMarkPaid = async (payment: Payment) => {
+=======
+    loadPaidInvoices();
+  }, []);
+
+  const handleMarkPaid = (payment: Payment) => {
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
     setSelectedPayment(payment);
     setModalType('markPaid');
   };
@@ -94,6 +148,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
     setModalType('revertStatus');
   };
 
+<<<<<<< HEAD
   const handleConfirmMarkPaid = async () => {
     if (selectedPayment) {
       try {
@@ -117,6 +172,17 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
         setModalType(null);
       }
     }
+=======
+  const handleConfirmMarkPaid = () => {
+    if (selectedPayment) {
+      setPayments(payments.map(p => 
+        p.id === selectedPayment.id 
+          ? { ...p, status: 'Paid' as const, balanceDue: 0 }
+          : p
+      ));
+    }
+    setModalType('paymentSuccess');
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
   };
 
   const handleConfirmRevert = () => {
@@ -201,7 +267,11 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
           </div>
           
           <PaymentTable
+<<<<<<< HEAD
             payments={currentPayments}
+=======
+            payments={payments}
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
             onMarkPaid={handleMarkPaid}
             onRevertStatus={handleRevertStatus}
             onEmail={handleEmail}
@@ -209,6 +279,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
             onDelete={handleDelete}
           />
           
+<<<<<<< HEAD
           {totalPages > 1 && (
             <Pagination
               currentPage={currentPage}
@@ -216,6 +287,13 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
               onPageChange={setCurrentPage}
             />
           )}
+=======
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+>>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
         </div>
       )}
 
