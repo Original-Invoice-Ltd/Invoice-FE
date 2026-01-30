@@ -1,17 +1,12 @@
 "use client";
 
 import { useState } from "react";
-<<<<<<< HEAD
 import { useRouter } from "next/navigation";
 import { Check, ExternalLink } from "lucide-react";
 
 const BillingPage = () => {
   const router = useRouter();
-=======
-import { Check, ExternalLink } from "lucide-react";
 
-const BillingPage = () => {
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
   const [isLoading, setIsLoading] = useState(false);
 
   const currentPlan = {
@@ -51,18 +46,14 @@ const BillingPage = () => {
 
   const handleUpgrade = () => {
     // TODO: Navigate to upgrade/pricing page or open upgrade modal
-<<<<<<< HEAD
     router.push("/dashboard/pricing");
-=======
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
+
   };
 
   const handleViewPricing = () => {
     // TODO: Navigate to pricing page
-<<<<<<< HEAD
     router.push("/dashboard/pricing");
-=======
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
+
   };
 
   return (

@@ -102,13 +102,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewDetail }) => {
   const [activeMenu, setActiveMenu] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-<<<<<<< HEAD
-<<<<<<< HEAD
+
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
-=======
->>>>>>> 1586db6e7eef37b433fbf1dff6b1db7e827cec22
-=======
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 
   const getStatusStyles = (status: string) => {
     switch (status) {
@@ -252,13 +247,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewDetail }) => {
                             setActiveMenu(null);
                           }}
                           onUploadReceipt={() => {
-<<<<<<< HEAD
-<<<<<<< HEAD
                             setSelectedInvoiceId(invoice.invoiceId);
-=======
->>>>>>> 1586db6e7eef37b433fbf1dff6b1db7e827cec22
-=======
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                             setIsUploadModalOpen(true);
                             setActiveMenu(null);
                           }}
@@ -317,13 +306,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewDetail }) => {
                           setActiveMenu(null);
                         }}
                         onUploadReceipt={() => {
-<<<<<<< HEAD
-<<<<<<< HEAD
                           setSelectedInvoiceId(invoice.invoiceId);
-=======
->>>>>>> 1586db6e7eef37b433fbf1dff6b1db7e827cec22
-=======
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
+
                           setIsUploadModalOpen(true);
                           setActiveMenu(null);
                         }}
@@ -380,19 +364,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewDetail }) => {
       {/* Upload Receipt Modal */}
       <UploadReceiptModal
         isOpen={isUploadModalOpen}
-<<<<<<< HEAD
-<<<<<<< HEAD
         onClose={() => {
           setIsUploadModalOpen(false);
           setSelectedInvoiceId(null);
         }}
         invoiceId={selectedInvoiceId || undefined}
-=======
-        onClose={() => setIsUploadModalOpen(false)}
->>>>>>> 1586db6e7eef37b433fbf1dff6b1db7e827cec22
-=======
-        onClose={() => setIsUploadModalOpen(false)}
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
       />
     </div>
   );

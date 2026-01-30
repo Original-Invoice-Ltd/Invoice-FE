@@ -1,21 +1,16 @@
 "use client";
 
-<<<<<<< HEAD
-import { useState } from "react";
-import { Info } from "lucide-react";
-=======
+
 import { useState, useEffect } from "react";
 import { Info } from "lucide-react";
 import { useToast } from '@/hooks/useToast';
 import { ApiClient } from '@/lib/api';
 import Toast from '@/components/ui/Toast';
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 
 const LanguagePage = () => {
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const [isLoading, setIsLoading] = useState(false);
-<<<<<<< HEAD
-=======
+
   const [isLoadingData, setIsLoadingData] = useState(true);
   const { toast, showSuccess, showError, hideToast } = useToast(); 
 const uiToApiLanguageMap: Record<string, string> = {
@@ -50,7 +45,6 @@ const uiToApiLanguageMap: Record<string, string> = {
       setIsLoadingData(false);
     }
   };
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 
   const languages = [
     {
@@ -75,13 +69,10 @@ const uiToApiLanguageMap: Record<string, string> = {
     }
   ];
 
-<<<<<<< HEAD
-=======
   useEffect(() => {
     getLanguagePreference();
   }, []);
 
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
   const handleLanguageChange = (languageCode: string) => {
     setSelectedLanguage(languageCode);
   };
@@ -91,17 +82,7 @@ const uiToApiLanguageMap: Record<string, string> = {
     setIsLoading(true);
 
     try {
-<<<<<<< HEAD
-      // TODO: Implement language preference update API call
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      alert("Language preference saved successfully!");
-    } catch (error) {
-      console.error("Error saving language preference:", error);
-      alert("Failed to save language preference. Please try again.");
-=======
+
       const response = await ApiClient.updateLanguage(
         uiToApiLanguageMap[selectedLanguage]
       );
@@ -114,21 +95,13 @@ const uiToApiLanguageMap: Record<string, string> = {
     } catch (error) {
       console.error("Error saving language preference:", error);
       showError("An unexpected error occurred. Please try again.");
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleCancel = () => {
-<<<<<<< HEAD
-    // Reset to default or previous saved value
-    setSelectedLanguage("en");
-  };
 
-  return (
-    <div className="p-6">
-=======
     // Reload language preference from server to reset changes
     getLanguagePreference();
   };
@@ -156,7 +129,6 @@ const uiToApiLanguageMap: Record<string, string> = {
         onClose={hideToast}
       />
       
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
       <div className="max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Language Selection */}

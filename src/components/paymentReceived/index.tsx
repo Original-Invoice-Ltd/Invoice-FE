@@ -8,20 +8,14 @@ import Pagination from "./Pagination";
 import Modals from "./Modals";
 import { Payment, ModalType } from "./types";
 import { ApiClient } from "@/lib/api";
-<<<<<<< HEAD
 import { useAuth } from "@/contexts/AuthContext";
-=======
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 
 interface PaymentReceivedProps {
   onCreateInvoice: () => void;
 }
 
 const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
-<<<<<<< HEAD
   const { user } = useAuth();
-=======
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
   const [hasPayments, setHasPayments] = useState(false);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,61 +25,13 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
   const [modalType, setModalType] = useState<ModalType>(null);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
 
-<<<<<<< HEAD
-  const itemsPerPage = 10;
-  const totalPages = Math.ceil(payments.length / itemsPerPage);
-  
-  // Get current page payments
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentPayments = payments.slice(startIndex, endIndex);
-
-  // Load all invoices from API using userId
-  useEffect(() => {
-    const loadInvoices = async () => {
-      if (!user?.id) {
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        setIsLoading(true);
-        const response = await ApiClient.getAllUserInvoicesByUserId(user.id);
-        
-        if (response.status === 200 && response.data) {
-          // Transform all invoices to Payment format
-          const allInvoices = response.data.map((invoice: any) => ({
-            id: invoice.id,
-            date: new Date(invoice.creationDate).toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'short', 
-              day: '2-digit' 
-            }),
-            clientName: invoice.billTo?.fullName || invoice.billTo?.businessName || 'Unknown Client',
-            invoiceId: invoice.invoiceNumber || `INV-${invoice.id}`,
-            status: invoice.status === 'PAID' ? 'Paid' as const : 
-                   invoice.status === 'OVERDUE' ? 'Overdue' as const : 
-                   'Unpaid' as const,
-            dueDate: new Date(invoice.dueDate).toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'short', 
-              day: '2-digit' 
-            }),
-            amount: invoice.totalDue || 0,
-            balanceDue: invoice.status === 'PAID' ? 0 : (invoice.totalDue || 0),
-          }));
-          
-          setPayments(allInvoices);
-          setHasPayments(allInvoices.length > 0);
-=======
   const totalPages = 99;
 
-  // Load paid invoices from API
   useEffect(() => {
     const loadPaidInvoices = async () => {
       try {
         setIsLoading(true);
-        const response = await ApiClient.getAllUserInvoices();
+        const response = await ApiClient.getAllUserInvoices(user?.id);
         
         if (response.status === 200 && response.data) {
           // Filter only PAID invoices and transform to Payment format
@@ -112,33 +58,21 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
           
           setPayments(paidInvoices);
           setHasPayments(paidInvoices.length > 0);
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
         } else {
           setHasPayments(false);
         }
       } catch (error) {
-<<<<<<< HEAD
         console.error('Error loading invoices:', error);
-=======
-        console.error('Error loading paid invoices:', error);
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
         setHasPayments(false);
       } finally {
         setIsLoading(false);
       }
     };
 
-<<<<<<< HEAD
-    loadInvoices();
+    loadPaidInvoices();
   }, [user?.id]);
 
-  const handleMarkPaid = async (payment: Payment) => {
-=======
-    loadPaidInvoices();
-  }, []);
-
   const handleMarkPaid = (payment: Payment) => {
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
     setSelectedPayment(payment);
     setModalType('markPaid');
   };
@@ -148,31 +82,6 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
     setModalType('revertStatus');
   };
 
-<<<<<<< HEAD
-  const handleConfirmMarkPaid = async () => {
-    if (selectedPayment) {
-      try {
-        // Call API to mark invoice as paid
-        const response = await ApiClient.markInvoiceAsPaid(selectedPayment.id);
-        
-        if (response.status === 200) {
-          // Update local state
-          setPayments(payments.map(p => 
-            p.id === selectedPayment.id 
-              ? { ...p, status: 'Paid' as const, balanceDue: 0 }
-              : p
-          ));
-          setModalType('paymentSuccess');
-        } else {
-          console.error('Failed to mark invoice as paid:', response.error);
-          setModalType(null);
-        }
-      } catch (error) {
-        console.error('Error marking invoice as paid:', error);
-        setModalType(null);
-      }
-    }
-=======
   const handleConfirmMarkPaid = () => {
     if (selectedPayment) {
       setPayments(payments.map(p => 
@@ -182,7 +91,6 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
       ));
     }
     setModalType('paymentSuccess');
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
   };
 
   const handleConfirmRevert = () => {
@@ -267,11 +175,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
           </div>
           
           <PaymentTable
-<<<<<<< HEAD
-            payments={currentPayments}
-=======
             payments={payments}
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
             onMarkPaid={handleMarkPaid}
             onRevertStatus={handleRevertStatus}
             onEmail={handleEmail}
@@ -279,21 +183,11 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
             onDelete={handleDelete}
           />
           
-<<<<<<< HEAD
-          {totalPages > 1 && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          )}
-=======
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}
           />
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
         </div>
       )}
 

@@ -1,15 +1,11 @@
 "use client";
 
-<<<<<<< HEAD
-import { useState } from "react";
-import { Info } from "lucide-react";
-=======
+
 import { useState, useEffect } from "react";
 import { Info } from "lucide-react";
 import { useToast } from '@/hooks/useToast';
 import { ApiClient } from '@/lib/api';
 import Toast from '@/components/ui/Toast';
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 
 const NotificationsPage = () => {
   const [settings, setSettings] = useState({
@@ -19,15 +15,11 @@ const NotificationsPage = () => {
     clientAdded: true,
     systemAlerts: true,
   });
-<<<<<<< HEAD
 
-  const [isLoading, setIsLoading] = useState(false);
-=======
   
   const { toast, showSuccess, showError, hideToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 
   const handleToggle = (field: keyof typeof settings) => {
     setSettings(prev => ({
@@ -41,34 +33,21 @@ const NotificationsPage = () => {
     setIsLoading(true);
 
     try {
-<<<<<<< HEAD
-      // TODO: Implement notification settings update API call
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      alert("Notification settings saved successfully!");
-    } catch (error) {
-      console.error("Error saving notification settings:", error);
-      alert("Failed to save notification settings. Please try again.");
-=======
+
       const response = await ApiClient.updateNotificationPreference(settings);
       if (response.status === 200) {
         showSuccess("Notification settings updated successfully!");
       } else {
-        showError(response.error || "Failed to update notification settings. Please try again.");
+        showError("Failed to update notification settings. Please try again.");
       }
     } catch (error) {
       console.error("Error saving notification settings:", error);
       showError("An unexpected error occurred. Please try again.");
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
     } finally {
       setIsLoading(false);
     }
   };
 
-<<<<<<< HEAD
-=======
   const loadNotificationSettings = async () => {
     try {
       setIsLoadingData(true);
@@ -92,7 +71,6 @@ const NotificationsPage = () => {
     loadNotificationSettings();
   }, []);
 
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
   const notificationItems = [
     {
       key: 'paymentRecorded' as keyof typeof settings,
@@ -121,10 +99,7 @@ const NotificationsPage = () => {
     },
   ];
 
-<<<<<<< HEAD
-  return (
-    <div className="p-6">
-=======
+
   // Show loading state while fetching data
   if (isLoadingData) {
     return (
@@ -148,7 +123,6 @@ const NotificationsPage = () => {
         onClose={hideToast}
       />
       
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
       <div className="max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Notification Settings */}

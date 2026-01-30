@@ -3,10 +3,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
-<<<<<<< HEAD
 import { useAuth } from "@/contexts/AuthContext";
-=======
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 
 // Custom SVG Icon Components
 const HomeIcon = ({ isActive }: { isActive: boolean }) => (
@@ -41,15 +38,7 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ 
-<<<<<<< HEAD
     userProfile,
-=======
-    userProfile = {
-        name: "Chiamaka Okeke",
-        email: "chiamakaokeke2905......",
-        initials: "CO"
-    },
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
     className = "",
     onClose,
     isMobile = false,
@@ -59,7 +48,6 @@ const Sidebar = ({
     const router = useRouter();
     const pathname = usePathname();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
-<<<<<<< HEAD
     const { user, isAuthenticated } = useAuth();
 
     // Determine which profile to show
@@ -77,8 +65,6 @@ const Sidebar = ({
 
     // Show email profile mode only if showEmailProfile is true AND user is not authenticated
     const shouldShowEmailProfile = showEmailProfile && !isAuthenticated;
-=======
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 
     const navigationItems = [
         {
@@ -131,7 +117,6 @@ const Sidebar = ({
 
                 {/* User Profile */}
                 <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm relative">
-<<<<<<< HEAD
                     {shouldShowEmailProfile ? (
                         // Email Profile Mode - Show Get Started Button (Not Logged In)
                         <div className="flex flex-col items-center text-center">
@@ -139,42 +124,12 @@ const Sidebar = ({
                             <button
                                 onClick={() => router.push('/signUp')}
                                 className="w-full px-6 py-3 bg-white text-[#2F80ED] rounded-lg hover:bg-gray-100 transition-colors font-semibold text-base"
-=======
-                    {showEmailProfile ? (
-                        // Email Profile Mode - Show Get Started Button
-                        <div className="flex flex-col items-center text-center">
-                            {/* Avatar */}
-                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-3">
-                                <span className="text-[#2F80ED] font-semibold text-lg">
-                                    {userProfile.initials}
-                                </span>
-                            </div>
-                            
-                            {/* Name */}
-                            <p className="text-white font-medium text-base mb-1">
-                                {userProfile.name}
-                            </p>
-                            
-                            {/* Email */}
-                            <p className="text-blue-200 text-sm truncate w-full mb-4">
-                                {userProfile.email}
-                            </p>
-
-                            {/* Get Started Button */}
-                            <button
-                                onClick={() => router.push('/signUp')}
-                                className="w-full px-4 py-2 bg-white text-[#2F80ED] rounded-lg hover:bg-gray-100 transition-colors font-medium text-sm"
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                             >
                                 Get Started
                             </button>
                         </div>
                     ) : (
-<<<<<<< HEAD
                         // Regular Profile Mode - Show User Profile
-=======
-                        // Regular Profile Mode - Show Dropdown
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                         <>
                             {/* Dropdown Arrow - positioned in top right */}
                             <button
@@ -192,30 +147,18 @@ const Sidebar = ({
                                 {/* Avatar */}
                                 <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-3">
                                     <span className="text-[#2F80ED] font-semibold text-lg">
-<<<<<<< HEAD
                                         {displayProfile.initials}
-=======
-                                        {userProfile.initials}
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                                     </span>
                                 </div>
                                 
                                 {/* Name */}
                                 <p className="text-white font-medium text-base mb-1">
-<<<<<<< HEAD
                                     {displayProfile.name}
-=======
-                                    {userProfile.name}
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                                 </p>
                                 
                                 {/* Email */}
                                 <p className="text-blue-200 text-sm truncate w-full">
-<<<<<<< HEAD
                                     {displayProfile.email}
-=======
-                                    {userProfile.email}
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                                 </p>
                             </div>
                             

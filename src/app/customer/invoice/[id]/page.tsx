@@ -108,7 +108,6 @@ const EmailInvoicePage = () => {
                     {/* Upload Receipt Button - always show */}
                     <button 
                         onClick={() => setIsUploadModalOpen(true)}
-<<<<<<< HEAD
                         disabled={invoice.status.toLowerCase() === 'pending' || invoice.status.toLowerCase() === 'paid'}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-medium text-sm md:text-base ${
                             invoice.status.toLowerCase() === 'pending' || invoice.status.toLowerCase() === 'paid'
@@ -122,9 +121,6 @@ const EmailInvoicePage = () => {
                                 ? 'Cannot upload receipt for pending invoice'
                                 : 'Upload payment receipt'
                         }
-=======
-                        className="flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors font-medium text-sm md:text-base"
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                     >
                         <svg 
                             className="w-4 h-4" 

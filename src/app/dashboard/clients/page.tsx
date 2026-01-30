@@ -2,19 +2,14 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Search, Plus, MoreVertical, ChevronDown, Edit, Trash2 } from "lucide-react";
-<<<<<<< HEAD
 import { useRouter } from "next/navigation";
-=======
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 import { ApiClient } from "@/lib/api";
 import { ClientCache } from "@/lib/clientCache";
 import ClientModal from "@/components/clientManagement/ClientModal";
 import DeleteConfirmationModal from "@/components/common/DeleteConfirmationModal";
-<<<<<<< HEAD
 import { useInvoiceLimit } from "@/contexts/InvoiceLimitContext";
 import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification";
-=======
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
+
 
 interface Client {
     id: string;
@@ -39,13 +34,9 @@ interface FormData {
 
 
 const ClientsPage = () => {
-<<<<<<< HEAD
     const router = useRouter();
     const { canCreateInvoice } = useInvoiceLimit();
     const { showBlockedNotification } = useInvoiceLimitNotification();
-    
-=======
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
     const [searchQuery, setSearchQuery] = useState("");
     const [showAddModal, setShowAddModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -193,7 +184,6 @@ const ClientsPage = () => {
         }
     };
 
-<<<<<<< HEAD
     // Handle create invoice button click with limit checking
     const handleCreateInvoice = () => {
         if (!canCreateInvoice) {
@@ -205,8 +195,7 @@ const ClientsPage = () => {
         router.push('/dashboard/invoices/create');
     };
 
-=======
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
+
     const handleEditClient = (client: Client) => {
         setFormData({
             customerType: client.customerType,
@@ -616,11 +605,7 @@ const ClientsPage = () => {
                                         Cancel
                                     </button>
                                     <button
-<<<<<<< HEAD
                                         onClick={handleCreateInvoice}
-=======
-                                        onClick={() => setShowSuccessModal(false)}
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
                                         className="flex-1 px-6 py-3 bg-[#2F80ED] text-[#FFFFFF] 
                                         rounded-lg text-sm font-medium"
                                     >

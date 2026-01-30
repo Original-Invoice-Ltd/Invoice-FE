@@ -3,11 +3,8 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { ApiClient } from "@/lib/api";
-<<<<<<< HEAD
-=======
 import Toast from '@/components/ui/Toast';
 import { useToast } from "@/hooks/useToast";
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 
 const SecurityPage = () => {
   const [formData, setFormData] = useState({
@@ -21,10 +18,8 @@ const SecurityPage = () => {
     new: false,
     confirm: false,
   });
-<<<<<<< HEAD
-=======
+
   const { toast, showSuccess, showError, hideToast } = useToast(); 
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
 
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -95,11 +90,8 @@ const SecurityPage = () => {
       );
 
       if (response.status === 200) {
-<<<<<<< HEAD
-        alert("Password changed successfully!");
-=======
+
         showSuccess("Password changed successfully!");
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
         // Clear form
         setFormData({
           currentPassword: "",
@@ -111,23 +103,15 @@ const SecurityPage = () => {
       }
     } catch (error: any) {
       console.error("Error changing password:", error);
-<<<<<<< HEAD
-      
-=======
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
+
       // Handle specific error cases
       if (error.message?.includes("Current password is incorrect")) {
         setErrors({ currentPassword: "Current password is incorrect" });
       } else if (error.message?.includes("OAuth users")) {
-<<<<<<< HEAD
-        alert("Cannot change password for OAuth users. Please use your Google/Apple account to manage your password.");
-      } else {
-        alert("Failed to change password. Please try again.");
-=======
+
         showError("Cannot change password for OAuth users. Please use your Google/Apple account to manage your password.");
       } else {
         showError("Failed to change password. Please try again.");
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
       }
     } finally {
       setIsLoading(false);
@@ -145,15 +129,13 @@ const SecurityPage = () => {
 
   return (
     <div className="p-6">
-<<<<<<< HEAD
-=======
+
       <Toast
               message={toast.message}
               type={toast.type}
               isVisible={toast.isVisible}
               onClose={hideToast}
             />
->>>>>>> b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0
       <div className="max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Current Password */}
