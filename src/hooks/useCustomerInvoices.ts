@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ApiClient } from '@/lib/api';
 import { InvoiceResponse, InvoiceStatsResponse } from '@/types/invoice';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,20 +16,14 @@ export const useCustomerInvoices = (): UseCustomerInvoicesResult => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchInvoices = async () => {
-    if (!user?.id) {
-      setLoading(false);
-      return;
-    }
-
+  const fetchInvoices = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await ApiClient.getAllUserInvoicesByUserId(user.id);
+      const response = await ApiClient.getAllUserInvoices(user?.id);
       
       if (response.status === 200 && response.data) {
-        const invoicesData = Array.isArray(response.data) ? response.data : [];
-        setInvoices(invoicesData);
+        setInvoices(response.data);
       } else {
         setError(response.error || 'Failed to fetch invoices');
       }
@@ -39,11 +33,11 @@ export const useCustomerInvoices = (): UseCustomerInvoicesResult => {
     } finally {
       setLoading(false);
     }
-  };
+  },[user?.id])
 
   useEffect(() => {
     fetchInvoices();
-  }, [user?.id]);
+  }, [fetchInvoices]);
 
   return {
     invoices,
@@ -71,7 +65,7 @@ export const useInvoiceStats = (email?: string): UseInvoiceStatsResult => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     if (!email) {
       setLoading(false);
       return;
@@ -99,11 +93,11 @@ export const useInvoiceStats = (email?: string): UseInvoiceStatsResult => {
     } finally {
       setLoading(false);
     }
-  };
+  },[email]);
 
   useEffect(() => {
     fetchStats();
-  }, [email]);
+  }, [fetchStats]);
 
   return {
     stats,
@@ -125,7 +119,7 @@ export const useInvoiceById = (id: string): UseInvoiceByIdResult => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchInvoice = async () => {
+  const fetchInvoice = useCallback(async () => {
     if (!id) {
       setError('Invalid invoice ID');
       setLoading(false);
@@ -148,11 +142,11 @@ export const useInvoiceById = (id: string): UseInvoiceByIdResult => {
     } finally {
       setLoading(false);
     }
-  };
+  },[id]);
 
   useEffect(() => {
     fetchInvoice();
-  }, [id]);
+  }, [fetchInvoice]);
 
   return {
     invoice,
@@ -174,7 +168,7 @@ export const usePublicInvoiceByUuid = (uuid: string): UsePublicInvoiceByUuidResu
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchInvoice = async () => {
+  const fetchInvoice = useCallback(async () => {
     if (!uuid) {
       setError('Invalid invoice UUID');
       setLoading(false);
@@ -196,11 +190,11 @@ export const usePublicInvoiceByUuid = (uuid: string): UsePublicInvoiceByUuidResu
     } finally {
       setLoading(false);
     }
-  };
+  },[uuid]);
 
   useEffect(() => {
     fetchInvoice();
-  }, [uuid]);
+  }, [fetchInvoice]);
 
   return {
     invoice,

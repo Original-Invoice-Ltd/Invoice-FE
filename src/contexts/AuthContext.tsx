@@ -7,7 +7,7 @@ interface User {
   id: string;
   email: string;
   fullName: string;
-  phoneNumber?: string;
+  phone?: string;
   isVerified: boolean;
   roles: string[];
   imageUrl?: string;

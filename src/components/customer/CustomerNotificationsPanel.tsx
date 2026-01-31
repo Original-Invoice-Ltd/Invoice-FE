@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCustomerNotifications } from "@/hooks/useCustomerNotifications";
 
+
 interface Notification {
     id: number;
     title: string;
@@ -34,8 +35,8 @@ const CustomerNotificationsPanel = ({ isOpen, onClose }: CustomerNotificationsPa
     }, [isOpen, fetchNotifications]);
 
     const handleViewReceipt = (notification: Notification) => {
-        // Mark as read when viewing
         markAsRead(notification.id.toString());
+
         onClose();
         router.push(`/customer/receipt/${notification.id}`);
     };
@@ -114,12 +115,13 @@ const CustomerNotificationsPanel = ({ isOpen, onClose }: CustomerNotificationsPa
                             </div>
                             <h3 className="text-lg font-medium text-[#101828] mb-2">No notifications yet</h3>
                             <p className="text-sm text-[#667085] text-center">
-                                You'll receive notifications here when your receipts are approved or when there are updates to your invoices.
+                                You&apos;ll receive notifications here when your receipts are approved or when there are updates to your invoices.
                             </p>
                         </div>
                     ) : (
                         <div className="divide-y divide-[#E4E7EC]">
                             {filteredNotifications.map((notification) => (
+
                             <div key={notification.id} className="p-4">
                                 <h4 className="text-sm font-semibold text-[#101828] mb-2">{notification.title}</h4>
                                 <p className="text-sm text-[#667085] mb-1">{notification.message}</p>
@@ -163,6 +165,7 @@ const CustomerNotificationsPanel = ({ isOpen, onClose }: CustomerNotificationsPa
                             ))}
                         </div>
                     )}
+
                 </div>
             </div>
         </>

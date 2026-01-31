@@ -7,6 +7,7 @@ import { InvoiceLimitProvider } from "@/contexts/InvoiceLimitContext";
 import InvoiceLimitNotification from "@/components/notifications/InvoiceLimitNotification";
 import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification";
 
+
 export default function DashboardLayout({
     children,
 }: {
@@ -29,6 +30,7 @@ function DashboardLayoutContent({
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const { notification, hideNotification, handleUpgrade } = useInvoiceLimitNotification();
+
 
     return (
         <div className="flex h-screen overflow-hidden bg-[#F9FAFB]">
@@ -54,7 +56,6 @@ function DashboardLayoutContent({
                     </div>
                 </main>
             </div>
-
             {/* Invoice Limit Notification */}
             <InvoiceLimitNotification
                 isVisible={notification.isVisible}
@@ -63,6 +64,7 @@ function DashboardLayoutContent({
                 invoicesRemaining={notification.invoicesRemaining}
                 onUpgrade={handleUpgrade}
             />
+
         </div>
     );
 }

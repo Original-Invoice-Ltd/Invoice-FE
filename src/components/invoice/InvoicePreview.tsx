@@ -56,9 +56,10 @@ interface InvoicePreviewProps {
     onEdit: () => void;
     onEmailInvoice: () => void;
     onSendInvoice: () => Promise<{ success: boolean; error?: string }>;
+    isValidToSend: boolean
 }
 
-const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice }: InvoicePreviewProps) => {
+const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, isValidToSend }: InvoicePreviewProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -466,7 +467,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice }: Invoice
                             </button>
                             <button
                                 onClick={handleSendInvoice}
-                                disabled={isSubmitting || !emailTo}
+                                disabled={isSubmitting || !emailTo || !isValidToSend}
                                 className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? 'Sending...' : 'Send Invoice'}
@@ -532,7 +533,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice }: Invoice
                             </button>
                             <button
                                 onClick={handleSendInvoice}
-                                disabled={isSubmitting || !phoneNumber}
+                                disabled={isSubmitting || !phoneNumber || !isValidToSend}
                                 className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? 'Sending...' : 'Send Invoice'}
@@ -598,7 +599,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice }: Invoice
                             </button>
                             <button
                                 onClick={handleSendInvoice}
-                                disabled={isSubmitting || !phoneNumber}
+                                disabled={isSubmitting || !phoneNumber || !isValidToSend}
                                 className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? 'Sending...' : 'Send Invoice'}

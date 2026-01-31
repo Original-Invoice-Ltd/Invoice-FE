@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { X, Bell, Check } from "lucide-react";
 import { ApiClient } from "@/lib/api";
 
@@ -27,22 +27,16 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
     const [unreadCount, setUnreadCount] = useState(0);
     const [activeTab, setActiveTab] = useState<'all' | 'invoices' | 'payments' | 'clients' | 'system'>('all');
 
-    // Fetch notifications when panel opens
-    useEffect(() => {
-        if (isOpen) {
-            fetchNotifications();
-        }
-    }, [isOpen]);
 
-    const fetchNotifications = async () => {
+       const fetchNotifications = useCallback(async () => {
         try {
             setIsLoading(true);
             const response = await ApiClient.getAllNotifications();
-            
+            const notifications = response.data as Notification[];
             if (response.status === 200) {
-                setNotifications(response.data || []);
+                setNotifications(notifications || []);
                 // Count unread notifications
-                const unread = (response.data || []).filter((n: Notification) => !n.isRead).length;
+                const unread = (notifications || []).filter((n: Notification) => !n.isRead).length;
                 setUnreadCount(unread);
                 onUnreadCountChange?.(unread);
             } else {
@@ -53,7 +47,16 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
         } finally {
             setIsLoading(false);
         }
-    };
+       }, [onUnreadCountChange]);
+    
+    // Fetch notifications when panel opens
+    useEffect(() => {
+        if (isOpen) {
+            fetchNotifications();
+        }
+    }, [fetchNotifications, isOpen]);
+
+ 
 
     const markAsRead = async (notificationId: string) => {
         try {
@@ -117,6 +120,7 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
                     </div>
                 );
             case 'PAYMENT_RECEIVED':
+            case 'PAYMENT_EVIDENCE_UPLOADED':   
                 return (
                     <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
