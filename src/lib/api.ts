@@ -1,7 +1,7 @@
 import axios, { AxiosResponse, AxiosError } from "axios";
 import { InvoiceStatsResponse } from "@/types/invoice";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8089";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 // Temporary bypass flag for testing - set to true to skip 401 redirects
 const BYPASS_AUTH_REDIRECT = true;
@@ -387,7 +387,7 @@ export class ApiClient {
   }
 
   static async getAllUserInvoices(userId?: string) {
-    return !!userId
+    return userId
       ? await axiosInstance.get(`/api/invoices/all-user/${userId}`, {
           withCredentials: true,
         })
@@ -726,6 +726,10 @@ export class ApiClient {
   static isValidPhone = (phone: string) => {
     return /^\+[1-9]\d{7,14}$/.test(phone);
   };
+
+  static isValidEmail(email: string): boolean{
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+   }
 
   static formatCurrency(amount: number, currency: string = "₦"): string {
     return `${currency}${amount.toLocaleString("en-US", {

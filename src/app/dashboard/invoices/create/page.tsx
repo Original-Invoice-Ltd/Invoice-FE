@@ -282,7 +282,7 @@ const CreateInvoicePage = () => {
         // Required fields for billFrom
 
         const billFromValid = billFrom.fullName.trim() !== "" &&
-            billFrom.email.trim() !== "" &&
+            ApiClient.isValidEmail(billFrom.email.trim()) &&
             ApiClient.isValidPhone(billFrom.phoneNumber.trim()) &&
             billFrom.businessName.trim() !== "";
 
@@ -350,11 +350,24 @@ const CreateInvoicePage = () => {
         return errors;
     };
 
+    const getFirstValidationError = (): string | null => {
+        const errors = validateFormAndGetErrors();
+
+        const keys: (keyof typeof errors)[] = ['billFrom', 'billTo', 'payment', 'items'];
+
+        for (const key of keys) {
+            if (errors[key] && errors[key].trim() !== '') {
+                return errors[key];
+            }
+        }
+
+        return null;
+    };
     // Submit invoice to backend (Save as Draft - without sending)
     const handleSaveDraft = async () => {
         setFormValidationError(null);
         if (!isFormValid()) {
-            setFormValidationError("Please fill in all required fields before saving as draft.");
+            setFormValidationError(getFirstValidationError());
             return;
         }
         // TODO: Implement save as draft functionality
@@ -434,7 +447,7 @@ const CreateInvoicePage = () => {
         }
 
         if (!isFormValid()) {
-            setFormValidationError("Please fill in all required fields before previewing the invoice.");
+            setFormValidationError(getFirstValidationError());
             return;
         }
         setShowPreview(true);
@@ -505,8 +518,8 @@ const CreateInvoicePage = () => {
         }
 
         if (!isFormValid()) {
-            setFormValidationError("Please fill in all required fields before sending the invoice.");
-            return { success: false, error: "Form validation failed" };
+            setFormValidationError(getFirstValidationError());
+            return { success: false, error: getFirstValidationError() as string};
         }
 
         try {
@@ -619,6 +632,7 @@ const CreateInvoicePage = () => {
                     // Handle email invoice
                 }}
                 onSendInvoice={handleSendInvoice}
+                isValidToSend={getFirstValidationError()===null}
             />
         );
     }
@@ -893,6 +907,7 @@ const CreateInvoicePage = () => {
                                                     Invoice Date <span className="text-red-500">*</span>
                                                 </label>
                                                 <input
+                                                    min={new Date().toISOString().split('T')[0]}
                                                     type="date"
                                                     value={billTo.invoiceDate}
                                                     onChange={(e) => setBillTo({ ...billTo, invoiceDate: e.target.value })}
@@ -904,6 +919,7 @@ const CreateInvoicePage = () => {
                                                     Due Date
                                                 </label>
                                                 <input
+                                                    min={new Date().toISOString().split('T')[0]}
                                                     type="date"
                                                     value={billTo.dueDate}
                                                     onChange={(e) => setBillTo({ ...billTo, dueDate: e.target.value })}
@@ -1272,167 +1288,6 @@ const CreateInvoicePage = () => {
                             </div>
 
                             {/* Payment Details */}
-                            <div className="p-4">
-                                <h3 className="font-medium mb-2 text-[16px]">Payment Details</h3>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-[#344054] mb-2">
-                                            Bank Account <span className="text-red-500">*</span>
-                                        </label>
-                                        <div className="relative">
-                                            <input
-                                                type="text"
-                                                placeholder="Enter bank name or select"
-                                                value={paymentDetails.bankAccount}
-                                                onChange={(e) => setPaymentDetails({ ...paymentDetails, bankAccount: e.target.value })}
-                                                className="w-full px-3 py-2.5 pr-10 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowBankDropdown(!showBankDropdown)}
-                                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085] hover:text-[#344054]"
-                                            >
-                                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                                </svg>
-                                            </button>
-
-                                            {/* Bank Dropdown */}
-                                            {showBankDropdown && (
-                                                <div className="absolute z-10 w-full mt-1 bg-white border border-[#D0D5DD] rounded-lg shadow-lg max-h-80 overflow-hidden">
-                                                    {/* Search Bar */}
-                                                    <div className="p-3 border-b border-[#E4E7EC] sticky top-0 bg-white">
-                                                        <div className="relative">
-                                                            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <path d="M14 14L10 10M11.3333 6.66667C11.3333 9.244 9.244 11.3333 6.66667 11.3333C4.08934 11.3333 2 9.244 2 6.66667C2 4.08934 4.08934 2 6.66667 2C9.244 2 11.3333 4.08934 11.3333 6.66667Z" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                                            </svg>
-                                                            <input
-                                                                type="text"
-                                                                placeholder="Search bank..."
-                                                                value={bankSearchQuery}
-                                                                onChange={(e) => setBankSearchQuery(e.target.value)}
-                                                                className="w-full pl-9 pr-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div className="max-h-60 overflow-y-auto">
-                                                        {nigerianBanks.map((group) => {
-                                                            const filteredBanks = group.banks.filter(bank =>
-                                                                bank.toLowerCase().includes(bankSearchQuery.toLowerCase())
-                                                            );
-                                                            if (filteredBanks.length === 0) return null;
-                                                            return (
-                                                                <div key={group.category}>
-                                                                    <div className="px-4 py-2 text-xs font-semibold text-[#667085] bg-gray-50 sticky top-0">
-                                                                        {group.category}
-                                                                    </div>
-                                                                    {filteredBanks.map((bank) => (
-                                                                        <div
-                                                                            key={bank}
-                                                                            onClick={() => {
-                                                                                setPaymentDetails({ ...paymentDetails, bankAccount: bank });
-                                                                                setShowBankDropdown(false);
-                                                                                setBankSearchQuery("");
-                                                                            }}
-                                                                            className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 ${paymentDetails.bankAccount === bank ? 'bg-[#2F80ED] text-white hover:bg-[#2F80ED]' : ''
-                                                                                }`}
-                                                                        >
-                                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${paymentDetails.bankAccount === bank ? 'bg-white text-[#2F80ED]' : 'bg-gray-100 text-gray-600'
-                                                                                }`}>
-                                                                                {bank.charAt(0)}
-                                                                            </div>
-                                                                            <span className={`font-medium ${paymentDetails.bankAccount === bank ? 'text-white' : 'text-gray-900'}`}>
-                                                                                {bank}
-                                                                            </span>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            );
-                                                        })}
-                                                        {nigerianBanks.every(group =>
-                                                            group.banks.filter(bank => bank.toLowerCase().includes(bankSearchQuery.toLowerCase())).length === 0
-                                                        ) && (
-                                                                <div className="px-4 py-3 text-sm text-[#667085] text-center">
-                                                                    No banks found
-                                                                </div>
-                                                            )}
-                                                    </div>
-
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                {/* Third Border: Additional Fields + Signature */}
-                                <div className="bg-white rounded-lg border border-[#E4E7EC] p-4 space-y-6">
-                                    <div>
-                                        <label className="block text-[16px] font-medium text-[#101828] mb-3">
-                                            Customer Note
-                                        </label>
-                                        <textarea
-                                            placeholder="Placeholder"
-                                            rows={4}
-                                            value={customerNote}
-                                            onChange={(e) => setCustomerNote(e.target.value)}
-                                            className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] resize-none"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-[16px] font-medium text-[#101828] mb-3">
-                                            Terms & Conditions
-                                        </label>
-                                        <textarea
-                                            placeholder="Placeholder"
-                                            rows={4}
-                                            value={termsAndConditions}
-                                            onChange={(e) => setTermsAndConditions(e.target.value)}
-                                            className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] resize-none"
-                                        />
-                                    </div>
-                                    {/* Signature */}
-                                    <div className="flex items-center gap-4">
-                                        <label className="text-[16px] font-medium text-[#101828]">
-                                            Add Signature
-                                        </label>
-                                        <button
-                                            onClick={() => setShowSignatureModal(true)}
-                                            className="flex items-center justify-center w-10 h-10 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
-                                        >
-                                            <Plus size={20} />
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Action Buttons - No Border */}
-                                <div className="flex justify-between items-center">
-                                    <div className="flex gap-4">
-                                        <Link href="/dashboard/invoices" className="px-8 py-3 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50 text-[14px] font-medium">
-                                            Cancel
-                                        </Link>
-                                        <button
-                                            onClick={handleSaveDraft}
-                                            disabled={!isFormValid()}
-                                            className={`px-8 py-3 border border-[#D0D5DD] rounded-lg text-[14px] font-medium transition-colors ${isFormValid()
-                                                ? 'text-[#344054] hover:bg-gray-50 cursor-pointer'
-                                                : 'text-gray-400 bg-gray-50 cursor-not-allowed'
-                                                }`}
-                                        >
-                                            Save as Draft
-                                        </button>
-                                    </div>
-                                    <button
-                                        onClick={() => setShowPreview(true)}
-                                        className="flex items-center gap-2 px-8 py-3 rounded-lg text-[14px] font-medium transition-colors bg-[#2F80ED] text-white hover:bg-[#2563EB] cursor-pointer"
-                                    >
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M12.7578 1.25C13.2987 1.25007 13.8276 1.36713 14.3105 1.58691C14.7155 1.77119 15.0885 2.02799 15.4092 2.34863L19.6514 6.59082C19.972 6.91146 20.2288 7.28452 20.4131 7.68945C20.6329 8.17244 20.7499 8.70127 20.75 9.24219V19C20.75 21.0711 19.0711 22.75 17 22.75H7C4.92893 22.75 3.25 21.0711 3.25 19V5C3.25 2.92893 4.92893 1.25 7 1.25H12.7578ZM7 2.75C5.75736 2.75 4.75 3.75736 4.75 5V19C4.75 20.2426 5.75736 21.25 7 21.25H17C18.2426 21.25 19.25 20.2426 19.25 19V9.24219C19.2499 8.9177 19.1797 8.60037 19.0479 8.31055C18.9987 8.20264 18.9398 8.09929 18.874 8H15C14.4477 8 14 7.55228 14 7V3.12598C13.9007 3.06015 13.7974 3.00126 13.6895 2.95215C13.3996 2.82026 13.0823 2.75007 12.7578 2.75H7ZM15.25 10.75C15.6642 10.75 16 11.0858 16 11.5V11.8662C16.5728 12.0136 17.0489 12.3242 17.3613 12.7217C17.6172 13.0473 17.5608 13.5194 17.2354 13.7754C16.9097 14.0313 16.4376 13.975 16.1816 13.6494C16.0477 13.479 15.732 13.2725 15.25 13.2725C14.4818 13.2725 14.25 13.7402 14.25 13.8867C14.2501 14.2045 14.3442 14.2907 14.4092 14.3359C14.5279 14.4186 14.78 14.5 15.25 14.5C15.83 14.5 16.4535 14.5891 16.9473 14.9326C17.4946 15.3135 17.7499 15.9094 17.75 16.6133C17.75 17.5939 16.9913 18.3658 16 18.6289V19C16 19.4142 15.6642 19.75 15.25 19.75C14.8358 19.75 14.5 19.4142 14.5 19V18.6328C13.9273 18.4854 13.4511 18.1757 13.1387 17.7783C12.8828 17.4527 12.9392 16.9806 13.2646 16.7246C13.5903 16.4687 14.0624 16.525 14.3184 16.8506C14.4523 17.021 14.768 17.2275 15.25 17.2275C16.0182 17.2275 16.25 16.7598 16.25 16.6133C16.2499 16.2955 16.1558 16.2093 16.0908 16.1641C15.9721 16.0814 15.72 16 15.25 16C14.67 16 14.0465 15.9109 13.5527 15.5674C13.0054 15.1865 12.7501 14.5906 12.75 13.8867C12.75 12.906 13.5086 12.1332 14.5 11.8701V11.5C14.5 11.0858 14.8358 10.75 15.25 10.75ZM12 9.25C12.4142 9.25 12.75 9.58579 12.75 10C12.75 10.4142 12.4142 10.75 12 10.75H7C6.58579 10.75 6.25 10.4142 6.25 10C6.25 9.58579 6.58579 9.25 7 9.25H12ZM11 5.25C11.4142 5.25 11.75 5.58579 11.75 6C11.75 6.41421 11.4142 6.75 11 6.75H7C6.58579 6.75 6.25 6.41421 6.25 6C6.25 5.58579 6.58579 5.25 7 5.25H11Z" fill="white" />
-                                        </svg>
-                                        Preview Invoice
-                                    </button>
-                                </div>
-                            </div>
 
                             {/* Signature Modal */}
                             {showSignatureModal && (
@@ -1496,7 +1351,7 @@ const CreateInvoicePage = () => {
                         <div className="bg-white rounded-lg w-[320px] self-start">
                             <div className="space-y-6">
                                 {/* Language & Currency */}
-                                <div className=" rounded-lg   p-4">
+                                {/* <div className=" rounded-lg   p-4">
                                     <h3 className="font-medium text-[16px] mb-2">Language</h3>
                                     <div className="relative mb-4">
                                         <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center">
@@ -1527,25 +1382,25 @@ const CreateInvoicePage = () => {
                                     >
                                         <option value="NGN">NGN</option>
                                     </select>
-                                </div>
+                                </div> */}
 
                                 {/* Color Selection */}
-                                <div className="bg-white rounded-lg px-4">
+                                {/* <div className="bg-white rounded-lg px-4">
                                     <h3 className="font-medium text-[16px] mb-2">Select Color</h3>
                                     <ColorPicker
                                         initialColor={color}
                                         onColorChange={(newColor) => setColor(newColor)}
                                     />
-                                </div>
+                                </div> */}
 
                                 {/* Template Selection */}
-                                <TemplateSelector
+                                {/* <TemplateSelector
                                     selectedTemplate={template}
                                     onTemplateChange={setTemplate}
-                                />
+                                /> */}
 
                                 {/* Summary */}
-                                <div className="bg-white rounded-lg  px-4">
+                                {/* <div className="bg-white rounded-lg  px-4">
                                     <div className="space-y-3">
                                         <div className="flex justify-between">
                                             <h3 className=" text-[16px] font-medium">Subtotal</h3>
@@ -1583,7 +1438,7 @@ const CreateInvoicePage = () => {
                                             <span className=" text-[18px] font-semibold">₦{calculateTotal().toFixed(2)}</span>
                                         </div>
                                     </div>
-                                </div>
+                                </div> */}
 
                                 {/* Payment Details */}
                                 <div className="p-4">

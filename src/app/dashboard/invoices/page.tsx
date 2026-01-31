@@ -46,9 +46,7 @@ const InvoicesPage = () => {
     const fetchInvoices = async () => {
         try {
             setLoading(true);
-            console.log("user available: ", user)
             const response = await ApiClient.getAllUserInvoices(user?.id);
-            console.log("response feteched: ", response.data)
             if (response.status === 200 && response.data) {
                 const invoicesData = Array.isArray(response.data) ? response.data : [];
                 setInvoices(invoicesData);
