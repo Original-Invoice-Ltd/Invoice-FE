@@ -255,7 +255,11 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
                 </div>
 
                 {/* Upgrade Now Button - Desktop Only */}
-                <button className="hidden lg:flex text-[#2F80ED] text-sm font-medium hover:bg-[#EBF5FF] transition-colors flex-shrink-0 border border-[#2F80ED] rounded-lg items-center justify-center" style={{ width: '131px', height: '46px', marginLeft: '20px' }}>
+                <button 
+                    onClick={() => router.push("/dashboard/pricing")}
+                    className="hidden lg:flex text-[#2F80ED] text-sm font-medium hover:bg-[#EBF5FF] transition-colors flex-shrink-0 border border-[#2F80ED] rounded-lg items-center justify-center" 
+                    style={{ width: '131px', height: '46px', marginLeft: '20px' }}
+                >
                     Upgrade Now
                 </button>
             </div>

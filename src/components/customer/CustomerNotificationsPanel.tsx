@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useCustomerNotifications } from "@/hooks/useCustomerNotifications";
 
 interface Notification {
     id: number;
@@ -23,35 +24,29 @@ interface CustomerNotificationsPanelProps {
 const CustomerNotificationsPanel = ({ isOpen, onClose }: CustomerNotificationsPanelProps) => {
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState("");
+    const { notifications, isLoading, fetchNotifications, markAsRead } = useCustomerNotifications();
 
-    // Mock notifications
-    const notifications: Notification[] = [
-        {
-            id: 1,
-            title: "Receipt Available",
-            message: "Your payment for Invoice INV-004532 has been confirmed by Tech Solution Ltd.",
-            subMessage: "Your receipt has been automatically generated and is attached below.",
-            fileName: "Payment_Receipt_RCT-000983.pdf",
-            fileSize: "0 KB of 120 KB",
-            receiptNumber: "RCT-000983",
-            invoiceNumber: "INV-004532"
-        },
-        {
-            id: 2,
-            title: "Receipt Available",
-            message: "Your payment for Invoice INV-004532 has been confirmed by Tech Solution Ltd.",
-            subMessage: "Your receipt has been automatically generated and is attached below.",
-            fileName: "Payment_Receipt_RCT-000983.pdf",
-            fileSize: "0 KB of 120 KB",
-            receiptNumber: "RCT-000984",
-            invoiceNumber: "INV-004533"
+    // Fetch notifications when panel opens
+    useEffect(() => {
+        if (isOpen) {
+            fetchNotifications();
         }
-    ];
+    }, [isOpen, fetchNotifications]);
 
     const handleViewReceipt = (notification: Notification) => {
+        // Mark as read when viewing
+        markAsRead(notification.id.toString());
         onClose();
         router.push(`/customer/receipt/${notification.id}`);
     };
+
+    // Filter notifications based on search term
+    const filteredNotifications = notifications.filter(notification =>
+        notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        notification.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        notification.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        notification.receiptNumber.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     if (!isOpen) return null;
 
@@ -106,8 +101,25 @@ const CustomerNotificationsPanel = ({ isOpen, onClose }: CustomerNotificationsPa
 
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto">
-                    <div className="divide-y divide-[#E4E7EC]">
-                        {notifications.map((notification) => (
+                    {isLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED]"></div>
+                        </div>
+                    ) : filteredNotifications.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-12 px-4">
+                            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                            </div>
+                            <h3 className="text-lg font-medium text-[#101828] mb-2">No notifications yet</h3>
+                            <p className="text-sm text-[#667085] text-center">
+                                You'll receive notifications here when your receipts are approved or when there are updates to your invoices.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-[#E4E7EC]">
+                            {filteredNotifications.map((notification) => (
                             <div key={notification.id} className="p-4">
                                 <h4 className="text-sm font-semibold text-[#101828] mb-2">{notification.title}</h4>
                                 <p className="text-sm text-[#667085] mb-1">{notification.message}</p>
@@ -148,8 +160,9 @@ const CustomerNotificationsPanel = ({ isOpen, onClose }: CustomerNotificationsPa
                                     </button>
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </>
