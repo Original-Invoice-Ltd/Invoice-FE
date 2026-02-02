@@ -1,43 +1,112 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Upload, X } from "lucide-react";
 import Image from "next/image";
+import { ApiClient } from "@/lib/api";
+import { useToast } from "@/hooks/useToast";
+import Toast from "@/components/ui/Toast";
+import { ApiResponse } from "@/types/invoice";
+
+interface BusinessProfileDto {
+  businessName?: string;
+  businessFullName?: string;
+  registeredBusinessAddress?: string;
+  emailAddress?: string;
+  phoneNumber?: string;
+  businessType?: string;
+  country?: string;
+  businessRegistrationNumber?: string;
+  businessLogoUrl?: string;
+}
+
 
 const BusinessProfilePage = () => {
+  const { toast, showSuccess, showError, hideToast } = useToast();
+
   const [formData, setFormData] = useState({
     businessName: "",
-    registeredAddress: "",
+    businessFullName: "",
+    registeredBusinessAddress: "",
     emailAddress: "",
     phoneNumber: "",
     businessType: "",
     businessRegistrationNumber: "",
     country: "",
+
   });
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
+  const [existingLogoUrl, setExistingLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   const businessTypes = [
-    "Sole Proprietorship",
-    "Partnership",
-    "Limited Liability Company (LLC)",
-    "Corporation",
-    "Non-Profit Organization",
-    "Other",
-  ];
+    { label: "Sole Proprietorship", value: "SOLE_PROPRIETORSHIP" },
+    { label: "Partnership", value: "PARTNERSHIP" },
+    { label: "Limited Liability Company (LLC)", value: "LIMITED_LIABILITY_COMPANY" },
+    { label: "Corporation", value: "COPERATIONS" },
+    { label: "Non-Profit Organization", value: "NON_PROFIT_ORGANIZATION" },
+    { label: "Other", value: "OTHERS" },
+  ] as const;
 
   const countries = [
-    "Nigeria",
-    "Ghana",
-    "Kenya",
-    "South Africa",
-    "United States",
-    "United Kingdom",
-    "Canada",
-    "Other",
-  ];
+    { label: "Nigeria", value: "NIGERIA" },
+    { label: "Ghana", value: "GHANA" },
+    { label: "Kenya", value: "KENYA" },
+    { label: "South Africa", value: "SOUTH_AFRICA" },
+    { label: "United States", value: "US" },
+    { label: "United Kingdom", value: "UK" },
+    { label: "Canada", value: "CANADA" },
+    { label: "Other", value: "OTHERS" },
+  ] as const;
+
+  // Load existing business profile on component mount
+  useEffect(() => {
+    loadBusinessProfile();
+  }, []);
+
+  const loadBusinessProfile = async () => {
+    try {
+      setIsLoadingData(true);
+      const response = await ApiClient.getBusinessProfile();
+      console.log("Full API response:", response);
+
+      if (response.status === 200 && response.data) {
+        const apiResponse = response.data as ApiResponse<BusinessProfileDto>;
+        const data = apiResponse.data;
+        console.log("Business profile data:", data);
+
+        if (data) {
+          setFormData({
+            businessName: data.businessName || "",
+            businessFullName: data.businessFullName || "",
+            registeredBusinessAddress: data.registeredBusinessAddress || "",
+            emailAddress: data.emailAddress || "",
+            phoneNumber: data.phoneNumber || "",
+            businessType: data.businessType || "",
+            businessRegistrationNumber: data.businessRegistrationNumber || "",
+            country: data.country || "",
+          });
+
+          if (data.businessLogoUrl) {
+            setExistingLogoUrl(data.businessLogoUrl);
+            setLogoPreview(data.businessLogoUrl);
+          }
+
+        }
+      }
+
+    } catch (error) {
+      console.error("Error loading business profile:", error);
+      showError("Failed to load business profile. Please refresh the page.");
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -50,6 +119,18 @@ const BusinessProfilePage = () => {
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+
+      if (file.size > 5 * 1024 * 1024) {
+        showError("Logo file size must be less than 5MB");
+        return;
+      }
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        showError("Please select a valid image file");
+        return;
+      }
+
       setLogoFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -61,46 +142,126 @@ const BusinessProfilePage = () => {
 
   const removeLogo = () => {
     setLogoFile(null);
-    setLogoPreview(null);
+
+    setLogoPreview(existingLogoUrl);
+  };
+
+  const isFormValid = () => {
+    return (
+      formData.businessName.trim() !== "" &&
+      formData.registeredBusinessAddress.trim() !== "" &&
+      formData.emailAddress.trim() !== "" &&
+      formData.phoneNumber.trim() !== "" &&
+      formData.businessType.trim() !== "" &&
+      formData.country.trim() !== ""
+    );
+  };
+
+  const uploadLogo = async (file: File): Promise<string | null> => {
+    try {
+      const response = await ApiClient.uploadBusinessLogo(file);
+      console.log("Logo upload response:", response);
+
+      if (response.status === 200 && response.data) {
+        // Try both possible response structures
+        const logoUrl = response.data.uploadedLogoUrl || response.data.data?.uploadedLogoUrl;
+        if (logoUrl) {
+          return logoUrl;
+        }
+      }
+      throw new Error(response.error || 'Logo upload failed');
+    } catch (error) {
+      console.error("Logo upload failed:", error);
+      throw error;
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
+    if (formData.phoneNumber.length > 0 && !ApiClient.isValidPhone(formData.phoneNumber)) {
+      setIsLoading(false);
+      showError("Phone number must be in international format. Example: +234***********");
+      return;
+    }
     try {
-      // TODO: Implement business profile update API call
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Show success message
-      alert("Business profile updated successfully!");
+      let businessLogoUrl = existingLogoUrl;
+      let logoUploadFailed = false;
+
+      if (logoFile) {
+        try {
+          businessLogoUrl = await uploadLogo(logoFile);
+        } catch (error) {
+          console.error("Logo upload failed:", error);
+          logoUploadFailed = true;
+          // Continue without logo URL - don't block profile save
+        }
+      }
+
+      // Prepare business profile data (map UI fields to backend DTO)
+      const businessProfileData: BusinessProfileDto = {
+        businessName: formData.businessName,
+        businessFullName: formData.businessFullName,
+        registeredBusinessAddress: formData.registeredBusinessAddress,
+        emailAddress: formData.emailAddress,
+        phoneNumber: formData.phoneNumber,
+        businessType: formData.businessType,
+        country: formData.country,
+        businessRegistrationNumber: formData.businessRegistrationNumber,
+        businessLogoUrl: businessLogoUrl || undefined,
+      };
+
+      // Update business profile
+      const response = await ApiClient.updateBusinessProfile(businessProfileData);
+
+      if (response.status !== 200) {
+        showError("Failed to update business profile, Please try again.");
+        return;
+      }
+
+      await loadBusinessProfile();
+      setLogoFile(null);
+      if (logoUploadFailed) {
+        showSuccess("Profile saved, but logo upload failed");
+      } else {
+        showSuccess("Business profile updated successfully");
+      }
     } catch (error) {
-      console.error("Error updating business profile:", error);
-      alert("Failed to update business profile. Please try again.");
+      showError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleCancel = () => {
-    // Reset form or navigate back
-    setFormData({
-      businessName: "",
-      registeredAddress: "",
-      emailAddress: "",
-      phoneNumber: "",
-      businessType: "",
-      businessRegistrationNumber: "",
-      country: "",
-    });
+
+    loadBusinessProfile();
     setLogoFile(null);
-    setLogoPreview(null);
   };
+
+  if (isLoadingData) {
+    return (
+      <div className="p-6">
+        <div className="max-w-2xl">
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED]"></div>
+            <span className="ml-3 text-[#667085]">Loading business profile...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+      />
+
       <div className="max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Business Name */}
@@ -112,8 +273,9 @@ const BusinessProfilePage = () => {
               type="text"
               name="businessName"
               value={formData.businessName}
-              onChange={handleInputChange}
-              placeholder="Enter full name"
+                onChange={handleInputChange}
+                placeholder="Enter full name"
+
               className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
               required
             />
@@ -128,8 +290,9 @@ const BusinessProfilePage = () => {
               </label>
               <input
                 type="text"
-                name="registeredAddress"
-                value={formData.registeredAddress}
+
+                name="registeredBusinessAddress"
+                value={formData.registeredBusinessAddress}
                 onChange={handleInputChange}
                 placeholder="Enter business address"
                 className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
@@ -155,6 +318,7 @@ const BusinessProfilePage = () => {
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                     <path d="M18.3333 5.00001C18.3333 4.08334 17.5833 3.33334 16.6667 3.33334H3.33333C2.41667 3.33334 1.66667 4.08334 1.66667 5.00001M18.3333 5.00001V15C18.3333 15.9167 17.5833 16.6667 16.6667 16.6667H3.33333C2.41667 16.6667 1.66667 15.9167 1.66667 15V5.00001M18.3333 5.00001L10 10.8333L1.66667 5.00001" stroke="#667085" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round"/>
+
                   </svg>
                 </div>
               </div>
@@ -180,13 +344,16 @@ const BusinessProfilePage = () => {
             </div>
 
             {/* Business Name (Second Field) */}
+
             <div>
               <label className="block text-sm font-medium text-[#101828] mb-2">
                 Business Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                name="businessName2"
+                name="businessFullName"
+                value={formData.businessFullName}
+                onChange={handleInputChange}
                 placeholder="Enter business name"
                 className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
               />
@@ -209,8 +376,9 @@ const BusinessProfilePage = () => {
               >
                 <option value="">Select business type</option>
                 {businessTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
+
+                  <option key={type.value} value={type.value}>
+                    {type.label}
                   </option>
                 ))}
               </select>
@@ -226,7 +394,7 @@ const BusinessProfilePage = () => {
                 name="businessRegistrationNumber"
                 value={formData.businessRegistrationNumber}
                 onChange={handleInputChange}
-                placeholder="Enter business name"
+                placeholder="Enter registration number"
                 className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
               />
             </div>
@@ -244,10 +412,10 @@ const BusinessProfilePage = () => {
               className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent appearance-none bg-white"
               required
             >
-              <option value="">Select business type</option>
+              <option value="">Select country</option>
               {countries.map((country) => (
-                <option key={country} value={country}>
-                  {country}
+                <option key={country.value} value={country.value}>
+                  {country.label}
                 </option>
               ))}
             </select>
@@ -259,7 +427,6 @@ const BusinessProfilePage = () => {
               Upload Business Logo
             </label>
             <p className="text-xs text-[#667085] mb-3">Max file size 5MB</p>
-            
             {logoPreview ? (
               <div className="relative w-32 h-32 border-2 border-dashed border-[#D0D5DD] rounded-lg flex items-center justify-center bg-[#F9FAFB]">
                 <Image
@@ -307,7 +474,7 @@ const BusinessProfilePage = () => {
             </button>
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !isFormValid()}
               className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Saving..." : "Save"}

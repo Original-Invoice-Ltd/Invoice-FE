@@ -7,7 +7,7 @@ interface User {
   id: string;
   email: string;
   fullName: string;
-  phoneNumber?: string;
+  phone?: string;
   isVerified: boolean;
   roles: string[];
   imageUrl?: string;
@@ -85,9 +85,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Auto-fetch user data on mount
   useEffect(() => {
-    fetchUser();
+   fetchUser();
   }, []);
 
   const value = {

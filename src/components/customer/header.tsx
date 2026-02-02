@@ -13,6 +13,7 @@ const CustomerHeader = ({ onMenuClick }: CustomerHeaderProps) => {
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const { unreadCount } = useCustomerNotifications();
 
+
     return (
         <>
             <header className="h-[72px] bg-[#eff8ff] border-b border-[#E4E7EC] flex items-center justify-between px-4 md:px-6 shadow-sm">
@@ -46,6 +47,7 @@ const CustomerHeader = ({ onMenuClick }: CustomerHeaderProps) => {
                         {unreadCount > 0 && (
                             <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></div>
                         )}
+
                     </button>
 
                     {/* Language Selector */}

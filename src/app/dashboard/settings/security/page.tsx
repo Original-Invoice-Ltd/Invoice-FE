@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { ApiClient } from "@/lib/api";
+import Toast from '@/components/ui/Toast';
+import { useToast } from "@/hooks/useToast";
 
 const SecurityPage = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +18,8 @@ const SecurityPage = () => {
     new: false,
     confirm: false,
   });
+
+  const { toast, showSuccess, showError, hideToast } = useToast(); 
 
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -86,7 +90,8 @@ const SecurityPage = () => {
       );
 
       if (response.status === 200) {
-        alert("Password changed successfully!");
+
+        showSuccess("Password changed successfully!");
         // Clear form
         setFormData({
           currentPassword: "",
@@ -98,14 +103,15 @@ const SecurityPage = () => {
       }
     } catch (error: any) {
       console.error("Error changing password:", error);
-      
+
       // Handle specific error cases
       if (error.message?.includes("Current password is incorrect")) {
         setErrors({ currentPassword: "Current password is incorrect" });
       } else if (error.message?.includes("OAuth users")) {
-        alert("Cannot change password for OAuth users. Please use your Google/Apple account to manage your password.");
+
+        showError("Cannot change password for OAuth users. Please use your Google/Apple account to manage your password.");
       } else {
-        alert("Failed to change password. Please try again.");
+        showError("Failed to change password. Please try again.");
       }
     } finally {
       setIsLoading(false);
@@ -123,6 +129,13 @@ const SecurityPage = () => {
 
   return (
     <div className="p-6">
+
+      <Toast
+              message={toast.message}
+              type={toast.type}
+              isVisible={toast.isVisible}
+              onClose={hideToast}
+            />
       <div className="max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Current Password */}

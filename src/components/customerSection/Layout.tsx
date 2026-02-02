@@ -28,9 +28,9 @@ const CustomerLayout = ({
     const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
 
     const handleSignOut = () => {
-        // Handle sign out logic here
-        console.log('User signed out');
-        // You can add actual sign out logic like clearing tokens, redirecting, etc.
+        // // Handle sign out logic here
+        // console.log('User signed out');
+        // // You can add actual sign out logic like clearing tokens, redirecting, etc.
         router.push('/signUp'); // Redirect to sign up page or login page
     };
 

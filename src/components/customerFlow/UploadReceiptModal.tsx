@@ -102,7 +102,7 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
       setModalState("failed");
       return;
     }
-    
+
     if (file.size > maxSize) {
       setUploadedFile({
         name: file.name,
@@ -135,6 +135,7 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
         );
         setModalState("success");
       } else {
+
         setUploadedFile((prev) =>
           prev ? { ...prev, status: "failed", progress: 0, size: 0 } : null
         );
@@ -211,11 +212,8 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
     setSelectedFile(null);
     setFilePreviewUrl(null);
     setModalState("initial");
-    reset();
   };
-
   const handleSave = () => {
-    onClose();
     setTimeout(() => {
       setModalState("initial");
       setUploadedFile(null);

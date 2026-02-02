@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ApiClient } from "@/lib/api";
 import { useInvoiceStats, useCustomerInvoices } from "@/hooks/useCustomerInvoices";
 
+
 const CustomerDashboardPage = () => {
     const router = useRouter();
     const { user } = useAuth();
@@ -16,8 +17,7 @@ const CustomerDashboardPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     
     // Use custom hook for invoice stats
-    const { stats, loading: statsLoading, error: statsError } = useInvoiceStats(user?.email);
-    
+    const { stats, loading: statsLoading, error: statsError } = useInvoiceStats(user?.email);    
     // Use custom hook for invoices
     const { invoices, loading: invoicesLoading, error: invoicesError } = useCustomerInvoices();
 
@@ -42,6 +42,7 @@ const CustomerDashboardPage = () => {
     const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
 
     const handleDropdownAction = (action: string, invoiceId: string) => {
+
         setOpenDropdown(null);
         
         switch (action) {
@@ -56,6 +57,7 @@ const CustomerDashboardPage = () => {
             case 'upload':
                 // Open upload modal for unpaid invoices
                 setSelectedInvoiceId(invoiceId);
+
                 setIsUploadModalOpen(true);
                 break;
         }
@@ -80,6 +82,7 @@ const CustomerDashboardPage = () => {
     const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedInvoices = filteredInvoices.slice(startIndex, startIndex + itemsPerPage);
+
 
     return (
         <CustomerLayout>

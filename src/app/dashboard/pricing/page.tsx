@@ -6,7 +6,7 @@ import { Check, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { initializeTransactionWithPlan, getCurrentSubscription } from "@/lib/subscription";
 
-interface CurrentSubscription {
+export interface CurrentSubscription {
   plan: string;
   planDisplayName: string;
   status: string;
@@ -40,7 +40,6 @@ const DashboardPricingPage = () => {
   const handleSubscribe = async (plan: "ESSENTIALS" | "PREMIUM") => {
     try {
       setIsLoading(plan);
-      
       // Initialize transaction with plan
       const result = await initializeTransactionWithPlan(
         plan,
@@ -218,7 +217,7 @@ const DashboardPricingPage = () => {
             </ul>
 
             <button
-              onClick={() => handleSubscribe("ESSENTIALS")}
+              onClick={() => isCurrentPlan("ESSENTIALS") ? () => { } :handleSubscribe("ESSENTIALS")}
               disabled={isCurrentPlan("ESSENTIALS") || isLoading === "ESSENTIALS"}
               className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
                 isCurrentPlan("ESSENTIALS")

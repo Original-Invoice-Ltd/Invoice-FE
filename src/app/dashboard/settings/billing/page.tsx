@@ -6,6 +6,7 @@ import { Check, ExternalLink } from "lucide-react";
 
 const BillingPage = () => {
   const router = useRouter();
+
   const [isLoading, setIsLoading] = useState(false);
 
   const currentPlan = {
@@ -46,11 +47,13 @@ const BillingPage = () => {
   const handleUpgrade = () => {
     // TODO: Navigate to upgrade/pricing page or open upgrade modal
     router.push("/dashboard/pricing");
+
   };
 
   const handleViewPricing = () => {
     // TODO: Navigate to pricing page
     router.push("/dashboard/pricing");
+
   };
 
   return (

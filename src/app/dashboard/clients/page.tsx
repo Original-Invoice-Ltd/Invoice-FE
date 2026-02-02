@@ -10,6 +10,7 @@ import DeleteConfirmationModal from "@/components/common/DeleteConfirmationModal
 import { useInvoiceLimit } from "@/contexts/InvoiceLimitContext";
 import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification";
 
+
 interface Client {
     id: string;
     customerType: string;
@@ -36,7 +37,6 @@ const ClientsPage = () => {
     const router = useRouter();
     const { canCreateInvoice } = useInvoiceLimit();
     const { showBlockedNotification } = useInvoiceLimitNotification();
-    
     const [searchQuery, setSearchQuery] = useState("");
     const [showAddModal, setShowAddModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -194,6 +194,7 @@ const ClientsPage = () => {
         setShowSuccessModal(false);
         router.push('/dashboard/invoices/create');
     };
+
 
     const handleEditClient = (client: Client) => {
         setFormData({
