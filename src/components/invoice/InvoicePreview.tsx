@@ -363,31 +363,27 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, isValidTo
                     <div className="flex justify-end">
                         <div className="relative" ref={sendDropdownRef}>
                             <button 
-                                onClick={() => isValidToSend && setShowSendDropdown(!showSendDropdown)}
-                                disabled={isSubmitting || submitSuccess || !isValidToSend}
-                                onMouseEnter={() => !isValidToSend && setShowValidationTooltip(true)}
-                                onMouseLeave={() => setShowValidationTooltip(false)}
-                                className={`flex items-center gap-2 px-8 py-3 rounded-lg transition-colors ${
-                                    isValidToSend 
-                                        ? 'bg-[#2F80ED] text-white hover:bg-blue-600 cursor-pointer' 
-                                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                } ${(isSubmitting || submitSuccess) ? 'disabled:opacity-50 disabled:cursor-not-allowed' : ''}`}
+                                onClick={() => setShowSendDropdown(!showSendDropdown)}
+                                disabled={isSubmitting || submitSuccess}
+                                // onMouseEnter={() => !isValidToSend && setShowValidationTooltip(true)}
+                                // onMouseLeave={() => setShowValidationTooltip(false)}
+                                className={`flex items-center gap-2 px-8 py-3 rounded-lg transition-colors bg-[#2F80ED] text-white hover:bg-blue-600 cursor-pointer ${(isSubmitting || submitSuccess) ? 'disabled:opacity-50 disabled:cursor-not-allowed' : ''}`}
                             >
                                 <Mail size={20} />
                                 {isSubmitting ? 'Sending...' : submitSuccess ? 'Sent!' : 'Send'}
-                                {!isSubmitting && !submitSuccess && isValidToSend && <ChevronDown size={20} />}
+                                {!isSubmitting && !submitSuccess && <ChevronDown size={20} />}
                             </button>
 
                             {/* Validation Tooltip */}
-                            {showValidationTooltip && !isValidToSend && validationMessage && (
+                            {/* {showValidationTooltip && !isValidToSend && validationMessage && (
                                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg whitespace-nowrap z-50">
                                     {validationMessage}
                                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                                 </div>
-                            )}
+                            )} */}
 
                             {/* Send Dropdown */}
-                            {showSendDropdown && isValidToSend && (
+                            {showSendDropdown && (
                                 <div className="absolute bottom-full right-0 mb-2 bg-white rounded-xl shadow-lg border border-gray-200 py-2 min-w-[180px] z-50">
                                     <p className="px-4 py-2 text-gray-400 text-sm">Send</p>
                                     
@@ -484,7 +480,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, isValidTo
                             </button>
                             <button
                                 onClick={handleSendInvoice}
-                                disabled={isSubmitting || !emailTo || !isValidToSend}
+                                disabled={isSubmitting || !emailTo}
                                 className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? 'Sending...' : 'Send Invoice'}
@@ -550,7 +546,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, isValidTo
                             </button>
                             <button
                                 onClick={handleSendInvoice}
-                                disabled={isSubmitting || !phoneNumber || !isValidToSend}
+                                disabled={isSubmitting || !phoneNumber}
                                 className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? 'Sending...' : 'Send Invoice'}
@@ -616,7 +612,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, isValidTo
                             </button>
                             <button
                                 onClick={handleSendInvoice}
-                                disabled={isSubmitting || !phoneNumber || !isValidToSend}
+                                disabled={isSubmitting || !phoneNumber}
                                 className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? 'Sending...' : 'Send Invoice'}
