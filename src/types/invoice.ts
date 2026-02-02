@@ -1,5 +1,61 @@
 // Invoice response types from backend API
 
+// Dashboard Analytics Types
+export interface DashboardStats {
+  totalInvoicesSent: {
+    amount: number;
+    count: number;
+    percentageChange: string;
+  };
+  paidInvoices: {
+    amount: number;
+    count: number;
+    percentageChange: string;
+  };
+  pendingInvoices: {
+    amount: number;
+    count: number;
+    percentageChange: string;
+  };
+  overdueInvoices: {
+    amount: number;
+    count: number;
+    percentageChange: string;
+  };
+  statusDistribution: {
+    paid: {
+      amount: number;
+      percentage: number;
+    };
+    pending: {
+      amount: number;
+      percentage: number;
+    };
+    overdue: {
+      amount: number;
+      percentage: number;
+    };
+  };
+}
+
+export interface PaymentTrend {
+  period: string;
+  periodLabel: string;
+  totalAmount: number;
+  invoiceCount: number;
+}
+
+export interface RecentInvoice {
+  id: string;
+  date: string;
+  client: string;
+  invoiceId: string;
+  status: string;
+  dueDate: string;
+  amount: number;
+  balance: number;
+}
+
 export interface InvoiceStatsResponse {
   totalReceived: number;
   paid: number;

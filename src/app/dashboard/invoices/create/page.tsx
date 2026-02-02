@@ -363,6 +363,55 @@ const CreateInvoicePage = () => {
 
         return null;
     };
+
+    // Get specific validation message for tooltip
+    const getSpecificValidationMessage = (): string | null => {
+        // Check billFrom required fields
+        if (billFrom.fullName.trim() === "") {
+            return "Sender's full name is required";
+        }
+        if (billFrom.email.trim() === "") {
+            return "Sender's email is required";
+        }
+        if (!ApiClient.isValidPhone(billFrom.phoneNumber.trim())) {
+            return "Valid phone number is required";
+        }
+        if (billFrom.businessName.trim() === "") {
+            return "Business name is required";
+        }
+
+        // Check billTo required fields
+        if (billTo.customer.trim() === "") {
+            return "Customer selection is required";
+        }
+        if (billTo.title.trim() === "") {
+            return "Invoice name is required";
+        }
+        if (billTo.invoiceDate.trim() === "") {
+            return "Invoice date is required";
+        }
+        if (billTo.dueDate.trim() === "") {
+            return "Due date is required";
+        }
+
+        // Check items
+        if (items.length === 0) {
+            return "At least one item is required";
+        }
+
+        // Check payment details
+        if (paymentDetails.bankAccount.trim() === "") {
+            return "Bank account is required";
+        }
+        if (paymentDetails.accountName.trim() === "") {
+            return "Account name is required";
+        }
+        if (paymentDetails.accountNumber.trim() === "") {
+            return "Account number is required";
+        }
+
+        return null;
+    };
     // Submit invoice to backend (Save as Draft - without sending)
     const handleSaveDraft = async () => {
         setFormValidationError(null);
@@ -455,6 +504,9 @@ const CreateInvoicePage = () => {
 
     // Transform form data to InvoiceResponse structure for preview
     const getPreviewData = () => {
+        // Find the selected client to get their email
+        const selectedClient = clients.find(client => client.id === selectedClientId);
+        
         return {
             id: "preview",
             title: billTo.title || "Invoice",
@@ -487,7 +539,7 @@ const CreateInvoicePage = () => {
                 title: "",
                 fullName: billTo.customer,
                 businessName: billTo.customer,
-                email: "",
+                email: selectedClient?.email || "", // Use the selected client's email
                 phone: "",
                 country: ""
             },
@@ -633,6 +685,7 @@ const CreateInvoicePage = () => {
                 }}
                 onSendInvoice={handleSendInvoice}
                 isValidToSend={getFirstValidationError()===null}
+                validationMessage={getSpecificValidationMessage()}
             />
         );
     }
@@ -700,17 +753,32 @@ const CreateInvoicePage = () => {
                                                 }}
                                             />
                                             <label htmlFor="logo-upload" className="block border border-dashed border-[#E5E5E5] rounded-lg py-1 px-1 text-center cursor-pointer hover:border-[#2F80ED] transition-colors">
-                                                <div className="flex flex-col items-center">
-                                                    <div className="border-gray-100 border border-2 p-1 w-12 h-12 rounded-lg">
-                                                        <div className="mb-2 text-[#2F80ED] items-center flex  bg-gray-100 px-1 py-1 rounded-lg">
-                                                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <path d="M18 2.25C20.0711 2.25 21.75 3.92893 21.75 6V18C21.75 20.0711 20.0711 21.75 18 21.75H6C5.28598 21.75 4.61621 21.55 4.04688 21.2021C3.79222 21.0466 3.55825 20.861 3.34863 20.6514C2.67084 19.9736 2.25 19.0353 2.25 18V6C2.25 3.92893 3.92893 2.25 6 2.25H18ZM6 3.75C4.75736 3.75 3.75 4.75736 3.75 6V18C3.75 18.6215 4.00119 19.1828 4.40918 19.5908C4.53542 19.7171 4.67626 19.8285 4.8291 19.9219C5.16966 20.1299 5.56969 20.25 6 20.25H18C19.2426 20.25 20.25 19.2426 20.25 18V6C20.25 4.75736 19.2426 3.75 18 3.75H6ZM12.6211 10.8154C13.4764 9.92021 14.9098 10.1204 15.5176 11.1807L17.5723 14.7637C18.0473 15.5923 17.5123 16.7498 16.4551 16.75H7.54492C6.45827 16.7497 5.93366 15.5372 6.45996 14.7109L7.54004 13.0156C8.04626 12.2208 9.06446 11.9222 9.91309 12.3662L10.5293 12.6885C10.6466 12.7498 10.7915 12.732 10.8965 12.6221L12.6211 10.8154ZM14.2168 11.9268C14.0958 11.7156 13.8525 11.6985 13.7061 11.8516L11.9805 13.6582C11.4227 14.2418 10.555 14.3948 9.83398 14.0176L9.21777 13.6953C9.08415 13.6254 8.90762 13.6597 8.80469 13.8213L7.89453 15.25H16.1221L14.2168 11.9268ZM9 8C9.55228 8 10 8.44772 10 9C10 9.55228 9.55228 10 9 10C8.44772 10 8 9.55228 8 9C8 8.44772 8.44772 8 9 8Z" fill="#2F80ED" />
-                                                            </svg>
+                                                {logo ? (
+                                                    // Show image preview when logo is selected
+                                                    <div className="flex flex-col items-center">
+                                                        <div className="w-18 h-12 rounded-lg overflow-hidden mb-2">
+                                                            <img 
+                                                                src={logo} 
+                                                                alt="Business Logo" 
+                                                                className="w-full h-full object-cover"
+                                                            />
                                                         </div>
+                                                        <p className="text-[10px] text-[#667085]">Click to replace</p>
                                                     </div>
-                                                    <p className="text-[16px] font-medium text-[#101828] mb-1">Upload Business Logo</p>
-                                                    <p className="text-[12px] text-[#667085]">Max file size 5MB</p>
-                                                </div>
+                                                ) : (
+                                                    // Show upload UI when no logo is selected
+                                                    <div className="flex flex-col items-center">
+                                                        <div className="border-gray-100 border border-2 p-1 w-12 h-12 rounded-lg">
+                                                            <div className="mb-2 text-[#2F80ED] items-center flex  bg-gray-100 px-1 py-1 rounded-lg">
+                                                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M18 2.25C20.0711 2.25 21.75 3.92893 21.75 6V18C21.75 20.0711 20.0711 21.75 18 21.75H6C5.28598 21.75 4.61621 21.55 4.04688 21.2021C3.79222 21.0466 3.55825 20.861 3.34863 20.6514C2.67084 19.9736 2.25 19.0353 2.25 18V6C2.25 3.92893 3.92893 2.25 6 2.25H18ZM6 3.75C4.75736 3.75 3.75 4.75736 3.75 6V18C3.75 18.6215 4.00119 19.1828 4.40918 19.5908C4.53542 19.7171 4.67626 19.8285 4.8291 19.9219C5.16966 20.1299 5.56969 20.25 6 20.25H18C19.2426 20.25 20.25 19.2426 20.25 18V6C20.25 4.75736 19.2426 3.75 18 3.75H6ZM12.6211 10.8154C13.4764 9.92021 14.9098 10.1204 15.5176 11.1807L17.5723 14.7637C18.0473 15.5923 17.5123 16.7498 16.4551 16.75H7.54492C6.45827 16.7497 5.93366 15.5372 6.45996 14.7109L7.54004 13.0156C8.04626 12.2208 9.06446 11.9222 9.91309 12.3662L10.5293 12.6885C10.6466 12.7498 10.7915 12.732 10.8965 12.6221L12.6211 10.8154ZM14.2168 11.9268C14.0958 11.7156 13.8525 11.6985 13.7061 11.8516L11.9805 13.6582C11.4227 14.2418 10.555 14.3948 9.83398 14.0176L9.21777 13.6953C9.08415 13.6254 8.90762 13.6597 8.80469 13.8213L7.89453 15.25H16.1221L14.2168 11.9268ZM9 8C9.55228 8 10 8.44772 10 9C10 9.55228 9.55228 10 9 10C8.44772 10 8 9.55228 8 9C8 8.44772 8.44772 8 9 8Z" fill="#2F80ED" />
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+                                                        <p className="text-[16px] font-medium text-[#101828] mb-1">Upload Business Logo</p>
+                                                        <p className="text-[12px] text-[#667085]">Max file size 5MB</p>
+                                                    </div>
+                                                )}
                                             </label>
                                         </div>
                                     </div>
@@ -1138,7 +1206,7 @@ const CreateInvoicePage = () => {
 
                         {/* Signature Modal */}
                         {showSignatureModal && (
-                            <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
+                            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                                 <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
                                     <div className="flex justify-between items-center mb-4">
                                         <h3 className="text-lg font-semibold text-[#101828]">Add Signature</h3>
@@ -1291,7 +1359,7 @@ const CreateInvoicePage = () => {
 
                             {/* Signature Modal */}
                             {showSignatureModal && (
-                                <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
+                                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                                     <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
                                         <div className="flex justify-between items-center mb-4">
                                             <h3 className="text-lg font-semibold text-[#101828]">Add Signature</h3>
@@ -1564,8 +1632,8 @@ const CreateInvoicePage = () => {
 
                 {/* Add New Client Modal */}
                 {showAddClientModal && (
-                    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-                        <div className="bg-white rounded-2xl p-5 w-[500px] shadow-2xl [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+                        <div className="bg-white rounded-2xl p-5 w-[500px] shadow-2xl max-h-[90vh] overflow-y-auto">
                             <div className="flex justify-between items-center mb-1">
                                 <h3 className="text-xl font-semibold text-[#101828]">Add New Client</h3>
                                 <button

@@ -34,19 +34,18 @@ const InvoicesPage = () => {
     });
 
     useEffect(() => {
-        if (user?.id) return;
         refreshUser();
+        fetchInvoices();
+
     }, []);
 
-    useEffect(() => {
-        if (!user?.id) return;
-        fetchInvoices();
-    }, [user]);
+   
     
     const fetchInvoices = async () => {
         try {
             setLoading(true);
             const response = await ApiClient.getAllUserInvoices(user?.id);
+            console.log("Response is fetched")
             if (response.status === 200 && response.data) {
                 const invoicesData = Array.isArray(response.data) ? response.data : [];
                 setInvoices(invoicesData);
