@@ -60,7 +60,7 @@ const Sidebar = ({
     } : userProfile || {
         name: "Guest",
         email: "",
-        initials: "G
+        initials: "G"
     };
 
     // Show email profile mode only if showEmailProfile is true AND user is not authenticated

@@ -37,7 +37,7 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
     const getProfileImage = () => {
         if (user?.imageUrl) return user.imageUrl;
         // Use a dummy profile icon if no profile image is available
-        return "/assets/icons/ProfileIcon1.svg"; // fallback image
+        return ""; // fallback image
     };
 
     // Fetch initial unread count
@@ -208,13 +208,20 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
                             className="rounded-full bg-gray-200 overflow-hidden hover:ring-2 hover:ring-[#2F80ED] hover:ring-offset-2 transition-all"
                             style={{ width: '32px', height: '32px' }}
                         >
-                            <Image
+                            {
+                                getProfileImage().length > 0
+                                    ? <Image
                                 src={getProfileImage()}
                                 alt="Profile"
                                 width={32}
                                 height={32}
                                 className="w-full h-full object-cover"
-                            />
+                                    />
+                                    :
+                                    <div className="w-full h-full text-[1rem] font-bold bg-primary flex justify-center items-center">
+                                            <p>G</p>
+                                    </div>
+                            }
                         </button>
 
                         {showProfileDropdown && (
