@@ -386,7 +386,7 @@ export class ApiClient {
     return this.request('PATCH', `/api/invoices/${invoiceId}/mark-as-paid`);
   }
 
-  static async getAllUserInvoices(userId?: string) {
+  static async x(userId?: string) {
     return userId
       ? await axiosInstance.get(`/api/invoices/all-user/${userId}`, {
           withCredentials: true,
