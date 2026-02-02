@@ -59,7 +59,7 @@ const Sidebar = ({
             : (user.email ? user.email[0].toUpperCase() : "U")
     } : userProfile || {
         name: "Guest",
-        email: "guest@example.com",
+        email: "",
         initials: "G"
     };
 
@@ -197,7 +197,11 @@ const Sidebar = ({
                         return (
                             <li key={item.path}>
                                 <button
-                                    onClick={() => handleNavigation(item.path)}
+                                    onClick={() => {
+                                        isAuthenticated && user ?
+                                        handleNavigation(item.path)
+                                        : router.push('/signUp')
+                                    }}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200 ${
                                         item.isActive
                                             ? 'text-white border border-white/50'

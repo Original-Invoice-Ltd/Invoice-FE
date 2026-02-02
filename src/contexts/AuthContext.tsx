@@ -85,9 +85,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Auto-fetch user data on mount
   useEffect(() => {
-    fetchUser();
+   fetchUser();
   }, []);
 
   const value = {

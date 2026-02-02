@@ -6,6 +6,7 @@ import DashboardHeader from "@/components/dashboardHeader/DashboardHeader";
 import { InvoiceLimitProvider } from "@/contexts/InvoiceLimitContext";
 import InvoiceLimitNotification from "@/components/notifications/InvoiceLimitNotification";
 import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 
 export default function DashboardLayout({
@@ -30,6 +31,9 @@ function DashboardLayoutContent({
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const { notification, hideNotification, handleUpgrade } = useInvoiceLimitNotification();
+    
+    // Ensure user profile is loaded immediately when dashboard loads
+    useUserProfile();
 
 
     return (

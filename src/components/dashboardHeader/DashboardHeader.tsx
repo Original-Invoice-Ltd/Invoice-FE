@@ -16,7 +16,7 @@ interface DashboardHeaderProps {
 }
 
 const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeaderProps) => {
-    const { user } = useAuth();
+    const { user, loading: userLoading } = useAuth();
     const router = useRouter();
     const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -36,8 +36,7 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
     // Get user's profile image or fallback
     const getProfileImage = () => {
         if (user?.imageUrl) return user.imageUrl;
-        // Use a dummy profile icon if no profile image is available
-        return "/assets/icons/ProfileIcon1.svg"; // fallback image
+        return "";
     };
 
     // Fetch initial unread count
@@ -208,24 +207,39 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
                             className="rounded-full bg-gray-200 overflow-hidden hover:ring-2 hover:ring-[#2F80ED] hover:ring-offset-2 transition-all"
                             style={{ width: '32px', height: '32px' }}
                         >
-                            <Image
-                                src={getProfileImage()}
-                                alt="Profile"
-                                width={32}
-                                height={32}
-                                className="w-full h-full object-cover"
-                            />
+                            {userLoading ? (
+                                <div className="w-full h-full animate-pulse bg-gray-300"></div>
+                            ) : getProfileImage().length > 0 ? (
+                                <Image
+                                    src={getProfileImage()}
+                                    alt="Profile"
+                                    width={32}
+                                    height={32}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full text-[1rem] font-bold bg-primary flex justify-center items-center">
+                                    <p>{user?.fullName?.charAt(0) || 'U'}</p>
+                                </div>
+                            )}
                         </button>
 
                         {showProfileDropdown && (
                             <div className="absolute right-0 mt-2 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-50 overflow-hidden" style={{ width: '200px' }}>
                                 <div className="py-1">
-                                    {user && (
+                                    {user && !userLoading ? (
                                         <div className="px-4 py-2.5 border-b border-[#E4E7EC]">
                                             <div className="text-xs font-medium text-[#101828]">{user.fullName}</div>
                                             <div className="text-xs text-[#667085]">{user.email}</div>
                                         </div>
-                                    )}
+                                    ) : userLoading ? (
+                                        <div className="px-4 py-2.5 border-b border-[#E4E7EC]">
+                                            <div className="animate-pulse">
+                                                <div className="h-3 bg-gray-200 rounded w-3/4 mb-1"></div>
+                                                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                                            </div>
+                                        </div>
+                                    ) : null}
                                     <button
                                         onClick={handleProfileSettings}
                                         className="w-full px-4 py-2.5 text-left text-xs hover:bg-[#F9FAFB] transition-colors flex items-center gap-3"

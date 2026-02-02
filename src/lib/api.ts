@@ -1,5 +1,5 @@
 import axios, { AxiosResponse, AxiosError } from "axios";
-import { InvoiceStatsResponse } from "@/types/invoice";
+import { InvoiceStatsResponse, DashboardStats, PaymentTrend, RecentInvoice } from "@/types/invoice";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -410,6 +410,22 @@ export class ApiClient {
     } catch (error) {
       return this.handleError(error as AxiosError);
     }
+  }
+
+  // Dashboard Analytics APIs
+  static async getDashboardStats(): Promise<ApiResponse<DashboardStats>> {
+    return this.request<DashboardStats>("GET", "/api/invoices/dashboard/stats");
+  }
+
+  static async getPaymentTrends(period: 'month' | 'year' = 'month'): Promise<ApiResponse<PaymentTrend[]>> {
+    return this.request<PaymentTrend[]>("GET", "/api/invoices/dashboard/payment-trends", undefined, { period });
+  }
+
+  static async getRecentInvoices(limit: number = 5): Promise<ApiResponse<RecentInvoice[]>> {
+    if (limit < 1 || limit > 20) {
+      throw new Error('Limit must be between 1 and 20');
+    }
+    return this.request<RecentInvoice[]>("GET", "/api/invoices/dashboard/recent-invoices", undefined, { limit });
   }
 
   static async getInvoiceStats(
