@@ -75,7 +75,7 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-interface ApiResponse<T> {
+export interface ApiResponse<T> {
   status: number;
   data?: T;
   message?: string;
@@ -156,7 +156,7 @@ export class ApiClient {
   static async delete(endpoint: string, params?: any) {
     return this.request('DELETE', endpoint, undefined, params);
   }
-
+  
   // Authentication APIs
   static async login(email: string, password: string) {
    try {
@@ -169,6 +169,10 @@ export class ApiClient {
     } catch (error) {
       return this.handleError(error as AxiosError);
     }
+  }
+
+  static async forgotPassword(email: string) {
+    return await this.request('POST',"/api/auth/forgot-password", {email})
   }
 
   static async register(data: {

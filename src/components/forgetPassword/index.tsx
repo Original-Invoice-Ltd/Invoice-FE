@@ -22,7 +22,7 @@ import CreateNewPasswordForm from './CreateNewPasswordForm';
 import PasswordUpdatedSuccess from './PasswordUpdatedSuccess';
 import Toast from '@/components/ui/Toast';
 import { useToast } from '@/hooks/useToast';
-import { ApiClient } from '@/lib/api';
+import { ApiClient, ApiResponse } from '@/lib/api';
 
 type Screen = 'forgot-password' | 'verify-code' | 'create-password' | 'success';
 
@@ -41,9 +41,14 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      const response = await ApiClient.forgotPassword(email);
-
-      if (response.success) {
+      const response = await ApiClient.forgotPassword(email) as ApiResponse<{
+        success: boolean,
+        message: string,
+        remainingAttempts: number,
+        responseTime: string,
+        expired: boolean
+      }>;
+      if (response.data?.success) {
         showSuccess('Password reset code sent to your email!');
         setCurrentScreen('verify-code');
       } else {
@@ -62,9 +67,14 @@ export default function ForgotPassword() {
     setVerificationCode(code);
 
     try {
-      const response = await ApiClient.verifyPasswordResetOTP(email, code);
-
-      if (response.success) {
+      const response = await ApiClient.verifyPasswordResetOTP(email, code) as ApiResponse<{
+        success: boolean,
+        message: string,
+        remainingAttempts: number,
+        responseTime: string,
+        expired: boolean
+      }>;
+      if (response.data?.success) {
         showSuccess('Code verified successfully!');
         setCurrentScreen('create-password');
       } else {
@@ -80,11 +90,16 @@ export default function ForgotPassword() {
 
   const handleResendCode = async () => {
     setLoading(true);
-
     try {
-      const response = await ApiClient.forgotPassword(email);
+      const response = await ApiClient.forgotPassword(email) as ApiResponse<{
+        success: boolean,
+        message: string,
+        remainingAttempts: number,
+        responseTime: string,
+        expired: boolean
+      }>;;
 
-      if (response.success) {
+      if (response.data?.success) {
         showSuccess('Reset code resent to your email!');
       } else {
         showError(response.error || 'Failed to resend code. Please try again.');
@@ -104,7 +119,7 @@ export default function ForgotPassword() {
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (password !== confirmPassword) {
       showError('Passwords do not match');
       return;
@@ -146,13 +161,15 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col lg:flex-row">
+    <div className="h-screen bg-gray-100 flex flex-col lg:flex-row w-full">
       {/* Left Side - Illustration Panel (Desktop only) */}
-      <LeftIllustrationPanel />
+      <div className='w-1/2'>
+        <LeftIllustrationPanel />
+      </div>
 
       {/* Right Side - Form Section */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-4 sm:p-6 lg:p-12">
-        <div className="w-full max-w-md">
+      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-4 py-2 sm:p-6 lg:p-12">
+        <div className="w-full max-w-md lg:pr-10">
           {/* Logo */}
           <Logo />
 
