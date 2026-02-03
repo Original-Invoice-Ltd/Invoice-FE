@@ -143,6 +143,7 @@ function CompleteProfileContent() {
 
       {toast && (
         <Toast
+          isVisible={toast.isVisible}
           message={toast.message}
           type={toast.type}
           onClose={hideToast}

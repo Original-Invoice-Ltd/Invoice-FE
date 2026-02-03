@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Plus, Search, MoreHorizontal, Eye, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 
@@ -32,16 +32,8 @@ const InvoicesPage = () => {
         isLoading: false,
         error: null
     });
-
-    useEffect(() => {
-        refreshUser();
-        fetchInvoices();
-
-    }, []);
-
-   
     
-    const fetchInvoices = async () => {
+    const fetchInvoices = useCallback(async () => {
         try {
             setLoading(true);
             const response = await ApiClient.getAllUserInvoices(user?.id);
@@ -59,7 +51,16 @@ const InvoicesPage = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [showError, user?.id]);
+    
+    useEffect(() => {
+        refreshUser();
+        fetchInvoices();
+
+    }, []);
+
+   
+
 
     // Filter and sort invoices
     const filteredInvoices = invoices.filter(invoice =>

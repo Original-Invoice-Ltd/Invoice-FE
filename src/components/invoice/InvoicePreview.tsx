@@ -5,6 +5,9 @@ import { ChevronDown, Mail, X } from "lucide-react";
 import CompactTemplate from "./templates/CompactTemplate";
 import StandardTemplate from "./templates/StandardTemplate";
 import SimpleTemplate from "./templates/SimpleTemplate";
+import { useToast } from "@/hooks/useToast";
+import Toast from "@/components/ui/Toast";
+import { ApiClient } from "@/lib/api";
 
 interface InvoiceItem {
     id: number;
@@ -57,11 +60,10 @@ interface InvoicePreviewProps {
     onEdit: () => void;
     onEmailInvoice: () => void;
     onSendInvoice: () => Promise<{ success: boolean; error?: string }>;
-    isValidToSend: boolean;
     validationMessage: string | null;
 }
 
-const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, isValidToSend, validationMessage }: InvoicePreviewProps) => {
+const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validationMessage }: InvoicePreviewProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -76,6 +78,8 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, isValidTo
     const [message, setMessage] = useState("");
     const [showValidationTooltip, setShowValidationTooltip] = useState(false);
     const sendDropdownRef = useRef<HTMLDivElement>(null);
+    const { toast, showError, hideToast } = useToast();
+    const [errorMessage, setErrorMessage] = useState<string | null >(null)        
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -155,6 +159,12 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, isValidTo
 
     return (
         <div className="min-h-screen bg-gray-50 ">
+                  {/* <Toast
+                            isVisible={toast.isVisible}
+                            message={toast.message}
+                            type={toast.type}
+                            onClose={hideToast}
+                        /> */}
             <div className="max-w-5xl mx-auto">
                 {/* Header Actions - Outside white background */}
                 <div className="flex justify-end gap-3 mb-6">
@@ -363,11 +373,12 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, isValidTo
                     <div className="flex justify-end">
                         <div className="relative" ref={sendDropdownRef}>
                             <button 
-                                onClick={() => setShowSendDropdown(!showSendDropdown)}
-                                disabled={isSubmitting || submitSuccess}
-                                // onMouseEnter={() => !isValidToSend && setShowValidationTooltip(true)}
-                                // onMouseLeave={() => setShowValidationTooltip(false)}
-                                className={`flex items-center gap-2 px-8 py-3 rounded-lg transition-colors bg-[#2F80ED] text-white hover:bg-blue-600 cursor-pointer ${(isSubmitting || submitSuccess) ? 'disabled:opacity-50 disabled:cursor-not-allowed' : ''}`}
+                                onClick={() =>  setShowSendDropdown(!showSendDropdown)}
+                                disabled={isSubmitting || submitSuccess }
+                                onMouseEnter={() => setShowValidationTooltip(true)}
+                                onMouseLeave={() => setShowValidationTooltip(false)}
+                                className={`flex items-center gap-2 px-8 py-3 rounded-lg transition-colors bg-[#2F80ED] text-white hover:bg-blue-600 cursor-pointer 
+                                 ${(isSubmitting || submitSuccess) ? 'disabled:opacity-50 disabled:cursor-not-allowed' : ''}`}
                             >
                                 <Mail size={20} />
                                 {isSubmitting ? 'Sending...' : submitSuccess ? 'Sent!' : 'Send'}
@@ -375,12 +386,12 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, isValidTo
                             </button>
 
                             {/* Validation Tooltip */}
-                            {/* {showValidationTooltip && !isValidToSend && validationMessage && (
+                            {showValidationTooltip && validationMessage && (
                                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg whitespace-nowrap z-50">
                                     {validationMessage}
                                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                                 </div>
-                            )} */}
+                            )}
 
                             {/* Send Dropdown */}
                             {showSendDropdown && (
@@ -470,6 +481,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, isValidTo
                                 />
                             </div>
                         </div>
+                        <p className ={`h-[20px] ${errorMessage && "text-red-400 text-[0.9rem]"}`}> {errorMessage}</p>
 
                         <div className="flex justify-between mt-6">
                             <button
@@ -479,8 +491,15 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, isValidTo
                                 Cancel
                             </button>
                             <button
-                                onClick={handleSendInvoice}
-                                disabled={isSubmitting || !emailTo}
+                                onClick={()=>{
+                                    if(!ApiClient.isValidEmail(emailTo)){
+                                        setErrorMessage("Invalid email address provided")
+                                        return;
+                                    }
+                                      handleSendInvoice()
+                                   }
+                                }
+                                disabled={isSubmitting}
                                 className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? 'Sending...' : 'Send Invoice'}
