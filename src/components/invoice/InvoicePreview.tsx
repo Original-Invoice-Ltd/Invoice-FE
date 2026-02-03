@@ -391,7 +391,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
                                     {validationMessage}
                                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                                 </div>
-                            )} */}
+                            )}
 
                             {/* Send Dropdown */}
                             {showSendDropdown && (
