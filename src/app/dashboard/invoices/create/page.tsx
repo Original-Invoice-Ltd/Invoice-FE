@@ -14,6 +14,8 @@ import { buildInvoiceFormData, dataURLtoFile, base64ToFile, CreateInvoiceData, I
 import { Product } from "@/lib/productCache";
 import { useInvoiceLimit } from "@/contexts/InvoiceLimitContext";
 import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification";
+import { useToast } from "@/hooks/useToast";
+import Toast from "@/components/ui/Toast";
 
 const CreateInvoicePage = () => {
     const {
@@ -21,13 +23,13 @@ const CreateInvoicePage = () => {
         invoicesRemaining,
         totalInvoices,
         isLoading: limitLoading,
-        checkInvoiceLimit,
-        incrementInvoiceCount,
-        showLimitNotification,
-        showBlockedNotification
+        // checkInvoiceLimit,
+        // incrementInvoiceCount,
+        // showLimitNotification,
+        // showBlockedNotification
     } = useInvoiceLimit();
     const { showWarningNotification, showBlockedNotification: showBlockedNotif } = useInvoiceLimitNotification();
-
+    const { toast, showError, hideToast } = useToast();
 
     const [items, setItems] = useState<InvoiceItem[]>([]);
     const [showSignatureModal, setShowSignatureModal] = useState(false);
@@ -232,7 +234,6 @@ const CreateInvoicePage = () => {
     };
 
     const handleProductSave = (product: Product) => {
-        // Create a new invoice item from the saved product
         const newItem: InvoiceItem = {
             id: Date.now(),
             itemName: product.itemName,
@@ -277,25 +278,19 @@ const CreateInvoicePage = () => {
         return calculateSubtotal() + calculateTax();
     };
 
-    // Form validation
     const isFormValid = () => {
-        // Required fields for billFrom
-
         const billFromValid = billFrom.fullName.trim() !== "" &&
             ApiClient.isValidEmail(billFrom.email.trim()) &&
             ApiClient.isValidPhone(billFrom.phoneNumber.trim()) &&
             billFrom.businessName.trim() !== "";
 
-        // Required fields for billTo
         const billToValid = billTo.customer.trim() !== "" &&
             billTo.title.trim() !== "" &&
             billTo.invoiceDate.trim() !== "" &&
             billTo.dueDate.trim() !== "";
 
-        // At least one item is required
         const itemsValid = items.length > 0;
 
-        // Payment details are required
         const paymentDetailsValid = paymentDetails.bankAccount.trim() !== "" &&
             paymentDetails.accountName.trim() !== "" &&
             paymentDetails.accountNumber.trim() !== "";
@@ -311,40 +306,40 @@ const CreateInvoicePage = () => {
             items: ''
         };
 
-        // Bill From validation
         if (billFrom.fullName.trim() === "") {
-            errors.billFrom = "Full name is required";
+            errors.billFrom = "Sender's Full name is required";
         } else if (billFrom.email.trim() === "") {
-            errors.billFrom = "Email is required";
-        } else if (!ApiClient.isValidPhone(billFrom.phoneNumber.trim())) {
-            errors.billFrom = "Phone number must be in +234********** format";
-        } else if (billFrom.businessName.trim() === "") {
-            errors.billFrom = "Business name is required";
+            errors.billFrom = "Sender's Email is required";
+        } else if (!ApiClient.isValidEmail(billFrom.email)) {
+            errors.billFrom = "Invalid Sender's email provided"
         }
-
-        // Bill To validation
+        else if (!ApiClient.isValidPhone(billFrom.phoneNumber.trim())) {
+            errors.billFrom = "Invalid Sender's Phone number must be in +234********** format";
+        } else if (billFrom.businessName.trim() === "") {
+            errors.billFrom = "Sender's Business name is required";
+        }
         if (billTo.customer.trim() === "") {
             errors.billTo = "Please select a customer";
-        } else if (billTo.title.trim() === "") {
-            errors.billTo = "Invoice name is required";
         } else if (billTo.invoiceDate.trim() === "") {
             errors.billTo = "Invoice date is required";
         } else if (billTo.dueDate.trim() === "") {
             errors.billTo = "Due date is required";
         }
+        else if (new Date(billTo.dueDate) < new Date(billTo.invoiceDate)) {
+            console.log(new Date(billTo.dueDate) < new Date(billTo.invoiceDate), " s")
+            errors.billTo = "Due date must be on or after invoice date"
+        }
 
-        // Items validation
         if (items.length === 0) {
             errors.items = "Add at least one item to the invoice";
         }
 
-        // Payment details validation
         if (paymentDetails.bankAccount.trim() === "") {
             errors.payment = "Bank account is required";
         } else if (paymentDetails.accountName.trim() === "") {
             errors.payment = "Account name is required";
-        } else if (paymentDetails.accountNumber.trim() === "") {
-            errors.payment = "Account number is required";
+        } else if (!/^\d+$/.test(paymentDetails.accountNumber)) {
+            errors.payment = "Invalid Account Number provided";
         }
 
         return errors;
@@ -352,7 +347,6 @@ const CreateInvoicePage = () => {
 
     const getFirstValidationError = (): string | null => {
         const errors = validateFormAndGetErrors();
-
         const keys: (keyof typeof errors)[] = ['billFrom', 'billTo', 'payment', 'items'];
 
         for (const key of keys) {
@@ -364,9 +358,7 @@ const CreateInvoicePage = () => {
         return null;
     };
 
-    // Get specific validation message for tooltip
     const getSpecificValidationMessage = (): string | null => {
-        // Check billFrom required fields
         if (billFrom.fullName.trim() === "") {
             return "Sender's full name is required";
         }
@@ -380,7 +372,6 @@ const CreateInvoicePage = () => {
             return "Business name is required";
         }
 
-        // Check billTo required fields
         if (billTo.customer.trim() === "") {
             return "Customer selection is required";
         }
@@ -394,12 +385,10 @@ const CreateInvoicePage = () => {
             return "Due date is required";
         }
 
-        // Check items
         if (items.length === 0) {
             return "At least one item is required";
         }
 
-        // Check payment details
         if (paymentDetails.bankAccount.trim() === "") {
             return "Bank account is required";
         }
@@ -412,7 +401,7 @@ const CreateInvoicePage = () => {
 
         return null;
     };
-    // Submit invoice to backend (Save as Draft - without sending)
+
     const handleSaveDraft = async () => {
         setFormValidationError(null);
         if (!isFormValid()) {
@@ -422,7 +411,6 @@ const CreateInvoicePage = () => {
         // TODO: Implement save as draft functionality
     };
 
-    // Canvas drawing functions
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -487,26 +475,26 @@ const CreateInvoicePage = () => {
     };
 
     const handlePreviewInvoice = () => {
-        setFormValidationError(null);
-
-        // Check if user can create invoice
         if (!canCreateInvoice) {
             showBlockedNotif();
             return;
         }
-
-        if (!isFormValid()) {
-            setFormValidationError(getFirstValidationError());
+        const currentError = getFirstValidationError();
+        
+        if (currentError) {
+            setFormValidationError(currentError);
+            showError(currentError);
             return;
         }
+
+        setFormValidationError(null);
         setShowPreview(true);
     };
-
-    // Transform form data to InvoiceResponse structure for preview
+        // Transform form data to InvoiceResponse structure for preview
     const getPreviewData = () => {
         // Find the selected client to get their email
         const selectedClient = clients.find(client => client.id === selectedClientId);
-        
+
         return {
             id: "preview",
             title: billTo.title || "Invoice",
@@ -547,6 +535,7 @@ const CreateInvoicePage = () => {
                 id: item.id,
                 itemName: item.itemName,
                 quantity: item.quantity,
+               
                 rate: item.rate,
                 amount: item.amount,
                 description: ""
@@ -556,24 +545,27 @@ const CreateInvoicePage = () => {
     };
 
     const handleBackToEdit = () => {
+        setFormValidationError(null);
+        hideToast()
         setShowPreview(false);
     };
 
     // Send invoice to backend (called from preview page)
     const handleSendInvoice = async (): Promise<{ success: boolean; error?: string }> => {
-        setFormValidationError(null);
 
-        // Check if user can create invoice
+        const error = getFirstValidationError();
         if (!canCreateInvoice) {
             showBlockedNotif();
             return { success: false, error: "Invoice limit reached" };
         }
-
-        if (!isFormValid()) {
-            setFormValidationError(getFirstValidationError());
-            return { success: false, error: getFirstValidationError() as string};
+        if (error) {
+            setFormValidationError(error);
+            showError(error);
+            return { success: false, error: getFirstValidationError() as string };
         }
-
+        setFormValidationError(null);
+        setShowPreview(true);
+      
         try {
             setIsSendingInvoice(true);
 
@@ -665,7 +657,7 @@ const CreateInvoicePage = () => {
                     logo,
                     billFrom,
                     billTo,
-                    items: items.map(item => ({ ...item, tax: 0 })), // Add tax property for InvoicePreview compatibility
+                    items: items.map(item => ({ ...item, tax: 0 })),
                     customerNote,
                     termsAndConditions,
                     signature,
@@ -684,7 +676,6 @@ const CreateInvoicePage = () => {
                     // Handle email invoice
                 }}
                 onSendInvoice={handleSendInvoice}
-                isValidToSend={getFirstValidationError()===null}
                 validationMessage={getSpecificValidationMessage()}
             />
         );
@@ -692,6 +683,12 @@ const CreateInvoicePage = () => {
 
     return (
         <>
+            <Toast
+                isVisible={toast.isVisible}
+                message={toast.message}
+                type={toast.type}
+                onClose={hideToast}
+            />
             <div className="mt-[6px] mx-4 ">   {/* Header */}
                 <div className="mb-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -757,9 +754,9 @@ const CreateInvoicePage = () => {
                                                     // Show image preview when logo is selected
                                                     <div className="flex flex-col items-center">
                                                         <div className="w-18 h-12 rounded-lg overflow-hidden mb-2">
-                                                            <img 
-                                                                src={logo} 
-                                                                alt="Business Logo" 
+                                                            <img
+                                                                src={logo}
+                                                                alt="Business Logo"
                                                                 className="w-full h-full object-cover"
                                                             />
                                                         </div>
@@ -874,7 +871,7 @@ const CreateInvoicePage = () => {
                                             <div className="relative">
                                                 <div
                                                     onClick={handleClientDropdownClick}
-                                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#98A2B3] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2F80ED] flex justify-between items-center"
+                                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#344054] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2F80ED] flex justify-between items-center"
                                                 >
                                                     <span>{billTo.customer || 'Select from added client'}</span>
                                                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1193,7 +1190,7 @@ const CreateInvoicePage = () => {
                                     </button>
                                 </div>
                                 <button
-                                    onClick={() => setShowPreview(true)}
+                                    onClick={handlePreviewInvoice}
                                     className="flex items-center gap-2 px-8 py-3 rounded-lg text-[14px] font-medium transition-colors bg-[#2F80ED] text-white hover:bg-[#2563EB] cursor-pointer"
                                 >
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1418,96 +1415,6 @@ const CreateInvoicePage = () => {
                         {/* Right Column - Summary */}
                         <div className="bg-white rounded-lg w-[320px] self-start">
                             <div className="space-y-6">
-                                {/* Language & Currency */}
-                                {/* <div className=" rounded-lg   p-4">
-                                    <h3 className="font-medium text-[16px] mb-2">Language</h3>
-                                    <div className="relative mb-4">
-                                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center">
-                                            <div className="w-6 h-6 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center">
-                                                <svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M0 9.37797C0 13.6777 2.71375 17.343 6.52176 18.756V0C2.71375 1.41289 0 5.07836 0 9.37797Z" fill="#6DA544" />
-                                                    <path d="M20.0003 9.37797C20.0003 5.07836 17.2865 1.41289 13.4785 0V18.7561C17.2865 17.343 20.0003 13.6777 20.0003 9.37797Z" fill="#6DA544" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                        <select className="w-full pl-12 pr-3 py-2 border border-[#D0D5DD] rounded-lg appearance-none">
-                                            <option>English</option>
-                                            <option>Hausa</option>
-                                            <option>Igbo</option>
-                                            <option>Yoruba</option>
-                                        </select>
-                                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <h3 className="font-medium text-[16px] mb-2">Currency <span className="text-red-500">*</span></h3>
-                                    <select
-                                        value={currency}
-                                        onChange={(e) => setCurrency(e.target.value)}
-                                        className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg"
-                                    >
-                                        <option value="NGN">NGN</option>
-                                    </select>
-                                </div> */}
-
-                                {/* Color Selection */}
-                                {/* <div className="bg-white rounded-lg px-4">
-                                    <h3 className="font-medium text-[16px] mb-2">Select Color</h3>
-                                    <ColorPicker
-                                        initialColor={color}
-                                        onColorChange={(newColor) => setColor(newColor)}
-                                    />
-                                </div> */}
-
-                                {/* Template Selection */}
-                                {/* <TemplateSelector
-                                    selectedTemplate={template}
-                                    onTemplateChange={setTemplate}
-                                /> */}
-
-                                {/* Summary */}
-                                {/* <div className="bg-white rounded-lg  px-4">
-                                    <div className="space-y-3">
-                                        <div className="flex justify-between">
-                                            <h3 className=" text-[16px] font-medium">Subtotal</h3>
-                                            <span className=" text-[18px] font-semibold">₦{calculateSubtotal().toFixed(2)}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[#667085] text-[18px]">Tax</span>
-                                                <div className="relative inline-flex items-center">
-                                                    <select
-                                                        value={invoiceTaxRate}
-                                                        onChange={(e) => setInvoiceTaxRate(parseFloat(e.target.value))}
-                                                        className="appearance-none bg-transparent text-[14px] text-[#667085] pr-6 focus:outline-none cursor-pointer"
-                                                    >
-                                                        <option value="0">0%</option>
-                                                        <option value="5">5%</option>
-                                                        <option value="7.5">7.5%</option>
-                                                        <option value="10">10%</option>
-                                                        <option value="15">15%</option>
-                                                        <option value="20">20%</option>
-                                                    </select>
-                                                    <svg className="absolute right-0 pointer-events-none" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                            <span className=" text-[18px] font-semibold">₦{calculateTax().toFixed(2)}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-[#667085] text-[18px]">WHT (5%)</span>
-                                            <span className=" text-[18px] font-semibold">₦0.00</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-[18px] text-[#667085]">Total Due</span>
-                                            <span className=" text-[18px] font-semibold">₦{calculateTotal().toFixed(2)}</span>
-                                        </div>
-                                    </div>
-                                </div> */}
-
                                 {/* Payment Details */}
                                 <div className="p-4">
                                     <h3 className="font-medium mb-2 text-[16px]">Payment Details</h3>

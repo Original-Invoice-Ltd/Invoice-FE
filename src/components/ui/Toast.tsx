@@ -18,6 +18,12 @@ interface ToastProps {
 
 export default function Toast({ message, type, isVisible, onClose, duration = 5000 }: ToastProps) {
   const [isAnimating, setIsAnimating] = useState(false);
+  const handleClose = () => {
+      setIsAnimating(false);
+      setTimeout(() => {
+        onClose();
+      }, 300); // Wait for animation to complete
+    };
 
   useEffect(() => {
     if (isVisible) {
@@ -28,15 +34,9 @@ export default function Toast({ message, type, isVisible, onClose, duration = 50
 
       return () => clearTimeout(timer);
     }
-  }, [isVisible, duration]);
+  }, [isVisible, duration, handleClose]);
 
-  const handleClose = () => {
-    setIsAnimating(false);
-    setTimeout(() => {
-      onClose();
-    }, 300); // Wait for animation to complete
-  };
-
+ 
   if (!isVisible) return null;
 
   return (
