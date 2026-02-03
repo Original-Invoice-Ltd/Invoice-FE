@@ -149,10 +149,32 @@ const ClientsPage = () => {
 
     const handleSaveClient = async () => {
         setClientFormError(null);
-        
-        if (!formData.customerType || !formData.title || !formData.fullName || 
-            !formData.businessName || !formData.email || !formData.phone) {
-            setClientFormError('Please fill in all required fields');
+        if (!formData.customerType) { 
+             setClientFormError('Client Type is required.');
+            return;
+        }
+        if (!formData.title) { 
+             setClientFormError('Client Title is required.');
+            return;
+        }
+         if (!formData.fullName) { 
+             setClientFormError('Client full name is required.');
+            return;
+        }
+        if (!formData.businessName) {
+            setClientFormError('Client business name is required');
+            return;
+        }
+        if (!ApiClient.isValidEmail(formData.email)) { 
+            setClientFormError('Invalid Client email provided. eg. name@gmail.com');
+            return;
+        }
+        if (!ApiClient.isValidPhone(formData.phone)) {
+            setClientFormError('Phone number must be in international format. Example: +234***********');
+            return;
+        }
+         if (!formData.country) {
+            setClientFormError('Client country is required');
             return;
         }
 
@@ -166,13 +188,12 @@ const ClientsPage = () => {
                 response = await ApiClient.addClient(formData);
             }
 
-            // Check for appropriate status codes: 201 for create, 200 for update
             const expectedStatus = isEditMode ? 200 : 201;
             if (response.status === expectedStatus) {
                 setShowAddModal(false);
                 setShowSuccessModal(true);
                 resetForm();
-                await loadClients(true); // Force refresh to get latest data
+                await loadClients(true); 
             } else {
                 setClientFormError(response.error || `Failed to ${isEditMode ? 'update' : 'add'} client`);
             }
@@ -184,7 +205,6 @@ const ClientsPage = () => {
         }
     };
 
-    // Handle create invoice button click with limit checking
     const handleCreateInvoice = () => {
         if (!canCreateInvoice) {
             showBlockedNotification();
@@ -576,7 +596,7 @@ const ClientsPage = () => {
 
                 {/* Success Modal */}
                 {showSuccessModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
+                    <div className="fixed inset-0 bg-black/50 bg-opacity-30 flex items-center justify-center z-50 p-4">
                         <div className="bg-white rounded-lg w-full max-w-md p-6">
                             <div className="flex justify-end mb-4">
                                 <button onClick={() => setShowSuccessModal(false)} className="text-[#667085]">
