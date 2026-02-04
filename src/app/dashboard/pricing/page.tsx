@@ -23,10 +23,10 @@ const DashboardPricingPage = () => {
   const [loadingSubscription, setLoadingSubscription] = useState(true);
   const { toast, showSuccess, showError, hideToast } = useToast();
 
-  // Load current subscription on mount
   useEffect(() => {
     const loadSubscription = async () => {
       try {
+        setLoadingSubscription(true);
         const subscription = await getCurrentSubscription();
         setCurrentSubscription(subscription);
       } catch (error) {
@@ -35,8 +35,18 @@ const DashboardPricingPage = () => {
         setLoadingSubscription(false);
       }
     };
-
     loadSubscription();
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadSubscription();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   // Handle subscription for paid plans
