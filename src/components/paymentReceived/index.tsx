@@ -36,7 +36,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
         if (response.status === 200 && response.data) {
           // Filter only PAID invoices and transform to Payment format
           const paidInvoices = response.data
-            .filter((invoice: any) => invoice.status === 'PAID')
+            .filter((invoice: any) => invoice.status === 'PAID' || invoice.status === 'PENDING')
             .map((invoice: any) => ({
               id: invoice.id,
               date: new Date(invoice.creationDate).toLocaleDateString('en-US', { 

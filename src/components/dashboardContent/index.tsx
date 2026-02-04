@@ -198,7 +198,7 @@ const DashboardContent = () => {
                         </div>
                     ) : (
                         <div className="flex items-end justify-between">
-                            <h3 className="text-2xl lg:text-3xl font-semibold text-[#101828]">
+                            <h3 className="text-xl lg:text-2xl font-semibold text-[#101828]">
                                 {data.stats ? formatCurrency(data.stats.totalInvoicesSent.amount) : '₦0'}
                             </h3>
                             {data.stats?.totalInvoicesSent.percentageChange && (
@@ -221,7 +221,7 @@ const DashboardContent = () => {
                         </div>
                     ) : (
                         <div className="flex items-end justify-between">
-                            <h3 className="text-2xl lg:text-3xl font-semibold text-[#101828]">
+                            <h3 className="text-xl lg:text-2xl font-semibold text-[#101828]">
                                 {data.stats ? formatCurrency(data.stats.paidInvoices.amount) : '₦0'}
                             </h3>
                             {data.stats?.paidInvoices.percentageChange && (
@@ -244,7 +244,7 @@ const DashboardContent = () => {
                         </div>
                     ) : (
                         <div className="flex items-end justify-between">
-                            <h3 className="text-2xl lg:text-3xl font-semibold text-[#101828]">
+                            <h3 className="text-xl lg:text-2xl font-semibold text-[#101828]">
                                 {data.stats ? formatCurrency(data.stats.pendingInvoices.amount) : '₦0'}
                             </h3>
                             {data.stats?.pendingInvoices.percentageChange && (
@@ -267,7 +267,7 @@ const DashboardContent = () => {
                         </div>
                     ) : (
                         <div className="flex items-end justify-between">
-                            <h3 className="text-2xl lg:text-3xl font-semibold text-[#101828]">
+                            <h3 className="text-xl lg:text-2xl font-semibold text-[#101828]">
                                 {data.stats ? formatCurrency(data.stats.overdueInvoices.amount) : '₦0'}
                             </h3>
                             {data.stats?.overdueInvoices.percentageChange && (
