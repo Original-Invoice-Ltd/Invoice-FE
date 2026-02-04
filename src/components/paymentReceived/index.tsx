@@ -28,14 +28,14 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
   const totalPages = 99;
 
   useEffect(() => {
-    const loadPaidInvoices = async () => {
+    const loadPayments = async () => {
       try {
         setIsLoading(true);
         const response = await ApiClient.getAllUserInvoices(user?.id);
         
         if (response.status === 200 && response.data) {
-          // Filter only PAID invoices and transform to Payment format
-          const paidInvoices = response.data
+          // Filter only PAID and PENDING invoices and transform to Payment format
+          const paidAndPendingInvoices = response.data
             .filter((invoice: any) => invoice.status === 'PAID' || invoice.status === 'PENDING')
             .map((invoice: any) => ({
               id: invoice.id,
@@ -46,18 +46,18 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
               }),
               clientName: invoice.billTo?.fullName || invoice.billTo?.businessName || 'Unknown Client',
               invoiceId: invoice.invoiceNumber || `INV-${invoice.id}`,
-              status: 'Paid' as const,
+              status: invoice.status === 'PAID' ? 'Paid' as const : 'Pending' as const,
               dueDate: new Date(invoice.dueDate).toLocaleDateString('en-US', { 
                 year: 'numeric', 
                 month: 'short', 
                 day: '2-digit' 
               }),
               amount: invoice.totalDue || 0,
-              balanceDue: 0, // Paid invoices have 0 balance due
+              balanceDue: invoice.status === 'PAID' ? 0 : (invoice.totalDue || 0),
             }));
           
-          setPayments(paidInvoices);
-          setHasPayments(paidInvoices.length > 0);
+          setPayments(paidAndPendingInvoices);
+          setHasPayments(paidAndPendingInvoices.length > 0);
         } else {
           setHasPayments(false);
         }
@@ -69,7 +69,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
       }
     };
 
-    loadPaidInvoices();
+    loadPayments();
   }, [user?.id]);
 
   const handleMarkPaid = (payment: Payment) => {
