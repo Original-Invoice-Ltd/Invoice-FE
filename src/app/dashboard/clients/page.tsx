@@ -462,7 +462,7 @@ const ClientsPage = () => {
 
 
                         {/* Table */}
-                        <div className="overflow-x-auto">
+                        <div className="overflow-visible">
                             <table className="w-full">
                                 <thead className="bg-[#F9FAFB] border-y border-[#E4E7EC]">
                                     <tr>
@@ -497,7 +497,7 @@ const ClientsPage = () => {
                                                     </button>
                                                     {showActionMenu === client.id && (
                                                         <div 
-                                                            className="absolute right-0 mt-1 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-10"
+                                                            className="absolute right-0 mt-1 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-80"
                                                             style={{ width: '120px' }}
                                                         >
                                                             <button

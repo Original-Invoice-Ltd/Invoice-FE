@@ -107,7 +107,11 @@ const InvoiceViewPage = () => {
                         <Send size={16} />
                         Send Invoice
                     </button>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors">
+                    <button
+                        onClick={() => {
+                            
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors">
                         <Download size={16} />
                         Mark as Paid
                     </button>
