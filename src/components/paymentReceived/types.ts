@@ -3,7 +3,7 @@ export interface Payment {
   date: string;
   clientName: string;
   invoiceId: string;
-  status: 'Paid' | 'Unpaid' | 'Overdue';
+  status: 'Paid' | 'Unpaid' | 'Overdue' | 'Pending';
   dueDate: string;
   amount: number;
   balanceDue: number;

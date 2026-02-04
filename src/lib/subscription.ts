@@ -78,6 +78,7 @@ export const getCurrentSubscription = async (): Promise<CurrentSubscription | nu
   try {
     const response = await ApiClient.getCurrentSubscription();
     if (response.status === 200) {
+      console.log("subscription: ", response)
       return response.data;
     }
     return null;
