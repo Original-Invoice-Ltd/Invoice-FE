@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Check, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { initializeTransactionWithPlan, getCurrentSubscription } from "@/lib/subscription";
+import Toast from '@/components/ui/Toast';
+import { useToast } from '@/hooks/useToast';
 
 export interface CurrentSubscription {
   plan: string;
@@ -19,11 +21,12 @@ const DashboardPricingPage = () => {
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [currentSubscription, setCurrentSubscription] = useState<CurrentSubscription | null>(null);
   const [loadingSubscription, setLoadingSubscription] = useState(true);
+  const { toast, showSuccess, showError, hideToast } = useToast();
 
-  // Load current subscription on mount
   useEffect(() => {
     const loadSubscription = async () => {
       try {
+        setLoadingSubscription(true);
         const subscription = await getCurrentSubscription();
         setCurrentSubscription(subscription);
       } catch (error) {
@@ -32,8 +35,18 @@ const DashboardPricingPage = () => {
         setLoadingSubscription(false);
       }
     };
-
     loadSubscription();
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadSubscription();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   // Handle subscription for paid plans
@@ -46,12 +59,12 @@ const DashboardPricingPage = () => {
         ["card", "bank_transfer"],
         `${window.location.origin}/dashboard/subscription/success`
       );
-
+      console.log("Payment result : ", result)
       if (result.success && result.authorizationUrl) {
         window.location.href = result.authorizationUrl;
       } else {
         console.error("Failed to initialize subscription:", result.message);
-        alert("Failed to start subscription process. Please try again.");
+        showError("Failed to start subscription process. Please try again.");
       }
     } catch (error: any) {
       console.error("Error starting subscription:", error);
@@ -60,7 +73,7 @@ const DashboardPricingPage = () => {
         const returnUrl = encodeURIComponent(`/dashboard/pricing?plan=${plan}`);
         router.push(`/signIn?returnUrl=${returnUrl}`);
       } else {
-        alert("An error occurred. Please try again.");
+        showError("An error occurred. Please try again.");
       }
     } finally {
       setIsLoading(null);
@@ -94,6 +107,12 @@ const DashboardPricingPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] p-6">
+       <Toast
+                isVisible={toast.isVisible}
+                message={toast.message}
+                type={toast.type}
+                onClose={hideToast}
+              />
       {/* Header */}
       <div className="mb-8 flex items-center gap-4">
         <Link href="/dashboard/overview" className="p-2 text-[#2F80ED] hover:bg-[#EFF8FF] rounded-lg transition-colors">
@@ -217,7 +236,7 @@ const DashboardPricingPage = () => {
             </ul>
 
             <button
-              onClick={() => isCurrentPlan("ESSENTIALS") ? () => { } :handleSubscribe("ESSENTIALS")}
+              onClick={() => handleSubscribe("ESSENTIALS")}
               disabled={isCurrentPlan("ESSENTIALS") || isLoading === "ESSENTIALS"}
               className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
                 isCurrentPlan("ESSENTIALS")

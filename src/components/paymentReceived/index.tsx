@@ -9,6 +9,8 @@ import Modals from "./Modals";
 import { Payment, ModalType } from "./types";
 import { ApiClient } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/useToast";
+import Toast from "../ui/Toast";
 
 interface PaymentReceivedProps {
   onCreateInvoice: () => void;
@@ -24,40 +26,40 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [modalType, setModalType] = useState<ModalType>(null);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
-
+  const { showError, hideToast, toast } = useToast()
   const totalPages = 99;
 
   useEffect(() => {
-    const loadPaidInvoices = async () => {
+    const loadPayments = async () => {
       try {
         setIsLoading(true);
         const response = await ApiClient.getAllUserInvoices(user?.id);
-        
+
         if (response.status === 200 && response.data) {
-          // Filter only PAID invoices and transform to Payment format
-          const paidInvoices = response.data
-            .filter((invoice: any) => invoice.status === 'PAID')
+          // Filter only PAID and PENDING invoices and transform to Payment format
+          const paidAndPendingInvoices = response.data
+            .filter((invoice: any) => invoice.status === 'PAID' || invoice.status === 'PENDING')
             .map((invoice: any) => ({
               id: invoice.id,
-              date: new Date(invoice.creationDate).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: '2-digit' 
+              date: new Date(invoice.creationDate).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit'
               }),
               clientName: invoice.billTo?.fullName || invoice.billTo?.businessName || 'Unknown Client',
               invoiceId: invoice.invoiceNumber || `INV-${invoice.id}`,
-              status: 'Paid' as const,
-              dueDate: new Date(invoice.dueDate).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: '2-digit' 
+              status: invoice.status === 'PAID' ? 'Paid' as const : 'Pending' as const,
+              dueDate: new Date(invoice.dueDate).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit'
               }),
               amount: invoice.totalDue || 0,
-              balanceDue: 0, // Paid invoices have 0 balance due
+              balanceDue: invoice.status === 'PAID' ? 0 : (invoice.totalDue || 0),
             }));
-          
-          setPayments(paidInvoices);
-          setHasPayments(paidInvoices.length > 0);
+
+          setPayments(paidAndPendingInvoices);
+          setHasPayments(paidAndPendingInvoices.length > 0);
         } else {
           setHasPayments(false);
         }
@@ -69,7 +71,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
       }
     };
 
-    loadPaidInvoices();
+    loadPayments();
   }, [user?.id]);
 
   const handleMarkPaid = (payment: Payment) => {
@@ -82,21 +84,32 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
     setModalType('revertStatus');
   };
 
-  const handleConfirmMarkPaid = () => {
+  const handleConfirmMarkPaid = async () => {
     if (selectedPayment) {
-      setPayments(payments.map(p => 
-        p.id === selectedPayment.id 
-          ? { ...p, status: 'Paid' as const, balanceDue: 0 }
-          : p
-      ));
+      try {
+        const response = await ApiClient.markInvoiceAsPaid(selectedPayment.id, "Bank Transfer");
+
+        if (response.status === 200) {
+          setPayments(payments.map(p =>
+            p.id === selectedPayment.id
+              ? { ...p, status: 'Paid' as const, balanceDue: 0 }
+              : p
+          ));
+          setModalType('paymentSuccess');
+        } else {
+          showError('Failed to mark invoice as paid');
+        }
+      } catch (error) {
+        showError('Failed to mark invoice as paid');
+        console.log("Error marking invoice as paid: ", error)
+      }
     }
-    setModalType('paymentSuccess');
   };
 
   const handleConfirmRevert = () => {
     if (selectedPayment) {
-      setPayments(payments.map(p => 
-        p.id === selectedPayment.id 
+      setPayments(payments.map(p =>
+        p.id === selectedPayment.id
           ? { ...p, status: 'Unpaid' as const, balanceDue: p.amount }
           : p
       ));
@@ -129,6 +142,12 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
   return (
     <div className="max-w-7xl mx-auto mb-[200px] p-6">
       {/* Header Section */}
+      <Toast
+        isVisible={toast.isVisible}
+        message={toast.message}
+        type={toast.type}
+        onClose={hideToast}
+      />
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
@@ -173,7 +192,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
               onSortChange={setSortBy}
             />
           </div>
-          
+
           <PaymentTable
             payments={payments}
             onMarkPaid={handleMarkPaid}
@@ -182,7 +201,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
             onGetLink={handleGetLink}
             onDelete={handleDelete}
           />
-          
+
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
