@@ -12,24 +12,25 @@ import { ApiClient } from '@/lib/api';
 import { subscribeToPusherChannel, disconnectPusher } from '@/lib/pusher';
 import Toast from '@/components/ui/Toast';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from 'react-i18next';
 
 interface DashboardHeaderProps {
     onMenuClick?: () => void;
     onNotificationsChange?: (isOpen: boolean) => void;
 }
 
-// Move language maps outside component to prevent recreation on every render
 const languages = [
-    { code: "EN", name: "English (Default)" },
-    { code: "HA", name: "Hausa" },
-    { code: "IG", name: "Igbo" },
-    { code: "YO", name: "Yorùbá" },
+    { code: "EN", nameKey: "english_default" },
+    { code: "HA", nameKey: "hausa" },
+    { code: "IG", nameKey: "igbo" },
+    { code: "YO", nameKey: "yoruba" },
 ];
 
 const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeaderProps) => {
     const { user, loading: userLoading } = useAuth();
     const { selectedLanguage, updateLanguage } = useLanguage();
     const router = useRouter();
+    const { t } = useTranslation();
     const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
@@ -137,7 +138,7 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
                     </div>
                     <input
                         type="text"
-                        placeholder="Search"
+                        placeholder={t('search')}
                         className="w-full h-full border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                         style={{ paddingLeft: '44px', paddingRight: '80px', paddingTop: '8px', paddingBottom: '8px' }}
                     />
@@ -189,7 +190,7 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
                                             }`}
                                         >
                                             <div className="font-medium text-[#101828]">
-                                                {lang.code} {lang.name.includes('Default') ? 'English (Default)' : lang.name}
+                                                {lang.code} {t(lang.nameKey)}
                                             </div>
                                         </button>
                                     ))}
@@ -260,14 +261,14 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
                                         className="w-full px-4 py-2.5 text-left text-xs hover:bg-[#F9FAFB] transition-colors flex items-center gap-3"
                                     >
                                         <Settings size={16} className="text-[#667085]" />
-                                        <span className="font-medium text-[#101828]">Account Settings</span>
+                                        <span className="font-medium text-[#101828]">{t('account_settings')}</span>
                                     </button>
                                     <button
                                         onClick={handleLogout}
                                         className="w-full px-4 py-2.5 text-left text-xs hover:bg-[#F9FAFB] transition-colors flex items-center gap-3 text-red-600"
                                     >
                                         <LogOut size={16} className="text-red-600" />
-                                        <span className="font-medium">Logout</span>
+                                        <span className="font-medium">{t('logout')}</span>
                                     </button>
                                 </div>
                             </div>
@@ -289,7 +290,7 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
                     className="hidden lg:flex text-[#2F80ED] text-sm font-medium hover:bg-[#EBF5FF] transition-colors flex-shrink-0 border border-[#2F80ED] rounded-lg items-center justify-center" 
                     style={{ width: '131px', height: '46px', marginLeft: '20px' }}
                 >
-                    Upgrade Now
+                    {t('upgrade_now')}
                 </button>
             </div>
 

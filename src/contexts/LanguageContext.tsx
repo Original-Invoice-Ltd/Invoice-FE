@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo, useRef } from 'react';
 import { ApiClient } from '@/lib/api';
 import { useAuth } from './AuthContext';
+import i18n from '@/lib/i18ns';
 
 interface LanguageContextType {
   selectedLanguage: string;
@@ -50,7 +51,10 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
         if (response.status === 200 && response.data) {
           const responseData = response.data as { data: string };
           const apiLang = responseData.data;
-          setSelectedLanguageState(apiToUiLanguageMap[apiLang] ?? 'EN');
+          const uiLang = apiToUiLanguageMap[apiLang] ?? 'EN';
+          setSelectedLanguageState(uiLang);
+          // Sync with i18n
+          i18n.changeLanguage(uiLang.toLowerCase());
         }
       } catch (error) {
         console.error("Unable to fetch user language preference", error);
@@ -73,6 +77,8 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       if (response.data?.isSuccessful || response.status === 200) {
         const normalizedLanguage = language.toUpperCase().substring(0, 2);
         setSelectedLanguageState(normalizedLanguage);
+        // Sync with i18n
+        i18n.changeLanguage(normalizedLanguage.toLowerCase());
         return true;
       }
       return false;
@@ -84,7 +90,10 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   }, [user]);
 
   const setSelectedLanguage = useCallback((language: string) => {
-    setSelectedLanguageState(language.toUpperCase().substring(0, 2));
+    const normalizedLanguage = language.toUpperCase().substring(0, 2);
+    setSelectedLanguageState(normalizedLanguage);
+    // Sync with i18n
+    i18n.changeLanguage(normalizedLanguage.toLowerCase());
   }, []);
 
   const value = useMemo(() => ({

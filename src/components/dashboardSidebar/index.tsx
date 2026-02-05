@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Settings, LogOut } from "lucide-react";
 import siderLogo from './../../../public/assets/header logo.svg';
 import { AuthService } from '@/lib/auth';
+import { useTranslation } from 'react-i18next';
 
 interface DashboardSideBarProps {
     isOpen?: boolean;
@@ -15,10 +16,11 @@ interface DashboardSideBarProps {
 
 const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }: DashboardSideBarProps) => {
     const pathname = usePathname();
+    const { t } = useTranslation();
     
     const menuItems = [
         { 
-            label: "Dashboard", 
+            label: t('dashboard'),
             href: "/dashboard/overview",
             icon: (isActive: boolean) => (
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -27,7 +29,7 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
             )
         },
         { 
-            label: "Clients Management", 
+            label: t('clients_management'),
             href: "/dashboard/clients",
             icon: (isActive: boolean) => (
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -38,7 +40,7 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
             )
         },
         { 
-            label: "Invoices", 
+            label: t('invoices'),
             href: "/dashboard/invoices",
             icon: (isActive: boolean) => (
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -47,7 +49,7 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
             )
         },
         { 
-            label: "Products", 
+            label: t('products'),
             href: "/dashboard/products",
             icon: (isActive: boolean) => (
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -59,7 +61,7 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
             )
         },
         { 
-            label: "Payment Received", 
+            label: t('payment_received'),
             href: "/dashboard/payment",
             icon: (isActive: boolean) => (
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -68,7 +70,7 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
             )
         },
         { 
-            label: "Reports", 
+            label: t('reports'),
             href: "/dashboard/reports",
             icon: (isActive: boolean) => (
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -89,8 +91,8 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
     };
 
     const bottomItems = [
-        { icon: Settings, label: "Account Settings", href: "/dashboard/settings/account", isLogout: false },
-        { icon: LogOut, label: "Logout", href: "#", isLogout: true },
+        { icon: Settings, label: t('account_settings'), href: "/dashboard/settings/account", isLogout: false },
+        { icon: LogOut, label: t('logout'), href: "#", isLogout: true },
     ];
 
     const handleLogout = async () => {
