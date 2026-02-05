@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo, useRef } from 'react';
 import { ApiClient } from '@/lib/api';
 import { useAuth } from './AuthContext';
 
@@ -35,10 +35,15 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
   const [selectedLanguage, setSelectedLanguageState] = useState("EN");
   const [isLoading, setIsLoading] = useState(false);
+  const hasFetchedLanguage = useRef(false);
+  const lastFetchedUserId = useRef<string | null>(null);
 
   useEffect(() => {
     const fetchLanguagePreference = async () => {
-      if (!user?.id) return;
+      if (!user?.id || lastFetchedUserId.current === user.id) return;
+      
+      lastFetchedUserId.current = user.id;
+      hasFetchedLanguage.current = true;
       
       try {
         const response = await ApiClient.getLanguage();
@@ -48,14 +53,14 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
           setSelectedLanguageState(apiToUiLanguageMap[apiLang] ?? 'EN');
         }
       } catch (error) {
-        console.error('Error fetching language preference:', error);
+        console.error("Unable to fetch user language preference", error);
       }
     };
 
     fetchLanguagePreference();
   }, [user?.id]);
 
-  const updateLanguage = async (language: string): Promise<boolean> => {
+  const updateLanguage = useCallback(async (language: string): Promise<boolean> => {
     if (!user) {
       return false;
     }
@@ -66,24 +71,31 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       const response = await ApiClient.updateLanguage(apiLanguage);
       
       if (response.data?.isSuccessful || response.status === 200) {
-        setSelectedLanguageState(language.toUpperCase().substring(0, 2));
+        const normalizedLanguage = language.toUpperCase().substring(0, 2);
+        setSelectedLanguageState(normalizedLanguage);
         return true;
       }
       return false;
     } catch (error) {
-      console.error('Error updating language:', error);
       return false;
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user]);
 
-  const setSelectedLanguage = (language: string) => {
+  const setSelectedLanguage = useCallback((language: string) => {
     setSelectedLanguageState(language.toUpperCase().substring(0, 2));
-  };
+  }, []);
+
+  const value = useMemo(() => ({
+    selectedLanguage,
+    setSelectedLanguage,
+    updateLanguage,
+    isLoading
+  }), [selectedLanguage, setSelectedLanguage, updateLanguage, isLoading]);
 
   return (
-    <LanguageContext.Provider value={{ selectedLanguage, setSelectedLanguage, updateLanguage, isLoading }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );

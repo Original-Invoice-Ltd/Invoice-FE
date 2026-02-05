@@ -46,6 +46,8 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
 
     useEffect(() => {
         const fetchUnreadCount = async () => {
+            if (!user?.id) return;
+            
             try {
                 const response = await ApiClient.getUnreadCount();
                 if (response.status === 200) {

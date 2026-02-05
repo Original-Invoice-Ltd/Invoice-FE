@@ -48,7 +48,7 @@ const LanguagePage = () => {
     const success = await updateLanguage(localLanguage);
     
     if (success) {
-      showSuccess("Language updated successfully!");
+      showSuccess("Language settings updated");
     } else {
       showError("Failed to update language preference. Please try again.");
     }
