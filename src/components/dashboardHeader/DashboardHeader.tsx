@@ -5,33 +5,38 @@ import { Menu, Bell, ChevronDown, LogOut, Settings } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { AuthService } from '@/lib/auth';
 import NotificationsPanel from '@/components/notifications/NotificationsPanel';
 import { ApiClient } from '@/lib/api';
 import { subscribeToPusherChannel, disconnectPusher } from '@/lib/pusher';
+import Toast from '@/components/ui/Toast';
+import { useToast } from '@/hooks/useToast';
 
 interface DashboardHeaderProps {
     onMenuClick?: () => void;
     onNotificationsChange?: (isOpen: boolean) => void;
 }
 
+// Move language maps outside component to prevent recreation on every render
+const languages = [
+    { code: "EN", name: "English (Default)" },
+    { code: "HA", name: "Hausa" },
+    { code: "IG", name: "Igbo" },
+    { code: "YO", name: "Yorùbá" },
+];
+
 const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeaderProps) => {
     const { user, loading: userLoading } = useAuth();
+    const { selectedLanguage, updateLanguage } = useLanguage();
     const router = useRouter();
     const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
-    const [selectedLanguage, setSelectedLanguage] = useState("EN");
     const [unreadCount, setUnreadCount] = useState(0);
     const languageDropdownRef = useRef<HTMLDivElement>(null);
     const profileDropdownRef = useRef<HTMLDivElement>(null);
-
-    const languages = [
-        { code: "EN", name: "English (Default)" },
-        { code: "HA", name: "Hausa" },
-        { code: "IG", name: "Igbo" },
-        { code: "YO", name: "Yorùbá" },
-    ];
+    const { toast, showError, hideToast } = useToast();
 
     // Get user's profile image or fallback
     const getProfileImage = () => {
@@ -39,7 +44,6 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
         return "";
     };
 
-    // Fetch initial unread count
     useEffect(() => {
         const fetchUnreadCount = async () => {
             try {
@@ -53,7 +57,7 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
         };
 
         fetchUnreadCount();
-    }, []);
+    }, [user?.id]);
 
     // Set up Pusher real-time notifications
     useEffect(() => {
@@ -165,8 +169,17 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
                                     {languages.map((lang) => (
                                         <button
                                             key={lang.code}
-                                            onClick={() => {
-                                                setSelectedLanguage(lang.code);
+                                            onClick={async () => {
+                                                if (!user) {
+                                                    showError("Unable to complete this request");
+                                                    setShowLanguageDropdown(false);
+                                                    return;
+                                                }
+                                                
+                                                const success = await updateLanguage(lang.code);
+                                                if (!success) {
+                                                    showError("Failed to update language preference. Please try again.");
+                                                }
                                                 setShowLanguageDropdown(false);
                                             }}
                                             className={`w-full px-4 py-2.5 text-left text-xs hover:bg-[#F9FAFB] transition-colors ${
@@ -277,6 +290,14 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
                     Upgrade Now
                 </button>
             </div>
+
+            {/* Toast Notification */}
+            <Toast
+                isVisible={toast.isVisible}
+                message={toast.message}
+                type={toast.type}
+                onClose={hideToast}
+            />
 
             {/* Notifications Panel */}
             <NotificationsPanel 

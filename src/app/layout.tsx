@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import ActivityTracker from "@/components/ActivityTracker";
 import { AuthProvider } from "@/contexts/AuthContext";
+import i18n from "@/lib/i18ns";
 
 export const metadata: Metadata = {
     title: "Original Invoice",

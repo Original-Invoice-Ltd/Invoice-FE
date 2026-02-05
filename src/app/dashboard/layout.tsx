@@ -4,6 +4,7 @@ import { useState } from "react";
 import DashboardSideBar from "@/components/dashboardSidebar";
 import DashboardHeader from "@/components/dashboardHeader/DashboardHeader";
 import { InvoiceLimitProvider } from "@/contexts/InvoiceLimitContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import InvoiceLimitNotification from "@/components/notifications/InvoiceLimitNotification";
 import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -16,9 +17,11 @@ export default function DashboardLayout({
 }) {
     return (
         <InvoiceLimitProvider>
-            <DashboardLayoutContent>
-                {children}
-            </DashboardLayoutContent>
+            <LanguageProvider>
+                <DashboardLayoutContent>
+                    {children}
+                </DashboardLayoutContent>
+            </LanguageProvider>
         </InvoiceLimitProvider>
     );
 }

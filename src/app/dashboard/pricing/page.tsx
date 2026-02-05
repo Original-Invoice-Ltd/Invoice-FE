@@ -21,7 +21,7 @@ const DashboardPricingPage = () => {
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [currentSubscription, setCurrentSubscription] = useState<CurrentSubscription | null>(null);
   const [loadingSubscription, setLoadingSubscription] = useState(true);
-  const { toast, showSuccess, showError, hideToast } = useToast();
+  const { toast, showError, hideToast } = useToast();
 
   useEffect(() => {
     const loadSubscription = async () => {
