@@ -10,9 +10,11 @@ import DeleteConfirmationModal from "@/components/common/DeleteConfirmationModal
 import Toast from '@/components/ui/Toast';
 import { useToast } from "@/hooks/useToast";;
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from 'react-i18next';
 
 const InvoicesPage = () => {
     const { user, refreshUser } = useAuth();
+    const { t } = useTranslation();
     const { showError, toast, hideToast } = useToast();
     const [searchQuery, setSearchQuery] = useState("");
     const [sortBy, setSortBy] = useState("date");
@@ -179,10 +181,9 @@ const InvoicesPage = () => {
             {/* Header */}
             <div className="mb-6 flex items-start justify-between">
                 <div>
-                    <h1 className="text-[20px] font-semibold text-[#101828] mb-1">Invoice Management</h1>
+                    <h1 className="text-[20px] font-semibold text-[#101828] mb-1">{t('invoice_management')}</h1>
                     <p className="text-[14px] text-[#667085]">
-                        View, manage, and track all your invoices, stay on<br />
-                        top of payments and tax compliance effortlessly.
+                        {t('invoice_management_desc')}
                     </p>
                 </div>
                 <Link
@@ -190,7 +191,7 @@ const InvoicesPage = () => {
                     className="flex items-center gap-2 px-5 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors text-[16px] font-medium whitespace-nowrap"
                 >
                     <Plus size={20} />
-                    Create Invoice
+                    {t('create_invoice')}
 
                 </Link>
             </div>
@@ -199,13 +200,13 @@ const InvoicesPage = () => {
             <div className="bg-white rounded-lg border border-[#E4E7EC]">
                 {/* Header with Search */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4E7EC]">
-                    <h2 className="text-[18px] font-semibold text-[#101828]">All Invoices</h2>
+                    <h2 className="text-[18px] font-semibold text-[#101828]">{t('all_invoices')}</h2>
                     <div className="flex items-center gap-3">
                         <div className="relative w-64">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#98A2B3]" size={18} />
                             <input
                                 type="text"
-                                placeholder="search clients"
+                                placeholder={t('search_clients')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#667085] placeholder:text-[#98A2B3] bg-white focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
@@ -216,10 +217,10 @@ const InvoicesPage = () => {
                             onChange={(e) => setSortBy(e.target.value)}
                             className="px-4 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#667085] bg-white focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                         >
-                            <option value="date">Sort by Date</option>
-                            <option value="amount">Sort by Amount</option>
-                            <option value="client">Sort by Client</option>
-                            <option value="status">Sort by Status</option>
+                            <option value="date">{t('sort_by_date')}</option>
+                            <option value="amount">{t('sort_by_amount')}</option>
+                            <option value="client">{t('sort_by_client')}</option>
+                            <option value="status">{t('sort_by_status')}</option>
                         </select>
                     </div>
                 </div>
@@ -242,13 +243,13 @@ const InvoicesPage = () => {
                             </svg>
                         </div>
                         <h3 className="text-[16px] font-semibold text-[#101828] mb-2">
-                            {searchQuery ? "No invoices found" : "No invoices yet"}
+                            {searchQuery ? t('no_invoices_found') : t('no_invoices_yet')}
                         </h3>
                         <p className="text-[14px] text-[#667085] mb-6 text-center max-w-md leading-relaxed">
 
                             {searchQuery
-                                ? "Try adjusting your search terms or filters."
-                                : "Create your first invoice to start getting paid and track taxes easily."
+                                ? t('try_adjusting_search')
+                                : t('create_first_invoice_desc')
                             }
                         </p>
                         {!searchQuery && (
@@ -257,7 +258,7 @@ const InvoicesPage = () => {
                                 className="flex items-center gap-2 px-6 py-3 bg-transparent border-2 border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-[#EFF8FF] transition-colors text-[16px] font-medium"
                             >
                                 <Plus size={20} />
-                                Create Invoice
+                                {t('create_invoice')}
                             </Link>
 
                         )}
@@ -267,13 +268,13 @@ const InvoicesPage = () => {
                         {/* Table Header */}
                         <div className="px-6 py-3 bg-[#F9FAFB] border-b border-[#E4E7EC]">
                             <div className="grid grid-cols-8 gap-4 text-[12px] font-medium text-[#667085] uppercase tracking-wide">
-                                <div>Date</div>
-                                <div>Client Name</div>
-                                <div>Invoice ID</div>
-                                <div>Status</div>
-                                <div>Due Date</div>
-                                <div>Amount</div>
-                                <div>Balance Due</div>
+                                <div>{t('date')}</div>
+                                <div>{t('client_name')}</div>
+                                <div>{t('invoice_id')}</div>
+                                <div>{t('status')}</div>
+                                <div>{t('due_date')}</div>
+                                <div>{t('amount')}</div>
+                                <div>{t('balance_due')}</div>
                                 <div></div>
                             </div>
                         </div>
@@ -318,21 +319,21 @@ const InvoicesPage = () => {
                                                             className="flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors"
                                                         >
                                                             <Eye size={16} />
-                                                            View Invoice
+                                                            {t('view_invoice')}
                                                         </Link>
                                                         <Link
                                                             href={`/dashboard/invoices/edit/${invoice.id}`}
                                                             className="flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors"
                                                         >
                                                             <Edit size={16} />
-                                                            Edit Invoice
+                                                            {t('edit_invoice')}
                                                         </Link>
                                                         <button
                                                             onClick={() => handleDeleteInvoice(invoice)}
                                                             className="flex items-center gap-2 px-4 py-2 text-[14px] text-[#D92D20] hover:bg-[#FEF3F2] transition-colors w-full text-left"
                                                         >
                                                             <Trash2 size={16} />
-                                                            Delete Invoice
+                                                            {t('delete_invoice')}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -417,8 +418,8 @@ const InvoicesPage = () => {
                 isOpen={deleteModal.isOpen}
                 onClose={closeDeleteModal}
                 onConfirm={confirmDeleteInvoice}
-                title="Delete Invoice"
-                message={`Are you sure you want to delete invoice ${deleteModal.invoice?.invoiceNumber}? This action cannot be undone.`}
+                title={t('delete_invoice')}
+                message={`${t('delete_invoice_confirm')} ${deleteModal.invoice?.invoiceNumber}? ${t('invoice_action_cannot_undone')}`}
                 type="invoice"
                 isLoading={deleteModal.isLoading}
                 error={deleteModal.error}

@@ -12,6 +12,7 @@ import {
   Globe, 
   CreditCard 
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface SettingsLayoutProps {
   children: React.ReactNode;
@@ -20,47 +21,48 @@ interface SettingsLayoutProps {
 const SettingsLayout = ({ children }: SettingsLayoutProps) => {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const settingsItems = [
     {
       id: "business",
-      label: "Business Profile",
+      label: t("business_profile"),
       icon: Building2,
       path: "/dashboard/settings/business",
     },
     {
       id: "personal",
-      label: "Personal Profile",
+      label: t("personal_profile"),
       icon: User,
       path: "/dashboard/settings/personal",
     },
     {
       id: "tax",
-      label: "Tax Settings",
+      label: t("tax_settings"),
       icon: Calculator,
       path: "/dashboard/settings/tax",
     },
     {
       id: "notifications",
-      label: "Notification",
+      label: t("notification"),
       icon: Bell,
       path: "/dashboard/settings/notifications",
     },
     {
       id: "security",
-      label: "Security",
+      label: t("security"),
       icon: Shield,
       path: "/dashboard/settings/security",
     },
     {
       id: "language",
-      label: "Language",
+      label: t("language"),
       icon: Globe,
       path: "/dashboard/settings/language",
     },
     {
       id: "billing",
-      label: "Plan & Billing",
+      label: t("plan_billing"),
       icon: CreditCard,
       path: "/dashboard/settings/billing",
     },
@@ -68,7 +70,7 @@ const SettingsLayout = ({ children }: SettingsLayoutProps) => {
 
   const getCurrentPageTitle = () => {
     const currentItem = settingsItems.find(item => pathname === item.path);
-    return currentItem?.label || "Account Settings";
+    return currentItem?.label || t("account_settings");
   };
 
   const handleBack = () => {

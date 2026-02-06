@@ -5,8 +5,10 @@ import { Eye, EyeOff } from "lucide-react";
 import { ApiClient } from "@/lib/api";
 import Toast from '@/components/ui/Toast';
 import { useToast } from "@/hooks/useToast";
+import { useTranslation } from "react-i18next";
 
 const SecurityPage = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -51,23 +53,23 @@ const SecurityPage = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.currentPassword) {
-      newErrors.currentPassword = "Current password is required";
+      newErrors.currentPassword = t("current_password_required");
     }
 
     if (!formData.newPassword) {
-      newErrors.newPassword = "New password is required";
+      newErrors.newPassword = t("new_password_required");
     } else if (formData.newPassword.length < 8) {
-      newErrors.newPassword = "Password must be at least 8 characters long";
+      newErrors.newPassword = t("password_min_length");
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your new password";
+      newErrors.confirmPassword = t("confirm_password_required");
     } else if (formData.newPassword !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
+      newErrors.confirmPassword = t("passwords_not_match");
     }
 
     if (formData.currentPassword === formData.newPassword) {
-      newErrors.newPassword = "New password must be different from current password";
+      newErrors.newPassword = t("new_password_different");
     }
 
     setErrors(newErrors);
@@ -91,7 +93,7 @@ const SecurityPage = () => {
 
       if (response.status === 200) {
 
-        showSuccess("Password changed successfully!");
+        showSuccess(t("password_changed_successfully"));
         // Clear form
         setFormData({
           currentPassword: "",
@@ -106,12 +108,12 @@ const SecurityPage = () => {
 
       // Handle specific error cases
       if (error.message?.includes("Current password is incorrect")) {
-        setErrors({ currentPassword: "Current password is incorrect" });
+        setErrors({ currentPassword: t("current_password_incorrect") });
       } else if (error.message?.includes("OAuth users")) {
 
-        showError("Cannot change password for OAuth users. Please use your Google/Apple account to manage your password.");
+        showError(t("oauth_password_change"));
       } else {
-        showError("Failed to change password. Please try again.");
+        showError(t("failed_change_password"));
       }
     } finally {
       setIsLoading(false);
@@ -141,7 +143,7 @@ const SecurityPage = () => {
           {/* Current Password */}
           <div>
             <label className="block text-sm font-medium text-[#101828] mb-2">
-              Current Password
+              {t("current_password")}
             </label>
             <div className="relative">
               <input
@@ -149,7 +151,7 @@ const SecurityPage = () => {
                 name="currentPassword"
                 value={formData.currentPassword}
                 onChange={handleInputChange}
-                placeholder="Enter current password"
+                placeholder={t("enter_current_password")}
                 className={`w-full px-3 py-2.5 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent ${
                   errors.currentPassword ? 'border-red-500' : 'border-[#D0D5DD]'
                 }`}
@@ -170,7 +172,7 @@ const SecurityPage = () => {
           {/* New Password */}
           <div>
             <label className="block text-sm font-medium text-[#101828] mb-2">
-              New Password
+              {t("new_password")}
             </label>
             <div className="relative">
               <input
@@ -178,7 +180,7 @@ const SecurityPage = () => {
                 name="newPassword"
                 value={formData.newPassword}
                 onChange={handleInputChange}
-                placeholder="Enter new password"
+                placeholder={t("enter_new_password")}
                 className={`w-full px-3 py-2.5 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent ${
                   errors.newPassword ? 'border-red-500' : 'border-[#D0D5DD]'
                 }`}
@@ -199,7 +201,7 @@ const SecurityPage = () => {
           {/* Confirm New Password */}
           <div>
             <label className="block text-sm font-medium text-[#101828] mb-2">
-              Confirm New Password
+              {t("confirm_new_password")}
             </label>
             <div className="relative">
               <input
@@ -207,7 +209,7 @@ const SecurityPage = () => {
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
-                placeholder="Enter confirm password"
+                placeholder={t("enter_confirm_password")}
                 className={`w-full px-3 py-2.5 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent ${
                   errors.confirmPassword ? 'border-red-500' : 'border-[#D0D5DD]'
                 }`}
@@ -232,14 +234,14 @@ const SecurityPage = () => {
               onClick={handleCancel}
               className="px-6 py-2.5 border border-[#D0D5DD] text-[#667085] rounded-lg hover:bg-[#F9FAFB] transition-colors"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               type="submit"
               disabled={isLoading}
               className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Updating Password..." : "Update Password"}
+              {isLoading ? t("updating_password") : t("update_password")}
             </button>
           </div>
         </form>

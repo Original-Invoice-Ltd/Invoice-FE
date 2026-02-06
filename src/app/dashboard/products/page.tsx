@@ -6,8 +6,10 @@ import { productCache, Product } from '@/lib/productCache';
 import { Plus, Edit, Trash2, Package } from 'lucide-react';
 import AddProductModal from '@/components/productManagement/AddProductModal';
 import DeleteConfirmationModal from '@/components/common/DeleteConfirmationModal';
+import { useTranslation } from 'react-i18next';
 
 export default function ProductsPage() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -123,15 +125,15 @@ export default function ProductsPage() {
     <div className="max-w-7xl mx-auto mb-[200px] p-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-          <p className="text-gray-600">Manage your products and services</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('products')}</h1>
+          <p className="text-gray-600">{t('manage_products_desc')}</p>
         </div>
         <button
           onClick={handleAddProduct}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
         >
           <Plus size={20} />
-          Add Product
+          {t('add_product')}
         </button>
       </div>
 
@@ -144,13 +146,13 @@ export default function ProductsPage() {
       {products.length === 0 ? (
         <div className="text-center py-12">
           <Package size={48} className="mx-auto text-gray-400 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No products yet</h3>
-          <p className="text-gray-600 mb-4">Get started by adding your first product or service</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('no_products_yet')}</h3>
+          <p className="text-gray-600 mb-4">{t('add_first_product')}</p>
           <button
             onClick={handleAddProduct}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
           >
-            Add Product
+            {t('add_product')}
           </button>
         </div>
       ) : (
@@ -160,22 +162,22 @@ export default function ProductsPage() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Product
+                    {t('product')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category
+                    {t('category')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Quantity
+                    {t('quantity')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Rate
+                    {t('rate')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Amount
+                    {t('amount')}
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
+                    {t('actions')}
                   </th>
                 </tr>
               </thead>
@@ -250,8 +252,8 @@ export default function ProductsPage() {
         isOpen={showDeleteModal}
         onClose={handleCloseDeleteModal}
         onConfirm={handleConfirmDelete}
-        title="Delete Product"
-        message={`Are you sure you want to delete "${productToDelete?.itemName}"? This action cannot be undone.`}
+        title={t('delete_product')}
+        message={`${t('delete_product_confirm')} "${productToDelete?.itemName}"? ${t('product_action_cannot_undone')}`}
         type="product"
         isLoading={deleting}
       />

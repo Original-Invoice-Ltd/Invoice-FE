@@ -7,6 +7,7 @@ import Link from "next/link";
 import { initializeTransactionWithPlan, getCurrentSubscription } from "@/lib/subscription";
 import Toast from '@/components/ui/Toast';
 import { useToast } from '@/hooks/useToast';
+import { useTranslation } from "react-i18next";
 
 export interface CurrentSubscription {
   plan: string;
@@ -18,10 +19,11 @@ export interface CurrentSubscription {
 
 const DashboardPricingPage = () => {
   const router = useRouter();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [currentSubscription, setCurrentSubscription] = useState<CurrentSubscription | null>(null);
   const [loadingSubscription, setLoadingSubscription] = useState(true);
-  const { toast, showSuccess, showError, hideToast } = useToast();
+  const { toast, showError, hideToast } = useToast();
 
   useEffect(() => {
     const loadSubscription = async () => {
@@ -86,12 +88,12 @@ const DashboardPricingPage = () => {
 
   const getButtonText = (plan: string) => {
     if (isCurrentPlan(plan)) {
-      return "Current Plan";
+      return t("current_plan_label");
     }
     if (isLoading === plan) {
-      return "Processing...";
+      return t("processing");
     }
-    return plan === "ESSENTIALS" ? "Upgrade to Essentials" : "Upgrade to Premium";
+    return plan === "ESSENTIALS" ? t("upgrade_to_essentials") : t("upgrade_to_premium");
   };
 
   if (loadingSubscription) {
@@ -99,7 +101,7 @@ const DashboardPricingPage = () => {
       <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED] mx-auto mb-4"></div>
-          <p className="text-[#667085]">Loading subscription details...</p>
+          <p className="text-[#667085]">{t("loading_subscription_details_text")}</p>
         </div>
       </div>
     );
@@ -119,8 +121,8 @@ const DashboardPricingPage = () => {
           <ArrowLeft size={24} />
         </Link>
         <div>
-          <h1 className="text-[24px] font-semibold text-[#101828]">Subscription Plans</h1>
-          <p className="text-[#667085]">Choose the plan that fits your business needs</p>
+          <h1 className="text-[24px] font-semibold text-[#101828]">{t("subscription_plans")}</h1>
+          <p className="text-[#667085]">{t("choose_plan_fits")}</p>
         </div>
       </div>
 
@@ -130,17 +132,17 @@ const DashboardPricingPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-[18px] font-semibold text-[#101828] mb-1">
-                Current Plan: {currentSubscription.planDisplayName}
+                {t("current_plan_label")}: {currentSubscription.planDisplayName}
               </h3>
               <p className="text-[#667085]">
                 {currentSubscription.invoiceLimit === -1 
-                  ? "Unlimited invoices" 
-                  : `${currentSubscription.invoicesUsed}/${currentSubscription.invoiceLimit} invoices used this month`
+                  ? t("unlimited_invoices_text")
+                  : `${currentSubscription.invoicesUsed}/${currentSubscription.invoiceLimit} ${t("invoices_used_this_month")}`
                 }
               </p>
             </div>
             <div className="px-3 py-1 bg-[#ECFDF5] text-[#10B981] text-sm font-medium rounded-full">
-              Active
+              {t("active")}
             </div>
           </div>
         </div>
@@ -154,33 +156,33 @@ const DashboardPricingPage = () => {
             {isCurrentPlan("FREE") && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <span className="bg-[#2F80ED] text-white px-3 py-1 rounded-full text-sm font-medium">
-                  Current Plan
+                  {t("current_plan_label")}
                 </span>
               </div>
             )}
             
             <div className="text-center mb-6">
-              <h3 className="text-[24px] font-semibold text-[#101828] mb-2">Free</h3>
+              <h3 className="text-[24px] font-semibold text-[#101828] mb-2">{t("free")}</h3>
               <div className="text-[36px] font-bold text-[#101828] mb-1">₦0</div>
-              <p className="text-[#667085]">Perfect for getting started</p>
+              <p className="text-[#667085]">{t("perfect_getting_started")}</p>
             </div>
 
             <ul className="space-y-3 mb-8">
               <li className="flex items-start gap-3">
                 <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">3 invoices per month</span>
+                <span className="text-[#344054]">{t("three_invoices_per_month")}</span>
               </li>
               <li className="flex items-start gap-3">
                 <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">Basic invoice templates</span>
+                <span className="text-[#344054]">{t("basic_invoice_templates_text")}</span>
               </li>
               <li className="flex items-start gap-3">
                 <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">Email & WhatsApp sharing</span>
+                <span className="text-[#344054]">{t("email_whatsapp_sharing_text")}</span>
               </li>
               <li className="flex items-start gap-3">
                 <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">Payment tracking</span>
+                <span className="text-[#344054]">{t("payment_tracking_text")}</span>
               </li>
             </ul>
 
@@ -192,7 +194,7 @@ const DashboardPricingPage = () => {
                   : "bg-[#F9FAFB] text-[#344054] border border-[#E4E7EC] hover:bg-[#F2F4F7]"
               }`}
             >
-              {isCurrentPlan("FREE") ? "Current Plan" : "Downgrade to Free"}
+              {isCurrentPlan("FREE") ? t("current_plan_label") : t("downgrade_to_free")}
             </button>
           </div>
 
@@ -201,37 +203,37 @@ const DashboardPricingPage = () => {
             {isCurrentPlan("ESSENTIALS") && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <span className="bg-[#2F80ED] text-white px-3 py-1 rounded-full text-sm font-medium">
-                  Current Plan
+                  {t("current_plan_label")}
                 </span>
               </div>
             )}
             
             <div className="text-center mb-6">
-              <h3 className="text-[24px] font-semibold text-[#101828] mb-2">Essentials</h3>
+              <h3 className="text-[24px] font-semibold text-[#101828] mb-2">{t("essentials")}</h3>
               <div className="text-[36px] font-bold text-[#101828] mb-1">₦24,000</div>
-              <p className="text-[#667085]">per year</p>
+              <p className="text-[#667085]">{t("per_year_text")}</p>
             </div>
 
             <ul className="space-y-3 mb-8">
               <li className="flex items-start gap-3">
                 <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">10 invoices per month</span>
+                <span className="text-[#344054]">{t("ten_invoices_per_month")}</span>
               </li>
               <li className="flex items-start gap-3">
                 <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">Custom logo upload</span>
+                <span className="text-[#344054]">{t("custom_logo_upload")}</span>
               </li>
               <li className="flex items-start gap-3">
                 <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">Advanced templates</span>
+                <span className="text-[#344054]">{t("advanced_templates")}</span>
               </li>
               <li className="flex items-start gap-3">
                 <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">Priority support</span>
+                <span className="text-[#344054]">{t("priority_support")}</span>
               </li>
               <li className="flex items-start gap-3">
                 <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">Tax compliance tools</span>
+                <span className="text-[#344054]">{t("tax_compliance_tools")}</span>
               </li>
             </ul>
 
@@ -253,41 +255,41 @@ const DashboardPricingPage = () => {
             {isCurrentPlan("PREMIUM") && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <span className="bg-[#2F80ED] text-white px-3 py-1 rounded-full text-sm font-medium">
-                  Current Plan
+                  {t("current_plan_label")}
                 </span>
               </div>
             )}
             
             <div className="text-center mb-6">
-              <h3 className="text-[24px] font-semibold text-[#101828] mb-2">Premium</h3>
+              <h3 className="text-[24px] font-semibold text-[#101828] mb-2">{t("premium")}</h3>
               <div className="text-[36px] font-bold text-[#101828] mb-1">₦120,000</div>
-              <p className="text-[#667085]">per year</p>
+              <p className="text-[#667085]">{t("per_year_text")}</p>
             </div>
 
             <ul className="space-y-3 mb-8">
               <li className="flex items-start gap-3">
                 <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">Unlimited invoices</span>
+                <span className="text-[#344054]">{t("unlimited_invoices_text_short")}</span>
               </li>
               <li className="flex items-start gap-3">
                 <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">Multiple custom logos</span>
+                <span className="text-[#344054]">{t("multiple_custom_logos_text")}</span>
               </li>
               <li className="flex items-start gap-3">
                 <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">Premium templates</span>
+                <span className="text-[#344054]">{t("premium_templates_text")}</span>
               </li>
               <li className="flex items-start gap-3">
                 <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">24/7 priority support</span>
+                <span className="text-[#344054]">{t("priority_support_24_7")}</span>
               </li>
               <li className="flex items-start gap-3">
                 <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">Advanced analytics</span>
+                <span className="text-[#344054]">{t("advanced_analytics")}</span>
               </li>
               <li className="flex items-start gap-3">
                 <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">Multiple company profiles</span>
+                <span className="text-[#344054]">{t("multiple_company_profiles_text")}</span>
               </li>
             </ul>
 

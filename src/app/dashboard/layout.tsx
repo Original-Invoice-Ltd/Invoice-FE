@@ -16,9 +16,9 @@ export default function DashboardLayout({
 }) {
     return (
         <InvoiceLimitProvider>
-            <DashboardLayoutContent>
-                {children}
-            </DashboardLayoutContent>
+                <DashboardLayoutContent>
+                    {children}
+                </DashboardLayoutContent>
         </InvoiceLimitProvider>
     );
 }

@@ -9,6 +9,7 @@ import ClientModal from "@/components/clientManagement/ClientModal";
 import DeleteConfirmationModal from "@/components/common/DeleteConfirmationModal";
 import { useInvoiceLimit } from "@/contexts/InvoiceLimitContext";
 import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification";
+import { useTranslation } from 'react-i18next';
 
 
 interface Client {
@@ -35,6 +36,7 @@ interface FormData {
 
 const ClientsPage = () => {
     const router = useRouter();
+    const { t } = useTranslation();
     const { canCreateInvoice } = useInvoiceLimit();
     const { showBlockedNotification } = useInvoiceLimitNotification();
     const [searchQuery, setSearchQuery] = useState("");
@@ -317,10 +319,10 @@ const ClientsPage = () => {
                 <div className="flex items-start justify-between mb-6 h-[68px]">
                     <div className="w-[360px] h-[68px] flex flex-col gap-1">
                         <h1 className="w-[360px] h-6 font-semibold text-[20px] leading-[120%] text-[#000000]" style={{ fontFamily: 'Inter Tight, sans-serif' }}>
-                            Clients Management
+                            {t('clients_management')}
                         </h1>
                         <p className="w-[360px] h-10 text-[14px] leading-[140%] text-[#333436]" style={{ fontFamily: 'Inter Tight, sans-serif', letterSpacing: '0.01em' }}>
-                            Manage your client database, track payments, and view billing history.
+                            {t('manage_clients_desc')}
                         </p>
                     </div>
                     <button
@@ -328,7 +330,7 @@ const ClientsPage = () => {
                         className="hidden lg:flex items-center gap-2 w-[139px] h-12 px-4 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
                     >
                         <Plus size={20} />
-                        Add Client
+                        {t('add_client')}
                     </button>
                 </div>
 
@@ -340,7 +342,7 @@ const ClientsPage = () => {
                         className="w-full flex items-center justify-center gap-2 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
                     >
                         <Plus size={20} />
-                        Add Client
+                        {t('add_client')}
                     </button>
                 </div>
 
@@ -349,7 +351,7 @@ const ClientsPage = () => {
                     /* Loading State */
                     <div className="bg-white rounded-lg border border-[#E4E7EC] p-12 flex flex-col items-center justify-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2F80ED] mb-4"></div>
-                        <p className="text-[#667085]">Loading clients...</p>
+                        <p className="text-[#667085]">{t('loading_invoices')}</p>
                     </div>
                 ) : clients.length === 0 ? (
                     /* Empty State */
@@ -387,16 +389,16 @@ const ClientsPage = () => {
                                 <circle cx="67.3024" cy="58.4382" r="2.48986" fill="#E1E4EA" />
                             </svg>
                         </div>
-                        <h3 className="text-lg font-semibold text-[#101828] mb-2">No clients yet</h3>
+                        <h3 className="text-lg font-semibold text-[#101828] mb-2">{t('no_clients_yet')}</h3>
                         <p className="text-[#667085] mb-6 text-center max-w-md">
-                            Add your first client to start sending invoices and tracking payments.
+                            {t('add_first_client')}
                         </p>
                         <button
                             onClick={handleAddNewClient}
                             className="flex items-center gap-2 px-4 py-2 border border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-[#EFF8FF] transition-colors"
                         >
                             <Plus size={20} />
-                            Add Client
+                            {t('add_client')}
                         </button>
                     </div>
                 ) : (
@@ -404,13 +406,13 @@ const ClientsPage = () => {
                     <div className="bg-white rounded-lg border border-[#E4E7EC] pt-4 pr-[14px] pl-[14px] pb-4 flex flex-col gap-[18px]">
                         {/* All Clients header with search and sort */}
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                            <h2 className="text-lg font-semibold text-[#101828]">All Clients</h2>
+                            <h2 className="text-lg font-semibold text-[#101828]">{t('all_clients')}</h2>
                             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                                 <div className="relative flex-1 sm:flex-initial sm:w-64">
                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={18} />
                                     <input
                                         type="text"
-                                        placeholder="search clients"
+                                        placeholder={t('search_clients')}
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         className="w-full pl-10 pr-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
@@ -422,7 +424,7 @@ const ClientsPage = () => {
                                         className="flex items-center justify-center gap-2 px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm text-[#344054] hover:bg-[#F9FAFB]"
                                         style={{ width: '111px', height: '40px' }}
                                     >
-                                        Sort by
+                                        {t('sort_by')}
                                         <ChevronDown size={16} />
                                     </button>
                                     {showSortDropdown && (
@@ -434,7 +436,7 @@ const ClientsPage = () => {
                                                 }}
                                                 className="w-full text-left px-4 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB] first:rounded-t-lg"
                                             >
-                                                Name
+                                                {t('name')}
                                             </button>
                                             <button
                                                 onClick={() => {
@@ -443,7 +445,7 @@ const ClientsPage = () => {
                                                 }}
                                                 className="w-full text-left px-4 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB]"
                                             >
-                                                Company
+                                                {t('company')}
                                             </button>
                                             <button
                                                 onClick={() => {
@@ -452,7 +454,7 @@ const ClientsPage = () => {
                                                 }}
                                                 className="w-full text-left px-4 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB] last:rounded-b-lg"
                                             >
-                                                Email
+                                                {t('email')}
                                             </button>
                                         </div>
                                     )}
@@ -466,12 +468,12 @@ const ClientsPage = () => {
                             <table className="w-full">
                                 <thead className="bg-[#F9FAFB] border-y border-[#E4E7EC]">
                                     <tr>
-                                        <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Title</th>
-                                        <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Client Name</th>
-                                        <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Company Name</th>
-                                        <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Email Address</th>
-                                        <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Phone Number</th>
-                                        <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Actions</th>
+                                        <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('title')}</th>
+                                        <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('client_name')}</th>
+                                        <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('company_name')}</th>
+                                        <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('email_address')}</th>
+                                        <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('phone_number')}</th>
+                                        <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('actions')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -505,14 +507,14 @@ const ClientsPage = () => {
                                                                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#344054] hover:bg-[#F9FAFB] first:rounded-t-lg"
                                                             >
                                                                 <Edit size={14} />
-                                                                Edit
+                                                                {t('edit')}
                                                             </button>
                                                             <button
                                                                 onClick={() => handleDeleteClient(client)}
                                                                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[#F04438] hover:bg-[#FEF3F2] last:rounded-b-lg"
                                                             >
                                                                 <Trash2 size={14} />
-                                                                Delete
+                                                                {t('delete')}
                                                             </button>
                                                         </div>
                                                     )}
@@ -612,9 +614,9 @@ const ClientsPage = () => {
                                     <path d="M51.7777 40.5973C51.8881 40.7076 51.9757 40.8386 52.0354 40.9828C52.0952 41.1269 52.1259 41.2814 52.1259 41.4375C52.1259 41.5936 52.0952 41.7481 52.0354 41.8922C51.9757 42.0364 51.8881 42.1674 51.7777 42.2777L43.4652 50.5902C43.3549 50.7006 43.2239 50.7882 43.0797 50.8479C42.9356 50.9077 42.7811 50.9384 42.625 50.9384C42.469 50.9384 42.3144 50.9077 42.1703 50.8479C42.0261 50.7882 41.8951 50.7006 41.7849 50.5902L38.2224 47.0277C37.9995 46.8048 37.8743 46.5026 37.8743 46.1875C37.8743 45.8724 37.9995 45.5702 38.2224 45.3473C38.4452 45.1245 38.7474 44.9993 39.0625 44.9993C39.3776 44.9993 39.6798 45.1245 39.9027 45.3473L42.625 48.0712L50.0973 40.5973C50.2076 40.4869 50.3386 40.3993 50.4828 40.3396C50.6269 40.2798 50.7815 40.2491 50.9375 40.2491C51.0936 40.2491 51.2481 40.2798 51.3922 40.3396C51.5364 40.3993 51.6674 40.4869 51.7777 40.5973ZM60.4375 45C60.4375 48.0532 59.5321 51.0379 57.8358 53.5766C56.1395 56.1153 53.7285 58.094 50.9077 59.2624C48.0868 60.4308 44.9829 60.7365 41.9883 60.1409C38.9937 59.5452 36.243 58.0749 34.084 55.916C31.9251 53.757 30.4548 51.0063 29.8591 48.0117C29.2635 45.0171 29.5692 41.9132 30.7376 39.0923C31.906 36.2715 33.8847 33.8605 36.4234 32.1642C38.9621 30.4679 41.9468 29.5625 45 29.5625C49.093 29.5668 53.017 31.1947 55.9112 34.0888C58.8053 36.983 60.4332 40.907 60.4375 45ZM58.0625 45C58.0625 42.4165 57.2964 39.891 55.8611 37.7429C54.4258 35.5947 52.3857 33.9205 49.9988 32.9318C47.6119 31.9432 44.9855 31.6845 42.4516 32.1885C39.9178 32.6925 37.5902 33.9366 35.7634 35.7634C33.9366 37.5902 32.6925 39.9178 32.1885 42.4516C31.6845 44.9855 31.9432 47.6119 32.9318 49.9988C33.9205 52.3857 35.5948 54.4257 37.7429 55.8611C39.891 57.2964 42.4165 58.0625 45 58.0625C48.4632 58.0586 51.7834 56.6811 54.2323 54.2322C56.6811 51.7834 58.0586 48.4632 58.0625 45Z" fill="#40C4AA" />
                                 </svg>
 
-                                <h2 className="text-xl font-semibold text-[#000000] mb-2">Client added successfully</h2>
+                                <h2 className="text-xl font-semibold text-[#000000] mb-2">{t('client_added_successfully')}</h2>
                                 <p className="text-sm text-[#333436] mb-6">
-                                    You can now create an invoice for this client.
+                                    {t('create_invoice_for_client')}
                                 </p>
                                 <div className="flex items-center gap-3 w-full">
                                     <button
@@ -622,14 +624,14 @@ const ClientsPage = () => {
                                         className="flex-1 px-6 py-3 border border-[#2F80ED] 
                                         text-[#2F80ED] rounded-lg text-sm font-medium"
                                     >
-                                        Cancel
+                                        {t('cancel')}
                                     </button>
                                     <button
                                         onClick={handleCreateInvoice}
                                         className="flex-1 px-6 py-3 bg-[#2F80ED] text-[#FFFFFF] 
                                         rounded-lg text-sm font-medium"
                                     >
-                                        Create Invoice
+                                        {t('create_invoice')}
                                     </button>
                                 </div>
                             </div>
@@ -644,8 +646,8 @@ const ClientsPage = () => {
                 isOpen={deleteModal.isOpen}
                 onClose={closeDeleteModal}
                 onConfirm={confirmDeleteClient}
-                title="Delete Client"
-                message={`Are you sure you want to delete ${deleteModal.client?.fullName}? This action cannot be undone and will remove all associated data.`}
+                title={t('delete_client')}
+                message={`${t('delete_client_confirm')} ${deleteModal.client?.fullName}? ${t('client_action_cannot_undone')}`}
                 type="client"
                 isLoading={deleteModal.isLoading}
             />

@@ -7,6 +7,7 @@ import { ApiClient } from "@/lib/api";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
 import { ApiResponse } from "@/types/invoice";
+import { useTranslation } from "react-i18next";
 
 interface BusinessProfileDto {
   businessName?: string;
@@ -23,6 +24,7 @@ interface BusinessProfileDto {
 
 const BusinessProfilePage = () => {
   const { toast, showSuccess, showError, hideToast } = useToast();
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState({
     businessName: "",
@@ -44,23 +46,23 @@ const BusinessProfilePage = () => {
   const [isLoadingData, setIsLoadingData] = useState(true);
 
   const businessTypes = [
-    { label: "Sole Proprietorship", value: "SOLE_PROPRIETORSHIP" },
-    { label: "Partnership", value: "PARTNERSHIP" },
-    { label: "Limited Liability Company (LLC)", value: "LIMITED_LIABILITY_COMPANY" },
-    { label: "Corporation", value: "COPERATIONS" },
-    { label: "Non-Profit Organization", value: "NON_PROFIT_ORGANIZATION" },
-    { label: "Other", value: "OTHERS" },
+    { label: t("sole_proprietorship"), value: "SOLE_PROPRIETORSHIP" },
+    { label: t("partnership"), value: "PARTNERSHIP" },
+    { label: t("limited_liability_company"), value: "LIMITED_LIABILITY_COMPANY" },
+    { label: t("corporation"), value: "COPERATIONS" },
+    { label: t("non_profit_organization"), value: "NON_PROFIT_ORGANIZATION" },
+    { label: t("other"), value: "OTHERS" },
   ] as const;
 
   const countries = [
-    { label: "Nigeria", value: "NIGERIA" },
-    { label: "Ghana", value: "GHANA" },
-    { label: "Kenya", value: "KENYA" },
-    { label: "South Africa", value: "SOUTH_AFRICA" },
-    { label: "United States", value: "US" },
-    { label: "United Kingdom", value: "UK" },
-    { label: "Canada", value: "CANADA" },
-    { label: "Other", value: "OTHERS" },
+    { label: t("nigeria"), value: "NIGERIA" },
+    { label: t("ghana"), value: "GHANA" },
+    { label: t("kenya"), value: "KENYA" },
+    { label: t("south_africa"), value: "SOUTH_AFRICA" },
+    { label: t("united_states"), value: "US" },
+    { label: t("united_kingdom"), value: "UK" },
+    { label: t("canada"), value: "CANADA" },
+    { label: t("other"), value: "OTHERS" },
   ] as const;
 
   // Load existing business profile on component mount
@@ -101,7 +103,7 @@ const BusinessProfilePage = () => {
 
     } catch (error) {
       console.error("Error loading business profile:", error);
-      showError("Failed to load business profile. Please refresh the page.");
+      showError(t("failed_load_business_profile"));
     } finally {
       setIsLoadingData(false);
     }
@@ -121,13 +123,13 @@ const BusinessProfilePage = () => {
     if (file) {
 
       if (file.size > 5 * 1024 * 1024) {
-        showError("Logo file size must be less than 5MB");
+        showError(t("logo_file_size_error"));
         return;
       }
 
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        showError("Please select a valid image file");
+        showError(t("select_valid_image"));
         return;
       }
 
@@ -182,7 +184,7 @@ const BusinessProfilePage = () => {
 
     if (formData.phoneNumber.length > 0 && !ApiClient.isValidPhone(formData.phoneNumber)) {
       setIsLoading(false);
-      showError("Phone number must be in international format. Example: +234***********");
+      showError(t("phone_international_format"));
       return;
     }
     try {
@@ -216,19 +218,19 @@ const BusinessProfilePage = () => {
       const response = await ApiClient.updateBusinessProfile(businessProfileData);
 
       if (response.status !== 200) {
-        showError("Failed to update business profile, Please try again.");
+        showError(t("failed_update_business_profile"));
         return;
       }
 
       await loadBusinessProfile();
       setLogoFile(null);
       if (logoUploadFailed) {
-        showSuccess("Profile saved, but logo upload failed");
+        showSuccess(t("profile_saved_logo_failed"));
       } else {
-        showSuccess("Business profile updated successfully");
+        showSuccess(t("business_profile_updated"));
       }
     } catch (error) {
-      showError("An unexpected error occurred. Please try again.");
+      showError(t("unexpected_error_occurred"));
     } finally {
       setIsLoading(false);
     }
@@ -246,7 +248,7 @@ const BusinessProfilePage = () => {
         <div className="max-w-2xl">
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED]"></div>
-            <span className="ml-3 text-[#667085]">Loading business profile...</span>
+            <span className="ml-3 text-[#667085]">{t("loading_business_profile")}</span>
           </div>
         </div>
       </div>
@@ -267,14 +269,14 @@ const BusinessProfilePage = () => {
           {/* Business Name */}
           <div>
             <label className="block text-sm font-medium text-[#101828] mb-2">
-              Business Name <span className="text-red-500">*</span>
+              {t("business_name")} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               name="businessName"
               value={formData.businessName}
                 onChange={handleInputChange}
-                placeholder="Enter full name"
+                placeholder={t("enter_full_name")}
 
               className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
               required
@@ -286,7 +288,7 @@ const BusinessProfilePage = () => {
             {/* Registered Address */}
             <div>
               <label className="block text-sm font-medium text-[#101828] mb-2">
-                Registered Business Address <span className="text-red-500">*</span>
+                {t("registered_business_address")} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -294,7 +296,7 @@ const BusinessProfilePage = () => {
                 name="registeredBusinessAddress"
                 value={formData.registeredBusinessAddress}
                 onChange={handleInputChange}
-                placeholder="Enter business address"
+                placeholder={t("enter_business_address")}
                 className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
                 required
               />
@@ -303,7 +305,7 @@ const BusinessProfilePage = () => {
             {/* Email Address */}
             <div>
               <label className="block text-sm font-medium text-[#101828] mb-2">
-                Email Address <span className="text-red-500">*</span>
+                {t("email_address")} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
@@ -311,7 +313,7 @@ const BusinessProfilePage = () => {
                   name="emailAddress"
                   value={formData.emailAddress}
                   onChange={handleInputChange}
-                  placeholder="Enter email address"
+                  placeholder={t("enter_email")}
                   className="w-full px-3 py-2.5 pr-10 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
                   required
                 />
@@ -330,14 +332,14 @@ const BusinessProfilePage = () => {
             {/* Phone Number */}
             <div>
               <label className="block text-sm font-medium text-[#101828] mb-2">
-                Phone Number <span className="text-red-500">*</span>
+                {t("phone_number")} <span className="text-red-500">*</span>
               </label>
               <input
                 type="tel"
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleInputChange}
-                placeholder="Enter phone number"
+                placeholder={t("enter_phone")}
                 className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
                 required
               />
@@ -347,14 +349,14 @@ const BusinessProfilePage = () => {
 
             <div>
               <label className="block text-sm font-medium text-[#101828] mb-2">
-                Business Name <span className="text-red-500">*</span>
+                {t("business_name")} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 name="businessFullName"
                 value={formData.businessFullName}
                 onChange={handleInputChange}
-                placeholder="Enter business name"
+                placeholder={t("enter_business_name")}
                 className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
               />
             </div>
@@ -365,7 +367,7 @@ const BusinessProfilePage = () => {
             {/* Business Type */}
             <div>
               <label className="block text-sm font-medium text-[#101828] mb-2">
-                Business Type <span className="text-red-500">*</span>
+                {t("business_type")} <span className="text-red-500">*</span>
               </label>
               <select
                 name="businessType"
@@ -374,7 +376,7 @@ const BusinessProfilePage = () => {
                 className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent appearance-none bg-white"
                 required
               >
-                <option value="">Select business type</option>
+                <option value="">{t("select_business_type")}</option>
                 {businessTypes.map((type) => (
 
                   <option key={type.value} value={type.value}>
@@ -387,14 +389,14 @@ const BusinessProfilePage = () => {
             {/* Business Registration Number */}
             <div>
               <label className="block text-sm font-medium text-[#101828] mb-2">
-                Business Registration Number (optional)
+                {t("business_registration_number")}
               </label>
               <input
                 type="text"
                 name="businessRegistrationNumber"
                 value={formData.businessRegistrationNumber}
                 onChange={handleInputChange}
-                placeholder="Enter registration number"
+                placeholder={t("enter_registration_number")}
                 className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
               />
             </div>
@@ -403,7 +405,7 @@ const BusinessProfilePage = () => {
           {/* Country */}
           <div>
             <label className="block text-sm font-medium text-[#101828] mb-2">
-              Country <span className="text-red-500">*</span>
+              {t("country")} <span className="text-red-500">*</span>
             </label>
             <select
               name="country"
@@ -412,7 +414,7 @@ const BusinessProfilePage = () => {
               className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent appearance-none bg-white"
               required
             >
-              <option value="">Select country</option>
+              <option value="">{t("select_country")}</option>
               {countries.map((country) => (
                 <option key={country.value} value={country.value}>
                   {country.label}
@@ -424,9 +426,9 @@ const BusinessProfilePage = () => {
           {/* Logo Upload */}
           <div>
             <label className="block text-sm font-medium text-[#101828] mb-2">
-              Upload Business Logo
+              {t("upload_business_logo")}
             </label>
-            <p className="text-xs text-[#667085] mb-3">Max file size 5MB</p>
+            <p className="text-xs text-[#667085] mb-3">{t("max_file_size")}</p>
             {logoPreview ? (
               <div className="relative w-32 h-32 border-2 border-dashed border-[#D0D5DD] rounded-lg flex items-center justify-center bg-[#F9FAFB]">
                 <Image
@@ -456,7 +458,7 @@ const BusinessProfilePage = () => {
                 <label htmlFor="logo-upload" className="cursor-pointer flex flex-col items-center">
                   <Upload size={24} className="text-[#667085] mb-2" />
                   <span className="text-xs text-[#667085] text-center">
-                    Click to upload
+                    {t("click_to_upload")}
                   </span>
                 </label>
               </div>
@@ -470,14 +472,14 @@ const BusinessProfilePage = () => {
               onClick={handleCancel}
               className="px-6 py-2.5 border border-[#D0D5DD] text-[#667085] rounded-lg hover:bg-[#F9FAFB] transition-colors"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               type="submit"
               disabled={isLoading || !isFormValid()}
               className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Saving..." : "Save"}
+              {isLoading ? t("saving") : t("save_changes")}
             </button>
           </div>
         </form>

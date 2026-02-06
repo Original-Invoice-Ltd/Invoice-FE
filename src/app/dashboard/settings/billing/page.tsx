@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, ExternalLink } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const BillingPage = () => {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -14,17 +16,17 @@ const BillingPage = () => {
     nextBill: "₦24,000",
     nextBillDate: "Jun 10, 2026",
     features: [
-      "Up to 10 invoices per month",
-      "Auto-fill client & item info",
-      "Tax calculator (VAT, WHT, PAYE)",
-      "1 custom logo upload",
-      "1 company profile",
-      "Top-rated mobile app"
+      t("up_to_10_invoices"),
+      t("autofill_client_item"),
+      t("tax_calculator_vat_wht_paye"),
+      t("one_custom_logo"),
+      t("one_company_profile"),
+      t("top_rated_mobile_app")
     ]
   };
 
   const handleCancelPlan = async () => {
-    if (!confirm("Are you sure you want to cancel your plan? This action cannot be undone.")) {
+    if (!confirm(t("cancel_plan_question"))) {
       return;
     }
 
@@ -35,10 +37,10 @@ const BillingPage = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      alert("Plan cancelled successfully!");
+      alert(t("plan_cancelled_successfully"));
     } catch (error) {
       console.error("Error cancelling plan:", error);
-      alert("Failed to cancel plan. Please try again.");
+      alert(t("failed_to_cancel_plan"));
     } finally {
       setIsLoading(false);
     }
@@ -64,7 +66,7 @@ const BillingPage = () => {
           <div className="bg-white border border-[#E4E7EC] rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-[#101828]">Current Plan</h3>
+                <h3 className="text-lg font-semibold text-[#101828]">{t("current_plan")}</h3>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="px-3 py-1 bg-[#ECFDF5] text-[#10B981] text-sm font-medium rounded-full">
                     {currentPlan.name}
@@ -75,19 +77,19 @@ const BillingPage = () => {
                 onClick={handleUpgrade}
                 className="px-4 py-2 bg-[#2F80ED] text-white text-sm font-medium rounded-lg hover:bg-[#2563EB] transition-colors"
               >
-                Upgrade Now
+                {t("upgrade_now_button")}
               </button>
             </div>
 
             <div className="mb-4">
               <p className="text-sm text-[#667085]">
-                Your next bill of <span className="font-semibold text-[#101828]">{currentPlan.nextBill}</span> will be charged on{" "}
+                {t("next_bill")} <span className="font-semibold text-[#101828]">{currentPlan.nextBill}</span> {t("charged_on")}{" "}
                 <span className="font-semibold text-[#101828]">{currentPlan.nextBillDate}</span>
               </p>
             </div>
 
             <div>
-              <h4 className="text-sm font-medium text-[#101828] mb-3">Plan Details</h4>
+              <h4 className="text-sm font-medium text-[#101828] mb-3">{t("plan_details")}</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {currentPlan.features.map((feature, index) => (
                   <div key={index} className="flex items-center gap-2">
@@ -104,7 +106,7 @@ const BillingPage = () => {
                 disabled={isLoading}
                 className="text-sm text-[#EF4444] hover:text-[#DC2626] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? "Cancelling Plan..." : "Cancel Plan"}
+                {isLoading ? t("cancelling_plan") : t("cancel_plan")}
               </button>
             </div>
           </div>
@@ -114,17 +116,17 @@ const BillingPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-medium text-[#101828] mb-1">
-                  View all plans and feature on the pricing page
+                  {t("view_all_plans")}
                 </h3>
                 <p className="text-xs text-[#667085]">
-                  Compare different plans and choose the one that fits your needs
+                  {t("compare_plans")}
                 </p>
               </div>
               <button
                 onClick={handleViewPricing}
                 className="flex items-center gap-2 text-sm text-[#2F80ED] font-medium hover:text-[#2563EB] transition-colors"
               >
-                <span>pricing page</span>
+                <span>{t("pricing_page")}</span>
                 <ExternalLink size={16} />
               </button>
             </div>
@@ -132,7 +134,7 @@ const BillingPage = () => {
 
           {/* Billing History */}
           <div className="bg-white border border-[#E4E7EC] rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-[#101828] mb-4">Billing History</h3>
+            <h3 className="text-lg font-semibold text-[#101828] mb-4">{t("billing_history")}</h3>
             <div className="text-center py-8">
               <div className="w-12 h-12 bg-[#F9FAFB] rounded-full flex items-center justify-center mx-auto mb-3">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -143,7 +145,7 @@ const BillingPage = () => {
                   <path d="M10 9H9H8" stroke="#667085" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <p className="text-sm text-[#667085]">No billing history available</p>
+              <p className="text-sm text-[#667085]">{t("no_billing_history")}</p>
             </div>
           </div>
         </div>

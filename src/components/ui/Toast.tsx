@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 interface ToastProps {
   message: string;
   type: 'success' | 'error';
-  isVisible: boolean;
+  isVisible?: boolean;
   onClose: () => void;
   duration?: number;
 }
