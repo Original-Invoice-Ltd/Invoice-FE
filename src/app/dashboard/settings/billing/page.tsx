@@ -16,12 +16,12 @@ const BillingPage = () => {
     nextBill: "₦24,000",
     nextBillDate: "Jun 10, 2026",
     features: [
-      "Up to 10 invoices per month",
-      "Auto-fill client & item info",
-      "Tax calculator (VAT, WHT, PAYE)",
-      "1 custom logo upload",
-      "1 company profile",
-      "Top-rated mobile app"
+      t("up_to_10_invoices"),
+      t("autofill_client_item"),
+      t("tax_calculator_vat_wht_paye"),
+      t("one_custom_logo"),
+      t("one_company_profile"),
+      t("top_rated_mobile_app")
     ]
   };
 
