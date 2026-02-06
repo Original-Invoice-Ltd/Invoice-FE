@@ -152,7 +152,7 @@ const DashboardContent = () => {
                         onClick={refreshAll}
                         className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700"
                     >
-                        Retry
+                        {t('retry')}
                     </button>
                 </div>
             </div>
@@ -524,13 +524,13 @@ const DashboardContent = () => {
                         ))
                     ) : (
                         <div className="p-4 text-center text-gray-500">
-                            No recent invoices available
+                            {t('no_recent_invoices_available')}
                         </div>
                     )}
                 </div>
                 <div className="p-4">
                     <Link href="/dashboard/invoices" className="w-full h-12 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] flex items-center justify-center">
-                        View More
+                        {t('view_more')}
                     </Link>
                 </div>
             </div>

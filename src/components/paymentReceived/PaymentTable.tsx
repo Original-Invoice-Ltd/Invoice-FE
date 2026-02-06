@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { MoreVertical } from "lucide-react";
 import { Payment } from "./types";
+import { useTranslation } from "react-i18next";
 
 interface PaymentTableProps {
   payments: Payment[];
@@ -21,6 +22,7 @@ const PaymentTable = ({
   onGetLink,
   onDelete,
 }: PaymentTableProps) => {
+  const { t } = useTranslation();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const getStatusColor = (status: Payment['status']) => {
@@ -49,13 +51,13 @@ const PaymentTable = ({
         <table className="w-full">
           <thead className="bg-[#F9FAFB] border-b border-[#E4E7EC]">
             <tr>
-              <th className="text-left px-6 py-3 text-xs font-medium text-[#7D7F81]">Date</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-[#7D7F81]">Client Name</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-[#7D7F81]">Invoice ID</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-[#7D7F81]">Status</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-[#7D7F81]">Due Date</th>
-              <th className="text-center px-6 py-3 text-xs font-medium text-[#7D7F81]">Amount</th>
-              <th className="text-center px-6 py-3 text-xs font-medium text-[#7D7F81]">Balance Due</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-[#7D7F81]">{t('date')}</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-[#7D7F81]">{t('client_name')}</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-[#7D7F81]">{t('invoice_id')}</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-[#7D7F81]">{t('status')}</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-[#7D7F81]">{t('due_date')}</th>
+              <th className="text-center px-6 py-3 text-xs font-medium text-[#7D7F81]">{t('amount')}</th>
+              <th className="text-center px-6 py-3 text-xs font-medium text-[#7D7F81]">{t('balance_due')}</th>
               <th className="bg-[#F9FAFB] text-right px-6 py-3 text-xs font-medium text-[#7D7F81]"></th>
             </tr>
           </thead>
@@ -96,7 +98,7 @@ const PaymentTable = ({
                             }}
                             className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           >
-                            Mark Paid
+                            {t('mark_paid')}
                           </button>
                         )}
                         {payment.status === 'Paid' && (
@@ -107,7 +109,7 @@ const PaymentTable = ({
                             }}
                             className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           >
-                            Mark as Unpaid
+                            {t('mark_unpaid')}
                           </button>
                         )}
                         <button
@@ -117,7 +119,7 @@ const PaymentTable = ({
                           }}
                           className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
-                          Email
+                          {t('email')}
                         </button>
                         <button
                           onClick={() => {
@@ -126,7 +128,7 @@ const PaymentTable = ({
                           }}
                           className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
-                          Get Link
+                          {t('get_link')}
                         </button>
                         <button
                           onClick={() => {
@@ -135,7 +137,7 @@ const PaymentTable = ({
                           }}
                           className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                         >
-                          Delete
+                          {t('delete')}
                         </button>
                       </div>
                     </>
@@ -165,24 +167,24 @@ const PaymentTable = ({
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs mb-3">
               <div>
-                <span className="text-[#667085]">Date:</span>
+                <span className="text-[#667085]">{t('date')}:</span>
                 <span className="ml-1 text-[#101828]">{payment.date}</span>
               </div>
               <div>
-                <span className="text-[#667085]">Due Date:</span>
+                <span className="text-[#667085]">{t('due_date')}:</span>
                 <span className="ml-1 text-[#101828]">{payment.dueDate}</span>
               </div>
               <div>
-                <span className="text-[#667085]">Amount:</span>
+                <span className="text-[#667085]">{t('amount')}:</span>
                 <span className="ml-1 text-[#101828] font-medium">${payment.amount.toLocaleString()}</span>
               </div>
               <div>
-                <span className="text-[#667085]">Balance:</span>
+                <span className="text-[#667085]">{t('balance_due')}:</span>
                 <span className="ml-1 text-[#101828]">${payment.balanceDue.toLocaleString()}</span>
               </div>
             </div>
             <div className="flex items-center">
-              <span className="text-xs text-[#667085] mr-2">Status:</span>
+              <span className="text-xs text-[#667085] mr-2">{t('status')}:</span>
               <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(payment.status)}`}>
                 {payment.status}
               </span>
@@ -203,7 +205,7 @@ const PaymentTable = ({
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      Mark Paid
+                      {t('mark_paid')}
                     </button>
                   )}
                   {payment.status === 'Paid' && (
@@ -214,7 +216,7 @@ const PaymentTable = ({
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      Mark as Unpaid
+                      {t('mark_unpaid')}
                     </button>
                   )}
                   <button
@@ -224,7 +226,7 @@ const PaymentTable = ({
                     }}
                     className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    Email
+                    {t('email')}
                   </button>
                   <button
                     onClick={() => {
@@ -233,7 +235,7 @@ const PaymentTable = ({
                     }}
                     className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    Get Link
+                    {t('get_link')}
                   </button>
                   <button
                     onClick={() => {
@@ -242,7 +244,7 @@ const PaymentTable = ({
                     }}
                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                   >
-                    Delete
+                    {t('delete')}
                   </button>
                 </div>
               </>

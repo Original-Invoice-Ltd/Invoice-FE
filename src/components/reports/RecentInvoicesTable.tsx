@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import { Invoice } from "./types";
+import { useTranslation } from "react-i18next";
 
 interface RecentInvoicesTableProps {
   invoices: Invoice[];
@@ -12,6 +13,7 @@ const RecentInvoicesTable = ({
   searchQuery, 
   onSearchChange 
 }: RecentInvoicesTableProps) => {
+  const { t } = useTranslation();
   const getStatusStyles = (status: string) => {
     switch (status) {
       case 'Paid':
@@ -67,13 +69,13 @@ const RecentInvoicesTable = ({
       <div className="flex items-center justify-between h-[38px] mb-[18px]">
         <h3 className="text-[18px] font-semibold text-[#000000] leading-[140%] tracking-[0.01em]" 
             style={{ fontFamily: 'Lato', height: '38px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          Recent Invoice
+          {t('recent_invoice')}
         </h3>
         <div className="relative w-[344px] h-[38px]">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#B0B3B5]" size={18} />
           <input
             type="text"
-            placeholder="Search invoice"
+            placeholder={t('search_invoice')}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="w-full h-full pl-10 pr-4 border border-[#D0D5DD] rounded-lg text-[16px] 
@@ -95,37 +97,37 @@ const RecentInvoicesTable = ({
                 <th className="text-left h-[40px] px-4 text-[12px] font-medium text-[#667085] bg-[#F8F8FA] 
                               border-r border-b border-[#E5E5E5]" 
                     style={{ width: '163.33px', gap: '12px' }}>
-                  Date
+                  {t('date')}
                 </th>
                 <th className="text-left h-[40px] px-4 text-[12px] font-medium text-[#667085] bg-[#F8F8FA] 
                               border-r border-b border-[#E5E5E5]" 
                     style={{ width: '163.33px', gap: '12px' }}>
-                  Client Name
+                  {t('client_name')}
                 </th>
                 <th className="text-left h-[40px] px-4 text-[12px] font-medium text-[#667085] bg-[#F8F8FA] 
                               border-r border-b border-[#E5E5E5]" 
                     style={{ width: '163.33px', gap: '12px' }}>
-                  Invoice ID
+                  {t('invoice_id')}
                 </th>
                 <th className="text-left h-[40px] px-4 text-[12px] font-medium text-[#667085] bg-[#F8F8FA] 
                               border-r border-b border-[#E5E5E5]" 
                     style={{ width: '163.33px', gap: '12px' }}>
-                  Status
+                  {t('status')}
                 </th>
                 <th className="text-left h-[40px] px-4 text-[12px] font-medium text-[#667085] bg-[#F8F8FA] 
                               border-r border-b border-[#E5E5E5]" 
                     style={{ width: '163.33px', gap: '12px' }}>
-                  Due Date
+                  {t('due_date')}
                 </th>
                 <th className="text-left h-[40px] px-4 text-[12px] font-medium text-[#667085] bg-[#F8F8FA] 
                               border-r border-b border-[#E5E5E5]" 
                     style={{ width: '163.33px', gap: '12px' }}>
-                  Amount
+                  {t('amount')}
                 </th>
                 <th className="text-left h-[40px] px-4 text-[12px] font-medium text-[#667085] bg-[#F8F8FA] 
                               border-r border-b border-[#E5E5E5] whitespace-nowrap" 
                     style={{ width: '100px', gap: '12px' }}>
-                  Balance Due
+                  {t('balance_due')}
                 </th>
               </tr>
             </thead>

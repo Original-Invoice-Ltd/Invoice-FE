@@ -6,6 +6,7 @@ import { ApiClient } from "@/lib/api";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
 import { ApiResponse } from "@/types/invoice";
+import { useTranslation } from "react-i18next";
 
 // TypeScript interfaces for tax settings
 interface TaxSettingsDto {
@@ -18,6 +19,7 @@ interface TaxSettingsDto {
 
 const TaxSettingsPage = () => {
   const { toast, showSuccess, showError, hideToast } = useToast();
+  const { t } = useTranslation();
   
   const [settings, setSettings] = useState({
     enableVAT: false,
@@ -52,7 +54,7 @@ const TaxSettingsPage = () => {
       }
     } catch (error) {
       // console.error("Error loading tax settings:", error);
-      showError("Failed to load tax settings. Please refresh the page.");
+      showError(t("failed_save_tax_settings"));
     } finally {
       setIsLoadingData(false);
     }
@@ -138,13 +140,13 @@ const TaxSettingsPage = () => {
           taxId: data.data.taxId || "",
         });
         
-        showSuccess("Tax settings saved successfully!");
+        showSuccess(t("tax_settings_saved"));
       } else {
-        showError("Failed to save tax settings. Please try again.");
+        showError(t("failed_save_tax_settings"));
       }
     } catch (error) {
       // console.error("Error saving tax settings:", error);
-      showError("An unexpected error occurred. Please try again.");
+      showError(t("unexpected_error_occurred"));
     } finally {
       setIsLoading(false);
     }
@@ -163,7 +165,7 @@ const TaxSettingsPage = () => {
         <div className="max-w-2xl">
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED]"></div>
-            <span className="ml-3 text-[#667085]">Loading tax settings...</span>
+            <span className="ml-3 text-[#667085]">{t("loading_tax_settings")}</span>
           </div>
         </div>
       </div>
@@ -184,7 +186,7 @@ const TaxSettingsPage = () => {
           {/* Enable VAT */}
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-medium text-[#101828]">Enable VAT (7.5%)</h3>
+              <h3 className="text-sm font-medium text-[#101828]">{t("enable_vat")}</h3>
             </div>
             <button
               type="button"
@@ -204,7 +206,7 @@ const TaxSettingsPage = () => {
           {/* Enable WHT */}
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-medium text-[#101828]">Enable Withholding Tax (WHT)</h3>
+              <h3 className="text-sm font-medium text-[#101828]">{t("enable_wht")}</h3>
             </div>
             <button
               type="button"
@@ -223,7 +225,7 @@ const TaxSettingsPage = () => {
 
           {/* Default Tax Applied to New Items */}
           <div>
-            <h3 className="text-sm font-medium text-[#101828] mb-3">Default Tax Applied to New Items</h3>
+            <h3 className="text-sm font-medium text-[#101828] mb-3">{t("default_tax_applied")}</h3>
             <div className="space-y-3">
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
@@ -234,7 +236,7 @@ const TaxSettingsPage = () => {
                   onChange={(e) => handleRadioChange(e.target.value)}
                   className="w-4 h-4 text-[#2F80ED] border-[#D0D5DD] focus:ring-[#2F80ED]"
                 />
-                <span className="text-sm text-[#101828]">VAT Only</span>
+                <span className="text-sm text-[#101828]">{t("vat_only")}</span>
               </label>
 
               <label className="flex items-center gap-3 cursor-pointer">
@@ -246,7 +248,7 @@ const TaxSettingsPage = () => {
                   onChange={(e) => handleRadioChange(e.target.value)}
                   className="w-4 h-4 text-[#2F80ED] border-[#D0D5DD] focus:ring-[#2F80ED]"
                 />
-                <span className="text-sm text-[#101828]">WHT Only</span>
+                <span className="text-sm text-[#101828]">{t("wht_only")}</span>
               </label>
 
               <label className="flex items-center gap-3 cursor-pointer">
@@ -258,7 +260,7 @@ const TaxSettingsPage = () => {
                   onChange={(e) => handleRadioChange(e.target.value)}
                   className="w-4 h-4 text-[#2F80ED] border-[#D0D5DD] focus:ring-[#2F80ED]"
                 />
-                <span className="text-sm text-[#101828]">Both VAT and WHT</span>
+                <span className="text-sm text-[#101828]">{t("both_vat_wht")}</span>
               </label>
 
               <label className="flex items-center gap-3 cursor-pointer">
@@ -270,7 +272,7 @@ const TaxSettingsPage = () => {
                   onChange={(e) => handleRadioChange(e.target.value)}
                   className="w-4 h-4 text-[#2F80ED] border-[#D0D5DD] focus:ring-[#2F80ED]"
                 />
-                <span className="text-sm text-[#101828]">No Tax</span>
+                <span className="text-sm text-[#101828]">{t("no_tax")}</span>
               </label>
             </div>
           </div>
@@ -278,13 +280,13 @@ const TaxSettingsPage = () => {
           {/* Tax ID / TIN */}
           <div>
             <label className="block text-sm font-medium text-[#101828] mb-2">
-              Tax ID / TIN
+              {t("tax_id_tin")}
             </label>
             <input
               type="text"
               value={settings.taxId}
               onChange={handleTaxIdChange}
-              placeholder="Enter your Tax ID Number"
+              placeholder={t("enter_tax_id")}
               className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
             />
           </div>
@@ -293,7 +295,7 @@ const TaxSettingsPage = () => {
           <div className="flex items-start gap-3 p-4 bg-[#EFF8FF] border border-[#B9E6FE] rounded-lg">
             <Info size={20} className="text-[#2F80ED] flex-shrink-0 mt-0.5" />
             <p className="text-sm text-[#2F80ED]">
-              These tax settings are automatically applied when you create invoices
+              {t("tax_settings_auto_applied")}
             </p>
           </div>
 
@@ -304,14 +306,14 @@ const TaxSettingsPage = () => {
               onClick={handleCancel}
               className="px-6 py-2.5 border border-[#D0D5DD] text-[#667085] rounded-lg hover:bg-[#F9FAFB] transition-colors"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               type="submit"
               disabled={isLoading}
               className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Saving Settings..." : "Save Settings"}
+              {isLoading ? t("saving_settings") : t("save_settings")}
             </button>
           </div>
         </form>

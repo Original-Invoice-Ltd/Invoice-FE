@@ -6,8 +6,10 @@ import { Info } from "lucide-react";
 import { useToast } from '@/hooks/useToast';
 import { ApiClient } from '@/lib/api';
 import Toast from '@/components/ui/Toast';
+import { useTranslation } from "react-i18next";
 
 const NotificationsPage = () => {
+  const { t } = useTranslation();
   const [settings, setSettings] = useState({
     paymentRecorded: true,
     invoiceSent: true,
@@ -36,13 +38,13 @@ const NotificationsPage = () => {
 
       const response = await ApiClient.updateNotificationPreference(settings);
       if (response.status === 200) {
-        showSuccess("Notification settings updated successfully!");
+        showSuccess(t("notification_settings_updated"));
       } else {
-        showError("Failed to update notification settings. Please try again.");
+        showError(t("failed_update_notification"));
       }
     } catch (error) {
       console.error("Error saving notification settings:", error);
-      showError("An unexpected error occurred. Please try again.");
+      showError(t("unexpected_error_occurred"));
     } finally {
       setIsLoading(false);
     }
@@ -57,11 +59,11 @@ const NotificationsPage = () => {
         setSettings(responseData.data);
       } else {
         console.error("Failed to load notification settings:", response);
-        showError("Failed to load notification settings. Please refresh the page.");
+        showError(t("failed_update_notification"));
       }
     } catch (error) {
       console.error("Error loading notification settings:", error);
-      showError("Failed to load notification settings. Please refresh the page.");
+      showError(t("failed_update_notification"));
     } finally {
       setIsLoadingData(false);
     }
@@ -74,28 +76,28 @@ const NotificationsPage = () => {
   const notificationItems = [
     {
       key: 'paymentRecorded' as keyof typeof settings,
-      title: 'Payment Recorded',
-      description: 'Get notified when payments are recorded'
+      title: t('payment_recorded'),
+      description: t('get_notified_payment')
     },
     {
       key: 'invoiceSent' as keyof typeof settings,
-      title: 'Invoice Sent',
-      description: 'Get notified when invoices are sent to clients'
+      title: t('invoice_sent'),
+      description: t('get_notified_invoice_sent')
     },
     {
       key: 'invoiceReminder' as keyof typeof settings,
-      title: 'Invoice Reminder',
-      description: 'Get notified about invoice reminders'
+      title: t('invoice_reminder'),
+      description: t('get_notified_invoice_reminder')
     },
     {
       key: 'clientAdded' as keyof typeof settings,
-      title: 'Client Added',
-      description: 'Get notified when new clients are added'
+      title: t('client_added'),
+      description: t('get_notified_client_added')
     },
     {
       key: 'systemAlerts' as keyof typeof settings,
-      title: 'System Alerts',
-      description: 'Get notified about system updates and alerts'
+      title: t('system_alerts'),
+      description: t('get_notified_system_alerts')
     },
   ];
 
@@ -107,7 +109,7 @@ const NotificationsPage = () => {
         <div className="max-w-2xl">
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED]"></div>
-            <span className="ml-3 text-[#667085]">Loading notification settings...</span>
+            <span className="ml-3 text-[#667085]">{t("loading_notification_settings")}</span>
           </div>
         </div>
       </div>
@@ -154,7 +156,7 @@ const NotificationsPage = () => {
           <div className="flex items-start gap-3 p-4 bg-[#EFF8FF] border border-[#B9E6FE] rounded-lg">
             <Info size={20} className="text-[#2F80ED] flex-shrink-0 mt-0.5" />
             <p className="text-sm text-[#2F80ED]">
-              Email notifications will be sent to your registered email address. In-app notifications will appear in your notification center within the application.
+              {t("email_notification_info")}
             </p>
           </div>
 
@@ -165,7 +167,7 @@ const NotificationsPage = () => {
               disabled={isLoading}
               className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Saving Settings..." : "Save Settings"}
+              {isLoading ? t("saving_settings") : t("save_settings")}
             </button>
           </div>
         </form>

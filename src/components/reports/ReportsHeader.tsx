@@ -1,4 +1,8 @@
+import { useTranslation } from "react-i18next";
+
 const ReportsHeader = () => {
+  const { t } = useTranslation();
+  
   return (
     <div 
       className="flex flex-col sm:flex-row sm:items-start mb-6 w-full"
@@ -22,7 +26,7 @@ const ReportsHeader = () => {
             letterSpacing: '0%',
             color: '#000000'
           }}>
-          Reports & Analytics
+          {t('reports_analytics')}
         </h1>
         <p 
           style={{ 
@@ -36,7 +40,7 @@ const ReportsHeader = () => {
             letterSpacing: '1%',
             color: '#333436'
           }}>
-          See how your business is performing over time.
+          {t('see_business_performance')}
         </p>
       </div>
       
@@ -61,7 +65,7 @@ const ReportsHeader = () => {
 <path d="M12 12L20 4M20 4H15M20 4V9M11 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H17C18.6569 20 20 18.6569 20 17V13" stroke="#2F80ED" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 
-          Share
+          {t('share')}
         </button>
         <button 
           className="flex items-center justify-center text-white transition-colors"
@@ -81,7 +85,7 @@ const ReportsHeader = () => {
 <path d="M12 20V4M12 20L6 14M12 20L18 14" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 
-          Export
+          {t('export')}
         </button>
       </div>
     </div>

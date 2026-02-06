@@ -647,7 +647,7 @@ const ClientsPage = () => {
                 onClose={closeDeleteModal}
                 onConfirm={confirmDeleteClient}
                 title={t('delete_client')}
-                message={`${t('delete_client_confirm')} ${deleteModal.client?.fullName}? ${t('action_cannot_undone')}`}
+                message={`${t('delete_client_confirm')} ${deleteModal.client?.fullName}? ${t('client_action_cannot_undone')}`}
                 type="client"
                 isLoading={deleteModal.isLoading}
             />
