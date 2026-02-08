@@ -36,9 +36,9 @@ interface InvoiceLimitProviderProps {
 
 export const InvoiceLimitProvider = ({ children }: InvoiceLimitProviderProps) => {
   const [canCreateInvoice, setCanCreateInvoice] = useState(true);
-  const [invoicesRemaining, setInvoicesRemaining] = useState(0);
-  const [totalInvoices, setTotalInvoices] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [invoicesRemaining, setInvoicesRemaining] = useState(10);
+  const [totalInvoices, setTotalInvoices] = useState(10);
+  const [isLoading, setIsLoading] = useState(true);
   const [notificationState, setNotificationState] = useState({
     isVisible: false,
     type: "warning" as "warning" | "blocked",
@@ -85,8 +85,8 @@ export const InvoiceLimitProvider = ({ children }: InvoiceLimitProviderProps) =>
       console.error("Error checking invoice limit:", error);
       // Default to allowing invoice creation on error
       setCanCreateInvoice(true);
-      setInvoicesRemaining(3);
-      setTotalInvoices(3);
+      setInvoicesRemaining(10);
+      setTotalInvoices(10);
     } finally {
       setIsLoading(false);
     }
