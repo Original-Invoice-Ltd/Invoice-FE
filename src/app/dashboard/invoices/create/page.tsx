@@ -524,7 +524,7 @@ const CreateInvoicePage = () => {
 
     const handlePreviewInvoice = () => {
         if (!canCreateInvoice) {
-            showBlockedNotif();
+            window.location.href = '/dashboard/pricing';
             return;
         }
         const currentError = getFirstValidationError();
