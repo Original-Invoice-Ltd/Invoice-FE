@@ -4,11 +4,13 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, AlertCircle, Loader2 } from "lucide-react";
 import { verifySubscription } from "@/lib/subscription";
+import { useTranslation } from "react-i18next";
 
 const SubscriptionSuccessContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const reference = searchParams.get("reference");
+  const { t } = useTranslation();
   
   const [status, setStatus] = useState<"loading" | "success" | "failed">("loading");
   const [plan, setPlan] = useState<"ESSENTIALS" | "PREMIUM">("ESSENTIALS");
@@ -65,10 +67,10 @@ const SubscriptionSuccessContent = () => {
             <Loader2 className="w-12 h-12 text-[#2F80ED] animate-spin" />
           </div>
           <h2 className="text-xl font-semibold text-[#101828] mb-2">
-            Verifying Payment
+            {t('verifying_payment')}
           </h2>
           <p className="text-[#667085]">
-            Please wait while we confirm your subscription...
+            {t('please_wait_confirm_subscription')}
           </p>
         </div>
       </div>
@@ -85,19 +87,19 @@ const SubscriptionSuccessContent = () => {
             </div>
           </div>
           <h2 className="text-xl font-semibold text-[#101828] mb-2">
-            Subscription Activated!
+            {t('subscription_activated')}
           </h2>
           <p className="text-[#667085] mb-6">
-            Your {plan} plan has been activated successfully. You can now enjoy all the features of your subscription.
+            {t('plan_activated_successfully').replace('{plan}', plan)}
           </p>
           <p className="text-sm text-[#667085] mb-6">
-            Redirecting to dashboard in 3 seconds...
+            {t('redirecting_dashboard_seconds')}
           </p>
           <button
             onClick={handleContinue}
             className="w-full bg-[#2F80ED] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#1E6FCC] transition-colors"
           >
-            Continue to Dashboard
+            {t('continue_to_dashboard')}
           </button>
         </div>
       </div>
@@ -113,23 +115,23 @@ const SubscriptionSuccessContent = () => {
           </div>
         </div>
         <h2 className="text-xl font-semibold text-[#101828] mb-2">
-          Payment Failed
+          {t('payment_failed')}
         </h2>
         <p className="text-[#667085] mb-6">
-          {errorMessage || "There was an issue processing your payment. Please try again."}
+          {errorMessage || t('payment_issue_try_again')}
         </p>
         <div className="flex gap-3">
           <button
             onClick={handleRetry}
             className="flex-1 bg-[#2F80ED] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#1E6FCC] transition-colors"
           >
-            Try Again
+            {t('try_again')}
           </button>
           <button
             onClick={handleContinue}
             className="flex-1 border border-[#D0D5DD] text-[#344054] py-3 px-4 rounded-lg font-medium hover:bg-[#F9FAFB] transition-colors"
           >
-            Go to Dashboard
+            {t('go_to_dashboard')}
           </button>
         </div>
       </div>
@@ -137,23 +139,29 @@ const SubscriptionSuccessContent = () => {
   );
 };
 
+const LoadingFallback = () => {
+  const { t } = useTranslation();
+  
+  return (
+    <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
+      <div className="bg-white rounded-lg shadow-sm border border-[#E4E7EC] p-8 max-w-md w-full mx-4 text-center">
+        <div className="flex justify-center mb-6">
+          <Loader2 className="w-12 h-12 text-[#2F80ED] animate-spin" />
+        </div>
+        <h2 className="text-xl font-semibold text-[#101828] mb-2">
+          {t('loading')}
+        </h2>
+        <p className="text-[#667085]">
+          {t('loading_subscription_details')}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 const SubscriptionSuccessPage = () => {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-sm border border-[#E4E7EC] p-8 max-w-md w-full mx-4 text-center">
-          <div className="flex justify-center mb-6">
-            <Loader2 className="w-12 h-12 text-[#2F80ED] animate-spin" />
-          </div>
-          <h2 className="text-xl font-semibold text-[#101828] mb-2">
-            Loading...
-          </h2>
-          <p className="text-[#667085]">
-            Please wait while we load your subscription details...
-          </p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<LoadingFallback />}>
       <SubscriptionSuccessContent />
     </Suspense>
   );

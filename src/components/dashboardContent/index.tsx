@@ -9,14 +9,26 @@ import {
     useDashboard,
     // useAutoRefreshDashboard
 } from '@/hooks/useDashboard';
+import { useTranslation } from 'react-i18next';
+import { ApiClient } from '@/lib/api';
 
 const DashboardContent = () => {
     const { user, loading: userLoading } = useAuth();
+    const { t } = useTranslation();
     const [isClient, setIsClient] = useState(false);
     const [trendsPeriod, setTrendsPeriod] = useState<'month' | 'year'>('month');
     
     // Fetch dashboard data with separated loading states
     const { data, loading, error, refreshTrends, refreshAll } = useDashboard('month', 5);
+    
+    // Customer invoice stats
+    const [customerStats, setCustomerStats] = useState({
+        totalReceived: 0,
+        paid: 0,
+        pending: 0,
+        overdue: 0,
+    });
+    const [customerStatsLoading, setCustomerStatsLoading] = useState(true);
     
     // Auto-refresh all data every 5 minutes
     // useAutoRefreshDashboard(refreshAll);
@@ -30,11 +42,39 @@ const DashboardContent = () => {
 
     useEffect(() => {
         setIsClient(true);
-    }, []);
+        
+        // Fetch customer invoice stats
+        const fetchCustomerStats = async () => {
+            if (!user?.email) {
+                setCustomerStatsLoading(false);
+                return;
+            }
+            
+            try {
+                setCustomerStatsLoading(true);
+                const response = await ApiClient.getInvoiceStats(user.email);
+                
+                if (response.status === 200 && response.data) {
+                    setCustomerStats({
+                        totalReceived: response.data.totalReceived || 0,
+                        paid: response.data.paid || 0,
+                        pending: response.data.pending || 0,
+                        overdue: response.data.overdue || 0,
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to fetch customer stats:', err);
+            } finally {
+                setCustomerStatsLoading(false);
+            }
+        };
+        
+        fetchCustomerStats();
+    }, [user?.email]);
 
     // Get user's first name for welcome message - wait for user to load
     const getFirstName = () => {
-        if (userLoading) return 'Loading...';
+        if (userLoading) return t('loading');
         if (!user?.fullName) return 'User';
         return user.fullName.split(' ')[0];
     };
@@ -55,19 +95,19 @@ const DashboardContent = () => {
         const { paid, pending, overdue } = data.stats.statusDistribution;
         return [
             { 
-                name: 'Paid', 
+                name: t('paid'),
                 value: paid.amount, 
                 color: '#10B981', 
                 percentage: `+${paid.percentage.toFixed(1)}%` 
             },
             { 
-                name: 'Pending', 
+                name: t('pending'),
                 value: pending.amount, 
                 color: '#3B82F6', 
                 percentage: `+${pending.percentage.toFixed(1)}%` 
             },
             { 
-                name: 'Overdue', 
+                name: t('overdue'),
                 value: overdue.amount, 
                 color: '#EF4444', 
                 percentage: `+${overdue.percentage.toFixed(1)}%` 
@@ -144,13 +184,13 @@ const DashboardContent = () => {
         return (
             <div className="max-w-7xl mx-auto mb-[200px] p-6">
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                    <h3 className="text-red-800 font-medium mb-2">Error Loading Dashboard</h3>
+                    <h3 className="text-red-800 font-medium mb-2">{t('error_loading_invoices')}</h3>
                     <p className="text-red-600 text-sm mb-4">{error}</p>
                     <button 
                         onClick={refreshAll}
                         className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700"
                     >
-                        Retry
+                        {t('retry')}
                     </button>
                 </div>
             </div>
@@ -167,31 +207,33 @@ const DashboardContent = () => {
                 <h1 className="text-xl lg:text-2xl font-semibold text-[#101828] mb-1">
                     {userLoading ? (
                         <span className="inline-flex items-center gap-2">
-                            Welcome, 
+                            {t('home')}, 
                             <div className="animate-pulse bg-gray-200 h-6 w-16 rounded"></div>
                         </span>
                     ) : (
-                        `Welcome, ${getFirstName()}`
+                        `${t('home')}, ${getFirstName()}`
                     )}
                 </h1>
-                <p className="text-sm text-[#667085]">Here&apos;s your business performance at a glance</p>
+                <p className="text-sm text-[#667085]">{t('performance_glance')}</p>
             </div>
 
             {/* Action Buttons */}
             <div className="flex gap-3 mb-6">
                 <Link href="/dashboard/clients" className="flex-1 lg:flex-none lg:px-6 border border-[#2F80ED] text-[#2F80ED] rounded-lg text-sm font-medium hover:bg-[#EFF8FF] h-12 flex items-center justify-center">
-                    Add Client
+                    {t('add_client')}
                 </Link>
                 <Link href="/dashboard/invoices/create" className="flex-1 lg:flex-none lg:px-6 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] h-12 flex items-center justify-center gap-2">
                     <Plus size={18} />
-                    Create Invoice
+                    {t('create_invoice')}
                 </Link>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
-                <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
-                    <p className="text-sm text-[#667085] mb-2">Total Invoice Sent</p>
+            {/* Invoices Sent Stats Cards */}
+            <div className="mb-6">
+                <h2 className="text-lg font-semibold text-[#101828] mb-4">Invoices Sent</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                    <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
+                    <p className="text-sm text-[#667085] mb-2">{t('Sent Invoices')}</p>
                     {loading.stats ? (
                         <div className="animate-pulse">
                             <div className="h-8 bg-gray-200 rounded w-2/3"></div>
@@ -214,7 +256,7 @@ const DashboardContent = () => {
                     )}
                 </div>
                 <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
-                    <p className="text-sm text-[#667085] mb-2">Paid Invoices</p>
+                    <p className="text-sm text-[#667085] mb-2">{t('payments_received_total')}</p>
                     {loading.stats ? (
                         <div className="animate-pulse">
                             <div className="h-8 bg-gray-200 rounded w-2/3"></div>
@@ -237,7 +279,7 @@ const DashboardContent = () => {
                     )}
                 </div>
                 <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
-                    <p className="text-sm text-[#667085] mb-2">Pending Invoice</p>
+                    <p className="text-sm text-[#667085] mb-2">{t('pending')}</p>
                     {loading.stats ? (
                         <div className="animate-pulse">
                             <div className="h-8 bg-gray-200 rounded w-2/3"></div>
@@ -260,7 +302,7 @@ const DashboardContent = () => {
                     )}
                 </div>
                 <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
-                    <p className="text-sm text-[#667085] mb-2">Overdue Invoice</p>
+                    <p className="text-sm text-[#667085] mb-2">{t('overdue')}</p>
                     {loading.stats ? (
                         <div className="animate-pulse">
                             <div className="h-8 bg-gray-200 rounded w-2/3"></div>
@@ -283,24 +325,72 @@ const DashboardContent = () => {
                     )}
                 </div>
             </div>
+            </div>
+
+            {/* Customer Invoice Stats Cards */}
+            <div className="mb-6">
+                <h2 className="text-lg font-semibold text-[#101828] mb-4">Received Invoices</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                    <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
+                        <div className="text-3xl font-bold text-gray-900 mb-2">
+                            {customerStatsLoading ? (
+                                <div className="animate-pulse bg-gray-300 h-8 w-12 rounded"></div>
+                            ) : (
+                                customerStats.totalReceived
+                            )}
+                        </div>
+                        <div className="text-sm text-gray-600">Total Invoice Received</div>
+                    </div>
+                    <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
+                        <div className="text-3xl font-bold text-gray-900 mb-2">
+                            {customerStatsLoading ? (
+                                <div className="animate-pulse bg-gray-300 h-8 w-12 rounded"></div>
+                            ) : (
+                                customerStats.paid
+                            )}
+                        </div>
+                        <div className="text-sm text-gray-600">Paid Invoice</div>
+                    </div>
+                    <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
+                        <div className="text-3xl font-bold text-gray-900 mb-2">
+                            {customerStatsLoading ? (
+                                <div className="animate-pulse bg-gray-300 h-8 w-12 rounded"></div>
+                            ) : (
+                                customerStats.pending
+                            )}
+                        </div>
+                        <div className="text-sm text-gray-600">Pending Invoice</div>
+                    </div>
+                    <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
+                        <div className="text-3xl font-bold text-gray-900 mb-2">
+                            {customerStatsLoading ? (
+                                <div className="animate-pulse bg-gray-300 h-8 w-12 rounded"></div>
+                            ) : (
+                                customerStats.overdue
+                            )}
+                        </div>
+                        <div className="text-sm text-gray-600">Overdue Invoice</div>
+                    </div>
+                </div>
+            </div>
 
             {/* Payment Trends - Mobile & Desktop */}
             <div className="bg-white p-4 rounded-xl border border-[#E4E7EC] mb-6">
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-base lg:text-lg font-semibold text-[#101828]">Payment Trends</h3>
+                    <h3 className="text-base lg:text-lg font-semibold text-[#101828]">{t('track_payments_title')}</h3>
                     <button 
                         onClick={handleTrendsPeriodChange}
                         disabled={loading.trends}
                         className="flex items-center gap-2 text-xs lg:text-sm text-[#667085] hover:text-[#2F80ED] disabled:opacity-50"
                     >
-                        {trendsPeriod === 'month' ? 'This Month' : 'This Year'}
+                        {trendsPeriod === 'month' ? t('monthly') : t('annually')}
                         <ChevronDown size={16} />
                     </button>
                 </div>
                 <div className="w-full h-[200px] lg:h-[280px]" style={{ minWidth: '300px', minHeight: '200px' }}>
                     {loading.trends ? (
                         <div className="animate-pulse h-full bg-gray-100 rounded flex items-center justify-center">
-                            <div className="text-gray-400">Loading chart...</div>
+                            <div className="text-gray-400">{t('loading')}</div>
                         </div>
                     ) : isClient && chartData.length > 0 ? (
                         <ResponsiveContainer width="100%" height="100%">
@@ -331,7 +421,7 @@ const DashboardContent = () => {
                         </ResponsiveContainer>
                     ) : (
                         <div className="flex items-center justify-center h-full text-gray-500">
-                            {chartData.length === 0 ? 'No payment data available' : 'Loading chart...'}
+                            {chartData.length === 0 ? t('no_invoices_found') : t('loading')}
                         </div>
                     )}
                 </div>
@@ -342,20 +432,20 @@ const DashboardContent = () => {
                 {/* Payment Trends - Desktop */}
                 <div className="flex-1 bg-white p-4 rounded-xl border border-[#E4E7EC]">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-[#101828]">Payment Trends</h3>
+                        <h3 className="text-lg font-semibold text-[#101828]">{t('track_payments_title')}</h3>
                         <button 
                             onClick={handleTrendsPeriodChange}
                             disabled={loading.trends}
                             className="flex items-center gap-2 text-sm text-[#667085] hover:text-[#2F80ED] disabled:opacity-50"
                         >
-                            {trendsPeriod === 'month' ? 'This Month' : 'This Year'}
+                            {trendsPeriod === 'month' ? t('monthly') : t('annually')}
                             <ChevronDown size={16} />
                         </button>
                     </div>
                     <div className="w-full h-[280px]" style={{ minWidth: '400px', minHeight: '280px' }}>
                         {loading.trends ? (
                             <div className="animate-pulse h-full bg-gray-100 rounded flex items-center justify-center">
-                                <div className="text-gray-400">Loading chart...</div>
+                                <div className="text-gray-400">{t('loading')}</div>
                             </div>
                         ) : isClient && chartData.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
@@ -386,7 +476,7 @@ const DashboardContent = () => {
                             </ResponsiveContainer>
                         ) : (
                             <div className="flex items-center justify-center h-full text-gray-500">
-                                {chartData.length === 0 ? 'No payment data available' : 'Loading chart...'}
+                                {chartData.length === 0 ? t('no_invoices_found') : t('loading')}
                             </div>
                         )}
                     </div>
@@ -395,9 +485,9 @@ const DashboardContent = () => {
                 {/* Status Distribution - Desktop */}
                 <div className="w-[392px] bg-white p-4 rounded-xl border border-[#E4E7EC]">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-[#101828]">Status Distribution</h3>
+                        <h3 className="text-lg font-semibold text-[#101828]">{t('status')}</h3>
                         <button className="flex items-center gap-2 text-sm text-[#667085]">
-                            This Month
+                            {t('monthly')}
                             <ChevronDown size={16} />
                         </button>
                     </div>
@@ -423,7 +513,7 @@ const DashboardContent = () => {
                         )}
                         {(!isClient || statusDistributionData.length === 0) && (
                             <div className="flex items-center justify-center h-full text-gray-500">
-                                {statusDistributionData.length === 0 ? 'No status data available' : 'Loading chart...'}
+                                {statusDistributionData.length === 0 ? t('no_invoices_found') : t('loading')}
                             </div>
                         )}
                     </div>
@@ -444,9 +534,9 @@ const DashboardContent = () => {
             {/* Status Distribution - Mobile Only */}
             <div className="lg:hidden bg-white p-4 rounded-xl border border-[#E4E7EC] mb-6">
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-base font-semibold text-[#101828]">Status Distribution</h3>
+                    <h3 className="text-base font-semibold text-[#101828]">{t('status')}</h3>
                     <button className="flex items-center gap-2 text-xs text-[#667085]">
-                        This Month
+                        {t('monthly')}
                         <ChevronDown size={16} />
                     </button>
                 </div>
@@ -472,7 +562,7 @@ const DashboardContent = () => {
                     )}
                     {(!isClient || statusDistributionData.length === 0) && (
                         <div className="flex items-center justify-center h-full text-gray-500">
-                            {statusDistributionData.length === 0 ? 'No status data available' : 'Loading chart...'}
+                            {statusDistributionData.length === 0 ? t('no_invoices_found') : t('loading')}
                         </div>
                     )}
                 </div>
@@ -508,7 +598,7 @@ const DashboardContent = () => {
                                         <p className="text-sm font-medium text-[#101828]">{formatDate(invoice.date)}</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-xs text-[#667085] mb-1">Client Name</p>
+                                        <p className="text-xs text-[#667085] mb-1">{t('client_name')}</p>
                                         <p className="text-sm font-medium text-[#101828]">{invoice.client}</p>
                                     </div>
                                 </div>
@@ -522,13 +612,13 @@ const DashboardContent = () => {
                         ))
                     ) : (
                         <div className="p-4 text-center text-gray-500">
-                            No recent invoices available
+                            {t('no_recent_invoices_available')}
                         </div>
                     )}
                 </div>
                 <div className="p-4">
                     <Link href="/dashboard/invoices" className="w-full h-12 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] flex items-center justify-center">
-                        View More
+                        {t('view_more')}
                     </Link>
                 </div>
             </div>
@@ -536,12 +626,12 @@ const DashboardContent = () => {
             {/* Recent Invoice - Desktop */}
             <div className="hidden lg:block bg-white rounded-xl border border-[#E4E7EC]">
                 <div className="p-4 flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-[#101828]">Recent Invoice</h3>
+                    <h3 className="text-lg font-semibold text-[#101828]">{t('invoices')}</h3>
                     <div className="flex items-center gap-2 bg-[#F9FAFB] px-4 py-2 rounded-lg">
                         <Search size={18} className="text-[#667085]" />
                         <input
                             type="text"
-                            placeholder="Search invoice"
+                            placeholder={t('search_invoices')}
                             className="bg-transparent outline-none text-sm w-32"
                         />
                     </div>
@@ -550,13 +640,13 @@ const DashboardContent = () => {
                     <table className="w-full">
                         <thead className="bg-[#F9FAFB]">
                             <tr>
-                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Date</th>
-                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Client Name</th>
-                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Invoice ID</th>
-                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Status</th>
-                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Due Date</th>
-                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Amount</th>
-                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Balance Due</th>
+                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('date')}</th>
+                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('client_name')}</th>
+                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('invoice_id')}</th>
+                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('status')}</th>
+                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('due_date')}</th>
+                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('amount')}</th>
+                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('balance_due')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -579,7 +669,7 @@ const DashboardContent = () => {
                             ) : (
                                 <tr>
                                     <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
-                                        No recent invoices available
+                                        {t('no_invoices_found')}
                                     </td>
                                 </tr>
                             )}

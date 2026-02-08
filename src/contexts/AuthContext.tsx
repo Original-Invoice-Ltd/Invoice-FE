@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { ApiClient } from '@/lib/api';
 
 interface User {
@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
     setLoading(true);
     try {
       const response = await ApiClient.getCurrentUser();
@@ -47,18 +47,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     await fetchUser();
-  };
+  }, [fetchUser]);
 
-  const updateUserProfile = async (fullName: string, phoneNumber: string): Promise<boolean> => {
+  const updateUserProfile = useCallback(async (fullName: string, phoneNumber: string): Promise<boolean> => {
     try {
       const response = await ApiClient.updateProfile(fullName, phoneNumber);
       if (response.status === 200) {
         // Refresh user data after successful update
-        await refreshUser();
+        await fetchUser();
         return true;
       }
       return false;
@@ -66,16 +66,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Failed to update profile:', error);
       return false;
     }
-  };
+  }, [fetchUser]);
 
-  const uploadProfilePhoto = async (imageFile: File): Promise<boolean> => {
+  const uploadProfilePhoto = useCallback(async (imageFile: File): Promise<boolean> => {
     if (!user?.email) return false;
     
     try {
       const response = await ApiClient.uploadProfilePhoto(user.email, imageFile);
       if (response.status === 200) {
-        // Refresh user data after successful upload
-        await refreshUser();
+        await fetchUser();
         return true;
       }
       return false;
@@ -83,20 +82,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Failed to upload profile photo:', error);
       return false;
     }
-  };
+  }, [user?.email, fetchUser]);
 
   useEffect(() => {
    fetchUser();
-  }, []);
+  }, [fetchUser]);
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     loading,
     isAuthenticated: !!user,
     refreshUser,
     updateUserProfile,
     uploadProfilePhoto,
-  };
+  }), [user, loading, refreshUser, updateUserProfile, uploadProfilePhoto]);
 
   return (
     <AuthContext.Provider value={value}>

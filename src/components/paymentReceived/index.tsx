@@ -11,12 +11,14 @@ import { ApiClient } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/useToast";
 import Toast from "../ui/Toast";
+import { useTranslation } from "react-i18next";
 
 interface PaymentReceivedProps {
   onCreateInvoice: () => void;
 }
 
 const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [hasPayments, setHasPayments] = useState(false);
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -140,7 +142,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto mb-[200px] p-6">
+    <div className="max-w-7xl mx-auto px-6">
       {/* Header Section */}
       <Toast
         isVisible={toast.isVisible}
@@ -148,11 +150,11 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
         type={toast.type}
         onClose={hideToast}
       />
-      <div className="mb-6">
+      <div className="mb-2">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              Payments
+            <h1 className="text-[20px] md:text-[20px] font-semibold text-gray-900">
+              Incoming Payments
             </h1>
             <p className="text-gray-600 text-sm sm:text-base">
               View and manage all payments received from your invoices.
@@ -162,7 +164,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
             onClick={onCreateInvoice}
             className="text-white rounded-md font-medium hover:bg-blue-700 transition-colors whitespace-nowrap flex items-center px-4 py-3 bg-[#2F80ED]"
           >
-            + Create Invoice
+            {t('create_invoice')}
           </button>
         </div>
       </div>

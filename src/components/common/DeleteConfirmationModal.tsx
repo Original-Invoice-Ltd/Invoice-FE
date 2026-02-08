@@ -1,6 +1,7 @@
 "use client";
 
 import { X, AlertTriangle, Trash2, UserX, FileX } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 interface DeleteConfirmationModalProps {
     isOpen: boolean;
@@ -23,6 +24,8 @@ const DeleteConfirmationModal = ({
     isLoading = false,
     error = null
 }: DeleteConfirmationModalProps) => {
+    const { t } = useTranslation();
+    
     if (!isOpen) return null;
 
     const getIcon = () => {
@@ -79,7 +82,7 @@ const DeleteConfirmationModal = ({
                                 disabled={isLoading}
                                 className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Cancel
+                                {t('cancel')}
                             </button>
                             <button
                                 onClick={onConfirm}
@@ -91,7 +94,7 @@ const DeleteConfirmationModal = ({
                                 ) : (
                                     <>
                                         <Trash2 size={16} />
-                                        Delete
+                                        {t('delete_button')}
                                     </>
                                 )}
                             </button>

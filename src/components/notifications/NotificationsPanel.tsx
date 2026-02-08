@@ -150,7 +150,14 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
     const formatTimeAgo = (dateString: string) => {
         const date = new Date(dateString);
         const now = new Date();
+        
+        // Calculate difference in milliseconds, then convert to seconds
         const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+        // Handle negative differences (future dates) by showing "Just now"
+        if (diffInSeconds <= 0) {
+            return 'Just now';
+        }
 
         if (diffInSeconds < 60) {
             return 'Just now';

@@ -1,10 +1,14 @@
 "use client";
 
+import { useTranslation } from "react-i18next";
+
 interface EmptyStateProps {
   onViewUnpaid: () => void;
 }
 
 const EmptyState = ({ onViewUnpaid }: EmptyStateProps) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <div className="mb-6">
@@ -34,16 +38,16 @@ const EmptyState = ({ onViewUnpaid }: EmptyStateProps) => {
 
       </div>
       <h3 className="text-xl font-semibold text-gray-900 mb-2">
-        No payments recorded yet
+        {t('no_payments_yet')}
       </h3>
       <p className="text-gray-600 text-center mb-6 max-w-md">
-        Payments will be added once your customers pay for their invoices.
+        {t('payments_will_be_added')}
       </p>
       <button
         onClick={onViewUnpaid}
         className="px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors"
       >
-        + View unpaid Invoice
+        {t('view_unpaid_invoice')}
       </button>
     </div>
   );

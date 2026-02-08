@@ -99,10 +99,20 @@ export default function SignUp() {
       const response = await ApiClient.verifyOTP(formData.email, otp);
 
       if (response.status === 200) {
-        // Show success message and redirect to dashboard
+        // Check if there's a stored return URL
+        const returnTo = sessionStorage.getItem('returnTo');
+        
+        // Show success message and redirect
         showSuccess('Email verified successfully! Welcome to your dashboard.');
         setTimeout(() => {
-          router.push('/dashboard/overview');
+          if (returnTo) {
+            // Clear the stored URL and redirect to it
+            sessionStorage.removeItem('returnTo');
+            router.push(returnTo);
+          } else {
+            // Default redirect to dashboard
+            router.push('/dashboard/overview');
+          }
         }, 1500);
       } else {
         const errorMessage = response.error || 'Invalid OTP. Please try again.';

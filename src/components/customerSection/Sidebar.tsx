@@ -198,9 +198,9 @@ const Sidebar = ({
                             <li key={item.path}>
                                 <button
                                     onClick={() => {
-                                        isAuthenticated && user ?
+                                        // isAuthenticated && user ?
                                         handleNavigation(item.path)
-                                        : router.push('/signUp')
+                                        // : router.push('/signUp')
                                     }}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200 ${
                                         item.isActive

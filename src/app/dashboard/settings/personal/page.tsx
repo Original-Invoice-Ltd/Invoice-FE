@@ -7,10 +7,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
 import { ApiClient } from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 const PersonalProfilePage = () => {
   const { user, refreshUser, updateUserProfile, uploadProfilePhoto } = useAuth();
   const { toast, showSuccess, showError, hideToast } = useToast();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -85,7 +87,7 @@ const PersonalProfilePage = () => {
       if (imageFile) {
         const imageSuccess = await uploadProfilePhoto(imageFile);
         if (!imageSuccess) {
-          showSuccess("Profile updated but image upload failed");
+          showSuccess(t("profile_updated_successfully"));
         }
       }
       refreshUser();
@@ -95,11 +97,11 @@ const PersonalProfilePage = () => {
         emailAddress: user?.email || '',
         phoneNumber: user?.phone || '',
       });
-      showSuccess("Profile updated successfully!");
+      showSuccess(t("profile_updated_successfully"));
 
     } catch (error) {
       // console.error("Error updating profile:", error);
-      showError("Failed to update profile. Please try again.");
+      showError(t("failed_update_profile"));
     } finally {
       setIsLoading(false);
     }
@@ -163,7 +165,7 @@ const PersonalProfilePage = () => {
                 onClick={removeImage}
                 className="text-sm text-red-600 hover:text-red-700"
               >
-                Remove new image
+                {t("remove_new_image")}
               </button>
             )}
           </div>
@@ -171,14 +173,14 @@ const PersonalProfilePage = () => {
           {/* First Name */}
           <div>
             <label className="block text-sm font-medium text-[#101828] mb-2">
-              First Name
+              {t("first_name")}
             </label>
             <input
               type="text"
               name="firstName"
               value={formData.firstName}
               onChange={handleInputChange}
-              placeholder="Chiamaka"
+              placeholder={t("enter_first_name")}
               className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
             />
           </div>
@@ -188,14 +190,14 @@ const PersonalProfilePage = () => {
             {/* Last Name */}
             <div>
               <label className="block text-sm font-medium text-[#101828] mb-2">
-                Last Name
+                {t("last_name")}
               </label>
               <input
                 type="text"
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleInputChange}
-                placeholder="Okeke"
+                placeholder={t("enter_last_name")}
                 className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
               />
             </div>
@@ -203,7 +205,7 @@ const PersonalProfilePage = () => {
             {/* Email Address */}
             <div>
               <label className="block text-sm font-medium text-[#101828] mb-2">
-                Email Address
+                {t("email_address")}
               </label>
               <div className="relative">
                 <input
@@ -228,14 +230,14 @@ const PersonalProfilePage = () => {
           {/* Phone Number */}
           <div>
             <label className="block text-sm font-medium text-[#101828] mb-2">
-              Phone Number
+              {t("phone_number")}
             </label>
             <input
               type="tel"
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleInputChange}
-              placeholder="Enter phone number"
+              placeholder={t("enter_phone")}
               className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
             />
           </div>
@@ -247,7 +249,7 @@ const PersonalProfilePage = () => {
               disabled={isLoading}
               className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Saving Changes..." : "Save Changes"}
+              {isLoading ? t("saving_changes") : t("save_changes")}
             </button>
           </div>
         </form>
