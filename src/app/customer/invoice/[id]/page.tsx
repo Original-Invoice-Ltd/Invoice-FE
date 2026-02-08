@@ -15,7 +15,7 @@ export default function EmailInvoicePage(){
     const invoiceId = params.id as string;
     
     // Use custom hook for invoice data - public endpoint (no auth required)
-    const { invoice, loading, error } = usePublicInvoiceByUuid(invoiceId);
+    const { invoice, loading, error, refetch } = usePublicInvoiceByUuid(invoiceId);
 
     const handleUploadReceipt = (file: File) => {
         console.log('Uploaded file:', file);
@@ -24,6 +24,8 @@ export default function EmailInvoicePage(){
 
     const handleModalClose = () => {
         setIsUploadModalOpen(false);
+        // Refresh invoice data after modal closes (in case upload was successful)
+        refetch();
     };
 
     const formatCurrency = (amount: number) => {
