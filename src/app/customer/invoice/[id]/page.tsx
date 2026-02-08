@@ -8,7 +8,7 @@ import { UploadReceiptModal } from "@/components/modals";
 import { ApiClient } from "@/lib/api";
 import { usePublicInvoiceByUuid } from "@/hooks/useCustomerInvoices";
 
-const EmailInvoicePage = () => {
+export default function EmailInvoicePage(){
     const params = useParams();
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     
@@ -40,20 +40,18 @@ const EmailInvoicePage = () => {
 
     if (loading) {
         return (
-            <CustomerLayout showEmailProfile={true}>
                 <div className="flex items-center justify-center min-h-screen">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                         <p className="text-gray-600">Loading invoice...</p>
                     </div>
                 </div>
-            </CustomerLayout>
         );
     }
 
     if (error || !invoice) {
         return (
-            <CustomerLayout showEmailProfile={true}>
+            <>
                 <div className="flex items-center justify-center min-h-screen">
                     <div className="text-center max-w-md mx-auto px-4">
                         {/* Empty State SVG */}
@@ -73,7 +71,7 @@ const EmailInvoicePage = () => {
     
                     </div>
                 </div>
-            </CustomerLayout>
+            </>
         );
     }
 
@@ -81,29 +79,11 @@ const EmailInvoicePage = () => {
     const balanceDue = invoice.status.toLowerCase() === 'paid' ? 0 : invoice.totalDue;
 
     return (
-        <CustomerLayout showEmailProfile={true}>
+        <div className="bg-gray-100 min-h-screen">
             <div className="max-w-5xl mx-auto p-4 md:p-6">
                 {/* Header with Back Button and Upload Button */}
-                <div className="flex items-center justify-between mb-4 md:mb-6">
-                    {/* Back Button with Arrow */}
-                    <button
-                        onClick={() => window.history.back()}
-                        className="flex items-center gap-2 text-[#2F80ED] hover:text-blue-600 transition-colors"
-                    >
-                        <svg 
-                            className="w-5 h-5" 
-                            fill="none" 
-                            stroke="currentColor" 
-                            viewBox="0 0 24 24"
-                        >
-                            <path 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round" 
-                                strokeWidth={2} 
-                                d="M10 19l-7-7m0 0l7-7m-7 7h18" 
-                            />
-                        </svg>
-                    </button>
+                <div className="flex items-center justify-end mb-4 md:mb-6">
+               
 
                     {/* Upload Receipt Button - always show */}
                     <button 
@@ -384,8 +364,9 @@ const EmailInvoicePage = () => {
                     invoiceId={invoiceId}
                 />
             </div>
-        </CustomerLayout>
+        </div>
+            
     );
-};
+    
 
-export default EmailInvoicePage;
+}

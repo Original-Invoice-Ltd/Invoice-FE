@@ -142,7 +142,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto mb-[200px] p-6">
+    <div className="max-w-7xl mx-auto px-6">
       {/* Header Section */}
       <Toast
         isVisible={toast.isVisible}
@@ -150,14 +150,14 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
         type={toast.type}
         onClose={hideToast}
       />
-      <div className="mb-6">
+      <div className="mb-2">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              {t('payments_page')}
+            <h1 className="text-[20px] md:text-[20px] font-semibold text-gray-900">
+              Incoming Payments
             </h1>
             <p className="text-gray-600 text-sm sm:text-base">
-              {t('view_manage_payments')}
+              View and manage all payments received from your invoices.
             </p>
           </div>
           <button
