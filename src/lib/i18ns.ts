@@ -534,12 +534,15 @@ const resources = {
             cancel_plan_question: "Are you sure you want to cancel your plan? This action cannot be undone.",
             plan_cancelled_successfully: "Plan cancelled successfully!",
             failed_to_cancel_plan: "Failed to cancel plan. Please try again.",
+            invoices_received: 'Invoices Received',
         }
     },
     yo: {
         translation: {
             /* ================= NAVIGATION & HEADER ================= */
             home: "Ilé",
+            overdue:'Ó ti kọjá ọjọ́',
+            invoices_received:'Ìn\'vóìsì tí a gbà',
             features: "Àwọn Ohunèlò",
             about_us: "Nípa Wa",
             pricing: "Iye Owó",
@@ -681,7 +684,6 @@ const resources = {
             outstanding_amount: "Owó tó ṣẹ́ kù",
             pending: "Tó n dúró",
             overdue_amount: "Owó tó ti kọjá ọjọ́",
-            overdue: "Ó ti kọjá ọjọ́",
 
             /* ================= NOTIFICATIONS ================= */
             notifications: "Àwọn Ìfitónilétí",
@@ -1072,6 +1074,8 @@ const resources = {
         translation: {
             /* ================= NAVIGATION & HEADER ================= */
             home: "Ulo",
+            overdue:'Oge agafeelụ',
+            invoices_received:'Invois a nwetara',
             features: "Atụmatụ",
             about_us: "Gbasara Anyị",
             pricing: "Ọnụ Ahịa",
@@ -1213,7 +1217,6 @@ const resources = {
             outstanding_amount: "Ego fọdụrụnụ",
             pending: "Na-eche",
             overdue_amount: "Ego gachara oge",
-            overdue: "Gachara oge",
 
             /* ================= NOTIFICATIONS ================= */
             notifications: "Ịma Ọkwa",
@@ -1604,6 +1607,8 @@ const resources = {
         translation: {
             /* ================= NAVIGATION & HEADER ================= */
             home: "Gida",
+            overdue:'Ya wuce kwanan wata',
+            invoices_received:'Invois-invois da aka karɓa',
             features: "Abubuwan Musamman",
             about_us: "Game da Mu",
             pricing: "Farashi",
@@ -1745,7 +1750,6 @@ const resources = {
             outstanding_amount: "Kuɗin da ya Rage",
             pending: "Yana jiran aiki",
             overdue_amount: "Kuɗin da ya wuce kwanan wata",
-            overdue: "Ya wuce kwanan wata",
 
             /* ================= NOTIFICATIONS ================= */
             notifications: "Sanarwa",

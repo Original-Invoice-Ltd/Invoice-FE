@@ -28,7 +28,7 @@ const CreateInvoicePage = () => {
         // showLimitNotification,
         // showBlockedNotification
     } = useInvoiceLimit();
-    const { showWarningNotification, showBlockedNotification: showBlockedNotif } = useInvoiceLimitNotification();
+    const { showBlockedNotification: showBlockedNotif } = useInvoiceLimitNotification();
     const { toast, showError, hideToast } = useToast();
 
     const [items, setItems] = useState<InvoiceItem[]>([]);
@@ -475,10 +475,15 @@ const CreateInvoicePage = () => {
     };
 
     const handlePreviewInvoice = () => {
+        if (invoicesRemaining === 0) { 
+           showError("Upgrade plan to create more invoices");
+            return;
+        }
         if (!canCreateInvoice) {
             showBlockedNotif();
             return;
         }
+
         const currentError = getFirstValidationError();
         
         if (currentError) {

@@ -323,10 +323,19 @@ const InvoicesPage = () => {
                                                         </Link>
                                                         <Link
                                                             href={`/dashboard/invoices/edit/${invoice.id}`}
-                                                            className="flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors"
+                                                            className={`flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors 
+                                                                ${invoice.status.toLowerCase() === "unpaid"? '' : 'hidden'}`}
                                                         >
                                                             <Edit size={16} />
                                                             {t('edit_invoice')}
+                                                        </Link>
+                                                        <Link
+                                                            href={`/dashboard/invoices/edit/${invoice.id}`}
+                                                            className={`flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors 
+                                                                ${invoice.status.toLowerCase() === "overdue"? '' : 'hidden'}`}
+                                                        >
+                                                            <Edit size={16} />
+                                                            {t('overdue')}
                                                         </Link>
                                                         <button
                                                             onClick={() => handleDeleteInvoice(invoice)}

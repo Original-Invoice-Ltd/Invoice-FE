@@ -13,7 +13,7 @@ const CustomerInvoicesPage = () => {
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
-    
+
     // Use custom hook for invoices
     const { invoices, loading, error } = useCustomerInvoices();
 
@@ -37,7 +37,7 @@ const CustomerInvoicesPage = () => {
 
     const handleDropdownAction = (action: string, invoiceId: string) => {
         setOpenDropdown(null);
-        
+
         switch (action) {
             case 'view':
                 // Navigate to invoice detail page using the string ID
@@ -67,23 +67,23 @@ const CustomerInvoicesPage = () => {
                 {/* Header */}
                 <div className="mb-4 md:mb-6">
                     <h1 className="text-xl md:text-2xl font-semibold text-gray-900 mb-2">All Invoice</h1>
-                    
+
                     {/* Search Bar */}
                     <div className="flex justify-end">
                         {/* Search Input */}
                         <div className="relative w-full sm:w-auto">
-                            <svg 
+                            <svg
                                 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5"
-                                xmlns="http://www.w3.org/2000/svg" 
-                                width="20" 
-                                height="20" 
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="20"
+                                height="20"
                                 fill="none"
                             >
-                                <path 
-                                    stroke="#444" 
-                                    strokeLinecap="round" 
-                                    strokeLinejoin="round" 
-                                    strokeWidth="1.5" 
+                                <path
+                                    stroke="#444"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="1.5"
                                     d="M13.88 13.88a6.667 6.667 0 1 0-9.427-9.427 6.667 6.667 0 0 0 9.428 9.428Zm0 0 3.62 3.62M6.22 6.22a4.167 4.167 0 0 1 5.893 0"
                                 />
                             </svg>
@@ -145,7 +145,7 @@ const CustomerInvoicesPage = () => {
                                             <p className="text-sm text-gray-500">{invoice.invoiceNumber}</p>
                                         </div>
                                         <div className="relative">
-                                            <button 
+                                            <button
                                                 className="p-1 hover:bg-gray-100 rounded"
                                                 onClick={() => setOpenDropdown(openDropdown === invoice.id ? null : invoice.id)}
                                             >
@@ -222,7 +222,7 @@ const CustomerInvoicesPage = () => {
                                                 {invoice.currency} {invoice.totalDue.toFixed(2)}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 relative">
-                                                <button 
+                                                <button
                                                     className="hover:text-gray-600 p-1"
                                                     onClick={() => setOpenDropdown(openDropdown === invoice.id ? null : invoice.id)}
                                                 >
@@ -234,13 +234,12 @@ const CustomerInvoicesPage = () => {
                                                 {/* Dropdown Menu */}
                                                 {openDropdown === invoice.id && (
                                                     <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                                                        {/* Dropdown Options */}
-                                                        <div className="py-1">
+                                                        <div className=" flex flex-col gap-2">
                                                             {getDropdownOptions(invoice.status).map((option, index) => (
                                                                 <button
                                                                     key={index}
                                                                     onClick={() => handleDropdownAction(option.action, invoice.id)}
-                                                                    className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                                                    className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                                                                 >
                                                                     {option.label}
                                                                 </button>
@@ -263,11 +262,11 @@ const CustomerInvoicesPage = () => {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                                     </svg>
                                 </button>
-                                
+
                                 <button className="px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg">1</button>
                                 <button className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">2</button>
                                 <button className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg hidden sm:block">3</button>
-                                
+
                                 <button className="p-2 text-gray-400 hover:text-gray-600">
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -288,8 +287,8 @@ const CustomerInvoicesPage = () => {
 
                 {/* Click outside to close dropdown */}
                 {openDropdown && (
-                    <div 
-                        className="fixed inset-0 z-0" 
+                    <div
+                        className="fixed inset-0 z-0"
                         onClick={() => setOpenDropdown(null)}
                     />
                 )}

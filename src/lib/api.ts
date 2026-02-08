@@ -808,7 +808,7 @@ export class ApiClient {
   ): Array<{ label: string; action: string }> {
     const baseOptions = [{ label: "View Detail", action: "view" }];
 
-    if (status.toLowerCase() === "paid") {
+    if (status.toLowerCase() !== "paid") {
       return [...baseOptions, { label: "View Receipt", action: "receipt" }];
     } else {
       return [...baseOptions, { label: "Upload Receipt", action: "upload" }];

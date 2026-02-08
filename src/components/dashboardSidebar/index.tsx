@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Settings, LogOut } from "lucide-react";
+import { Settings, LogOut, ArrowLeftRight } from "lucide-react";
 import siderLogo from './../../../public/assets/header logo.svg';
 import { AuthService } from '@/lib/auth';
 import { useTranslation } from 'react-i18next';
@@ -60,6 +60,13 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
                 </svg>
             )
         },
+         { 
+            label: t('invoices_received'),
+            href: "/customer/invoices",
+            icon: (isActive: boolean) => (
+                <ArrowLeftRight color={isActive ? "white" : "#333436"} width={20} />
+            )
+        },
         { 
             label: t('payment_received'),
             href: "/dashboard/payment",
@@ -80,7 +87,7 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
                     <path d="M17.4167 12.8333H14.6667C13.6541 12.8333 12.8333 13.6541 12.8333 14.6667V17.4167C12.8333 18.4292 13.6541 19.25 14.6667 19.25H17.4167C18.4292 19.25 19.25 18.4292 19.25 17.4167V14.6667C19.25 13.6541 18.4292 12.8333 17.4167 12.8333Z" stroke={isActive ? "white" : "#333436"} strokeWidth="1.5"/>
                 </svg>
             )
-        },
+        }
     ];
     
     const isActive = (href: string) => {
@@ -138,7 +145,7 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
                                         transition-colors duration-200
                                         ${active
                                             ? 'bg-[#2F80ED] text-white'
-                                            : 'text-[#667085] hover:bg-[#F9FAFB]'
+                                            : 'text-[#667085] hover:bg-gray-100'
                                         }
                                     `}
                                     onClick={onClose}
@@ -163,7 +170,7 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
                                     onClick={handleLogout}
                                     className="flex items-center gap-[12px] px-[12px] 
                                     py-[10px] rounded-[8px] text-[#667085] 
-                                    hover:bg-[#F9FAFB] transition-colors duration-200 w-full text-left"
+                                    hover:bg-gray-100 transition-colors duration-200 w-full text-left"
                                 >
                                     <Icon size={20} />
                                     <span className="text-[14px] font-medium">{item.label}</span>
@@ -177,7 +184,7 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
                                 href={item.href}
                                 className="flex items-center gap-[12px] px-[12px] 
                                 py-[10px] rounded-[8px] text-[#667085] 
-                                hover:bg-[#F9FAFB] transition-colors duration-200"
+                                hover:bg-gray-100 transition-colors duration-200"
                                 onClick={onClose}
                             >
                                 <Icon size={20} />
