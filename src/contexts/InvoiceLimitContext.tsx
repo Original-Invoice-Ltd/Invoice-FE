@@ -53,7 +53,7 @@ export const InvoiceLimitProvider = ({ children }: InvoiceLimitProviderProps) =>
       const subscriptionResponse = await ApiClient.getCurrentSubscription();
       if (subscriptionResponse.status === 200) {
         const subscription = subscriptionResponse.data;
-        const limit = subscription.invoiceLimit || 3; // Default to free plan limit
+        const limit = subscription.invoiceLimit || 10; // Default to free plan limit
         const used = subscription.invoicesUsed || 0;
         
         // Handle unlimited invoices (Premium plan)
@@ -78,8 +78,8 @@ export const InvoiceLimitProvider = ({ children }: InvoiceLimitProviderProps) =>
         setCanCreateInvoice(canCreate);
         
         // Set default values for free plan if no subscription data
-        setTotalInvoices(3);
-        setInvoicesRemaining(canCreate ? 3 : 0);
+        setTotalInvoices(10);
+        setInvoicesRemaining(canCreate ? 10 : 0);
       }
     } catch (error) {
       console.error("Error checking invoice limit:", error);

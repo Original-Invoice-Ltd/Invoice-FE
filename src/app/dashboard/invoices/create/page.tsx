@@ -60,6 +60,23 @@ const CreateInvoicePage = () => {
     });
     const [clientFormError, setClientFormError] = useState<string | null>(null);
     const [formValidationError, setFormValidationError] = useState<string | null>(null);
+    
+    // Field-specific validation errors
+    const [fieldErrors, setFieldErrors] = useState({
+        billFromFullName: '',
+        billFromEmail: '',
+        billFromPhone: '',
+        billFromBusinessName: '',
+        billFromAddress: '',
+        billToCustomer: '',
+        billToTitle: '',
+        billToInvoiceDate: '',
+        billToDueDate: '',
+        items: '',
+        paymentBank: '',
+        paymentAccountName: '',
+        paymentAccountNumber: ''
+    });
 
     // Products dropdown state
     const [showProductsDropdown, setShowProductsDropdown] = useState(false);
@@ -305,43 +322,74 @@ const CreateInvoicePage = () => {
             payment: '',
             items: ''
         };
+        
+        const newFieldErrors = {
+            billFromFullName: '',
+            billFromEmail: '',
+            billFromPhone: '',
+            billFromBusinessName: '',
+            billFromAddress: '',
+            billToCustomer: '',
+            billToTitle: '',
+            billToInvoiceDate: '',
+            billToDueDate: '',
+            items: '',
+            paymentBank: '',
+            paymentAccountName: '',
+            paymentAccountNumber: ''
+        };
 
         if (billFrom.fullName.trim() === "") {
             errors.billFrom = "Sender's Full name is required";
+            newFieldErrors.billFromFullName = "Full name is required";
         } else if (billFrom.email.trim() === "") {
             errors.billFrom = "Sender's Email is required";
+            newFieldErrors.billFromEmail = "Email is required";
         } else if (!ApiClient.isValidEmail(billFrom.email)) {
-            errors.billFrom = "Invalid Sender's email provided"
+            errors.billFrom = "Invalid Sender's email provided";
+            newFieldErrors.billFromEmail = "Invalid email format";
         }
         else if (!ApiClient.isValidPhone(billFrom.phoneNumber.trim())) {
             errors.billFrom = "Invalid Sender's Phone number must be in +234********** format";
+            newFieldErrors.billFromPhone = "Phone must be in +234********** format";
         } else if (billFrom.businessName.trim() === "") {
             errors.billFrom = "Sender's Business name is required";
+            newFieldErrors.billFromBusinessName = "Business name is required";
         }
+        
         if (billTo.customer.trim() === "") {
             errors.billTo = "Please select a customer";
+            newFieldErrors.billToCustomer = "Please select a customer";
         } else if (billTo.invoiceDate.trim() === "") {
             errors.billTo = "Invoice date is required";
+            newFieldErrors.billToInvoiceDate = "Invoice date is required";
         } else if (billTo.dueDate.trim() === "") {
             errors.billTo = "Due date is required";
+            newFieldErrors.billToDueDate = "Due date is required";
         }
         else if (new Date(billTo.dueDate) < new Date(billTo.invoiceDate)) {
             console.log(new Date(billTo.dueDate) < new Date(billTo.invoiceDate), " s")
-            errors.billTo = "Due date must be on or after invoice date"
+            errors.billTo = "Due date must be on or after invoice date";
+            newFieldErrors.billToDueDate = "Due date must be on or after invoice date";
         }
 
         if (items.length === 0) {
             errors.items = "Add at least one item to the invoice";
+            newFieldErrors.items = "Add at least one item to the invoice";
         }
 
         if (paymentDetails.bankAccount.trim() === "") {
             errors.payment = "Bank account is required";
+            newFieldErrors.paymentBank = "Bank account is required";
         } else if (paymentDetails.accountName.trim() === "") {
             errors.payment = "Account name is required";
+            newFieldErrors.paymentAccountName = "Account name is required";
         } else if (!/^\d+$/.test(paymentDetails.accountNumber)) {
             errors.payment = "Invalid Account Number provided";
+            newFieldErrors.paymentAccountNumber = "Invalid account number";
         }
-
+        
+        setFieldErrors(newFieldErrors);
         return errors;
     };
 
@@ -793,8 +841,13 @@ const CreateInvoicePage = () => {
                                                 placeholder="Enter full name"
                                                 value={billFrom.fullName}
                                                 onChange={(e) => setBillFrom({ ...billFrom, fullName: e.target.value })}
-                                                className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${
+                                                    fieldErrors.billFromFullName ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                }`}
                                             />
+                                            {fieldErrors.billFromFullName && (
+                                                <p className="text-red-500 text-xs mt-1">{fieldErrors.billFromFullName}</p>
+                                            )}
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
@@ -807,7 +860,9 @@ const CreateInvoicePage = () => {
                                                         placeholder="Enter email address"
                                                         value={billFrom.email}
                                                         onChange={(e) => setBillFrom({ ...billFrom, email: e.target.value })}
-                                                        className="w-full px-3 py-2.5 pr-10 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                        className={`w-full px-3 py-2.5 pr-10 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${
+                                                            fieldErrors.billFromEmail ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                        }`}
                                                     />
                                                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085]">
                                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -816,6 +871,9 @@ const CreateInvoicePage = () => {
                                                         </svg>
                                                     </div>
                                                 </div>
+                                                {fieldErrors.billFromEmail && (
+                                                    <p className="text-red-500 text-xs mt-1">{fieldErrors.billFromEmail}</p>
+                                                )}
                                             </div>
                                             <div>
                                                 <label className="block text-[14px] font-medium text-[#344054] mb-2">
@@ -840,8 +898,13 @@ const CreateInvoicePage = () => {
                                                     placeholder="Enter phone number"
                                                     value={billFrom.phoneNumber}
                                                     onChange={(e) => setBillFrom({ ...billFrom, phoneNumber: e.target.value })}
-                                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                    className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${
+                                                        fieldErrors.billFromPhone ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                    }`}
                                                 />
+                                                {fieldErrors.billFromPhone && (
+                                                    <p className="text-red-500 text-xs mt-1">{fieldErrors.billFromPhone}</p>
+                                                )}
                                             </div>
                                             <div>
                                                 <label className="block text-[14px] font-medium text-[#344054] mb-2">
@@ -852,8 +915,13 @@ const CreateInvoicePage = () => {
                                                     placeholder="Enter business name"
                                                     value={billFrom.businessName}
                                                     onChange={(e) => setBillFrom({ ...billFrom, businessName: e.target.value })}
-                                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                    className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${
+                                                        fieldErrors.billFromBusinessName ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                    }`}
                                                 />
+                                                {fieldErrors.billFromBusinessName && (
+                                                    <p className="text-red-500 text-xs mt-1">{fieldErrors.billFromBusinessName}</p>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -871,7 +939,9 @@ const CreateInvoicePage = () => {
                                             <div className="relative">
                                                 <div
                                                     onClick={handleClientDropdownClick}
-                                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#344054] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2F80ED] flex justify-between items-center"
+                                                    className={`w-full px-3 py-2.5 border rounded-lg text-[14px] text-[#344054] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2F80ED] flex justify-between items-center ${
+                                                        fieldErrors.billToCustomer ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                    }`}
                                                 >
                                                     <span>{billTo.customer || 'Select from added client'}</span>
                                                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -941,6 +1011,9 @@ const CreateInvoicePage = () => {
                                                     </div>
                                                 )}
                                             </div>
+                                            {fieldErrors.billToCustomer && (
+                                                <p className="text-red-500 text-xs mt-1">{fieldErrors.billToCustomer}</p>
+                                            )}
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
@@ -976,20 +1049,30 @@ const CreateInvoicePage = () => {
                                                     type="date"
                                                     value={billTo.invoiceDate}
                                                     onChange={(e) => setBillTo({ ...billTo, invoiceDate: e.target.value })}
-                                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                    className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${
+                                                        fieldErrors.billToInvoiceDate ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                    }`}
                                                 />
+                                                {fieldErrors.billToInvoiceDate && (
+                                                    <p className="text-red-500 text-xs mt-1">{fieldErrors.billToInvoiceDate}</p>
+                                                )}
                                             </div>
                                             <div>
                                                 <label className="block text-[14px] font-medium text-[#344054] mb-2">
-                                                    Due Date
+                                                    Due Date <span className="text-red-500">*</span>
                                                 </label>
                                                 <input
                                                     min={new Date().toISOString().split('T')[0]}
                                                     type="date"
                                                     value={billTo.dueDate}
                                                     onChange={(e) => setBillTo({ ...billTo, dueDate: e.target.value })}
-                                                    className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                    className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${
+                                                        fieldErrors.billToDueDate ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                    }`}
                                                 />
+                                                {fieldErrors.billToDueDate && (
+                                                    <p className="text-red-500 text-xs mt-1">{fieldErrors.billToDueDate}</p>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -999,6 +1082,9 @@ const CreateInvoicePage = () => {
                             {/* Second Border: Table Items */}
                             <div className="bg-white rounded-lg border border-[#E4E7EC] p-4">
                                 <h2 className="text-[20px] font-semibold text-[#101828] mb-4">Table Item</h2>
+                                {fieldErrors.items && (
+                                    <p className="text-red-500 text-xs mb-2">{fieldErrors.items}</p>
+                                )}
                                 <div className="overflow-x-auto">
                                     <table className="w-full">
                                         <thead>
@@ -1429,7 +1515,9 @@ const CreateInvoicePage = () => {
                                                     placeholder="Enter bank name or select"
                                                     value={paymentDetails.bankAccount}
                                                     onChange={(e) => setPaymentDetails({ ...paymentDetails, bankAccount: e.target.value })}
-                                                    className="w-full px-3 py-2.5 pr-10 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                                    className={`w-full px-3 py-2.5 pr-10 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${
+                                                        fieldErrors.paymentBank ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                    }`}
                                                 />
                                                 <button
                                                     type="button"
@@ -1504,6 +1592,9 @@ const CreateInvoicePage = () => {
                                                     </div>
                                                 )}
                                             </div>
+                                            {fieldErrors.paymentBank && (
+                                                <p className="text-red-500 text-xs mt-1">{fieldErrors.paymentBank}</p>
+                                            )}
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-[#344054] mb-2">
@@ -1514,8 +1605,13 @@ const CreateInvoicePage = () => {
                                                 placeholder="Enter account name"
                                                 value={paymentDetails.accountName}
                                                 onChange={(e) => setPaymentDetails({ ...paymentDetails, accountName: e.target.value })}
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg"
+                                                className={`w-full px-3 py-2 border rounded-lg ${
+                                                    fieldErrors.paymentAccountName ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                }`}
                                             />
+                                            {fieldErrors.paymentAccountName && (
+                                                <p className="text-red-500 text-xs mt-1">{fieldErrors.paymentAccountName}</p>
+                                            )}
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-[#344054] mb-2">
@@ -1526,8 +1622,13 @@ const CreateInvoicePage = () => {
                                                 placeholder="Enter account number"
                                                 value={paymentDetails.accountNumber}
                                                 onChange={(e) => setPaymentDetails({ ...paymentDetails, accountNumber: e.target.value })}
-                                                className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg"
+                                                className={`w-full px-3 py-2 border rounded-lg ${
+                                                    fieldErrors.paymentAccountNumber ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                }`}
                                             />
+                                            {fieldErrors.paymentAccountNumber && (
+                                                <p className="text-red-500 text-xs mt-1">{fieldErrors.paymentAccountNumber}</p>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
