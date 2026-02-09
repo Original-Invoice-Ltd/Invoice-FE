@@ -55,7 +55,7 @@ const InvoicesPage = () => {
                 showError(response.error || response.message || "Failed to fetch invoices");
             }
         } catch (err) {
-            console.error("Error fetching invoices:", err);
+            // console.error("Error fetching invoices:", err);
             showError("An error occurred while fetching invoices, Please try refreshing.");
         } finally {
             setLoading(false);
@@ -80,7 +80,7 @@ const InvoicesPage = () => {
         refreshUser();
         fetchInvoices();
         fetchReceivedInvoices();
-    }, []);
+    }, [fetchInvoices, fetchReceivedInvoices, refreshUser]);
 
    
 

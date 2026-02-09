@@ -971,7 +971,7 @@ const CreateInvoicePage = () => {
                                                             </div>
                                                         )}
                                                         {/* Client List */}
-                                                        {!isLoadingClients && clients.map((client, index) => (
+                                                        {!isLoadingClients && clients.map((client) => (
                                                             <div
                                                                 key={client.id}
                                                                 onClick={() => {

@@ -535,6 +535,97 @@ const resources = {
             plan_cancelled_successfully: "Plan cancelled successfully!",
             failed_to_cancel_plan: "Failed to cancel plan. Please try again.",
             invoices_received: 'Invoices Received',
+            
+            /* ================= DASHBOARD OVERVIEW ================= */
+            invoices_sent: "Invoices Sent",
+            sent_invoices: "Sent Invoices",
+            received_invoices: "Received Invoices",
+            total_invoice_received: "Total Invoice Received",
+            paid_invoice: "Paid Invoice",
+            pending_invoice: "Pending Invoice",
+            overdue_invoice: "Overdue Invoice",
+
+            /* ================= CUSTOMER DASHBOARD ================= */
+            welcome_back: "Welcome back",
+            invoices_from_business: "Here are all your invoices from",
+
+            serial_number: "S/N",
+            issued_by: "Issued By",
+            view_detail: "View Detail",
+            view_receipt: "View Receipt",
+            upload_receipt: "Upload Receipt",
+
+            /* ================= INVOICE DETAIL ================= */
+            back: "Back",
+            logo: "Logo",
+            bill_to: "Bill To",
+            bill_from: "Bill From",
+            invoice: "INVOICE",
+            invoice_date: "Invoice Date",
+            payment_terms: "Payment Terms",
+            item_detail: "Item Detail",
+            qty: "Qty",
+            sub_total: "Sub Total",
+            vat_label: "VAT",
+            wht_label: "WHT ",
+            total: "Total",
+            signature: "Signature",
+            note: "Note",
+            terms_of_payment: "Terms of Payment",
+            payment_method_bank: "Payment Method: Bank Transfer",
+            bank_name: "Bank Name:",
+            account_number: "Account Number",
+            account_name: "Account Name",
+            send: "Send",
+            download_pdf: "Download PDF",
+            unpaid: "Unpaid",
+
+            /* ================= UPLOAD RECEIPT ================= */
+            upload_payment_receipt: "Upload Payment Receipt",
+            upload_receipt_instructions: "Please upload proof of your payment so the business can review and confirm it. Supported files: JPG, PNG, PDF (max 10MB).",
+            pdf_document: "PDF Document",
+            upload_successful: "Upload Successful",
+            uploading: "Uploading...",
+            completed: "Completed",
+            failed: "Failed",
+            drag_drop_upload: "Drag & drop or click to upload",
+            browse_file: "Browse File",
+            save: "Save",
+
+            /* ================= INVOICE CREATION ================= */
+            invoice_items: "Invoice Items",
+            add_item: "Add Item",
+            item_description: "Item/Description",
+            item_name: "Item name",
+            from_products: "From Products",
+            no_items_added: "No items added yet",
+            select_products: "Select Products",
+            search_products: "Search products...",
+            no_products_found: "No products found",
+            invoice_taxes: "Invoice Taxes",
+            no_taxes_available: "No taxes available",
+            total_tax_amount: "Total Tax Amount:",
+            subtotal_plus_taxes: "Subtotal + Taxes:",
+            individual_rate: "individual rate",
+            business_rate: "business rate",
+            on: "on",
+
+            /* ================= COLOR PICKER ================= */
+            select_color: "Select Color",
+            color_picker: "Color Picker",
+            saved_colors: "Saved colors:",
+            hex: "Hex",
+            rgb: "RGB",
+            hsl: "HSL",
+
+            /* ================= COMPLETE PROFILE ================= */
+            complete_profile: "Complete Your Profile",
+            provide_phone_registration: "Please provide your phone number to complete your registration",
+            phone_updated_success: "Phone number updated successfully!",
+            failed_update_phone: "Failed to update phone number",
+            invalid_phone_number: "Invalid phone number",
+            updating: "Updating...",
+            skip_for_now: "Skip for now",
         }
     },
     yo: {
@@ -1068,6 +1159,97 @@ const resources = {
             cancel_plan_question: "Ṣé o dá ọ lójú pé o fẹ́ fagílé ètò rẹ? A kò lè dá iṣẹ́ yìí padà.",
             plan_cancelled_successfully: "A ti fagílé ètò ní àṣeyọrí!",
             failed_to_cancel_plan: "A kò lè fagílé ètò. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan sí i.",
+
+            /* ================= CUSTOMER DASHBOARD ================= */
+            welcome_back: "Káàbọ̀ padà,",
+            invoices_from_business: "Wọ̀nyí ni gbogbo ìn'vóìsì rẹ látọ̀dọ̀.",
+            total_invoice_received: "Àpapọ̀ Ìn'vóìsì Tí a Gbà",
+            paid_invoice: "Ìn'vóìsì Tí a Ti Sanwó",
+            pending_invoice: "Ìn'vóìsì Tó N Dúró",
+            overdue_invoice: "Ìn'vóìsì Tó Ti Kọjá Ọjọ́",
+            serial_number: "S/N",
+            issued_by: "Ẹni Tó Dá a",
+            view_detail: "Wo Àlàyé",
+            view_receipt: "Wo Ìwé-ẹ̀rí",
+            upload_receipt: "Gbé Ìwé-ẹ̀rí Wọlé",
+
+            /* ================= INVOICE DETAIL ================= */
+            back: "Padà",
+            logo: "Àmì",
+            bill_to: "Fún",
+            bill_from: "Látọ̀dọ̀",
+            invoice: "ÌN'VÓÌSÌ",
+            invoice_date: "Ọjọ́ Ìn'vóìsì",
+            payment_terms: "Ìlànà Ìsanwó",
+            item_detail: "Àlàyé Ohun",
+            qty: "Iye",
+            sub_total: "Àpapọ̀ Àkọ́kọ́",
+            vat_label: "VAT",
+            wht_label: "WHT",
+            total: "Àpapọ̀",
+            signature: "Ìbọwọ́lù",
+            note: "Àkíyèsí",
+            terms_of_payment: "Ìlànà Ìsanwó",
+            payment_method_bank: "Ọ̀nà Ìsanwó: Ìfowópamọ́ Báǹkì",
+            bank_name: "Orúkọ Báǹkì:",
+            account_number: "Nọ́mbà Àkáǹtì",
+            account_name: "Orúkọ Àkáǹtì",
+            send: "Fi Ránṣẹ́",
+            download_pdf: "Gbé PDF Sílẹ̀",
+            unpaid: "A Kò Tíì Sanwó",
+
+            /* ================= UPLOAD RECEIPT ================= */
+            upload_payment_receipt: "Gbé Ìwé-ẹ̀rí Ìsanwó Wọlé",
+            upload_receipt_instructions: "Jọ̀wọ́ gbé ẹ̀rí ìsanwó rẹ wọlé kí iléeṣẹ́ lè ṣàyẹ̀wò kí ó sì jẹ́rìísí rẹ̀. Àwọn fáìlì tí a gbà: JPG, PNG, PDF (títí dé 10MB).",
+            pdf_document: "Ìwé PDF",
+            upload_successful: "Gbígbé Wọlé Yọrí",
+            uploading: "À n gbé wọlé...",
+            completed: "Parí",
+            failed: "Kùnà",
+            drag_drop_upload: "Fà kí o sì jù tàbí tẹ láti gbé wọlé",
+            browse_file: "Wá Fáìlì",
+            save: "Fipamọ́",
+
+            /* ================= INVOICE CREATION ================= */
+            invoice_items: "Àwọn Ohun Ìn'vóìsì",
+            add_item: "Fi Ohun Kún un",
+            item_description: "Ohun/Àpèjúwe",
+            item_name: "Orúkọ ohun",
+            from_products: "Látọ̀dọ̀ Àwọn Ọjà",
+            no_items_added: "A kò tíì fi ohun kankan kún un",
+            select_products: "Yan Àwọn Ọjà",
+            search_products: "Wá àwọn ọjà...",
+            no_products_found: "A kò rí ọjà kankan",
+            invoice_taxes: "Àwọn Owó-orí Ìn'vóìsì",
+            no_taxes_available: "Kò sí owó-orí kankan",
+            total_tax_amount: "Àpapọ̀ Owó-orí:",
+            subtotal_plus_taxes: "Àpapọ̀ Àkọ́kọ́ + Owó-orí:",
+            individual_rate: "ìdíyelé ẹnìkọ̀ọ̀kan",
+            business_rate: "ìdíyelé iléeṣẹ́",
+            on: "lórí",
+
+            /* ================= COLOR PICKER ================= */
+            select_color: "Yan Àwọ̀",
+            color_picker: "Olùyàn Àwọ̀",
+            saved_colors: "Àwọn àwọ̀ tí a fipamọ́:",
+            hex: "Hex",
+            rgb: "RGB",
+            hsl: "HSL",
+
+            /* ================= COMPLETE PROFILE ================= */
+            complete_profile: "Parí Àkọsílẹ̀ Rẹ",
+            provide_phone_registration: "Jọ̀wọ́ pèsè nọ́mbà tẹlifóònù rẹ láti parí ìforúkọsílẹ̀ rẹ",
+            phone_updated_success: "A ti mú nọ́mbà tẹlifóònù ṣe àtúnṣe ní àṣeyọrí!",
+            failed_update_phone: "A kò lè mú nọ́mbà tẹlifóònù ṣe àtúnṣe",
+            invalid_phone_number: "Nọ́mbà tẹlifóònù kò tọ́",
+            updating: "À n mú ṣe àtúnṣe...",
+            skip_for_now: "Fò ó sílẹ̀ fún ìsinsin yìí",
+            
+            /* ================= DASHBOARD OVERVIEW ================= */
+            invoices_sent: "Àwọn Ìn'vóìsì tí a fi ránṣẹ́",
+            sent_invoices: "Ìn'vóìsì tí a fi ránṣẹ́",
+            received_invoices: "Ìn'vóìsì tí a gbà",
+           
         }
     },
     ig: {
@@ -1601,6 +1783,15 @@ const resources = {
             cancel_plan_question: "Ị ji n'aka na ị chọrọ ikagbu atụmatụ gị? Enweghị ike ịlaghachi omume a.",
             plan_cancelled_successfully: "E kagbuola atụmatụ nke ọma!",
             failed_to_cancel_plan: "Enweghị ike ikagbu atụmatụ. Biko nwaa ọzọ.",
+            
+            /* ================= DASHBOARD OVERVIEW ================= */
+            invoices_sent: "Invois E Zigara",
+            sent_invoices: "Invois E Zigara",
+            received_invoices: "Invois E Natara",
+            total_invoice_received: "Ngụkọta Invois E Natara",
+            paid_invoice: "Invois A Kwụrụ Ụgwọ",
+            pending_invoice: "Invois Na-eche",
+            overdue_invoice: "Invois Gafere Oge",
         }
     },
     ha: {
@@ -2127,6 +2318,15 @@ const resources = {
             cancel_plan_question: "Ka tabbata kana son soke tsarin ka? Ba za a iya mayar da wannan aikin ba.",
             plan_cancelled_successfully: "An soke tsarin cikin nasara!",
             failed_to_cancel_plan: "An kasa soke tsarin. Don Allah sake gwadawa.",
+            
+            /* ================= DASHBOARD OVERVIEW ================= */
+            invoices_sent: "Invois-invois da aka Aika",
+            sent_invoices: "Invois da aka Aika",
+            received_invoices: "Invois-invois da aka Karɓa",
+            total_invoice_received: "Jimillar Invois da aka Karɓa",
+            paid_invoice: "Invois da aka Biya",
+            pending_invoice: "Invois da ke Jiran Aiki",
+            overdue_invoice: "Invois da ya Wuce Kwanan Wata",
         }
     }
 }

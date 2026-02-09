@@ -111,7 +111,8 @@ const PersonalProfilePage = () => {
     if (formData.firstName || formData.lastName) {
       return `${formData.firstName.charAt(0)}${formData.lastName.charAt(0)}`.toUpperCase();
     }
-    return user?.fullName?.split(' ').map(n => n.charAt(0)).join('').toUpperCase() || 'U';
+    console.log("name = ", user?.fullName?.split(' ').map(n => n.charAt(0)).join('').toUpperCase() || 'G')
+    return user?.fullName?.split(' ').map(n => n.charAt(0)).join('').toUpperCase() || 'G';
   };
 
   return (
