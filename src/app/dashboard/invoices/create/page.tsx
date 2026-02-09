@@ -1395,7 +1395,6 @@ const CreateInvoicePage = () => {
                                     onColorChange={(newColor) => setColor(newColor)}
                                 />
                             </div>
-
                             {/* Template Selection */}
                             <TemplateSelector
                                 selectedTemplate={template}
@@ -1503,7 +1502,6 @@ const CreateInvoicePage = () => {
                             )}
                         </div>
 
-                        {/* Right Column - Summary */}
                         <div className="bg-white rounded-lg w-[320px] self-start">
                             <div className="space-y-6">
                                 {/* Payment Details */}
@@ -1807,7 +1805,6 @@ const CreateInvoicePage = () => {
                     </div>
                 )}
 
-                {/* Add Product Modal */}
                 {showAddProductModal && (
                     <AddProductModal
                         product={null}
