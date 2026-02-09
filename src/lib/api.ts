@@ -655,7 +655,9 @@ export class ApiClient {
 
   // Business Profile APIs
   static async getBusinessProfile() {
-    return this.request("GET", "/api/settings/businessProfile");
+    return await axiosInstance.get("/api/settings/businessProfile",{
+      withCredentials : true
+    });
   }
 
   static async updateBusinessProfile(businessProfileData: {

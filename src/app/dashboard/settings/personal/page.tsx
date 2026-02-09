@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Camera, X } from "lucide-react";
+import { Camera } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/useToast";
@@ -28,6 +28,7 @@ const PersonalProfilePage = () => {
   useEffect(() => {
 
     if (user) {
+      console.log(user)
       const nameParts = user.fullName?.split(' ') || ['', ''];
       setFormData({
         firstName: nameParts[0] || '',
@@ -39,7 +40,7 @@ const PersonalProfilePage = () => {
     } else {
       refreshUser();
     }
-  }, [user]);
+  }, [refreshUser, user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -75,15 +76,12 @@ const PersonalProfilePage = () => {
         return;
       }
     try {
-      // Update profile information
-      const fullName = `${formData.firstName.trim} ${formData.lastName.trim()}`.trim();
+      const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim();
       const success = await updateUserProfile(fullName, formData.phoneNumber);
-
       if (!success) {
         throw new Error("Failed to update profile");
       }
 
-      // Upload profile image if changed
       if (imageFile) {
         const imageSuccess = await uploadProfilePhoto(imageFile);
         if (!imageSuccess) {
@@ -100,7 +98,6 @@ const PersonalProfilePage = () => {
       showSuccess(t("profile_updated_successfully"));
 
     } catch (error) {
-      // console.error("Error updating profile:", error);
       showError(t("failed_update_profile"));
     } finally {
       setIsLoading(false);
@@ -111,7 +108,6 @@ const PersonalProfilePage = () => {
     if (formData.firstName || formData.lastName) {
       return `${formData.firstName.charAt(0)}${formData.lastName.charAt(0)}`.toUpperCase();
     }
-    console.log("name = ", user?.fullName?.split(' ').map(n => n.charAt(0)).join('').toUpperCase() || 'G')
     return user?.fullName?.split(' ').map(n => n.charAt(0)).join('').toUpperCase() || 'G';
   };
 

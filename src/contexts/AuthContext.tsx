@@ -57,7 +57,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await ApiClient.updateProfile(fullName, phoneNumber);
       if (response.status === 200) {
-        // Refresh user data after successful update
         await fetchUser();
         return true;
       }
