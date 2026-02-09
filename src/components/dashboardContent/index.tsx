@@ -10,6 +10,7 @@ import {
     // useAutoRefreshDashboard
 } from '@/hooks/useDashboard';
 import { useTranslation } from 'react-i18next';
+import { ApiClient } from '@/lib/api';
 
 const DashboardContent = () => {
     const { user, loading: userLoading } = useAuth();
@@ -19,6 +20,15 @@ const DashboardContent = () => {
     
     // Fetch dashboard data with separated loading states
     const { data, loading, error, refreshTrends, refreshAll } = useDashboard('month', 5);
+    
+    // Customer invoice stats
+    const [customerStats, setCustomerStats] = useState({
+        totalReceived: 0,
+        paid: 0,
+        pending: 0,
+        overdue: 0,
+    });
+    const [customerStatsLoading, setCustomerStatsLoading] = useState(true);
     
     // Auto-refresh all data every 5 minutes
     // useAutoRefreshDashboard(refreshAll);
@@ -32,7 +42,35 @@ const DashboardContent = () => {
 
     useEffect(() => {
         setIsClient(true);
-    }, []);
+        
+        // Fetch customer invoice stats
+        const fetchCustomerStats = async () => {
+            if (!user?.email) {
+                setCustomerStatsLoading(false);
+                return;
+            }
+            
+            try {
+                setCustomerStatsLoading(true);
+                const response = await ApiClient.getInvoiceStats(user.email);
+                
+                if (response.status === 200 && response.data) {
+                    setCustomerStats({
+                        totalReceived: response.data.totalReceived || 0,
+                        paid: response.data.paid || 0,
+                        pending: response.data.pending || 0,
+                        overdue: response.data.overdue || 0,
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to fetch customer stats:', err);
+            } finally {
+                setCustomerStatsLoading(false);
+            }
+        };
+        
+        fetchCustomerStats();
+    }, [user?.email]);
 
     // Get user's first name for welcome message - wait for user to load
     const getFirstName = () => {
@@ -190,10 +228,12 @@ const DashboardContent = () => {
                 </Link>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
-                <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
-                    <p className="text-sm text-[#667085] mb-2">{t('total_invoiced')}</p>
+            {/* Invoices Sent Stats Cards */}
+            <div className="mb-6">
+                <h2 className="text-lg font-semibold text-[#101828] mb-4">Invoices Sent</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                    <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
+                    <p className="text-sm text-[#667085] mb-2">{t('Sent Invoices')}</p>
                     {loading.stats ? (
                         <div className="animate-pulse">
                             <div className="h-8 bg-gray-200 rounded w-2/3"></div>
@@ -283,6 +323,54 @@ const DashboardContent = () => {
                             )}
                         </div>
                     )}
+                </div>
+            </div>
+            </div>
+
+            {/* Customer Invoice Stats Cards */}
+            <div className="mb-6">
+                <h2 className="text-lg font-semibold text-[#101828] mb-4">Received Invoices</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                    <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
+                        <div className="text-3xl font-bold text-gray-900 mb-2">
+                            {customerStatsLoading ? (
+                                <div className="animate-pulse bg-gray-300 h-8 w-12 rounded"></div>
+                            ) : (
+                                customerStats.totalReceived
+                            )}
+                        </div>
+                        <div className="text-sm text-gray-600">Total Invoice Received</div>
+                    </div>
+                    <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
+                        <div className="text-3xl font-bold text-gray-900 mb-2">
+                            {customerStatsLoading ? (
+                                <div className="animate-pulse bg-gray-300 h-8 w-12 rounded"></div>
+                            ) : (
+                                customerStats.paid
+                            )}
+                        </div>
+                        <div className="text-sm text-gray-600">Paid Invoice</div>
+                    </div>
+                    <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
+                        <div className="text-3xl font-bold text-gray-900 mb-2">
+                            {customerStatsLoading ? (
+                                <div className="animate-pulse bg-gray-300 h-8 w-12 rounded"></div>
+                            ) : (
+                                customerStats.pending
+                            )}
+                        </div>
+                        <div className="text-sm text-gray-600">Pending Invoice</div>
+                    </div>
+                    <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
+                        <div className="text-3xl font-bold text-gray-900 mb-2">
+                            {customerStatsLoading ? (
+                                <div className="animate-pulse bg-gray-300 h-8 w-12 rounded"></div>
+                            ) : (
+                                customerStats.overdue
+                            )}
+                        </div>
+                        <div className="text-sm text-gray-600">Overdue Invoice</div>
+                    </div>
                 </div>
             </div>
 

@@ -23,6 +23,13 @@ const InvoicesPage = () => {
     // const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
+    
+    // Received invoices state
+    const [receivedSearchTerm, setReceivedSearchTerm] = useState("");
+    const [receivedInvoices, setReceivedInvoices] = useState<any[]>([]);
+    const [receivedLoading, setReceivedLoading] = useState(true);
+    const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+    
     const [deleteModal, setDeleteModal] = useState<{
         isOpen: boolean;
         invoice: InvoiceResponse | null;
@@ -55,10 +62,24 @@ const InvoicesPage = () => {
         }
     }, [showError, user?.id]);
     
+    const fetchReceivedInvoices = useCallback(async () => {
+        try {
+            setReceivedLoading(true);
+            const response = await ApiClient.getInvoiceStats(user?.email || '');
+            if (response.status === 200 && response.data?.invoices) {
+                setReceivedInvoices(response.data.invoices);
+            }
+        } catch (err) {
+            console.error("Error fetching received invoices:", err);
+        } finally {
+            setReceivedLoading(false);
+        }
+    }, [user?.email]);
+    
     useEffect(() => {
         refreshUser();
         fetchInvoices();
-
+        fetchReceivedInvoices();
     }, []);
 
    
@@ -418,6 +439,114 @@ const InvoicesPage = () => {
                                 </div>
                             </div>
                         )}
+                    </>
+                )}
+            </div>
+
+            {/* Received Invoices Section */}
+            <div className="bg-white rounded-lg border border-[#E4E7EC] mt-8">
+                <div className="px-6 py-4 border-b border-[#E4E7EC]">
+                    <h2 className="text-[18px] font-semibold text-[#101828]">Received Invoices</h2>
+                    <p className="text-[14px] text-[#667085] mt-1">View invoices you have received from other businesses</p>
+                </div>
+
+                {receivedLoading ? (
+                    <div className="flex items-center justify-center h-64">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED]"></div>
+                    </div>
+                ) : receivedInvoices.length === 0 ? (
+                    <div className="p-12 flex flex-col items-center justify-center">
+                        <p className="text-[14px] text-[#667085]">No received invoices yet</p>
+                    </div>
+                ) : (
+                    <>
+                        {/* Search Bar */}
+                        <div className="px-6 py-4 border-b border-[#E4E7EC]">
+                            <div className="relative w-64 ml-auto">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#98A2B3]" size={18} />
+                                <input
+                                    type="text"
+                                    placeholder="Search invoice"
+                                    value={receivedSearchTerm}
+                                    onChange={(e) => setReceivedSearchTerm(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#667085] placeholder:text-[#98A2B3] bg-white focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Table Header */}
+                        <div className="px-6 py-3 bg-[#F9FAFB] border-b border-[#E4E7EC]">
+                            <div className="grid grid-cols-8 gap-4 text-[12px] font-medium text-[#667085] uppercase tracking-wide">
+                                <div>S/N</div>
+                                <div>Date</div>
+                                <div>Issued By</div>
+                                <div>Invoice ID</div>
+                                <div>Status</div>
+                                <div>Due Date</div>
+                                <div>Amount</div>
+                                <div>Actions</div>
+                            </div>
+                        </div>
+
+                        {/* Table Body */}
+                        <div className="divide-y divide-[#E4E7EC]">
+                            {receivedInvoices
+                                .filter(invoice =>
+                                    invoice.billFrom.fullName.toLowerCase().includes(receivedSearchTerm.toLowerCase()) ||
+                                    invoice.invoiceNumber.toLowerCase().includes(receivedSearchTerm.toLowerCase())
+                                )
+                                .map((invoice, index) => (
+                                    <div key={invoice.id} className="px-6 py-4 hover:bg-[#F9FAFB] transition-colors">
+                                        <div className="grid grid-cols-8 gap-4 items-center">
+                                            <div className="text-[14px] text-[#101828]">{index + 1}</div>
+                                            <div className="text-[14px] text-[#101828]">
+                                                {new Date(invoice.creationDate).toLocaleDateString()}
+                                            </div>
+                                            <div className="text-[14px] text-[#101828] font-medium">
+                                                {invoice.billFrom.fullName}
+                                            </div>
+                                            <div className="text-[14px] text-[#101828] font-mono">
+                                                {invoice.invoiceNumber}
+                                            </div>
+                                            <div>
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(invoice.status)}`}>
+                                                    {invoice.status}
+                                                </span>
+                                            </div>
+                                            <div className="text-[14px] text-[#101828]">
+                                                {new Date(invoice.dueDate).toLocaleDateString()}
+                                            </div>
+                                            <div className="text-[14px] text-[#101828] font-medium">
+                                                {invoice.currency} {invoice.totalDue.toFixed(2)}
+                                            </div>
+                                            <div className="flex items-center justify-end">
+                                                <div className="relative">
+                                                    <button 
+                                                        className="p-2 hover:bg-[#F2F4F7] rounded-lg transition-colors"
+                                                        onClick={() => setOpenDropdown(openDropdown === invoice.id ? null : invoice.id)}
+                                                    >
+                                                        <MoreHorizontal size={16} className="text-[#667085]" />
+                                                    </button>
+                                                    {openDropdown === invoice.id && (
+                                                        <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-10">
+                                                            <div className="py-1">
+                                                                <Link
+                                                                    href={`/customer/invoices/${invoice.id}`}
+                                                                    className="flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors"
+                                                                    onClick={() => setOpenDropdown(null)}
+                                                                >
+                                                                    <Eye size={16} />
+                                                                    View Detail
+                                                                </Link>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                        </div>
                     </>
                 )}
             </div>

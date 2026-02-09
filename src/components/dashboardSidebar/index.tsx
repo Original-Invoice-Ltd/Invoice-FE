@@ -68,7 +68,7 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
             )
         },
         { 
-            label: t('payment_received'),
+            label: t('payments'),
             href: "/dashboard/payment",
             icon: (isActive: boolean) => (
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -76,6 +76,7 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
                 </svg>
             )
         },
+
         { 
             label: t('reports'),
             href: "/dashboard/reports",
