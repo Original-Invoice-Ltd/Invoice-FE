@@ -73,7 +73,28 @@ const SimpleTemplate = ({ data }: SimpleTemplateProps) => {
     };
 
     return (
-        <div className="bg-white p-12">
+        <div className="bg-white p-12 relative">
+            {/* Watermark */}
+            <div 
+                   className="absolute left-8 top-2/3 -translate-y-2/3 pointer-events-none select-none z-0"
+                style={{
+                    transform: 'translateY(-50%) rotate(-22deg)',
+                    transformOrigin: 'center',
+                }}
+            >
+                <span 
+                    className="text-blue-200 font-bold whitespace-nowrap text-[2rem] md:text-[4rem]"
+                    style={{
+                       opacity: 0.3,
+                        letterSpacing: '0.1em'
+                    }}
+                >
+                    Original Invoice
+                </span>
+            </div>
+
+            {/* Invoice content */}
+            <div className="relative z-10">
             {/* Header with Invoice Title and Logo */}
             <div className="flex justify-between items-start mb-8">
                 <div>
@@ -219,6 +240,7 @@ const SimpleTemplate = ({ data }: SimpleTemplateProps) => {
                         <span className="text-gray-900 font-medium">{data.paymentDetails.accountName}</span>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     );
