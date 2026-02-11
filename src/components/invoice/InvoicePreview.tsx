@@ -5,9 +5,8 @@ import { ChevronDown, Mail, X } from "lucide-react";
 import CompactTemplate from "./templates/CompactTemplate";
 import StandardTemplate from "./templates/StandardTemplate";
 import SimpleTemplate from "./templates/SimpleTemplate";
-import { useToast } from "@/hooks/useToast";
-import Toast from "@/components/ui/Toast";
 import { ApiClient } from "@/lib/api";
+import dynamic from 'next/dynamic';
 
 interface InvoiceItem {
     id: number;
@@ -34,7 +33,7 @@ interface InvoiceData {
         paymentTerms: string;
         invoiceDate: string;
         dueDate: string;
-        email?: string; // Add email field to billTo
+        email?: string;
     };
     items: InvoiceItem[];
     customerNote: string;
@@ -78,8 +77,8 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
     const [message, setMessage] = useState("");
     const [showValidationTooltip, setShowValidationTooltip] = useState(false);
     const sendDropdownRef = useRef<HTMLDivElement>(null);
-    const { toast, showError, hideToast } = useToast();
-    const [errorMessage, setErrorMessage] = useState<string | null >(null)        
+    const invoiceRef = useRef<HTMLDivElement>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)        
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -159,14 +158,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
 
     return (
         <div className="min-h-screen bg-gray-50 ">
-                  {/* <Toast
-                            isVisible={toast.isVisible}
-                            message={toast.message}
-                            type={toast.type}
-                            onClose={hideToast}
-                        /> */}
             <div className="max-w-5xl mx-auto">
-                {/* Header Actions - Outside white background */}
                 <div className="flex justify-end gap-3 mb-6">
                     <button
                         onClick={onEdit}
@@ -192,15 +184,12 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
                 </div>
 
                 {/* Invoice Content - White background */}
-                <div className="bg-white  mb-4 rounded-lg shadow-sm">
+                <div className="bg-white  mb-4 rounded-lg shadow-sm" ref={ invoiceRef }>
                     {/* Render template based on selection */}
-                    {data.template === 'compact' ? (
-                        <CompactTemplate data={data} />
-                    ) : data.template === 'standard' ? (
-                        <StandardTemplate data={data} />
-                    ) : data.template === 'simple' ? (
-                        <SimpleTemplate data={data} />
-                    ) : (
+                    {data.template === 'simple' && <SimpleTemplate data={data} />}
+                    {data.template === 'standard' && <StandardTemplate data={data} />}
+                    {data.template === 'compact' && <CompactTemplate data={data} />}
+                    {data.template === 'default' && (
                         // Default template
                         <div className="px-12 py-4">
                     {/* Invoice Header */}

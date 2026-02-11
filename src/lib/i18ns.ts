@@ -20,8 +20,7 @@ const resources = {
             logout: "Logout",
             sign_out: "Sign out",
             upgrade_now: "Upgrade Now",
-
-            /* ================= AUTH ================= */
+            premium_plan: "Premium Plan",
             email_address: "Email Address",
             password: "Password",
             full_name: "Full Name",
@@ -647,6 +646,7 @@ const resources = {
             logout: "Jáde",
             sign_out: "Jáde kúrò",
             upgrade_now: "Mú iṣẹ́ rẹ sunwọ̀n sí i",
+            premium_plan: "Ètò Àràbarà",
 
             /* ================= AUTH ================= */
             email_address: "Àdírẹ́sì Ímèlì",
@@ -1271,6 +1271,7 @@ const resources = {
             logout: "Pụọ",
             sign_out: "Pụọ n'akaụntụ",
             upgrade_now: "Melite Ugbu a",
+            premium_plan: "Atụmatụ Premium",
 
             /* ================= AUTH ================= */
             email_address: "Adreesị Email",
@@ -1813,6 +1814,7 @@ const resources = {
             logout: "Fita",
             sign_out: "Fita Daga Akanti",
             upgrade_now: "Haɓaka Yanzu",
+            premium_plan: "Tsarin Premium",
 
             /* ================= AUTH ================= */
             email_address: "Adireshin Imel",

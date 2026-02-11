@@ -1392,7 +1392,9 @@ const CreateInvoicePage = () => {
                                 <h3 className="font-medium text-[16px] mb-2">Select Color</h3>
                                 <ColorPicker
                                     initialColor={color}
-                                    onColorChange={(newColor) => setColor(newColor)}
+                                    onColorChange={(newColor) => {
+                                        setColor(newColor);
+                                    }}
                                 />
                             </div>
                             {/* Template Selection */}

@@ -47,6 +47,7 @@ interface StandardTemplateProps {
 }
 
 const StandardTemplate = ({ data }: StandardTemplateProps) => {
+    
     const calculateSubtotal = () => {
         return data.items.reduce((sum, item) => sum + item.amount, 0);
     };
@@ -70,6 +71,17 @@ const StandardTemplate = ({ data }: StandardTemplateProps) => {
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    };
+
+    const hexToRgba = (hex: string, alpha: number) => {
+        if (!hex) return `rgba(47, 128, 237, ${alpha})`;
+        const cleanHex = hex.replace('#', '');
+        if (cleanHex.length !== 6) return `rgba(47, 128, 237, ${alpha})`;
+        const r = parseInt(cleanHex.slice(0, 2), 16);
+        const g = parseInt(cleanHex.slice(2, 4), 16);
+        const b = parseInt(cleanHex.slice(4, 6), 16);
+        if (isNaN(r) || isNaN(g) || isNaN(b)) return `rgba(47, 128, 237, ${alpha})`;
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     };
 
     return (
@@ -146,12 +158,12 @@ const StandardTemplate = ({ data }: StandardTemplateProps) => {
             <div className="mb-8">
                 <table className="w-full border-collapse">
                     <thead>
-                        <tr className="bg-blue-100">
-                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 border border-blue-200">#</th>
-                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 border border-blue-200">Item Detail</th>
-                            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900 border border-blue-200">Qty</th>
-                            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900 border border-blue-200">Rate</th>
-                            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900 border border-blue-200">Amount</th>
+                        <tr style={{ backgroundColor: hexToRgba(data.color, 0.12) }}>
+                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900" style={{ borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>#</th>
+                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900" style={{ borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>Item Detail</th>
+                            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900" style={{ borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>Qty</th>
+                            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900" style={{ borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>Rate</th>
+                            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900" style={{ borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>Amount</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -187,7 +199,7 @@ const StandardTemplate = ({ data }: StandardTemplateProps) => {
                         <span className="text-gray-900 font-semibold">Total</span>
                         <span className="text-gray-900 font-semibold">{formatCurrency(calculateTotal())}</span>
                     </div>
-                    <div className="flex justify-between py-3 px-4 bg-blue-100 text-gray-900 rounded mt-2 text-sm font-semibold border border-blue-200">
+                    <div className="flex justify-between py-3 px-4 text-gray-900 rounded mt-2 text-sm font-semibold" style={{ backgroundColor: hexToRgba(data.color, 0.12), borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>
                         <span>Balance Due</span>
                         <span>{formatCurrency(calculateTotal())}</span>
                     </div>

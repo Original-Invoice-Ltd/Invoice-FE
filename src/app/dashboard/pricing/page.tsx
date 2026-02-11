@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { initializeTransactionWithPlan, getCurrentSubscription } from "@/lib/subscription";
+import { initializeTransactionWithPlan } from "@/lib/subscription";
 import Toast from '@/components/ui/Toast';
 import { useToast } from '@/hooks/useToast';
 import { useTranslation } from "react-i18next";
+import { useSubscription } from '@/hooks/useSubscription';
 
 export interface CurrentSubscription {
   plan: string;
@@ -21,37 +22,9 @@ const DashboardPricingPage = () => {
   const router = useRouter();
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState<string | null>(null);
-  const [currentSubscription, setCurrentSubscription] = useState<CurrentSubscription | null>(null);
-  const [loadingSubscription, setLoadingSubscription] = useState(true);
   const { toast, showError, hideToast } = useToast();
+  const { subscription: currentSubscription, loading: loadingSubscription } = useSubscription();
 
-  useEffect(() => {
-    const loadSubscription = async () => {
-      try {
-        setLoadingSubscription(true);
-        const subscription = await getCurrentSubscription();
-        setCurrentSubscription(subscription);
-      } catch (error) {
-        console.error("Error loading subscription:", error);
-      } finally {
-        setLoadingSubscription(false);
-      }
-    };
-    loadSubscription();
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        loadSubscription();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
-
-  // Handle subscription for paid plans
   const handleSubscribe = async (plan: "ESSENTIALS" | "PREMIUM") => {
     try {
       setIsLoading(plan);
