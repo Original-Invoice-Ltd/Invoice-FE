@@ -60,13 +60,6 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
                 </svg>
             )
         },
-         { 
-            label: t('invoices_received'),
-            href: "/customer/invoices",
-            icon: (isActive: boolean) => (
-                <ArrowLeftRight color={isActive ? "white" : "#333436"} width={20} />
-            )
-        },
         { 
             label: t('payments'),
             href: "/dashboard/payment",

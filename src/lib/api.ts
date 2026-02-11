@@ -5,6 +5,11 @@ import {
   PaymentTrend,
   RecentInvoice,
 } from "@/types/invoice";
+import {
+  DraftInvoiceResponse,
+  GetDraftResponse,
+  SendDraftErrorResponse,
+} from "@/types/draft";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -528,7 +533,42 @@ export class ApiClient {
     return this.request("DELETE", `/api/invoices/delete/${id}`);
   }
 
-  // Subscription Management APIs
+  static async saveDraft(formData: FormData): Promise<ApiResponse<DraftInvoiceResponse>> {
+    try {
+      const response = await axiosInstance.put("/api/invoices/draft", formData, {
+        headers: {
+          "Content-Type": undefined as any,
+        },
+        withCredentials: true,
+      });
+      return this.handleResponse<DraftInvoiceResponse>(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  static async getDraft(): Promise<ApiResponse<GetDraftResponse>> {
+    try {
+      const response = await axiosInstance.get("/api/invoices/draft", {
+        withCredentials: true,
+      });
+      return this.handleResponse<GetDraftResponse>(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  static async sendDraft(): Promise<ApiResponse<DraftInvoiceResponse | SendDraftErrorResponse>> {
+    try {
+      const response = await axiosInstance.post("/api/invoices/draft/send", {}, {
+        withCredentials: true,
+      });
+      return this.handleResponse<DraftInvoiceResponse>(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
   static async getCurrentSubscription() {
     return this.request("GET", "/api/subscriptions/current");
   }

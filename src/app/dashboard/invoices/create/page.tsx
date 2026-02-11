@@ -16,6 +16,7 @@ import { useInvoiceLimit } from "@/contexts/InvoiceLimitContext";
 import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
+import { useDraft } from "@/hooks/useDraft";
 
 const CreateInvoicePage = () => {
     const {
@@ -30,6 +31,7 @@ const CreateInvoicePage = () => {
     } = useInvoiceLimit();
     const { showBlockedNotification: showBlockedNotif } = useInvoiceLimitNotification();
     const { toast, showError, hideToast } = useToast();
+    const { loadDraft, saveDraft, sendDraft, hasDraft, isLoadingDraft, isSavingDraft } = useDraft();
 
     const [items, setItems] = useState<InvoiceItem[]>([]);
     const [showSignatureModal, setShowSignatureModal] = useState(false);
@@ -452,11 +454,34 @@ const CreateInvoicePage = () => {
 
     const handleSaveDraft = async () => {
         setFormValidationError(null);
-        if (!isFormValid()) {
-            setFormValidationError(getFirstValidationError());
-            return;
+        
+        const draftData = {
+            billFrom,
+            billTo,
+            items,
+            customerNote,
+            termsAndConditions,
+            currency,
+            language,
+            color,
+            template,
+            logo,
+            signature,
+            paymentDetails,
+            vat,
+            wht,
+            selectedClientId,
+            invoiceTaxRate
+        };
+
+        const result = await saveDraft(draftData);
+        
+        if (result.success) {
+            showError('Draft saved successfully');
+            setTimeout(() => hideToast(), 2000);
+        } else {
+            showError(result.error || 'Failed to save draft');
         }
-        // TODO: Implement save as draft functionality
     };
 
     useEffect(() => {
@@ -471,6 +496,70 @@ const CreateInvoicePage = () => {
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
     }, [showSignatureModal]);
+
+    useEffect(() => {
+        const loadSavedDraft = async () => {
+            const draft = await loadDraft();
+            
+            if (draft) {
+                if (draft.billFrom) {
+                    setBillFrom({
+                        fullName: draft.billFrom.fullName || '',
+                        email: draft.billFrom.email || '',
+                        address: draft.billFrom.address || '',
+                        phoneNumber: draft.billFrom.phone || '',
+                        businessName: draft.billFrom.fullName || ''
+                    });
+                }
+
+                if (draft.billTo) {
+                    setBillTo({
+                        customer: draft.billTo.fullName || '',
+                        title: draft.title || '',
+                        invoiceNumber: draft.invoiceNumber || '',
+                        paymentTerms: draft.paymentTerms || '',
+                        invoiceDate: draft.creationDate || '',
+                        dueDate: draft.dueDate || ''
+                    });
+                    
+                    if (draft.billTo.id) {
+                        setSelectedClientId(draft.billTo.id);
+                    }
+                }
+
+                if (draft.items && Array.isArray(draft.items)) {
+                    setItems(draft.items.map((item: any) => ({
+                        id: item.id || Date.now() + Math.random(),
+                        itemName: item.itemName || '',
+                        quantity: item.quantity || 0,
+                        rate: item.rate || 0,
+                        amount: item.amount || 0,
+                        description: item.description || ''
+                    })));
+                }
+
+                setCurrency(draft.currency || 'NGN');
+                setColor(draft.invoiceColor || '#2F80ED');
+                setCustomerNote(draft.note || '');
+                setTermsAndConditions(draft.termsAndConditions || '');
+                
+                setPaymentDetails({
+                    bankAccount: draft.bank || '',
+                    accountName: draft.accountName || '',
+                    accountNumber: draft.accountNumber || ''
+                });
+
+                if (draft.logoUrl) {
+                    setLogo(draft.logoUrl);
+                }
+                if (draft.signatureUrl) {
+                    setSignature(draft.signatureUrl);
+                }
+            }
+        };
+
+        loadSavedDraft();
+    }, [loadDraft]);
 
     const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
         setIsDrawing(true);
@@ -622,6 +711,21 @@ const CreateInvoicePage = () => {
         try {
             setIsSendingInvoice(true);
 
+            if (hasDraft) {
+                const result = await sendDraft();
+                
+                if (result.success) {
+                    setTimeout(() => {
+                        window.location.href = '/dashboard/invoices';
+                    }, 1500);
+                    return { success: true };
+                } else {
+                    setFormValidationError(result.error || 'Failed to send invoice');
+                    return { success: false, error: result.error || 'Failed to send invoice' };
+                }
+            }
+
+            // Otherwise, create new invoice
             // Prepare logo file from base64 if exists
             let logoFile: File | null = null;
             if (logo) {
@@ -638,7 +742,6 @@ const CreateInvoicePage = () => {
             const subtotal = calculateSubtotal();
             const totalDue = calculateTotal();
 
-            // Build the invoice data object matching backend CreateInvoiceRequest
             const invoiceData: CreateInvoiceData = {
                 logo: logoFile,
                 billFrom: {
@@ -678,14 +781,11 @@ const CreateInvoicePage = () => {
                 },
             };
 
-            // Build FormData for multipart/form-data request
             const formData = buildInvoiceFormData(invoiceData);
 
-            // Send to backend
             const response = await ApiClient.createInvoice(formData);
 
             if (response.status === 201 || response.status === 200) {
-                // Redirect to invoices list after short delay
                 setTimeout(() => {
                     window.location.href = '/dashboard/invoices';
                 }, 1500);
@@ -695,7 +795,6 @@ const CreateInvoicePage = () => {
                 return { success: false, error: response.error || 'Failed to create invoice' };
             }
         } catch (error) {
-            console.error('Error creating invoice:', error);
             setFormValidationError('An unexpected error occurred while sending the invoice.');
             return { success: false, error: 'An unexpected error occurred' };
         } finally {
@@ -730,6 +829,7 @@ const CreateInvoicePage = () => {
                 }}
                 onSendInvoice={handleSendInvoice}
                 validationMessage={getSpecificValidationMessage()}
+                hasDraft={hasDraft}
             />
         );
     }
@@ -1271,13 +1371,13 @@ const CreateInvoicePage = () => {
                                     </Link>
                                     <button
                                         onClick={handleSaveDraft}
-                                        disabled={!isFormValid()}
-                                        className={`px-8 py-3 border border-[#D0D5DD] rounded-lg text-[14px] font-medium transition-colors ${isFormValid()
-                                            ? 'text-[#344054] hover:bg-gray-50 cursor-pointer'
-                                            : 'text-gray-400 bg-gray-50 cursor-not-allowed'
+                                        disabled={isSavingDraft}
+                                        className={`px-8 py-3 border border-[#D0D5DD] rounded-lg text-[14px] font-medium transition-colors ${isSavingDraft
+                                            ? 'text-gray-400 bg-gray-50 cursor-not-allowed'
+                                            : 'text-[#344054] hover:bg-gray-50 cursor-pointer'
                                             }`}
                                     >
-                                        Save as Draft
+                                        {isSavingDraft ? 'Saving...' : 'Save as Draft'}
                                     </button>
                                 </div>
                                 <button

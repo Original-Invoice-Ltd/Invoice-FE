@@ -60,9 +60,10 @@ interface InvoicePreviewProps {
     onEmailInvoice: () => void;
     onSendInvoice: () => Promise<{ success: boolean; error?: string }>;
     validationMessage: string | null;
+    hasDraft?: boolean;
 }
 
-const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validationMessage }: InvoicePreviewProps) => {
+const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validationMessage, hasDraft = false }: InvoicePreviewProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [submitSuccess, setSubmitSuccess] = useState(false);
