@@ -13,6 +13,7 @@ import { subscribeToPusherChannel, disconnectPusher } from '@/lib/pusher';
 import Toast from '@/components/ui/Toast';
 import { useToast } from '@/hooks/useToast';
 import { useTranslation } from 'react-i18next';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface DashboardHeaderProps {
     onMenuClick?: () => void;
@@ -38,8 +39,23 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
     const languageDropdownRef = useRef<HTMLDivElement>(null);
     const profileDropdownRef = useRef<HTMLDivElement>(null);
     const { toast, showError, hideToast } = useToast();
+    const { subscription, loading: subscriptionLoading } = useSubscription();
 
-    // Get user's profile image or fallback
+    const getUpgradeButtonText = () => {      
+        if (subscriptionLoading) {
+            return t('upgrade_now');
+        }
+        if (!subscription) {
+            return t('upgrade_now');
+        }
+        
+        const plan = subscription.plan;
+        if (plan === 'PREMIUM') {
+            return t('premium_plan');
+        }
+        return t('upgrade_now');
+    };
+
     const getProfileImage = () => {
         if (user?.imageUrl) return user.imageUrl;
         return "";
@@ -290,7 +306,7 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
                     className="hidden lg:flex text-[#2F80ED] text-sm font-medium hover:bg-[#EBF5FF] transition-colors flex-shrink-0 border border-[#2F80ED] rounded-lg items-center justify-center" 
                     style={{ width: '131px', height: '46px', marginLeft: '20px' }}
                 >
-                    {t('upgrade_now')}
+                    {getUpgradeButtonText()}
                 </button>
             </div>
 

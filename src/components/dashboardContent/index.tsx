@@ -230,10 +230,10 @@ const DashboardContent = () => {
 
             {/* Invoices Sent Stats Cards */}
             <div className="mb-6">
-                <h2 className="text-lg font-semibold text-[#101828] mb-4">Invoices Sent</h2>
+                <h2 className="text-lg font-semibold text-[#101828] mb-4">{t('invoices_sent')}</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                     <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
-                    <p className="text-sm text-[#667085] mb-2">{t('Sent Invoices')}</p>
+                    <p className="text-sm text-[#667085] mb-2">{t('sent_invoices')}</p>
                     {loading.stats ? (
                         <div className="animate-pulse">
                             <div className="h-8 bg-gray-200 rounded w-2/3"></div>
@@ -329,7 +329,7 @@ const DashboardContent = () => {
 
             {/* Customer Invoice Stats Cards */}
             <div className="mb-6">
-                <h2 className="text-lg font-semibold text-[#101828] mb-4">Received Invoices</h2>
+                <h2 className="text-lg font-semibold text-[#101828] mb-4">{t('received_invoices')}</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                     <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
                         <div className="text-3xl font-bold text-gray-900 mb-2">
@@ -339,7 +339,7 @@ const DashboardContent = () => {
                                 customerStats.totalReceived
                             )}
                         </div>
-                        <div className="text-sm text-gray-600">Total Invoice Received</div>
+                        <div className="text-sm text-gray-600">{t('total_invoice_received')}</div>
                     </div>
                     <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
                         <div className="text-3xl font-bold text-gray-900 mb-2">
@@ -349,7 +349,7 @@ const DashboardContent = () => {
                                 customerStats.paid
                             )}
                         </div>
-                        <div className="text-sm text-gray-600">Paid Invoice</div>
+                        <div className="text-sm text-gray-600">{t('paid_invoice')}</div>
                     </div>
                     <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
                         <div className="text-3xl font-bold text-gray-900 mb-2">
@@ -359,7 +359,7 @@ const DashboardContent = () => {
                                 customerStats.pending
                             )}
                         </div>
-                        <div className="text-sm text-gray-600">Pending Invoice</div>
+                        <div className="text-sm text-gray-600">{t('pending_invoice')}</div>
                     </div>
                     <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
                         <div className="text-3xl font-bold text-gray-900 mb-2">
@@ -369,7 +369,7 @@ const DashboardContent = () => {
                                 customerStats.overdue
                             )}
                         </div>
-                        <div className="text-sm text-gray-600">Overdue Invoice</div>
+                        <div className="text-sm text-gray-600">{t('overdue_invoice')}</div>
                     </div>
                 </div>
             </div>

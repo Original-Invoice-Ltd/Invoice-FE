@@ -16,6 +16,7 @@ import { useInvoiceLimit } from "@/contexts/InvoiceLimitContext";
 import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
+import { useDraft } from "@/hooks/useDraft";
 
 const CreateInvoicePage = () => {
     const {
@@ -23,13 +24,10 @@ const CreateInvoicePage = () => {
         invoicesRemaining,
         totalInvoices,
         isLoading: limitLoading,
-        // checkInvoiceLimit,
-        // incrementInvoiceCount,
-        // showLimitNotification,
-        // showBlockedNotification
     } = useInvoiceLimit();
-    const { showWarningNotification, showBlockedNotification: showBlockedNotif } = useInvoiceLimitNotification();
-    const { toast, showError, hideToast } = useToast();
+    const { showBlockedNotification: showBlockedNotif } = useInvoiceLimitNotification();
+    const { toast, showError, showSuccess, hideToast } = useToast();
+    const { loadDraft, saveDraft, sendDraft, hasDraft, isLoadingDraft, isSavingDraft, loadedDraftData } = useDraft();
 
     const [items, setItems] = useState<InvoiceItem[]>([]);
     const [showSignatureModal, setShowSignatureModal] = useState(false);
@@ -38,8 +36,6 @@ const CreateInvoicePage = () => {
     const [isDrawing, setIsDrawing] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
     const [isSendingInvoice, setIsSendingInvoice] = useState(false);
-
-    // Client dropdown and modal state
     const [showClientDropdown, setShowClientDropdown] = useState(false);
     const [showAddClientModal, setShowAddClientModal] = useState(false);
     const [selectedClientId, setSelectedClientId] = useState<string>("");
@@ -60,7 +56,7 @@ const CreateInvoicePage = () => {
     });
     const [clientFormError, setClientFormError] = useState<string | null>(null);
     const [formValidationError, setFormValidationError] = useState<string | null>(null);
-    
+
     // Field-specific validation errors
     const [fieldErrors, setFieldErrors] = useState({
         billFromFullName: '',
@@ -246,6 +242,43 @@ const CreateInvoicePage = () => {
     const [wht, setWht] = useState(5);
     const [invoiceTaxRate, setInvoiceTaxRate] = useState(0); // Overall tax rate for the invoice
 
+    const hasFormChanges = () => {
+        const hasBillFromChanges = billFrom.fullName.trim() !== "" ||
+            billFrom.email.trim() !== "" ||
+            billFrom.address.trim() !== "" ||
+            billFrom.phoneNumber.trim() !== "" ||
+            billFrom.businessName.trim() !== "";
+
+        const hasBillToChanges = billTo.customer.trim() !== "" ||
+            billTo.title.trim() !== "" ||
+            billTo.invoiceNumber.trim() !== "" ||
+            billTo.paymentTerms.trim() !== "" ||
+            billTo.invoiceDate.trim() !== "" ||
+            billTo.dueDate.trim() !== "";
+
+        const hasItems = items.length > 0;
+
+        const hasAdditionalChanges = customerNote.trim() !== "" ||
+            termsAndConditions.trim() !== "" ||
+            logo !== null ||
+            signature !== null;
+
+        const hasPaymentDetails = paymentDetails.bankAccount.trim() !== "" ||
+            paymentDetails.accountName.trim() !== "" ||
+            paymentDetails.accountNumber.trim() !== "";
+
+        const hasNonDefaultSettings = currency !== "NGN" ||
+            language !== "English" ||
+            color !== "#2F80ED" ||
+            template !== "default" ||
+            vat !== 7.5 ||
+            wht !== 5 ||
+            invoiceTaxRate !== 0 ||
+            selectedClientId.trim() !== "";
+
+        return hasBillFromChanges || hasBillToChanges || hasItems || hasAdditionalChanges || hasPaymentDetails || hasNonDefaultSettings;
+    };
+
     const addNewRow = () => {
         setShowAddProductModal(true);
     };
@@ -322,7 +355,7 @@ const CreateInvoicePage = () => {
             payment: '',
             items: ''
         };
-        
+
         const newFieldErrors = {
             billFromFullName: '',
             billFromEmail: '',
@@ -356,7 +389,7 @@ const CreateInvoicePage = () => {
             errors.billFrom = "Sender's Business name is required";
             newFieldErrors.billFromBusinessName = "Business name is required";
         }
-        
+
         if (billTo.customer.trim() === "") {
             errors.billTo = "Please select a customer";
             newFieldErrors.billToCustomer = "Please select a customer";
@@ -388,7 +421,7 @@ const CreateInvoicePage = () => {
             errors.payment = "Invalid Account Number provided";
             newFieldErrors.paymentAccountNumber = "Invalid account number";
         }
-        
+
         setFieldErrors(newFieldErrors);
         return errors;
     };
@@ -452,11 +485,34 @@ const CreateInvoicePage = () => {
 
     const handleSaveDraft = async () => {
         setFormValidationError(null);
-        if (!isFormValid()) {
-            setFormValidationError(getFirstValidationError());
-            return;
+
+        const draftData = {
+            billFrom,
+            billTo,
+            items,
+            customerNote,
+            termsAndConditions,
+            currency,
+            language,
+            color,
+            template,
+            logo,
+            signature,
+            paymentDetails,
+            vat,
+            wht,
+            selectedClientId,
+            invoiceTaxRate
+        };
+
+        const result = await saveDraft(draftData);
+
+        if (result.success) {
+            showSuccess('Draft saved successfully');
+            setTimeout(() => hideToast(), 2000);
+        } else {
+            showError(result.error || 'Failed to save draft');
         }
-        // TODO: Implement save as draft functionality
     };
 
     useEffect(() => {
@@ -471,6 +527,57 @@ const CreateInvoicePage = () => {
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
     }, [showSignatureModal]);
+
+    useEffect(() => {
+        const loadSavedDraft = async () => {
+            try {
+                await loadDraft();
+            } catch (error) {
+                console.error('Error loading draft:', error);
+            }
+        };
+
+        loadSavedDraft();
+    }, [loadDraft]);
+    
+    useEffect(() => {
+        if (!isLoadingDraft && loadedDraftData) {
+            setBillFrom(loadedDraftData.billFrom);
+            setBillTo(loadedDraftData.billTo);
+
+            if (loadedDraftData.selectedClientId) {
+                setSelectedClientId(loadedDraftData.selectedClientId);
+            }
+
+            setItems(loadedDraftData.items);
+
+            setCurrency(loadedDraftData.currency);
+            setLanguage(loadedDraftData.language);
+            setColor(loadedDraftData.color);
+            setTemplate(loadedDraftData.template);
+            setCustomerNote(loadedDraftData.customerNote);
+            setTermsAndConditions(loadedDraftData.termsAndConditions);
+
+            setPaymentDetails(loadedDraftData.paymentDetails);
+
+            setVat(loadedDraftData.vat);
+            setWht(loadedDraftData.wht);
+            setInvoiceTaxRate(loadedDraftData.invoiceTaxRate);
+
+            if (loadedDraftData.logo) {
+                setLogo(loadedDraftData.logo);
+            }
+            if (loadedDraftData.signature) {
+                setSignature(loadedDraftData.signature);
+            }
+        }
+    }, [loadedDraftData, isLoadingDraft]);
+
+    useEffect(() => {
+        if (loadedDraftData?.selectedClientId && !clientsLoaded) {
+            loadClients();
+        }
+    }, [loadedDraftData?.selectedClientId, clientsLoaded]);
 
     const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
         setIsDrawing(true);
@@ -523,12 +630,17 @@ const CreateInvoicePage = () => {
     };
 
     const handlePreviewInvoice = () => {
+        if (invoicesRemaining === 0) {
+            showError("Upgrade plan to create more invoices");
+            return;
+        }
         if (!canCreateInvoice) {
             window.location.href = '/dashboard/pricing';
             return;
         }
+
         const currentError = getFirstValidationError();
-        
+
         if (currentError) {
             setFormValidationError(currentError);
             showError(currentError);
@@ -538,9 +650,7 @@ const CreateInvoicePage = () => {
         setFormValidationError(null);
         setShowPreview(true);
     };
-        // Transform form data to InvoiceResponse structure for preview
     const getPreviewData = () => {
-        // Find the selected client to get their email
         const selectedClient = clients.find(client => client.id === selectedClientId);
 
         return {
@@ -575,7 +685,7 @@ const CreateInvoicePage = () => {
                 title: "",
                 fullName: billTo.customer,
                 businessName: billTo.customer,
-                email: selectedClient?.email || "", // Use the selected client's email
+                email: selectedClient?.email || "",
                 phone: "",
                 country: ""
             },
@@ -583,7 +693,7 @@ const CreateInvoicePage = () => {
                 id: item.id,
                 itemName: item.itemName,
                 quantity: item.quantity,
-               
+
                 rate: item.rate,
                 amount: item.amount,
                 description: ""
@@ -613,10 +723,25 @@ const CreateInvoicePage = () => {
         }
         setFormValidationError(null);
         setShowPreview(true);
-      
+
         try {
             setIsSendingInvoice(true);
 
+            if (hasDraft) {
+                const result = await sendDraft();
+
+                if (result.success) {
+                    setTimeout(() => {
+                        window.location.href = '/dashboard/invoices';
+                    }, 1500);
+                    return { success: true };
+                } else {
+                    setFormValidationError(result.error || 'Failed to send invoice');
+                    return { success: false, error: result.error || 'Failed to send invoice' };
+                }
+            }
+
+            // Otherwise, create new invoice
             // Prepare logo file from base64 if exists
             let logoFile: File | null = null;
             if (logo) {
@@ -633,7 +758,6 @@ const CreateInvoicePage = () => {
             const subtotal = calculateSubtotal();
             const totalDue = calculateTotal();
 
-            // Build the invoice data object matching backend CreateInvoiceRequest
             const invoiceData: CreateInvoiceData = {
                 logo: logoFile,
                 billFrom: {
@@ -673,14 +797,11 @@ const CreateInvoicePage = () => {
                 },
             };
 
-            // Build FormData for multipart/form-data request
             const formData = buildInvoiceFormData(invoiceData);
 
-            // Send to backend
             const response = await ApiClient.createInvoice(formData);
 
             if (response.status === 201 || response.status === 200) {
-                // Redirect to invoices list after short delay
                 setTimeout(() => {
                     window.location.href = '/dashboard/invoices';
                 }, 1500);
@@ -690,7 +811,6 @@ const CreateInvoicePage = () => {
                 return { success: false, error: response.error || 'Failed to create invoice' };
             }
         } catch (error) {
-            console.error('Error creating invoice:', error);
             setFormValidationError('An unexpected error occurred while sending the invoice.');
             return { success: false, error: 'An unexpected error occurred' };
         } finally {
@@ -725,6 +845,7 @@ const CreateInvoicePage = () => {
                 }}
                 onSendInvoice={handleSendInvoice}
                 validationMessage={getSpecificValidationMessage()}
+                hasDraft={hasDraft}
             />
         );
     }
@@ -743,7 +864,23 @@ const CreateInvoicePage = () => {
                         <Link href="/dashboard/invoices" className="p-2 text-[#2F80ED] ">
                             <ArrowLeft size={24} />
                         </Link>
-                        <h1 className="text-[20px] font-semibold text-[#101828]">Create New Invoice</h1>
+                        <h1 className="text-[20px] font-semibold text-[#101828] flex items-center gap-2">
+                            Create New Invoice
+                            {isLoadingDraft && (
+                                <div className="flex items-center gap-2 text-[14px] text-[#667085]">
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#2F80ED]"></div>
+                                    Loading draft...
+                                </div>
+                            )}
+                            {hasDraft && !isLoadingDraft && (
+                                <div className="flex items-center gap-1 px-2 py-1 bg-[#F0F7FF] border border-[#2F80ED] rounded-md text-[12px] text-[#2F80ED]">
+                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                    Draft loaded
+                                </div>
+                            )}
+                        </h1>
                     </div>
 
                     {/* Invoice Count Display */}
@@ -841,9 +978,8 @@ const CreateInvoicePage = () => {
                                                 placeholder="Enter full name"
                                                 value={billFrom.fullName}
                                                 onChange={(e) => setBillFrom({ ...billFrom, fullName: e.target.value })}
-                                                className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${
-                                                    fieldErrors.billFromFullName ? 'border-red-500' : 'border-[#D0D5DD]'
-                                                }`}
+                                                className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${fieldErrors.billFromFullName ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                    }`}
                                             />
                                             {fieldErrors.billFromFullName && (
                                                 <p className="text-red-500 text-xs mt-1">{fieldErrors.billFromFullName}</p>
@@ -860,9 +996,8 @@ const CreateInvoicePage = () => {
                                                         placeholder="Enter email address"
                                                         value={billFrom.email}
                                                         onChange={(e) => setBillFrom({ ...billFrom, email: e.target.value })}
-                                                        className={`w-full px-3 py-2.5 pr-10 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${
-                                                            fieldErrors.billFromEmail ? 'border-red-500' : 'border-[#D0D5DD]'
-                                                        }`}
+                                                        className={`w-full px-3 py-2.5 pr-10 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${fieldErrors.billFromEmail ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                            }`}
                                                     />
                                                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085]">
                                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -898,9 +1033,8 @@ const CreateInvoicePage = () => {
                                                     placeholder="Enter phone number"
                                                     value={billFrom.phoneNumber}
                                                     onChange={(e) => setBillFrom({ ...billFrom, phoneNumber: e.target.value })}
-                                                    className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${
-                                                        fieldErrors.billFromPhone ? 'border-red-500' : 'border-[#D0D5DD]'
-                                                    }`}
+                                                    className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${fieldErrors.billFromPhone ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                        }`}
                                                 />
                                                 {fieldErrors.billFromPhone && (
                                                     <p className="text-red-500 text-xs mt-1">{fieldErrors.billFromPhone}</p>
@@ -915,9 +1049,8 @@ const CreateInvoicePage = () => {
                                                     placeholder="Enter business name"
                                                     value={billFrom.businessName}
                                                     onChange={(e) => setBillFrom({ ...billFrom, businessName: e.target.value })}
-                                                    className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${
-                                                        fieldErrors.billFromBusinessName ? 'border-red-500' : 'border-[#D0D5DD]'
-                                                    }`}
+                                                    className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${fieldErrors.billFromBusinessName ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                        }`}
                                                 />
                                                 {fieldErrors.billFromBusinessName && (
                                                     <p className="text-red-500 text-xs mt-1">{fieldErrors.billFromBusinessName}</p>
@@ -929,7 +1062,6 @@ const CreateInvoicePage = () => {
 
                                 {/* Bill To */}
                                 <div>
-
                                     <h2 className="text-[20px] font-semibold text-[#101828] mb-4">Bill To</h2>
                                     <div className="space-y-4">
                                         <div>
@@ -939,9 +1071,8 @@ const CreateInvoicePage = () => {
                                             <div className="relative">
                                                 <div
                                                     onClick={handleClientDropdownClick}
-                                                    className={`w-full px-3 py-2.5 border rounded-lg text-[14px] text-[#344054] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2F80ED] flex justify-between items-center ${
-                                                        fieldErrors.billToCustomer ? 'border-red-500' : 'border-[#D0D5DD]'
-                                                    }`}
+                                                    className={`w-full px-3 py-2.5 border rounded-lg text-[14px] text-[#344054] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2F80ED] flex justify-between items-center ${fieldErrors.billToCustomer ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                        }`}
                                                 >
                                                     <span>{billTo.customer || 'Select from added client'}</span>
                                                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -966,7 +1097,7 @@ const CreateInvoicePage = () => {
                                                             </div>
                                                         )}
                                                         {/* Client List */}
-                                                        {!isLoadingClients && clients.map((client, index) => (
+                                                        {!isLoadingClients && clients.map((client) => (
                                                             <div
                                                                 key={client.id}
                                                                 onClick={() => {
@@ -1049,9 +1180,8 @@ const CreateInvoicePage = () => {
                                                     type="date"
                                                     value={billTo.invoiceDate}
                                                     onChange={(e) => setBillTo({ ...billTo, invoiceDate: e.target.value })}
-                                                    className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${
-                                                        fieldErrors.billToInvoiceDate ? 'border-red-500' : 'border-[#D0D5DD]'
-                                                    }`}
+                                                    className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${fieldErrors.billToInvoiceDate ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                        }`}
                                                 />
                                                 {fieldErrors.billToInvoiceDate && (
                                                     <p className="text-red-500 text-xs mt-1">{fieldErrors.billToInvoiceDate}</p>
@@ -1066,9 +1196,8 @@ const CreateInvoicePage = () => {
                                                     type="date"
                                                     value={billTo.dueDate}
                                                     onChange={(e) => setBillTo({ ...billTo, dueDate: e.target.value })}
-                                                    className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${
-                                                        fieldErrors.billToDueDate ? 'border-red-500' : 'border-[#D0D5DD]'
-                                                    }`}
+                                                    className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${fieldErrors.billToDueDate ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                        }`}
                                                 />
                                                 {fieldErrors.billToDueDate && (
                                                     <p className="text-red-500 text-xs mt-1">{fieldErrors.billToDueDate}</p>
@@ -1266,13 +1395,13 @@ const CreateInvoicePage = () => {
                                     </Link>
                                     <button
                                         onClick={handleSaveDraft}
-                                        disabled={!isFormValid()}
-                                        className={`px-8 py-3 border border-[#D0D5DD] rounded-lg text-[14px] font-medium transition-colors ${isFormValid()
-                                            ? 'text-[#344054] hover:bg-gray-50 cursor-pointer'
-                                            : 'text-gray-400 bg-gray-50 cursor-not-allowed'
+                                        disabled={isSavingDraft || !hasFormChanges()}
+                                        className={`px-8 py-3 border border-[#D0D5DD] rounded-lg text-[14px] font-medium transition-colors ${isSavingDraft || !hasFormChanges()
+                                            ? 'text-gray-400 bg-gray-50 cursor-not-allowed'
+                                            : 'text-[#344054] hover:bg-gray-50 cursor-pointer'
                                             }`}
                                     >
-                                        Save as Draft
+                                        {isSavingDraft ? 'Saving...' : 'Save as Draft'}
                                     </button>
                                 </div>
                                 <button
@@ -1387,10 +1516,11 @@ const CreateInvoicePage = () => {
                                 <h3 className="font-medium text-[16px] mb-2">Select Color</h3>
                                 <ColorPicker
                                     initialColor={color}
-                                    onColorChange={(newColor) => setColor(newColor)}
+                                    onColorChange={(newColor) => {
+                                        setColor(newColor);
+                                    }}
                                 />
                             </div>
-
                             {/* Template Selection */}
                             <TemplateSelector
                                 selectedTemplate={template}
@@ -1498,7 +1628,6 @@ const CreateInvoicePage = () => {
                             )}
                         </div>
 
-                        {/* Right Column - Summary */}
                         <div className="bg-white rounded-lg w-[320px] self-start">
                             <div className="space-y-6">
                                 {/* Payment Details */}
@@ -1515,9 +1644,8 @@ const CreateInvoicePage = () => {
                                                     placeholder="Enter bank name or select"
                                                     value={paymentDetails.bankAccount}
                                                     onChange={(e) => setPaymentDetails({ ...paymentDetails, bankAccount: e.target.value })}
-                                                    className={`w-full px-3 py-2.5 pr-10 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${
-                                                        fieldErrors.paymentBank ? 'border-red-500' : 'border-[#D0D5DD]'
-                                                    }`}
+                                                    className={`w-full px-3 py-2.5 pr-10 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${fieldErrors.paymentBank ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                        }`}
                                                 />
                                                 <button
                                                     type="button"
@@ -1605,9 +1733,8 @@ const CreateInvoicePage = () => {
                                                 placeholder="Enter account name"
                                                 value={paymentDetails.accountName}
                                                 onChange={(e) => setPaymentDetails({ ...paymentDetails, accountName: e.target.value })}
-                                                className={`w-full px-3 py-2 border rounded-lg ${
-                                                    fieldErrors.paymentAccountName ? 'border-red-500' : 'border-[#D0D5DD]'
-                                                }`}
+                                                className={`w-full px-3 py-2 border rounded-lg ${fieldErrors.paymentAccountName ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                    }`}
                                             />
                                             {fieldErrors.paymentAccountName && (
                                                 <p className="text-red-500 text-xs mt-1">{fieldErrors.paymentAccountName}</p>
@@ -1622,9 +1749,8 @@ const CreateInvoicePage = () => {
                                                 placeholder="Enter account number"
                                                 value={paymentDetails.accountNumber}
                                                 onChange={(e) => setPaymentDetails({ ...paymentDetails, accountNumber: e.target.value })}
-                                                className={`w-full px-3 py-2 border rounded-lg ${
-                                                    fieldErrors.paymentAccountNumber ? 'border-red-500' : 'border-[#D0D5DD]'
-                                                }`}
+                                                className={`w-full px-3 py-2 border rounded-lg ${fieldErrors.paymentAccountNumber ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                    }`}
                                             />
                                             {fieldErrors.paymentAccountNumber && (
                                                 <p className="text-red-500 text-xs mt-1">{fieldErrors.paymentAccountNumber}</p>
@@ -1802,7 +1928,6 @@ const CreateInvoicePage = () => {
                     </div>
                 )}
 
-                {/* Add Product Modal */}
                 {showAddProductModal && (
                     <AddProductModal
                         product={null}

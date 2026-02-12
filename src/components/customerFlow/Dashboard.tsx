@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Search, MoreVertical } from "lucide-react";
 import UploadReceiptModal from "./UploadReceiptModal";
+import { useTranslation } from 'react-i18next';
 
 interface Invoice {
   id: number;
@@ -99,6 +100,7 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ onViewDetail }) => {
+  const { t } = useTranslation();
   const [activeMenu, setActiveMenu] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -137,19 +139,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewDetail }) => {
           <div style={{ maxWidth: '1108px', height: '117px', gap: '24px', opacity: 1 }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div style={{ width: '258.67px', height: '117px', gap: '20px', opacity: 1, borderRadius: '8px', borderWidth: '1px', paddingTop: '24px', paddingRight: '16px', paddingBottom: '24px', paddingLeft: '16px', background: '#EFF8FF66', border: '1px solid #E4E7EC' }}>
               <div className="text-3xl font-bold text-gray-900 mb-2">42</div>
-              <div className="text-gray-600">Total Invoice Received</div>
+              <div className="text-gray-600">{t('total_invoice_received')}</div>
             </div>
             <div style={{ width: '260px', height: '117px', gap: '20px', opacity: 1, borderRadius: '8px', borderWidth: '1px', paddingTop: '24px', paddingRight: '16px', paddingBottom: '24px', paddingLeft: '16px', background: '#EFF8FF66', border: '1px solid #E4E7EC' }}>
               <div className="text-3xl font-bold text-gray-900 mb-2">30</div>
-              <div className="text-gray-600">Paid Invoice</div>
+              <div className="text-gray-600">{t('paid_invoice')}</div>
             </div>
             <div style={{ width: '258.67px', height: '117px', gap: '20px', opacity: 1, borderRadius: '8px', borderWidth: '1px', paddingTop: '24px', paddingRight: '16px', paddingBottom: '24px', paddingLeft: '16px', background: '#EFF8FF66', border: '1px solid #E4E7EC' }}>
               <div className="text-3xl font-bold text-gray-900 mb-2">7</div>
-              <div className="text-gray-600">Pending Invoice</div>
+              <div className="text-gray-600">{t('pending_invoice')}</div>
             </div>
             <div style={{ width: '258.67px', height: '117px', gap: '20px', opacity: 1, borderRadius: '8px', borderWidth: '1px', paddingTop: '24px', paddingRight: '16px', paddingBottom: '24px', paddingLeft: '16px', background: '#EFF8FF66', border: '1px solid #E4E7EC' }}>
               <div className="text-3xl font-bold text-gray-900 mb-2">4</div>
-              <div className="text-gray-600">Overdue Invoice</div>
+              <div className="text-gray-600">{t('overdue_invoice')}</div>
             </div>
           </div>
         </div>

@@ -76,7 +76,7 @@ const Sidebar = ({
         {
             icon: InvoicesIcon,
             label: "Invoices",
-            path: "/customer/invoices",
+            path: "/dashboard/invoices",
             isActive: pathname.includes("/customer/invoices")
         },
         {

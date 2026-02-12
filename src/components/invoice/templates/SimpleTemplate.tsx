@@ -73,7 +73,28 @@ const SimpleTemplate = ({ data }: SimpleTemplateProps) => {
     };
 
     return (
-        <div className="bg-white p-12">
+        <div className="bg-white p-12 relative">
+            {/* Watermark */}
+            <div 
+                   className="absolute left-8 top-2/3 -translate-y-2/3 pointer-events-none select-none z-0"
+                style={{
+                    transform: 'translateY(-50%) rotate(-22deg)',
+                    transformOrigin: 'center',
+                }}
+            >
+                <span 
+                    className="text-blue-200 font-bold whitespace-nowrap text-[2rem] md:text-[4rem]"
+                    style={{
+                       opacity: 0.3,
+                        letterSpacing: '0.1em'
+                    }}
+                >
+                    Original Invoice
+                </span>
+            </div>
+
+            {/* Invoice content */}
+            <div className="relative z-10">
             {/* Header with Invoice Title and Logo */}
             <div className="flex justify-between items-start mb-8">
                 <div>
@@ -130,12 +151,12 @@ const SimpleTemplate = ({ data }: SimpleTemplateProps) => {
             <div className="mb-8">
                 <table className="w-full border-collapse">
                     <thead>
-                        <tr className="bg-blue-100">
-                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 border border-blue-200">#</th>
-                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 border border-blue-200">Item Detail</th>
-                            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900 border border-blue-200">Qty</th>
-                            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900 border border-blue-200">Rate</th>
-                            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900 border border-blue-200">Amount</th>
+                        <tr style={{ backgroundColor: `${data.color}20` }}>
+                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900" style={{ borderColor: `${data.color}40`, border: '1px solid' }}>#</th>
+                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900" style={{ borderColor: `${data.color}40`, border: '1px solid' }}>Item Detail</th>
+                            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900" style={{ borderColor: `${data.color}40`, border: '1px solid' }}>Qty</th>
+                            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900" style={{ borderColor: `${data.color}40`, border: '1px solid' }}>Rate</th>
+                            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900" style={{ borderColor: `${data.color}40`, border: '1px solid' }}>Amount</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -171,7 +192,7 @@ const SimpleTemplate = ({ data }: SimpleTemplateProps) => {
                         <span className="text-gray-900 font-semibold">Total</span>
                         <span className="text-gray-900 font-semibold">{formatCurrency(calculateTotal())}</span>
                     </div>
-                    <div className="flex justify-between py-3 px-4 bg-blue-100 text-gray-900 rounded mt-2 text-sm font-semibold border border-blue-200">
+                    <div className="flex justify-between py-3 px-4 text-gray-900 rounded mt-2 text-sm font-semibold" style={{ backgroundColor: `${data.color}20`, borderColor: `${data.color}40`, border: '1px solid' }}>
                         <span>Balance Due</span>
                         <span>{formatCurrency(calculateTotal())}</span>
                     </div>
@@ -219,6 +240,7 @@ const SimpleTemplate = ({ data }: SimpleTemplateProps) => {
                         <span className="text-gray-900 font-medium">{data.paymentDetails.accountName}</span>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     );
