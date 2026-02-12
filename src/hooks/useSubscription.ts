@@ -22,16 +22,23 @@ export const useSubscription = () => {
 
   useEffect(() => {
     fetchSubscription();
+    
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         fetchSubscription();
       }
     };
 
+    const handleSubscriptionUpdate = () => {
+      fetchSubscription();
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('subscription-updated', handleSubscriptionUpdate);
     
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('subscription-updated', handleSubscriptionUpdate);
     };
   }, []);
 

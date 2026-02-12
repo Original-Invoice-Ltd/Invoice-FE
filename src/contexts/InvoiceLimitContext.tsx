@@ -128,9 +128,26 @@ export const InvoiceLimitProvider = ({ children }: InvoiceLimitProviderProps) =>
     }));
   }, []);
 
-  // Check invoice limit on mount
   useEffect(() => {
     checkInvoiceLimit();
+    
+    const handleSubscriptionUpdate = () => {
+      checkInvoiceLimit();
+    };
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        checkInvoiceLimit();
+      }
+    };
+
+    window.addEventListener('subscription-updated', handleSubscriptionUpdate);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      window.removeEventListener('subscription-updated', handleSubscriptionUpdate);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [checkInvoiceLimit]);
 
   const value: InvoiceLimitContextType = {

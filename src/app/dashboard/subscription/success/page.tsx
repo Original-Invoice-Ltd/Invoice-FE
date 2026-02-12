@@ -33,8 +33,8 @@ const SubscriptionSuccessContent = () => {
           setPlan(result.plan as "ESSENTIALS" | "PREMIUM" || "ESSENTIALS");
           setMessage(result.message || "Subscription activated successfully!");
           
-          // Auto-redirect to dashboard after 3 seconds
-          setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('subscription-updated'));
+                  setTimeout(() => {
             router.push("/dashboard/overview");
           }, 3000);
         } else {
@@ -52,6 +52,7 @@ const SubscriptionSuccessContent = () => {
   }, [reference, router]);
 
   const handleContinue = () => {
+    window.dispatchEvent(new CustomEvent('subscription-updated'));
     router.push("/dashboard/overview");
   };
 

@@ -543,6 +543,7 @@ export class ApiClient {
       });
       return this.handleResponse<DraftInvoiceResponse>(response);
     } catch (error) {
+      console.log("save draft error = ", error)
       return this.handleError(error as AxiosError);
     }
   }
@@ -808,32 +809,6 @@ export class ApiClient {
   // Utility methods for customer invoice operations
   static getStatusColor(status: string): string {
     switch (status.toLowerCase()) {
-      // <<<<<<< HEAD
-
-      //   static getDropdownOptions(status: string): Array<{ label: string; action: string }> {
-      //     const baseOptions = [
-      //       { label: "View Detail", action: "view" }
-      //     ];
-
-      //     const statusLower = status.toLowerCase();
-
-      //     if (statusLower === 'paid') {
-      //       return [
-      //         ...baseOptions,
-      //         { label: "View Receipt", action: "receipt" }
-      //       ];
-      //     } else if (statusLower === 'pending') {
-      //       // Pending invoices can only be viewed, no upload allowed
-      //       return baseOptions;
-      //     } else {
-      //       // Unpaid/Overdue invoices can upload receipt
-      //       return [
-      //         ...baseOptions,
-      //         { label: "Upload Receipt", action: "upload" }
-      //       ];
-      //     }
-      //   }
-      // =======
       case "paid":
         return "bg-green-100 text-green-700 border-green-200";
       case "pending":

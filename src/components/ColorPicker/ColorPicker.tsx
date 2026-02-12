@@ -105,14 +105,11 @@ const ColorPicker = ({ initialColor = "#4F46E5", onColorChange }: ColorPickerPro
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-   useEffect(() => {
-    setColor(initialColor);
-  }, [initialColor]);
 
   const handleColorChange = (newColor: string) => {
     setColor(newColor);
     onColorChange?.(newColor, opacity);
-    };
+  };
 
   const handleOpacityChange = (newOpacity: number) => {
     setOpacity(Math.min(100, Math.max(0, newOpacity)));
