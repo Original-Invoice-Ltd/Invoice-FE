@@ -77,6 +77,8 @@ export const InvoiceLimitProvider = ({ children }: InvoiceLimitProviderProps) =>
         const canCreate = canCreateResponse.data.canCreate;
         setCanCreateInvoice(canCreate);
         
+
+        
         // Set default values for free plan if no subscription data
         setTotalInvoices(10);
         setInvoicesRemaining(canCreate ? 10 : 0);
