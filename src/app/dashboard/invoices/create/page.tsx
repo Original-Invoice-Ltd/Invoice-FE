@@ -36,8 +36,6 @@ const CreateInvoicePage = () => {
     const [isDrawing, setIsDrawing] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
     const [isSendingInvoice, setIsSendingInvoice] = useState(false);
-
-    // Client dropdown and modal state
     const [showClientDropdown, setShowClientDropdown] = useState(false);
     const [showAddClientModal, setShowAddClientModal] = useState(false);
     const [selectedClientId, setSelectedClientId] = useState<string>("");
@@ -548,9 +546,6 @@ const CreateInvoicePage = () => {
 
             if (loadedDraftData.selectedClientId) {
                 setSelectedClientId(loadedDraftData.selectedClientId);
-                if (!clientsLoaded) {
-                    loadClients();
-                }
             }
 
             setItems(loadedDraftData.items);
