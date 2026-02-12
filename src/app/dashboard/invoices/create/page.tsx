@@ -538,9 +538,10 @@ const CreateInvoicePage = () => {
         };
 
         loadSavedDraft();
-    }, []);
+    }, [loadDraft]);
+    
     useEffect(() => {
-        if (loadedDraftData) {
+        if (!isLoadingDraft && loadedDraftData) {
             setBillFrom(loadedDraftData.billFrom);
             setBillTo(loadedDraftData.billTo);
 
@@ -570,7 +571,7 @@ const CreateInvoicePage = () => {
                 setSignature(loadedDraftData.signature);
             }
         }
-    }, [loadedDraftData]);
+    }, [loadedDraftData, isLoadingDraft]);
 
     useEffect(() => {
         if (loadedDraftData?.selectedClientId && !clientsLoaded) {
@@ -1061,7 +1062,6 @@ const CreateInvoicePage = () => {
 
                                 {/* Bill To */}
                                 <div>
-
                                     <h2 className="text-[20px] font-semibold text-[#101828] mb-4">Bill To</h2>
                                     <div className="space-y-4">
                                         <div>

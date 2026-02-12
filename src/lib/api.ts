@@ -543,7 +543,6 @@ export class ApiClient {
       });
       return this.handleResponse<DraftInvoiceResponse>(response);
     } catch (error) {
-      console.log("save draft error = ", error)
       return this.handleError(error as AxiosError);
     }
   }

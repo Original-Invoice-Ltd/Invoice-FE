@@ -68,33 +68,33 @@ export const useDraft = () => {
           
           const loadedDraftData: DraftData = {
             billFrom: {
-              fullName: draftResponse.billFrom.fullName,
-              email: draftResponse.billFrom.email,
-              address: draftResponse.billFrom.address,
-              phoneNumber: draftResponse.billFrom.phone,
-              businessName: draftResponse.billTo.businessName || draftResponse.billFrom.fullName,
+              fullName: draftResponse.billFrom?.fullName || '',
+              email: draftResponse.billFrom?.email || '',
+              address: draftResponse.billFrom?.address || '',
+              phoneNumber: draftResponse.billFrom?.phone || '',
+              businessName: draftResponse.billTo?.businessName || draftResponse.billFrom?.fullName || '',
             },
             billTo: {
-              customer: draftResponse.billTo.fullName,
-              title: draftResponse.title,
-              invoiceNumber: draftResponse.invoiceNumber,
+              customer: draftResponse.billTo?.fullName || '',
+              title: draftResponse.title || '',
+              invoiceNumber: draftResponse.invoiceNumber || '',
               paymentTerms: draftResponse.paymentTerms || '',
-              invoiceDate: draftResponse.creationDate,
-              dueDate: draftResponse.dueDate,
+              invoiceDate: draftResponse.creationDate || '',
+              dueDate: draftResponse.dueDate || '',
             },
-            items: draftResponse.items.map(item => ({
+            items: draftResponse.items?.map(item => ({
               id: item.id || Date.now(),
-              itemName: item.itemName,
-              quantity: item.quantity,
-              rate: item.rate,
-              amount: item.amount,
-              description: item.description,
-            })),
+              itemName: item.itemName || '',
+              quantity: item.quantity || 0,
+              rate: item.rate || 0,
+              amount: item.amount || 0,
+              description: item.description || '',
+            })) || [],
             customerNote: draftResponse.note || '',
             termsAndConditions: draftResponse.termsAndConditions || '',
-            currency: draftResponse.currency,
+            currency: draftResponse.currency || 'NGN',
             language: 'English',
-            color: draftResponse.invoiceColor,
+            color: draftResponse.invoiceColor || '#2F80ED',
             template: 'default',
             logo: draftResponse.logoUrl || null,
             signature: draftResponse.signatureUrl || null,
@@ -105,11 +105,11 @@ export const useDraft = () => {
             },
             vat: 0,
             wht: 0,
-            selectedClientId: draftResponse.billTo.id,
+            selectedClientId: draftResponse.billTo?.id || '',
             invoiceTaxRate: 0,
           };
           
-          console.log('Transformed draft data:', loadedDraftData); // Debug log
+          console.log('Transformed draft data:', loadedDraftData);
           setLastSavedDraft(loadedDraftData);
           setLoadedDraftData(loadedDraftData);
           return draftResponse;
@@ -279,9 +279,9 @@ export const useDraft = () => {
         },
       };
 
-      // Build FormData using the same function as createInvoice
       const formData = buildInvoiceFormData(invoiceData);
-
+      console.log("invoiceData before sending: ", invoiceData) 
+      console.log("formData before sending: ", formData) 
       const response = await ApiClient.saveDraft(formData);
 
       if (response.status === 200) {
