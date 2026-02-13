@@ -143,7 +143,7 @@ export default function CompactInvoiceTemplate({ data = defaultInvoiceData }: { 
             <p className="text-sm text-gray-600 mb-1">{data.invoiceNumber}</p>
             <p className="text-xs sm:text-sm text-gray-600 mb-1">Balance Due</p>
             <p className="text-xl sm:text-2xl font-bold text-gray-900">
-              NGN{data.balanceDue.toLocaleString('en-NG', { minimumFractionDigits: 2 })}
+              ₦{data.balanceDue.toLocaleString('en-NG', { minimumFractionDigits: 2 })}
             </p>
           </div>
         </div>

@@ -87,7 +87,6 @@ const CreateInvoicePage = () => {
     const [showBankDropdown, setShowBankDropdown] = useState(false);
     const [bankSearchQuery, setBankSearchQuery] = useState("");
 
-    // Nigerian banks list
     const nigerianBanks = [
         { category: "Fintechs", banks: ["OPay", "PalmPay", "Moniepoint", "Kuda Bank", "Carbon", "Fairmoney"] },
         { category: "Commercial Banks", banks: ["Access Bank", "Zenith Bank", "GTBank", "First Bank", "UBA", "Fidelity Bank", "Union Bank", "Stanbic IBTC", "Sterling Bank", "Ecobank", "FCMB", "Wema Bank", "Polaris Bank", "Keystone Bank", "Unity Bank"] }
@@ -457,7 +456,7 @@ const CreateInvoicePage = () => {
             return "Customer selection is required";
         }
         if (billTo.title.trim() === "") {
-            return "Invoice name is required";
+            return "Invoice number is required";
         }
         if (billTo.invoiceDate.trim() === "") {
             return "Invoice date is required";
@@ -841,7 +840,6 @@ const CreateInvoicePage = () => {
                 }}
                 onEdit={handleBackToEdit}
                 onEmailInvoice={() => {
-                    // Handle email invoice
                 }}
                 onSendInvoice={handleSendInvoice}
                 validationMessage={getSpecificValidationMessage()}
@@ -1149,7 +1147,7 @@ const CreateInvoicePage = () => {
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-[14px] font-medium text-[#344054] mb-2">
-                                                    Invoice Name
+                                                    Invoice Number
                                                 </label>
                                                 <input
                                                     type="text"

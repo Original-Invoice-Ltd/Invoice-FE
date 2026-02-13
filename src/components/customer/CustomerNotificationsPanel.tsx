@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCustomerNotifications } from "@/hooks/useCustomerNotifications";
+import { useTranslation } from 'react-i18next';
 
 
 interface Notification {
@@ -24,6 +25,7 @@ interface CustomerNotificationsPanelProps {
 
 const CustomerNotificationsPanel = ({ isOpen, onClose }: CustomerNotificationsPanelProps) => {
     const router = useRouter();
+    const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState("");
     const { notifications, isLoading, fetchNotifications, markAsRead } = useCustomerNotifications();
 
@@ -53,31 +55,29 @@ const CustomerNotificationsPanel = ({ isOpen, onClose }: CustomerNotificationsPa
 
     return (
         <>
-            {/* Backdrop */}
             <div 
-                className="fixed inset-0 z-40"
-                style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+                className="fixed inset-0 z-[60] backdrop-blur-sm bg-black/30"
                 onClick={onClose}
             />
             
-            {/* Panel - Full screen on mobile */}
-            <div className="fixed inset-0 sm:inset-auto sm:top-16 sm:right-4 bg-white shadow-2xl z-50 flex flex-col sm:rounded-lg border-0 sm:border border-[#E4E7EC] sm:w-[450px] sm:max-h-[calc(100vh-5rem)]">
+            {/* Panel - Full screen on mobile, sidebar on md+ */}
+            <div className="fixed inset-0 md:inset-auto md:top-16 md:right-4 bg-white shadow-2xl z-[70] flex flex-col rounded-none md:rounded-lg border-0 md:border border-[#E4E7EC] w-full md:w-[450px] h-full md:max-h-[calc(100vh-5rem)]">
                 {/* Header */}
                 <div className="p-4 border-b border-[#E4E7EC]">
                     <div className="flex items-center gap-4 mb-4">
                         {/* Back button on mobile */}
                         <button
                             onClick={onClose}
-                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors sm:hidden"
+                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors md:hidden"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                 <path stroke="#101828" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 12H5m0 0l7 7m-7-7l7-7"/>
                             </svg>
                         </button>
-                        <h2 className="text-lg font-semibold text-[#101828] flex-1">Notifications</h2>
+                        <h2 className="text-lg font-semibold text-[#101828] flex-1">{t('notifications')}</h2>
                         <button
                             onClick={onClose}
-                            className="text-[#667085] hover:text-[#101828] p-1 hidden sm:block"
+                            className="text-[#667085] hover:text-[#101828] p-1 hidden md:block"
                         >
                             <X size={20} />
                         </button>
@@ -92,7 +92,7 @@ const CustomerNotificationsPanel = ({ isOpen, onClose }: CustomerNotificationsPa
                         </div>
                         <input
                             type="text"
-                            placeholder="Search"
+                            placeholder={t('search')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -113,9 +113,9 @@ const CustomerNotificationsPanel = ({ isOpen, onClose }: CustomerNotificationsPa
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                 </svg>
                             </div>
-                            <h3 className="text-lg font-medium text-[#101828] mb-2">No notifications yet</h3>
+                            <h3 className="text-lg font-medium text-[#101828] mb-2">{t('no_notifications')}</h3>
                             <p className="text-sm text-[#667085] text-center">
-                                You&apos;ll receive notifications here when your receipts are approved or when there are updates to your invoices.
+                                {t('notification_hint')}
                             </p>
                         </div>
                     ) : (

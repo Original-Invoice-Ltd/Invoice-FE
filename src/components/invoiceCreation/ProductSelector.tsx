@@ -188,7 +188,7 @@ export default function ProductSelector({ items, onItemsChange }: ProductSelecto
                   />
                 </td>
                 <td className="py-3 px-2 font-medium">
-                  ${item.amount.toFixed(2)}
+                  ₦{item.amount.toFixed(2)}
                 </td>
                 <td className="py-3 px-2">
                   <button

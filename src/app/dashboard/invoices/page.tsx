@@ -200,21 +200,32 @@ const InvoicesPage = () => {
                 onClose={hideToast}
             />
             {/* Header */}
-            <div className="mb-6 flex items-start justify-between">
-                <div>
-                    <h1 className="text-[20px] font-semibold text-[#101828] mb-1">{t('invoice_management')}</h1>
-                    <p className="text-[14px] text-[#667085]">
+            <div className="mb-6 flex flex-col md:flex-row items-start justify-between">
+                <div className="flex md:flex-col flex-row justify-between w-full h-full items-center md:items-start ">
+                    <h1 className="text-[1rem] md:text-[20px] font-semibold text-[#101828] mb-1">{t('invoice_management')}</h1>
+                    <p className="hidden md:flex text-[0.75rem] md:text-[14px] text-[#667085]">
                         {t('invoice_management_desc')}
                     </p>
-                </div>
-                <Link
+                    <Link
                     href="/dashboard/invoices/create"
-                    className="flex items-center gap-2 px-5 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors text-[16px] font-medium whitespace-nowrap"
+                    className="flex items-center md:hidden gap-2 px-5 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors text-[0.85rem] md:text-[16px] font-medium whitespace-nowrap"
                 >
                     <Plus size={20} />
                     {t('create_invoice')}
 
                 </Link>
+                </div>
+                <Link
+                    href="/dashboard/invoices/create"
+                    className="hidden md:flex items-center gap-2 px-5 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors text-[0.85rem] md:text-[16px] font-medium whitespace-nowrap"
+                >
+                    <Plus size={20} />
+                    {t('create_invoice')}
+
+                </Link>
+                  <p className="md:hidden text-[0.75rem] md:text-[14px] text-[#667085]">
+                        {t('invoice_management_desc')}
+                    </p>
             </div>
 
             {/* All Invoices Section */}

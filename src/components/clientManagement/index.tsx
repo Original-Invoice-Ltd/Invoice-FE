@@ -101,31 +101,34 @@ const ClientManagement = () => {
             <div className="flex-1 flex flex-col overflow-hidden">
                 <DashboardHeader onMenuClick={() => setSidebarOpen(true)} />
                 
-                <div className="flex-1 overflow-y-auto p-8">
+                <div className="flex-1 overflow-y-auto p-4 md:p-8">
                     {/* Header Section */}
-                    <div className="flex items-start justify-between mb-8">
+                    <div className="flex flex-col sm:flex-row items-start justify-between mb-6 md:mb-8 gap-4">
                         <div>
-                            <h1 className="text-2xl font-semibold text-[#101828] mb-2">Clients Management</h1>
+                            <h1 className="text-xl md:text-2xl font-semibold text-[#101828] mb-2">Clients Management</h1>
                             <p className="text-sm text-[#667085]">Manage your client database, track payments, and view billing history.</p>
                         </div>
                         <button 
                             onClick={handleAddClient}
-                            className="flex items-center gap-2 px-4 py-3 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB]"
+                            className="flex items-center gap-2 px-4 py-3 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] whitespace-nowrap"
                         >
                             <Plus size={18} />
                             Add Client
                         </button>
                     </div>
 
-                    {/* All Clients Section */}
-                    <div className="bg-white rounded-lg border border-[#E4E7EC] p-6">
-                        <ClientsHeader 
-                            searchQuery={searchQuery}
-                            onSearchChange={setSearchQuery}
-                        />
+                    <div className="bg-white rounded-lg border border-[#E4E7EC] overflow-hidden">
+                        <div className="p-4 md:p-6">
+                            <ClientsHeader 
+                                searchQuery={searchQuery}
+                                onSearchChange={setSearchQuery}
+                            />
+                        </div>
 
                         {clients.length === 0 ? (
-                            <EmptyState onAddClient={handleAddClient} />
+                            <div className="p-4 md:p-6">
+                                <EmptyState onAddClient={handleAddClient} />
+                            </div>
                         ) : (
                             <ClientTable clients={clients} />
                         )}

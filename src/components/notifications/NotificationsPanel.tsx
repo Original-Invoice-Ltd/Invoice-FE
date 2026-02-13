@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { X, Bell, Check } from "lucide-react";
+import { X, Bell, Check, ArrowLeft } from "lucide-react";
 import { ApiClient } from "@/lib/api";
+import { useTranslation } from 'react-i18next';
 
 interface Notification {
     id: string;
@@ -22,13 +23,14 @@ interface NotificationsPanelProps {
 }
 
 const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: NotificationsPanelProps) => {
+    const { t } = useTranslation();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
     const [activeTab, setActiveTab] = useState<'all' | 'invoices' | 'payments' | 'clients' | 'system'>('all');
 
 
-       const fetchNotifications = useCallback(async () => {
+    const fetchNotifications = useCallback(async () => {
         try {
             setIsLoading(true);
             const response = await ApiClient.getAllNotifications();
@@ -47,25 +49,24 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
         } finally {
             setIsLoading(false);
         }
-       }, [onUnreadCountChange]);
-    
-    // Fetch notifications when panel opens
+    }, [onUnreadCountChange]);
+
     useEffect(() => {
         if (isOpen) {
             fetchNotifications();
         }
     }, [fetchNotifications, isOpen]);
 
- 
+
 
     const markAsRead = async (notificationId: string) => {
         try {
             const response = await ApiClient.markNotificationAsRead(notificationId);
-            
+
             if (response.status === 200) {
                 // Update local state
-                setNotifications(prev => 
-                    prev.map(n => 
+                setNotifications(prev =>
+                    prev.map(n =>
                         n.id === notificationId ? { ...n, isRead: true } : n
                     )
                 );
@@ -81,10 +82,9 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
     const markAllAsRead = async () => {
         try {
             const response = await ApiClient.markAllNotificationsAsRead();
-            
+
             if (response.status === 200) {
-                // Update local state
-                setNotifications(prev => 
+                setNotifications(prev =>
                     prev.map(n => ({ ...n, isRead: true }))
                 );
                 setUnreadCount(0);
@@ -103,8 +103,8 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
                 return (
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M2 3H14C14.5523 3 15 3.44772 15 4V12C15 12.5523 14.5523 13 14 13H2C1.44772 13 1 12.5523 1 12V4C1 3.44772 1.44772 3 2 3Z" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M5 7H11M5 9H9" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M2 3H14C14.5523 3 15 3.44772 15 4V12C15 12.5523 14.5523 13 14 13H2C1.44772 13 1 12.5523 1 12V4C1 3.44772 1.44772 3 2 3Z" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M5 7H11M5 9H9" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                     </div>
                 );
@@ -114,17 +114,17 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
                 return (
                     <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M8 8C10.2091 8 12 6.20914 12 4C12 1.79086 10.2091 0 8 0C5.79086 0 4 1.79086 4 4C4 6.20914 5.79086 8 8 8Z" fill="#16A34A"/>
-                            <path d="M8 10C4.68629 10 2 12.6863 2 16H14C14 12.6863 11.3137 10 8 10Z" fill="#16A34A"/>
+                            <path d="M8 8C10.2091 8 12 6.20914 12 4C12 1.79086 10.2091 0 8 0C5.79086 0 4 1.79086 4 4C4 6.20914 5.79086 8 8 8Z" fill="#16A34A" />
+                            <path d="M8 10C4.68629 10 2 12.6863 2 16H14C14 12.6863 11.3137 10 8 10Z" fill="#16A34A" />
                         </svg>
                     </div>
                 );
             case 'PAYMENT_RECEIVED':
-            case 'PAYMENT_EVIDENCE_UPLOADED':   
+            case 'PAYMENT_EVIDENCE_UPLOADED':
                 return (
                     <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M8 1L10.5 6H15L11 9.5L12.5 15L8 11.5L3.5 15L5 9.5L1 6H5.5L8 1Z" fill="#059669"/>
+                            <path d="M8 1L10.5 6H15L11 9.5L12.5 15L8 11.5L3.5 15L5 9.5L1 6H5.5L8 1Z" fill="#059669" />
                         </svg>
                     </div>
                 );
@@ -134,7 +134,7 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
                 return (
                     <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M8 1C11.866 1 15 4.134 15 8C15 11.866 11.866 15 8 15C4.134 15 1 11.866 1 8C1 4.134 4.134 1 8 1ZM8 11C8.55228 11 9 11.4477 9 12C9 12.5523 8.55228 13 8 13C7.44772 13 7 12.5523 7 12C7 11.4477 7.44772 11 8 11ZM8 3C7.44772 3 7 3.44772 7 4V9C7 9.55228 7.44772 10 8 10C8.55228 10 9 9.55228 9 9V4C9 3.44772 8.55228 3 8 3Z" fill="#7C3AED"/>
+                            <path d="M8 1C11.866 1 15 4.134 15 8C15 11.866 11.866 15 8 15C4.134 15 1 11.866 1 8C1 4.134 4.134 1 8 1ZM8 11C8.55228 11 9 11.4477 9 12C9 12.5523 8.55228 13 8 13C7.44772 13 7 12.5523 7 12C7 11.4477 7.44772 11 8 11ZM8 3C7.44772 3 7 3.44772 7 4V9C7 9.55228 7.44772 10 8 10C8.55228 10 9 9.55228 9 9V4C9 3.44772 8.55228 3 8 3Z" fill="#7C3AED" />
                         </svg>
                     </div>
                 );
@@ -150,52 +150,50 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
     const formatTimeAgo = (dateString: string) => {
         const date = new Date(dateString);
         const now = new Date();
-        
-        // Calculate difference in milliseconds, then convert to seconds
+
         const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-        // Handle negative differences (future dates) by showing "Just now"
         if (diffInSeconds <= 0) {
-            return 'Just now';
+            return t('just_now');
         }
 
         if (diffInSeconds < 60) {
-            return 'Just now';
+            return t('just_now');
         } else if (diffInSeconds < 3600) {
             const minutes = Math.floor(diffInSeconds / 60);
-            return `${minutes}m ago`;
+            return `${minutes}${t('minutes_ago')}`;
         } else if (diffInSeconds < 86400) {
             const hours = Math.floor(diffInSeconds / 3600);
-            return `${hours}h ago`;
+            return `${hours}${t('hours_ago')}`;
         } else {
             const days = Math.floor(diffInSeconds / 86400);
-            return `${days}d ago`;
+            return `${days}${t('days_ago')}`;
         }
     };
 
     const getFilteredNotifications = () => {
         if (activeTab === 'all') return notifications;
-        
+
         const typeMap = {
             'invoices': ['INVOICE_CREATED', 'INVOICE_UPDATED', 'INVOICE_DELETED'],
             'clients': ['CLIENT_CREATED', 'CLIENT_UPDATED', 'CLIENT_DELETED'],
             'payments': ['PAYMENT_RECEIVED'],
             'system': ['SYSTEM_UPDATE', 'SYSTEM_MAINTENANCE', 'ACCOUNT_UPDATE']
         };
-        
+
         return notifications.filter(n => typeMap[activeTab]?.includes(n.type));
     };
 
     const getTabCount = (tab: 'all' | 'invoices' | 'clients' | 'payments' | 'system') => {
         if (tab === 'all') return notifications.length;
-        
+
         const typeMap = {
             'invoices': ['INVOICE_CREATED', 'INVOICE_UPDATED', 'INVOICE_DELETED'],
             'clients': ['CLIENT_CREATED', 'CLIENT_UPDATED', 'CLIENT_DELETED'],
             'payments': ['PAYMENT_RECEIVED'],
             'system': ['SYSTEM_UPDATE', 'SYSTEM_MAINTENANCE', 'ACCOUNT_UPDATE']
         };
-        
+
         return notifications.filter(n => typeMap[tab]?.includes(n.type)).length;
     };
 
@@ -203,93 +201,110 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
 
     return (
         <>
-            {/* Backdrop with blurred/dimmed background */}
-            <div 
-                className="fixed inset-0 z-40 backdrop-blur-sm"
-                style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+            <div
+                className="fixed inset-0 z-[60] backdrop-blur-sm bg-black/30"
                 onClick={onClose}
             />
-            
-            {/* Panel - 600px width */}
-            <div className="fixed top-16 right-4 h-[calc(100vh-5rem)] bg-white shadow-2xl z-50 flex flex-col rounded-lg border border-[#E4E7EC]" style={{ width: '600px' }}>
-                {/* Header */}
-                <div className="p-6 border-b border-[#E4E7EC]">
+
+            <div className={`
+                fixed inset-0 md:inset-auto md:top-16 md:right-4 
+                w-full md:w-[600px] h-full md:h-[calc(100vh-5rem)] 
+                bg-white shadow-2xl z-[70] flex flex-col 
+                rounded-none md:rounded-lg border-0 md:border border-[#E4E7EC]
+                `}>
+                <div className="p-4 md:p-6 border-b border-[#E4E7EC]">
+                    <span className="flex md:hidden border-[1px] rounded w-[30px] mb-2"  onClick={onClose}>
+                        <ArrowLeft className="w-full"/>
+                    </span>
                     <div className="flex items-center justify-between mb-2">
-                        <h2 className="text-2xl font-semibold text-[#101828]">Notifications</h2>
+                        <h2 className="text-2xl font-semibold text-[#101828]">{t('notifications')}</h2>
                         <button
                             onClick={onClose}
-                            className="text-[#667085] hover:text-[#101828] p-1"
+                            className="text-[#667085] hover:text-[#101828] p-1 hidden md:flex cursor-pointer"
                         >
                             <X size={24} />
                         </button>
                     </div>
                     <p className="text-[#667085] text-sm">
-                        Stay updated on invoice activity, payments, reminders, and account alerts.
+                        {t('stay_updated')}
                     </p>
                 </div>
 
-                {/* Tabs with Mark as Read */}
-                <div className="flex items-center justify-between border-b border-[#E4E7EC] px-6">
-                    <div className="flex">
-                        <button
-                            onClick={() => setActiveTab('all')}
-                            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
-                                activeTab === 'all'
-                                    ? 'text-[#101828] border-[#101828]'
-                                    : 'text-[#667085] hover:text-[#101828] border-transparent'
-                            }`}
-                        >
-                            All
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('invoices')}
-                            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
-                                activeTab === 'invoices'
-                                    ? 'text-[#101828] border-[#101828]'
-                                    : 'text-[#667085] hover:text-[#101828] border-transparent'
-                            }`}
-                        >
-                            Invoices
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('payments')}
-                            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
-                                activeTab === 'payments'
-                                    ? 'text-[#101828] border-[#101828]'
-                                    : 'text-[#667085] hover:text-[#101828] border-transparent'
-                            }`}
-                        >
-                            Payments
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('clients')}
-                            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
-                                activeTab === 'clients'
-                                    ? 'text-[#101828] border-[#101828]'
-                                    : 'text-[#667085] hover:text-[#101828] border-transparent'
-                            }`}
-                        >
-                            Clients
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('system')}
-                            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
-                                activeTab === 'system'
-                                    ? 'text-[#101828] border-[#101828]'
-                                    : 'text-[#667085] hover:text-[#101828] border-transparent'
-                            }`}
-                        >
-                            System
-                        </button>
-                    </div>
+                <div className="border-b border-[#E4E7EC]">
                     {unreadCount > 0 && (
-                        <button
-                            onClick={markAllAsRead}
-                            className="text-[#2F80ED] hover:text-[#2563EB] text-sm font-medium py-3"
-                        >
-                            Mark all as Read
-                        </button>
+                        <div className="flex justify-end px-4 pt-3 md:hidden">
+                            <button
+                                onClick={markAllAsRead}
+                                className="text-[#2F80ED] hover:text-[#2563EB] text-sm font-medium"
+                            >
+                                {t('mark_all_read')}
+                            </button>
+                        </div>
                     )}
+                    
+                    <div className="flex items-center justify-between px-2 sm:px-6 w-full">
+                        <div className="flex overflow-x-auto scrollbar-hide w-full justify-between">
+                            <button
+                                onClick={() => setActiveTab('all')}
+                                className={`px-3 md:px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
+                                    activeTab === 'all'
+                                        ? 'text-[#101828] border-[#101828]'
+                                        : 'text-[#667085] hover:text-[#101828] border-transparent'
+                                }`}
+                            >
+                                {t('all')}
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('invoices')}
+                                className={`px-2 md:px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
+                                    activeTab === 'invoices'
+                                        ? 'text-[#101828] border-[#101828]'
+                                        : 'text-[#667085] hover:text-[#101828] border-transparent'
+                                }`}
+                            >
+                                {t('invoices')}
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('payments')}
+                                className={`px-2 md:px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
+                                    activeTab === 'payments'
+                                        ? 'text-[#101828] border-[#101828]'
+                                        : 'text-[#667085] hover:text-[#101828] border-transparent'
+                                }`}
+                            >
+                                {t('payments')}
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('clients')}
+                                className={`px-2 md:px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
+                                    activeTab === 'clients'
+                                        ? 'text-[#101828] border-[#101828]'
+                                        : 'text-[#667085] hover:text-[#101828] border-transparent'
+                                }`}
+                            >
+                                {t('clients')}
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('system')}
+                                className={`px-2 md:px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
+                                    activeTab === 'system'
+                                        ? 'text-[#101828] border-[#101828]'
+                                        : 'text-[#667085] hover:text-[#101828] border-transparent'
+                                }`}
+                            >
+                                {t('system')}
+                            </button>
+                        </div>
+                        
+                        {unreadCount > 0 && (
+                            <button
+                                onClick={markAllAsRead}
+                                className="hidden md:block text-[#2F80ED] hover:text-[#2563EB] text-sm font-medium py-3 whitespace-nowrap ml-4"
+                            >
+                                {t('mark_all_read')}
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {/* Content */}
@@ -301,45 +316,45 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
                     ) : getFilteredNotifications().length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-12 px-4">
                             <svg width="108" height="108" viewBox="0 0 108 108" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-4">
-                                <rect width="108" height="108" rx="54" fill="#EFF8FF"/>
-                                <path d="M31.0248 24.4623C30.9527 24.7392 30.8269 24.9869 30.6373 25.2239C30.3545 25.5771 29.9153 25.9031 29.3346 26.1388C28.7559 26.3747 28.0431 26.5157 27.2641 26.5152C26.7011 26.5153 26.104 26.4425 25.4978 26.2861C24.2107 25.9562 23.1431 25.3084 22.4496 24.5746C21.9046 24.0004 20.9974 23.9767 20.4232 24.5216C19.849 25.0666 19.8253 25.9738 20.3703 26.548C21.4794 27.7134 23.0043 28.6018 24.7822 29.0621C25.62 29.278 26.4552 29.3818 27.2641 29.3819C28.7555 29.3802 30.1626 29.0336 31.3347 28.3383C31.9194 27.99 32.4448 27.551 32.8719 27.0197C33.2988 26.4895 33.6244 25.8644 33.8007 25.178C33.9983 24.4114 33.5371 23.6298 32.7705 23.4322C32.004 23.2346 31.2224 23.6958 31.0248 24.4623Z" fill="#99A0AE"/>
-                                <path d="M27.6145 37.6984C27.5425 37.9754 27.4166 38.223 27.227 38.46C26.9443 38.8132 26.5051 39.1393 25.9244 39.375C25.3457 39.6108 24.6329 39.7518 23.8539 39.7513C23.2909 39.7514 22.6938 39.6786 22.0877 39.5223C20.8005 39.1924 19.7329 38.5446 19.0394 37.8107C18.4945 37.2365 17.5872 37.2128 17.013 37.7578C16.4389 38.3028 16.4152 39.21 16.9601 39.7842C18.0692 40.9496 19.5941 41.838 21.3721 42.2983C22.2098 42.5142 23.045 42.618 23.854 42.6181C25.3453 42.6163 26.7525 42.2698 27.9245 41.5745C28.5092 41.2262 29.0346 40.7871 29.4617 40.2558C29.8887 39.7256 30.2142 39.1005 30.3905 38.4142C30.5882 37.6476 30.1269 36.866 29.3604 36.6684C28.5938 36.4707 27.8122 36.9319 27.6145 37.6984Z" fill="#99A0AE"/>
-                                <path d="M23.9935 51.7429C23.9215 52.0198 23.7956 52.2674 23.606 52.5045C23.3232 52.8577 22.8841 53.1837 22.3034 53.4194C21.7247 53.6553 21.0118 53.7963 20.2329 53.7958C19.6698 53.7958 19.0728 53.7231 18.4666 53.5667C17.1794 53.2368 16.1118 52.589 15.4183 51.8552C14.8734 51.281 13.9661 51.2573 13.392 51.8022C12.8178 52.3472 12.7941 53.2544 13.339 53.8286C14.4481 54.994 15.973 55.8824 17.751 56.3427C18.5887 56.5586 19.4239 56.6624 20.2329 56.6625C21.7242 56.6608 23.1314 56.3142 24.3034 55.6189C24.8881 55.2706 25.4135 54.8316 25.8406 54.3002C26.2676 53.7701 26.5931 53.145 26.7694 52.4586C26.9671 51.692 26.5059 50.9104 25.7393 50.7128C24.9727 50.5152 24.1911 50.9763 23.9935 51.7429Z" fill="#99A0AE"/>
-                                <path d="M87.6606 33.2557L39.7034 20.7818C36.5953 19.9733 33.4203 21.8376 32.6118 24.9457L20.1379 72.9029C19.3294 76.011 21.1937 79.186 24.3018 79.9945L72.259 92.4684C75.3672 93.2768 78.5422 91.4126 79.3506 88.3045L91.8245 40.3473C92.633 37.2391 90.7687 34.0641 87.6606 33.2557Z" fill="#E1E4EA" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round"/>
-                                <path d="M86.8357 33.8228L75.3967 77.8023C73.9206 82.517 69.2501 85.6589 64.1665 85.0455C63.8347 85.0055 63.5068 84.9503 63.186 84.8806L62.3857 84.6743C62.3643 84.6688 62.3429 84.6633 62.3223 84.6547C57.5769 83.1968 54.4099 78.5101 55.0219 73.4065C55.7128 67.6685 60.9251 63.575 66.6639 64.2628L22.2814 58.4308L22.2783 58.43C22.0285 58.3754 21.7725 58.3322 21.5134 58.3013C19.9118 58.1067 18.3647 58.4213 17.0352 59.1177L27.6214 18.4205C28.4292 15.3124 31.6044 13.4465 34.7119 14.2573L82.6694 26.7317C85.7776 27.5395 87.6435 30.7146 86.8357 33.8228Z" fill="white" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round"/>
-                                <path d="M62.321 84.6547L19.9078 73.6227C19.8306 73.6191 19.7541 73.6124 19.6754 73.6019C15.4471 73.095 12.4361 69.2565 12.9422 65.0313C13.2568 62.4084 14.8549 60.2532 17.0339 59.1177C18.3635 58.4212 19.9106 58.1066 21.5121 58.3012C21.7713 58.3322 22.0273 58.3754 22.2771 58.43L22.2802 58.4308L66.6627 64.2627C60.9238 63.5749 55.7116 67.6684 55.0207 73.4064C54.4087 78.51 57.5756 83.1967 62.321 84.6547Z" fill="#CACFD8" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round"/>
-                                <path d="M62.3867 84.6743L63.1871 84.8806C62.9151 84.8235 62.6493 84.755 62.3867 84.6743Z" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round"/>
-                                <path d="M75.3945 77.8023L75.6614 76.7798C75.5877 77.1289 75.5003 77.468 75.3945 77.8023Z" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round"/>
-                                <path d="M22.4494 24.5746C22.1167 24.2244 21.8699 23.8575 21.7113 23.5053C21.5523 23.152 21.4801 22.8173 21.48 22.5046C21.4801 22.3393 21.4999 22.1787 21.5414 22.0176C21.6134 21.7406 21.7393 21.493 21.9289 21.256C22.2116 20.9028 22.6508 20.5768 23.2315 20.341C23.8102 20.1052 24.523 19.9642 25.302 19.9647C25.865 19.9646 26.4621 20.0374 27.0682 20.1938C28.3276 20.5167 29.377 21.1434 30.071 21.8581C30.4189 22.2145 30.6776 22.59 30.8437 22.9508C31.0103 23.3127 31.0858 23.6556 31.0859 23.9753C31.0858 24.1407 31.066 24.3012 31.0245 24.4624C30.8269 25.2289 31.2881 26.0106 32.0547 26.2081C32.8213 26.4057 33.6029 25.9446 33.8005 25.178C33.9031 24.7801 33.9528 24.3754 33.9527 23.9753C33.9528 23.1975 33.7665 22.4422 33.4467 21.7498C32.9652 20.7096 32.1916 19.8016 31.2249 19.0628C30.2568 18.3248 29.0889 17.7546 27.7839 17.4178C26.9462 17.2019 26.111 17.098 25.302 17.098C23.8107 17.0997 22.4035 17.4463 21.2315 18.1416C20.6468 18.4899 20.1214 18.9289 19.6943 19.4602C19.2674 19.9904 18.9418 20.6155 18.7655 21.3019C18.6628 21.6997 18.6132 22.1044 18.6133 22.5045C18.6132 23.2651 18.7913 24.0044 19.0982 24.6841C19.4056 25.3647 19.8403 25.9895 20.3701 26.548C20.915 27.1222 21.8223 27.1459 22.3964 26.6009C22.9706 26.056 22.9943 25.1488 22.4494 24.5746Z" fill="#99A0AE"/>
-                                <path d="M19.0393 37.8107C18.7066 37.4605 18.4598 37.0936 18.3012 36.7414C18.1422 36.3881 18.07 36.0534 18.0698 35.7407C18.07 35.5754 18.0898 35.4148 18.1312 35.2537C18.2033 34.9768 18.3291 34.7291 18.5187 34.4921C18.8015 34.1388 19.2407 33.8129 19.8214 33.5772C20.4001 33.3413 21.1129 33.2003 21.8919 33.2008C22.4549 33.2007 23.052 33.2735 23.6581 33.4299C24.9175 33.7528 25.9668 34.3795 26.6609 35.0942C27.0088 35.4506 27.2674 35.8261 27.4335 36.1869C27.6002 36.5488 27.6757 36.8917 27.6758 37.2114C27.6757 37.3768 27.6558 37.5374 27.6144 37.6985C27.4168 38.465 27.878 39.2467 28.6445 39.4443C29.4111 39.6418 30.1927 39.1807 30.3903 38.4141C30.493 38.0163 30.5426 37.6116 30.5425 37.2114C30.5426 36.4336 30.3564 35.6783 30.0366 34.9859C29.555 33.9457 28.7814 33.0377 27.8148 32.299C26.8466 31.561 25.6787 30.9908 24.3738 30.6539C23.536 30.438 22.7009 30.3341 21.8919 30.3341C20.4006 30.3358 18.9934 30.6824 17.8214 31.3777C17.2366 31.726 16.7112 32.165 16.2841 32.6964C15.8572 33.2266 15.5316 33.8516 15.3553 34.538C15.2526 34.9358 15.2031 35.3405 15.2031 35.7407C15.203 36.5012 15.3812 37.2406 15.6881 37.9202C15.9955 38.6009 16.4302 39.2257 16.9599 39.7841C17.5049 40.3583 18.4121 40.382 18.9863 39.8371C19.5605 39.2921 19.5842 38.3849 19.0393 37.8107Z" fill="#99A0AE"/>
-                                <path d="M15.4181 51.8552C15.0855 51.505 14.8387 51.1381 14.6801 50.7859C14.521 50.4326 14.4489 50.0979 14.4487 49.7852C14.4488 49.6199 14.4687 49.4593 14.5101 49.2982C14.5822 49.0212 14.708 48.7736 14.8976 48.5366C15.1803 48.1833 15.6195 47.8573 16.2002 47.6216C16.7789 47.3857 17.4918 47.2447 18.2707 47.2453C18.8338 47.2452 19.4308 47.318 20.037 47.4743C21.2963 47.7972 22.3457 48.424 23.0398 49.1386C23.3876 49.495 23.6463 49.8705 23.8124 50.2313C23.979 50.5932 24.0545 50.9362 24.0547 51.2559C24.0546 51.4212 24.0347 51.5818 23.9933 51.7429C23.7956 52.5095 24.2569 53.2911 25.0235 53.4887C25.79 53.6863 26.5716 53.2251 26.7692 52.4585C26.8719 52.0607 26.9215 51.656 26.9214 51.2559C26.9215 50.4781 26.7353 49.7227 26.4155 49.0304C25.9339 47.9902 25.1603 47.0821 24.1937 46.3434C23.2255 45.6054 22.0576 45.0352 20.7527 44.6984C19.915 44.4824 19.0798 44.3786 18.2708 44.3785C16.7795 44.3803 15.3723 44.7268 14.2003 45.4221C13.6155 45.7704 13.0901 46.2095 12.663 46.7408C12.2361 47.271 11.9106 47.8961 11.7342 48.5824C11.6316 48.9803 11.582 49.385 11.582 49.7851C11.5819 50.5457 11.7601 51.285 12.067 51.9646C12.3744 52.6453 12.8091 53.2701 13.3389 53.8286C13.8838 54.4028 14.791 54.4265 15.3652 53.8815C15.9394 53.3365 15.9631 52.4293 15.4181 51.8552Z" fill="#99A0AE"/>
-                                <path d="M42.2116 25.0682L45.7295 31.03L39.5898 34.6529" fill="white"/>
-                                <path d="M41.2527 25.6328L44.2059 30.6377L39.0232 33.696C38.4947 34.0078 38.3191 34.6891 38.6309 35.2176C38.9428 35.7461 39.624 35.9217 40.1525 35.6098L46.2922 31.9869C46.8207 31.6751 46.9963 30.9938 46.6845 30.4653L43.1665 24.5035C42.8547 23.975 42.1734 23.7993 41.6449 24.1112C41.1164 24.4231 40.9408 25.1044 41.2527 25.6328Z" fill="#99A0AE"/>
-                                <path d="M71.7041 32.6716L65.7422 36.1896L69.3651 42.3293" fill="white"/>
-                                <path d="M71.1407 31.7147L65.1788 35.2326C64.9268 35.3813 64.7406 35.6288 64.6675 35.9122C64.5945 36.1955 64.6378 36.5022 64.7865 36.7542L68.4094 42.8939C68.7213 43.4224 69.4026 43.598 69.931 43.2862C70.4595 42.9743 70.6352 42.2931 70.3233 41.7646L67.2651 36.5818L72.27 33.6286C72.7985 33.3167 72.9741 32.6355 72.6623 32.107C72.3504 31.5785 71.6692 31.4028 71.1407 31.7147Z" fill="#99A0AE"/>
-                                <path d="M43.9004 47.7732L59.2485 51.73C59.8428 51.8832 60.4487 51.5257 60.6018 50.9315C60.755 50.3373 60.3975 49.7314 59.8033 49.5782L44.4552 45.6214C43.8609 45.4682 43.255 45.8257 43.1019 46.4199C42.9487 47.0142 43.3062 47.6201 43.9004 47.7732Z" fill="#99A0AE"/>
-                                <path d="M94.5 17.25C94.5 17.25 89.25 17.2679 89.25 22.5C89.25 17.2679 84 17.25 84 17.25C84 17.25 89.25 17.2321 89.25 12C89.25 17.2321 94.5 17.25 94.5 17.25Z" stroke="#99A0AE" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M15 87C15 87 10.5 87.0153 10.5 91.5C10.5 87.0153 6 87 6 87C6 87 10.5 86.9847 10.5 82.5C10.5 86.9847 15 87 15 87Z" stroke="#99A0AE" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M71.2137 79.5931L70.6364 79.9874C67.3997 82.2051 62.9832 81.3755 60.7687 78.142C58.551 74.9084 59.3743 70.4919 62.611 68.2742L63.1883 67.8799L71.2137 79.5931Z" fill="#E1E4EA" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round"/>
-                                <path d="M100.593 52.1413L99.514 59.6021C99.451 60.0311 99.2112 60.416 98.8515 60.662L73.0434 78.3407L71.2168 79.5931L63.1914 67.8799L65.0179 66.6275L90.8261 48.9489C91.1857 48.7028 91.6306 48.6176 92.0533 48.7154L99.4004 50.4032C100.189 50.583 100.71 51.34 100.593 52.1413Z" fill="white" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round"/>
+                                <rect width="108" height="108" rx="54" fill="#EFF8FF" />
+                                <path d="M31.0248 24.4623C30.9527 24.7392 30.8269 24.9869 30.6373 25.2239C30.3545 25.5771 29.9153 25.9031 29.3346 26.1388C28.7559 26.3747 28.0431 26.5157 27.2641 26.5152C26.7011 26.5153 26.104 26.4425 25.4978 26.2861C24.2107 25.9562 23.1431 25.3084 22.4496 24.5746C21.9046 24.0004 20.9974 23.9767 20.4232 24.5216C19.849 25.0666 19.8253 25.9738 20.3703 26.548C21.4794 27.7134 23.0043 28.6018 24.7822 29.0621C25.62 29.278 26.4552 29.3818 27.2641 29.3819C28.7555 29.3802 30.1626 29.0336 31.3347 28.3383C31.9194 27.99 32.4448 27.551 32.8719 27.0197C33.2988 26.4895 33.6244 25.8644 33.8007 25.178C33.9983 24.4114 33.5371 23.6298 32.7705 23.4322C32.004 23.2346 31.2224 23.6958 31.0248 24.4623Z" fill="#99A0AE" />
+                                <path d="M27.6145 37.6984C27.5425 37.9754 27.4166 38.223 27.227 38.46C26.9443 38.8132 26.5051 39.1393 25.9244 39.375C25.3457 39.6108 24.6329 39.7518 23.8539 39.7513C23.2909 39.7514 22.6938 39.6786 22.0877 39.5223C20.8005 39.1924 19.7329 38.5446 19.0394 37.8107C18.4945 37.2365 17.5872 37.2128 17.013 37.7578C16.4389 38.3028 16.4152 39.21 16.9601 39.7842C18.0692 40.9496 19.5941 41.838 21.3721 42.2983C22.2098 42.5142 23.045 42.618 23.854 42.6181C25.3453 42.6163 26.7525 42.2698 27.9245 41.5745C28.5092 41.2262 29.0346 40.7871 29.4617 40.2558C29.8887 39.7256 30.2142 39.1005 30.3905 38.4142C30.5882 37.6476 30.1269 36.866 29.3604 36.6684C28.5938 36.4707 27.8122 36.9319 27.6145 37.6984Z" fill="#99A0AE" />
+                                <path d="M23.9935 51.7429C23.9215 52.0198 23.7956 52.2674 23.606 52.5045C23.3232 52.8577 22.8841 53.1837 22.3034 53.4194C21.7247 53.6553 21.0118 53.7963 20.2329 53.7958C19.6698 53.7958 19.0728 53.7231 18.4666 53.5667C17.1794 53.2368 16.1118 52.589 15.4183 51.8552C14.8734 51.281 13.9661 51.2573 13.392 51.8022C12.8178 52.3472 12.7941 53.2544 13.339 53.8286C14.4481 54.994 15.973 55.8824 17.751 56.3427C18.5887 56.5586 19.4239 56.6624 20.2329 56.6625C21.7242 56.6608 23.1314 56.3142 24.3034 55.6189C24.8881 55.2706 25.4135 54.8316 25.8406 54.3002C26.2676 53.7701 26.5931 53.145 26.7694 52.4586C26.9671 51.692 26.5059 50.9104 25.7393 50.7128C24.9727 50.5152 24.1911 50.9763 23.9935 51.7429Z" fill="#99A0AE" />
+                                <path d="M87.6606 33.2557L39.7034 20.7818C36.5953 19.9733 33.4203 21.8376 32.6118 24.9457L20.1379 72.9029C19.3294 76.011 21.1937 79.186 24.3018 79.9945L72.259 92.4684C75.3672 93.2768 78.5422 91.4126 79.3506 88.3045L91.8245 40.3473C92.633 37.2391 90.7687 34.0641 87.6606 33.2557Z" fill="#E1E4EA" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round" />
+                                <path d="M86.8357 33.8228L75.3967 77.8023C73.9206 82.517 69.2501 85.6589 64.1665 85.0455C63.8347 85.0055 63.5068 84.9503 63.186 84.8806L62.3857 84.6743C62.3643 84.6688 62.3429 84.6633 62.3223 84.6547C57.5769 83.1968 54.4099 78.5101 55.0219 73.4065C55.7128 67.6685 60.9251 63.575 66.6639 64.2628L22.2814 58.4308L22.2783 58.43C22.0285 58.3754 21.7725 58.3322 21.5134 58.3013C19.9118 58.1067 18.3647 58.4213 17.0352 59.1177L27.6214 18.4205C28.4292 15.3124 31.6044 13.4465 34.7119 14.2573L82.6694 26.7317C85.7776 27.5395 87.6435 30.7146 86.8357 33.8228Z" fill="white" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round" />
+                                <path d="M62.321 84.6547L19.9078 73.6227C19.8306 73.6191 19.7541 73.6124 19.6754 73.6019C15.4471 73.095 12.4361 69.2565 12.9422 65.0313C13.2568 62.4084 14.8549 60.2532 17.0339 59.1177C18.3635 58.4212 19.9106 58.1066 21.5121 58.3012C21.7713 58.3322 22.0273 58.3754 22.2771 58.43L22.2802 58.4308L66.6627 64.2627C60.9238 63.5749 55.7116 67.6684 55.0207 73.4064C54.4087 78.51 57.5756 83.1967 62.321 84.6547Z" fill="#CACFD8" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round" />
+                                <path d="M62.3867 84.6743L63.1871 84.8806C62.9151 84.8235 62.6493 84.755 62.3867 84.6743Z" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round" />
+                                <path d="M75.3945 77.8023L75.6614 76.7798C75.5877 77.1289 75.5003 77.468 75.3945 77.8023Z" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round" />
+                                <path d="M22.4494 24.5746C22.1167 24.2244 21.8699 23.8575 21.7113 23.5053C21.5523 23.152 21.4801 22.8173 21.48 22.5046C21.4801 22.3393 21.4999 22.1787 21.5414 22.0176C21.6134 21.7406 21.7393 21.493 21.9289 21.256C22.2116 20.9028 22.6508 20.5768 23.2315 20.341C23.8102 20.1052 24.523 19.9642 25.302 19.9647C25.865 19.9646 26.4621 20.0374 27.0682 20.1938C28.3276 20.5167 29.377 21.1434 30.071 21.8581C30.4189 22.2145 30.6776 22.59 30.8437 22.9508C31.0103 23.3127 31.0858 23.6556 31.0859 23.9753C31.0858 24.1407 31.066 24.3012 31.0245 24.4624C30.8269 25.2289 31.2881 26.0106 32.0547 26.2081C32.8213 26.4057 33.6029 25.9446 33.8005 25.178C33.9031 24.7801 33.9528 24.3754 33.9527 23.9753C33.9528 23.1975 33.7665 22.4422 33.4467 21.7498C32.9652 20.7096 32.1916 19.8016 31.2249 19.0628C30.2568 18.3248 29.0889 17.7546 27.7839 17.4178C26.9462 17.2019 26.111 17.098 25.302 17.098C23.8107 17.0997 22.4035 17.4463 21.2315 18.1416C20.6468 18.4899 20.1214 18.9289 19.6943 19.4602C19.2674 19.9904 18.9418 20.6155 18.7655 21.3019C18.6628 21.6997 18.6132 22.1044 18.6133 22.5045C18.6132 23.2651 18.7913 24.0044 19.0982 24.6841C19.4056 25.3647 19.8403 25.9895 20.3701 26.548C20.915 27.1222 21.8223 27.1459 22.3964 26.6009C22.9706 26.056 22.9943 25.1488 22.4494 24.5746Z" fill="#99A0AE" />
+                                <path d="M19.0393 37.8107C18.7066 37.4605 18.4598 37.0936 18.3012 36.7414C18.1422 36.3881 18.07 36.0534 18.0698 35.7407C18.07 35.5754 18.0898 35.4148 18.1312 35.2537C18.2033 34.9768 18.3291 34.7291 18.5187 34.4921C18.8015 34.1388 19.2407 33.8129 19.8214 33.5772C20.4001 33.3413 21.1129 33.2003 21.8919 33.2008C22.4549 33.2007 23.052 33.2735 23.6581 33.4299C24.9175 33.7528 25.9668 34.3795 26.6609 35.0942C27.0088 35.4506 27.2674 35.8261 27.4335 36.1869C27.6002 36.5488 27.6757 36.8917 27.6758 37.2114C27.6757 37.3768 27.6558 37.5374 27.6144 37.6985C27.4168 38.465 27.878 39.2467 28.6445 39.4443C29.4111 39.6418 30.1927 39.1807 30.3903 38.4141C30.493 38.0163 30.5426 37.6116 30.5425 37.2114C30.5426 36.4336 30.3564 35.6783 30.0366 34.9859C29.555 33.9457 28.7814 33.0377 27.8148 32.299C26.8466 31.561 25.6787 30.9908 24.3738 30.6539C23.536 30.438 22.7009 30.3341 21.8919 30.3341C20.4006 30.3358 18.9934 30.6824 17.8214 31.3777C17.2366 31.726 16.7112 32.165 16.2841 32.6964C15.8572 33.2266 15.5316 33.8516 15.3553 34.538C15.2526 34.9358 15.2031 35.3405 15.2031 35.7407C15.203 36.5012 15.3812 37.2406 15.6881 37.9202C15.9955 38.6009 16.4302 39.2257 16.9599 39.7841C17.5049 40.3583 18.4121 40.382 18.9863 39.8371C19.5605 39.2921 19.5842 38.3849 19.0393 37.8107Z" fill="#99A0AE" />
+                                <path d="M15.4181 51.8552C15.0855 51.505 14.8387 51.1381 14.6801 50.7859C14.521 50.4326 14.4489 50.0979 14.4487 49.7852C14.4488 49.6199 14.4687 49.4593 14.5101 49.2982C14.5822 49.0212 14.708 48.7736 14.8976 48.5366C15.1803 48.1833 15.6195 47.8573 16.2002 47.6216C16.7789 47.3857 17.4918 47.2447 18.2707 47.2453C18.8338 47.2452 19.4308 47.318 20.037 47.4743C21.2963 47.7972 22.3457 48.424 23.0398 49.1386C23.3876 49.495 23.6463 49.8705 23.8124 50.2313C23.979 50.5932 24.0545 50.9362 24.0547 51.2559C24.0546 51.4212 24.0347 51.5818 23.9933 51.7429C23.7956 52.5095 24.2569 53.2911 25.0235 53.4887C25.79 53.6863 26.5716 53.2251 26.7692 52.4585C26.8719 52.0607 26.9215 51.656 26.9214 51.2559C26.9215 50.4781 26.7353 49.7227 26.4155 49.0304C25.9339 47.9902 25.1603 47.0821 24.1937 46.3434C23.2255 45.6054 22.0576 45.0352 20.7527 44.6984C19.915 44.4824 19.0798 44.3786 18.2708 44.3785C16.7795 44.3803 15.3723 44.7268 14.2003 45.4221C13.6155 45.7704 13.0901 46.2095 12.663 46.7408C12.2361 47.271 11.9106 47.8961 11.7342 48.5824C11.6316 48.9803 11.582 49.385 11.582 49.7851C11.5819 50.5457 11.7601 51.285 12.067 51.9646C12.3744 52.6453 12.8091 53.2701 13.3389 53.8286C13.8838 54.4028 14.791 54.4265 15.3652 53.8815C15.9394 53.3365 15.9631 52.4293 15.4181 51.8552Z" fill="#99A0AE" />
+                                <path d="M42.2116 25.0682L45.7295 31.03L39.5898 34.6529" fill="white" />
+                                <path d="M41.2527 25.6328L44.2059 30.6377L39.0232 33.696C38.4947 34.0078 38.3191 34.6891 38.6309 35.2176C38.9428 35.7461 39.624 35.9217 40.1525 35.6098L46.2922 31.9869C46.8207 31.6751 46.9963 30.9938 46.6845 30.4653L43.1665 24.5035C42.8547 23.975 42.1734 23.7993 41.6449 24.1112C41.1164 24.4231 40.9408 25.1044 41.2527 25.6328Z" fill="#99A0AE" />
+                                <path d="M71.7041 32.6716L65.7422 36.1896L69.3651 42.3293" fill="white" />
+                                <path d="M71.1407 31.7147L65.1788 35.2326C64.9268 35.3813 64.7406 35.6288 64.6675 35.9122C64.5945 36.1955 64.6378 36.5022 64.7865 36.7542L68.4094 42.8939C68.7213 43.4224 69.4026 43.598 69.931 43.2862C70.4595 42.9743 70.6352 42.2931 70.3233 41.7646L67.2651 36.5818L72.27 33.6286C72.7985 33.3167 72.9741 32.6355 72.6623 32.107C72.3504 31.5785 71.6692 31.4028 71.1407 31.7147Z" fill="#99A0AE" />
+                                <path d="M43.9004 47.7732L59.2485 51.73C59.8428 51.8832 60.4487 51.5257 60.6018 50.9315C60.755 50.3373 60.3975 49.7314 59.8033 49.5782L44.4552 45.6214C43.8609 45.4682 43.255 45.8257 43.1019 46.4199C42.9487 47.0142 43.3062 47.6201 43.9004 47.7732Z" fill="#99A0AE" />
+                                <path d="M94.5 17.25C94.5 17.25 89.25 17.2679 89.25 22.5C89.25 17.2679 84 17.25 84 17.25C84 17.25 89.25 17.2321 89.25 12C89.25 17.2321 94.5 17.25 94.5 17.25Z" stroke="#99A0AE" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M15 87C15 87 10.5 87.0153 10.5 91.5C10.5 87.0153 6 87 6 87C6 87 10.5 86.9847 10.5 82.5C10.5 86.9847 15 87 15 87Z" stroke="#99A0AE" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M71.2137 79.5931L70.6364 79.9874C67.3997 82.2051 62.9832 81.3755 60.7687 78.142C58.551 74.9084 59.3743 70.4919 62.611 68.2742L63.1883 67.8799L71.2137 79.5931Z" fill="#E1E4EA" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round" />
+                                <path d="M100.593 52.1413L99.514 59.6021C99.451 60.0311 99.2112 60.416 98.8515 60.662L73.0434 78.3407L71.2168 79.5931L63.1914 67.8799L65.0179 66.6275L90.8261 48.9489C91.1857 48.7028 91.6306 48.6176 92.0533 48.7154L99.4004 50.4032C100.189 50.583 100.71 51.34 100.593 52.1413Z" fill="white" stroke="#99A0AE" strokeMiterlimit="10" strokeLinejoin="round" />
                             </svg>
                             <h3 className="text-lg font-medium text-[#101828] mb-2">
-                                {activeTab === 'all' ? 'No notifications yet' : 
-                                 activeTab === 'invoices' ? 'No invoice notifications' :
-                                 activeTab === 'clients' ? 'No client notifications' :
-                                 activeTab === 'payments' ? 'No payment notifications' :
-                                 'No system notifications'}
+                                {activeTab === 'all' ? t('no_notifications') :
+                                    activeTab === 'invoices' ? t('no_invoice_notifications') :
+                                        activeTab === 'clients' ? t('no_client_notifications') :
+                                            activeTab === 'payments' ? t('no_payment_notifications') :
+                                                t('no_system_notifications')}
                             </h3>
                             <p className="text-sm text-[#667085] text-center">
-                                {activeTab === 'all' ? 
-                                    "You'll get updates here when clients view invoices, pay you, or when something needs your attention." :
-                                 activeTab === 'invoices' ?
-                                    "You'll see notifications here when invoices are created, updated, or deleted." :
-                                 activeTab === 'clients' ?
-                                    "You'll see notifications here when clients are added, updated, or removed." :
-                                 activeTab === 'payments' ?
-                                    "You'll see notifications here when payments are received." :
-                                    "You'll see notifications here about system updates and account changes."}
+                                {activeTab === 'all' ?
+                                    t('notification_hint') :
+                                    activeTab === 'invoices' ?
+                                        t('invoice_notifications_desc') :
+                                        activeTab === 'clients' ?
+                                            t('client_notifications_desc') :
+                                            activeTab === 'payments' ?
+                                                t('payment_notifications_desc') :
+                                                t('system_notifications_desc')}
                             </p>
                         </div>
                     ) : (
@@ -347,9 +362,8 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
                             {getFilteredNotifications().map((notification) => (
                                 <div
                                     key={notification.id}
-                                    className={`p-4 hover:bg-gray-50 transition-colors ${
-                                        !notification.isRead ? 'bg-blue-50' : ''
-                                    }`}
+                                    className={`p-4 hover:bg-gray-50 transition-colors ${!notification.isRead ? 'bg-blue-50' : ''
+                                        }`}
                                 >
                                     <div className="flex items-start gap-3">
                                         {getNotificationIcon(notification.type)}
@@ -370,7 +384,7 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
                                                     <button
                                                         onClick={() => markAsRead(notification.id)}
                                                         className="text-[#2F80ED] hover:text-[#2563EB] p-1 ml-2"
-                                                        title="Mark as read"
+                                                        title={t('mark_as_read')}
                                                     >
                                                         <Check size={16} />
                                                     </button>

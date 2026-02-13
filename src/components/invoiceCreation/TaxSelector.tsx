@@ -164,10 +164,10 @@ export default function TaxSelector({ selectedTaxIds, onTaxChange, subtotal, cli
                       {isSelected && (
                         <div className="text-right">
                           <p className="font-medium text-gray-900">
-                            ${taxAmount.toFixed(2)}
+                            ₦{taxAmount.toFixed(2)}
                           </p>
                           <p className="text-xs text-gray-500">
-                            on ${subtotal.toFixed(2)}
+                            on ₦{subtotal.toFixed(2)}
                           </p>
                         </div>
                       )}
@@ -183,13 +183,13 @@ export default function TaxSelector({ selectedTaxIds, onTaxChange, subtotal, cli
               <div className="flex justify-between items-center">
                 <span className="font-medium text-gray-900">Total Tax Amount:</span>
                 <span className="font-semibold text-lg text-gray-900">
-                  ${getTotalTaxAmount().toFixed(2)}
+                  ₦{getTotalTaxAmount().toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between items-center mt-1">
                 <span className="text-sm text-gray-600">Subtotal + Taxes:</span>
                 <span className="font-semibold text-gray-900">
-                  ${(subtotal + getTotalTaxAmount()).toFixed(2)}
+                  ₦{(subtotal + getTotalTaxAmount()).toFixed(2)}
                 </span>
               </div>
             </div>
