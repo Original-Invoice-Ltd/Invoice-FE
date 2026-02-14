@@ -122,8 +122,7 @@ const CompactTemplate = ({ data }: CompactTemplateProps) => {
                 </div>
             </div>
 
-            {/* Invoice Details Header - Blue Background */}
-            <div className="bg-[#2F80ED] text-white px-3 sm:px-4 py-3 rounded-t-lg grid grid-cols-3 gap-2 sm:gap-4 mb-0">
+            <div className="text-white px-3 sm:px-4 py-3 rounded-t-lg grid grid-cols-3 gap-2 sm:gap-4 mb-0" style={{ backgroundColor: data.color || '#2F80ED' }}>
                 <div>
                     <p className="text-[10px] sm:text-xs font-medium opacity-90">Invoice Date</p>
                     <p className="text-xs sm:text-sm font-semibold">{formatDate(data.billTo.invoiceDate)}</p>
@@ -185,7 +184,7 @@ const CompactTemplate = ({ data }: CompactTemplateProps) => {
                         <span className="text-gray-900 font-semibold">Total</span>
                         <span className="text-gray-900 font-semibold">{formatCurrency(calculateTotal())}</span>
                     </div>
-                    <div className="flex justify-between py-2 sm:py-3 px-3 sm:px-4 bg-[#2F80ED] text-white rounded-lg mt-2 text-xs sm:text-sm font-semibold">
+                    <div className="flex justify-between py-2 sm:py-3 px-3 sm:px-4 text-white rounded-lg mt-2 text-xs sm:text-sm font-semibold" style={{ backgroundColor: data.color || '#2F80ED' }}>
                         <span>Balance Due</span>
                         <span>{formatCurrency(calculateTotal())}</span>
                     </div>

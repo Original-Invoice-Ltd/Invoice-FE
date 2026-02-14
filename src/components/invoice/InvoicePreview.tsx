@@ -229,16 +229,16 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
                     {data.template === 'standard' && <StandardTemplate data={data} />}
                     {data.template === 'compact' && <CompactTemplate data={data} />}
                     {data.template === 'default' && (
-                        <div className="px-12 py-4 relative">
+                        <div className="px-4 sm:px-8 lg:px-12 py-4 relative">
                             <div
-                                className="absolute left-8 top-2/3 -translate-y-2/3 pointer-events-none select-none z-0"
+                                className="absolute left-4 sm:left-8 top-2/3 -translate-y-2/3 pointer-events-none select-none z-0"
                                 style={{
                                     transform: 'translateY(-50%) rotate(-22deg)',
                                     transformOrigin: 'center',
                                 }}
                             >
                                 <span
-                                    className="text-blue-200 font-bold whitespace-nowrap text-[2rem] md:text-[4rem]"
+                                    className="text-blue-200 font-bold whitespace-nowrap text-[1.5rem] sm:text-[2rem] md:text-[4rem]"
                                     style={{
                                         opacity: 0.3,
                                         letterSpacing: '0.1em'
@@ -250,107 +250,107 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
 
                             <div className="relative z-10">
                                 {/* Invoice Header */}
-                                <div className="flex justify-between items-start mb-12">
-                                    <div className="flex items-center mt-8 justify-center at
-                        ">
+                                <div className="flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-0 mb-8 sm:mb-12">
+                                    <div className="flex items-center mt-4 sm:mt-8 justify-center">
                                         {data.logo ? (
-                                            <img src={data.logo} alt="Logo" className="w-16 h-16 object-contain" />
+                                            <img src={data.logo} alt="Logo" className="w-12 h-12 sm:w-16 sm:h-16 object-contain" />
                                         ) : (
-                                            <span className="text-4xl font-medium text-black">Logo</span>
+                                            <span className="text-2xl sm:text-3xl lg:text-4xl font-medium text-black">Logo</span>
                                         )}
                                     </div>
-                                    <div className="text-right">
-                                        <h1 className="text-[28px] text-gray-900 mb-2">INVOICE</h1>
-                                        <p className="text-gray-600 mb-1">#{data.billTo.invoiceNumber || 'INV-002'}</p>
-                                        <p className="text-[14px] text-gray-500 mb-2">Balance Due</p>
-                                        <p className="text-[16px] font-semibold text-gray-900">{formatCurrency(calculateTotal())}</p>
+                                    <div className="text-left sm:text-right w-full sm:w-auto">
+                                        <h1 className="text-xl sm:text-2xl lg:text-[28px] text-gray-900 mb-2">INVOICE</h1>
+                                        <p className="text-sm sm:text-base text-gray-600 mb-1">#{data.billTo.invoiceNumber || 'INV-002'}</p>
+                                        <p className="text-xs sm:text-sm text-gray-500 mb-2">Balance Due</p>
+                                        <p className="text-sm sm:text-base font-semibold text-gray-900">{formatCurrency(calculateTotal())}</p>
                                     </div>
                                 </div>
 
                                 {/* Invoice Details */}
-                                <div className="flex justify-between mb-8">
-
-                                    <div className="flex-1 text-right">
+                                <div className="flex justify-end mb-6 sm:mb-8">
+                                    <div className="w-full sm:flex-1 sm:text-right">
                                         <div className="inline-block text-left space-y-2">
-                                            <div className="flex justify-between gap-16">
-                                                <span className="text-sm text-gray-600">Invoice Date</span>
-                                                <span className="text-sm text-gray-900 font-medium">{formatDate(data.billTo.invoiceDate)}</span>
+                                            <div className="flex justify-between gap-8 sm:gap-16">
+                                                <span className="text-xs sm:text-sm text-gray-600">Invoice Date</span>
+                                                <span className="text-xs sm:text-sm text-gray-900 font-medium">{formatDate(data.billTo.invoiceDate)}</span>
                                             </div>
-                                            <div className="flex justify-between gap-16">
-                                                <span className="text-sm text-gray-600">Terms</span>
-                                                <span className="text-sm text-gray-900 font-medium">{data.billTo.paymentTerms || 'Net 60'}</span>
+                                            <div className="flex justify-between gap-8 sm:gap-16">
+                                                <span className="text-xs sm:text-sm text-gray-600">Terms</span>
+                                                <span className="text-xs sm:text-sm text-gray-900 font-medium">{data.billTo.paymentTerms || 'Net 60'}</span>
                                             </div>
-                                            <div className="flex justify-between gap-16">
-                                                <span className="text-sm text-gray-600">Due Date</span>
-                                                <span className="text-sm text-gray-900 font-medium">{formatDate(data.billTo.dueDate)}</span>
+                                            <div className="flex justify-between gap-8 sm:gap-16">
+                                                <span className="text-xs sm:text-sm text-gray-600">Due Date</span>
+                                                <span className="text-xs sm:text-sm text-gray-900 font-medium">{formatDate(data.billTo.dueDate)}</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 {/* Bill To */}
                                 <div className="mb-5">
-                                    <div className="flex justify-between">
+                                    <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0">
                                         <div className="flex-1">
-                                            <h3 className="text-sm font-semibold text-gray-900 mb-2">Bill From</h3>
-                                            <p className="text-gray-900 font-medium">{data.billFrom.fullName}</p>
-                                            <p className="text-gray-600 text-sm">{data.billFrom.address || 'Nigeria'}</p>
-                                            <p className="text-gray-600 text-sm">{data.billFrom.email}</p>
+                                            <h3 className="text-xs sm:text-sm font-semibold text-gray-900 mb-2">Bill From</h3>
+                                            <p className="text-sm sm:text-base text-gray-900 font-medium">{data.billFrom.fullName}</p>
+                                            <p className="text-xs sm:text-sm text-gray-600">{data.billFrom.address || 'Nigeria'}</p>
+                                            <p className="text-xs sm:text-sm text-gray-600">{data.billFrom.email}</p>
                                         </div>
-                                        <div className="flex-1 text-right">
-                                            <h3 className="text-sm font-semibold text-gray-900 mb-2">Bill To</h3>
-                                            <p className="text-gray-900 font-medium">{data.billTo.customer}</p>
-                                            <p className="text-gray-600 text-sm">Lagos, Nigeria</p>
-                                            <p className="text-gray-600 text-sm">{data.billFrom.email}</p>
+                                        <div className="flex-1 text-left sm:text-right">
+                                            <h3 className="text-xs sm:text-sm font-semibold text-gray-900 mb-2">Bill To</h3>
+                                            <p className="text-sm sm:text-base text-gray-900 font-medium">{data.billTo.customer}</p>
+                                            <p className="text-xs sm:text-sm text-gray-600">Lagos, Nigeria</p>
+                                            <p className="text-xs sm:text-sm text-gray-600">{data.billFrom.email}</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Items Table */}
-                                <div className="mb-8">
-                                    <table className="w-full border-collapse">
-                                        <thead>
-                                            <tr className="bg-[#F8F8FA]">
-                                                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 border border-gray-200 w-16">#</th>
-                                                <th className="text-left py-3 px-4 text-sm font-medium text-gray-600 border border-gray-200">Item Detail</th>
-                                                <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 border border-gray-200 w-24">Qty</th>
-                                                <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 border border-gray-200 w-32">Rate</th>
-                                                <th className="text-right py-3 px-4 text-sm font-medium text-gray-600 border border-gray-200 w-32">Amount</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {data.items.map((item, index) => (
-                                                <tr key={item.id}>
-                                                    <td className="py-4 px-4 text-gray-900 border border-gray-200">{index + 1}</td>
-                                                    <td className="py-4 px-4 text-gray-900 border border-gray-200">{item.itemName}</td>
-                                                    <td className="py-4 px-4 text-right text-gray-900 border border-gray-200">{item.quantity}</td>
-                                                    <td className="py-4 px-4 text-right text-gray-900 border border-gray-200">{item.rate.toLocaleString()}</td>
-                                                    <td className="py-4 px-4 text-right text-gray-900 font-medium border border-gray-200">{formatCurrency(item.amount)}</td>
+                                <div className="mb-6 sm:mb-8 overflow-x-auto -mx-4 sm:mx-0">
+                                    <div className="min-w-[600px] px-4 sm:px-0">
+                                        <table className="w-full border-collapse">
+                                            <thead>
+                                                <tr style={{ backgroundColor: `${data.color}20` || '#F8F8FA' }}>
+                                                    <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-medium text-gray-600 border border-gray-200 w-12 sm:w-16">#</th>
+                                                    <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-medium text-gray-600 border border-gray-200">Item Detail</th>
+                                                    <th className="text-right py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-medium text-gray-600 border border-gray-200 w-16 sm:w-24">Qty</th>
+                                                    <th className="text-right py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-medium text-gray-600 border border-gray-200 w-20 sm:w-32">Rate</th>
+                                                    <th className="text-right py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-medium text-gray-600 border border-gray-200 w-24 sm:w-32">Amount</th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                {data.items.map((item, index) => (
+                                                    <tr key={item.id}>
+                                                        <td className="py-2 sm:py-4 px-2 sm:px-4 text-xs sm:text-sm text-gray-900 border border-gray-200">{index + 1}</td>
+                                                        <td className="py-2 sm:py-4 px-2 sm:px-4 text-xs sm:text-sm text-gray-900 border border-gray-200">{item.itemName}</td>
+                                                        <td className="py-2 sm:py-4 px-2 sm:px-4 text-right text-xs sm:text-sm text-gray-900 border border-gray-200">{item.quantity}</td>
+                                                        <td className="py-2 sm:py-4 px-2 sm:px-4 text-right text-xs sm:text-sm text-gray-900 border border-gray-200">{item.rate.toLocaleString()}</td>
+                                                        <td className="py-2 sm:py-4 px-2 sm:px-4 text-right text-xs sm:text-sm text-gray-900 font-medium border border-gray-200">{formatCurrency(item.amount)}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
 
                                 {/* Totals */}
-                                <div className="flex justify-end mb-12 text-[16px]">
-                                    <div className="w-80">
+                                <div className="flex justify-end mb-8 sm:mb-12 text-sm sm:text-base">
+                                    <div className="w-full sm:w-80">
                                         <div className="flex justify-between py-1">
                                             <span className="text-gray-600">Sub Total</span>
                                             <span className="text-gray-900">{formatCurrency(calculateSubtotal())}</span>
                                         </div>
                                         <div className="flex justify-between py-1">
                                             <span className="text-gray-600">VAT ({data.vat}%)</span>
-                                            <span className="text-gray-900 ">{formatCurrency(calculateVAT())}</span>
+                                            <span className="text-gray-900">{formatCurrency(calculateVAT())}</span>
                                         </div>
                                         <div className="flex justify-between py-1">
                                             <span className="text-gray-600">WHT ({data.wht}%)</span>
-                                            <span className="text-gray-900 ">{formatCurrency(calculateWHT())}</span>
+                                            <span className="text-gray-900">{formatCurrency(calculateWHT())}</span>
                                         </div>
-                                        <div className="flex justify-between py-2 ">
+                                        <div className="flex justify-between py-2">
                                             <span className="text-gray-900 font-medium">Total</span>
                                             <span className="text-gray-900 font-medium">{formatCurrency(calculateTotal())}</span>
                                         </div>
-                                        <div className="flex justify-between py-2 bg-blue-50 px-4 rounded-lg mt-1">
+                                        <div className="flex justify-between py-2 px-3 sm:px-4 rounded-lg mt-1" style={{ backgroundColor: `${data.color}20` || '#2F80ED20' }}>
                                             <span className="text-gray-900 font-medium">Balance Due</span>
                                             <span className="text-gray-900 font-medium">{formatCurrency(calculateTotal())}</span>
                                         </div>
@@ -359,25 +359,25 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
 
                                 {/* Signature */}
                                 {data.signature && (
-                                    <div className="mb-12">
-                                        <h3 className="text-sm font-semibold text-gray-900 mb-3">Signature</h3>
-                                        <img src={data.signature} alt="Signature" className="h-16" />
+                                    <div className="mb-8 sm:mb-12">
+                                        <h3 className="text-xs sm:text-sm font-semibold text-gray-900 mb-3">Signature</h3>
+                                        <img src={data.signature} alt="Signature" className="h-12 sm:h-16" />
                                     </div>
                                 )}
 
                                 {/* Note */}
                                 {data.customerNote && (
-                                    <div className="mb-8">
-                                        <h3 className="text-sm font-semibold text-gray-900 mb-2">Note</h3>
-                                        <p className="text-gray-600 text-sm">{data.customerNote}</p>
+                                    <div className="mb-6 sm:mb-8">
+                                        <h3 className="text-xs sm:text-sm font-semibold text-gray-900 mb-2">Note</h3>
+                                        <p className="text-xs sm:text-sm text-gray-600">{data.customerNote}</p>
                                     </div>
                                 )}
 
                                 {/* Terms of Payment */}
                                 {data.termsAndConditions && (
-                                    <div className="mb-8">
-                                        <h3 className="text-sm font-semibold text-gray-900 mb-2">Terms of Payment</h3>
-                                        <p className="text-gray-600 text-sm">{data.termsAndConditions}</p>
+                                    <div className="mb-6 sm:mb-8">
+                                        <h3 className="text-xs sm:text-sm font-semibold text-gray-900 mb-2">Terms of Payment</h3>
+                                        <p className="text-xs sm:text-sm text-gray-600">{data.termsAndConditions}</p>
                                     </div>
                                 )}
 

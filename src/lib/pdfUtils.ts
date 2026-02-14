@@ -2,7 +2,14 @@ export interface PDFOptions {
   filename?: string;
   margin?: number | [number, number] | [number, number, number, number];
   image?: { type: 'jpeg' | 'png' | 'webp'; quality: number };
-  html2canvas?: { scale: number; useCORS?: boolean; logging?: boolean; backgroundColor?: string; windowWidth?: number };
+  html2canvas?: { 
+    scale: number; 
+    useCORS?: boolean; 
+    logging?: boolean; 
+    backgroundColor?: string; 
+    windowWidth?: number;
+    onclone?: (clonedDoc: Document) => void;
+  };
   jsPDF?: { unit: string; format: string; orientation: 'portrait' | 'landscape' };
 }
 
@@ -20,10 +27,24 @@ export const downloadElementAsPDF = async (
     image: { type: 'jpeg' as const, quality: 0.95 },
     html2canvas: { 
       scale: 2,
-      useCORS: true,
       logging: false,
       backgroundColor: '#ffffff',
-      windowWidth: 1024
+      windowWidth: 1024,
+      onclone: (clonedDoc: Document) => {
+        const clonedElement = clonedDoc.body;
+        const images = clonedElement.querySelectorAll('img');
+        images.forEach((img) => {
+          if (img.src && (img.src.startsWith('http://') || img.src.startsWith('https://'))) {
+            img.setAttribute('crossorigin', 'anonymous');
+          }
+        });
+        
+        const overflowElements = clonedElement.querySelectorAll('.overflow-x-auto');
+        overflowElements.forEach((el) => {
+          el.classList.remove('overflow-x-auto');
+          (el as HTMLElement).style.overflow = 'visible';
+        });
+      }
     },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
   };
@@ -33,12 +54,27 @@ export const downloadElementAsPDF = async (
   try {
     const html2pdf = (await import('html2pdf.js')).default;
     
+    const activityEvent = new MouseEvent('mousemove', {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    });
+    document.dispatchEvent(activityEvent);
+    
     await html2pdf()
       .set(finalOptions)
       .from(element)
       .save();
+      
+    document.dispatchEvent(activityEvent);
   } catch (error) {
     console.error('Error generating PDF:', error);
+    const activityEvent = new MouseEvent('mousemove', {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    });
+    document.dispatchEvent(activityEvent);
     throw new Error('Failed to generate PDF');
   }
 };
@@ -57,10 +93,24 @@ export const downloadInvoiceAsPDF = async (
     image: { type: 'jpeg', quality: 0.95 },
     html2canvas: { 
       scale: 2,
-      useCORS: true,
       logging: false,
       backgroundColor: '#ffffff',
-      windowWidth: 1024
+      windowWidth: 1024,
+      onclone: (clonedDoc: Document) => {
+        const clonedElement = clonedDoc.body;
+        const images = clonedElement.querySelectorAll('img');
+        images.forEach((img) => {
+          if (img.src && (img.src.startsWith('http://') || img.src.startsWith('https://'))) {
+            img.setAttribute('crossorigin', 'anonymous');
+          }
+        });
+        
+        const overflowElements = clonedElement.querySelectorAll('.overflow-x-auto');
+        overflowElements.forEach((el) => {
+          el.classList.remove('overflow-x-auto');
+          (el as HTMLElement).style.overflow = 'visible';
+        });
+      }
     },
     jsPDF: { 
       unit: 'mm', 

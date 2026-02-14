@@ -65,7 +65,7 @@ const RecentInvoicesTable = ({
   };
 
   return (
-    <div className="bg-white rounded-[8px] pt-4 pr-[14px] pl-[14px] pb-4" style={{ gap: '18px' }}>
+    <div className="bg-white rounded-[8px] pt-4 pr-[14px] pl-[14px] pb-4 min-h-[250px]" style={{ gap: '18px' }}>
       <div className="flex items-center justify-between h-[38px] mb-[18px]">
         <h3 className="text-[18px] font-semibold text-[#000000] leading-[140%] tracking-[0.01em]" 
             style={{ fontFamily: 'Lato', height: '38px', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -91,7 +91,7 @@ const RecentInvoicesTable = ({
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
+          <table className="w-full min-w-[900px] border-collapse">
             <thead>
               <tr>
                 <th className="text-left h-[40px] px-4 text-[12px] font-medium text-[#667085] bg-[#F8F8FA] 
