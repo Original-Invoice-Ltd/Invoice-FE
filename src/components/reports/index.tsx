@@ -23,7 +23,6 @@ const ReportsAnalytics = () => {
     await refreshTrends(newPeriod);
   };
 
-  // Transform dashboard data to reports format
   const kpiCards: KPICardData[] = [
     {
       title: "Total Invoiced",

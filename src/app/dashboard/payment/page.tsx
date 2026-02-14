@@ -14,7 +14,6 @@ const PaymentReceivedPage = () => {
     router.push('/dashboard/invoices');
   };
 
-  // Mock receipt data from customer payments
   const receipts = [
     {
       id: 1,
@@ -80,7 +79,6 @@ const PaymentReceivedPage = () => {
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">All Payments</h1>
       </div>
 
-      {/* Incoming Payments Section */}
       <div>
         <PaymentReceived onCreateInvoice={handleCreateInvoice} />
       </div>
@@ -92,8 +90,7 @@ const PaymentReceivedPage = () => {
           <p className="text-gray-600 text-sm">View and manage all payment made for your invoices</p>
         </div>
         
-        {/* Desktop Table View */}
-        <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="hidden md:flex flex-col bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <h3 className="text-lg font-medium text-gray-900">All Receipts Uploaded</h3>
             <div className="relative">

@@ -264,14 +264,11 @@ const InvoicesPage = () => {
                     {t('create_invoice')}
 
                 </Link>
-                {/* <p className="md:hidden text-[0.75rem] md:text-[14px] text-[#667085]">
-                    {t('invoice_management_desc')}
-                </p> */}
             </div>
 
             <div className="bg-white rounded-lg border border-[#E4E7EC]">
                 <div className="flex items-center justify-between px-3 sm:px-6 py-4 border-b border-[#E4E7EC]">
-                    <h2 className="text-[18px] font-semibold text-[#101828]">{t('all_invoices')}</h2>
+                    <h2 className="text-[1rem] md:text-[18px] font-semibold text-[#101828]">{t('all_invoices')}</h2>
                     <div className="flex items-center gap-3">
                         <div className="relative w-full md:w-64">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#98A2B3]" size={18} />
@@ -296,12 +293,7 @@ const InvoicesPage = () => {
                     </div>
                 </div>
 
-
-                {/* {error && (
-                    <div className="px-6 py-4 bg-red-50 border-b border-red-200">
-                        <p className="text-red-600 text-sm">{error}</p>
-                    </div>
-                )} */}
+           
 
                 {paginatedInvoices.length === 0 ? (
                     /* Empty State */
