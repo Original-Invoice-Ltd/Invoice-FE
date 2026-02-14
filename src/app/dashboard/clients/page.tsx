@@ -405,8 +405,8 @@ const ClientsPage = () => {
                     /* Table View */
                     <div className="bg-white rounded-lg border border-[#E4E7EC] pt-4 pr-[14px] pl-[14px] pb-4 flex flex-col gap-[18px]">
                         {/* All Clients header with search and sort */}
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                            <h2 className="text-lg font-semibold text-[#101828]">{t('all_clients')}</h2>
+                        <div className="flex items-center justify-between gap-4">
+                            <h2 className="text-lg font-semibold text-[#101828] text-nowrap text-center -mt-3 sm:-mt-0">{t('all_clients')}</h2>
                             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                                 <div className="relative flex-1 sm:flex-initial sm:w-64">
                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={18} />
@@ -415,13 +415,13 @@ const ClientsPage = () => {
                                         placeholder={t('search_clients')}
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                        className="w-full pl-10 pr-4 py-2 border border-[#D0D5DD] rounded-lg text-[0.8rem] md:text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                     />
                                 </div>
                                 <div className="relative" ref={sortDropdownRef}>
                                     <button 
                                         onClick={() => setShowSortDropdown(!showSortDropdown)}
-                                        className="flex items-center justify-center gap-2 px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm text-[#344054] hover:bg-[#F9FAFB]"
+                                        className="hidden md:flex items-center justify-center gap-2 px-4 py-2 border border-[#D0D5DD] rounded-lg text-sm text-[#344054] hover:bg-[#F9FAFB]"
                                         style={{ width: '111px', height: '40px' }}
                                     >
                                         {t('sort_by')}
@@ -464,7 +464,7 @@ const ClientsPage = () => {
 
 
                         {/* Table */}
-                        <div className="overflow-visible">
+                        <div className="w-full overflow-x-auto md:overflow-visible">
                             <table className="w-full">
                                 <thead className="bg-[#F9FAFB] border-y border-[#E4E7EC]">
                                     <tr>
@@ -477,7 +477,7 @@ const ClientsPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {paginatedClients.map((client, index) => (
+                                    {paginatedClients.map((client) => (
                                         <tr key={client.id} className="border-b border-[#E4E7EC] hover:bg-[#F9FAFB]">
                                             <td className="px-6 py-4 text-sm text-[#101828]">{client.title}</td>
                                             <td className="px-6 py-4 text-sm text-[#101828]">{client.fullName}</td>

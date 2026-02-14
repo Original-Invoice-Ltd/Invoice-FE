@@ -22,7 +22,7 @@ const ClientsHeader = ({ searchQuery, onSearchChange }: ClientsHeaderProps) => {
                         className="bg-transparent outline-none text-sm w-48"
                     />
                 </div>
-                <button className="hidden sm:flex items-center gap-2 text-sm text-[#667085]">
+                <button className="hidden md:flex items-center gap-2 text-sm text-[#667085]">
                     Sort by
                     <ChevronDown size={16} />
                 </button>
