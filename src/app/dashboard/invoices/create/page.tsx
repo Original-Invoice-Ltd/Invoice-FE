@@ -17,8 +17,11 @@ import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
 import { useDraft } from "@/hooks/useDraft";
+import { useTranslation } from "react-i18next";
+import { formatCurrency } from "@/lib/currencyFormatter";
 
 const CreateInvoicePage = () => {
+    const { t } = useTranslation();
     const {
         canCreateInvoice,
         invoicesRemaining,
@@ -848,11 +851,11 @@ const CreateInvoicePage = () => {
                             <ArrowLeft size={24} />
                         </Link>
                         <h1 className="text-[20px] font-semibold text-[#101828] flex items-center gap-2 text-nowrap  flex flex-col md:flex-row ">
-                            Create New Invoice
+                            {t('create_invoice')}
                             {isLoadingDraft && (
                                 <div className="flex items-center gap-2 text-[14px] text-[#667085]">
                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#2F80ED]"></div>
-                                    Loading draft...
+                                    {t('loading')}...
                                 </div>
                             )}
                             {hasDraft && !isLoadingDraft && (
@@ -860,7 +863,7 @@ const CreateInvoicePage = () => {
                                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
-                                    Draft loaded
+                                    {t('draft_loaded')}
                                 </div>
                             )}
                         </h1>
@@ -874,11 +877,11 @@ const CreateInvoicePage = () => {
                             }`}></div>
                         <span className="text-[14px] font-medium text-[#344054]">
                             {limitLoading ? (
-                                "Loading..."
+                                t('loading')
                             ) : totalInvoices === -1 ? (
-                                "Unlimited invoices"
+                                t('unlimited_invoices')
                             ) : (
-                                `${invoicesRemaining}/${totalInvoices} invoices left this month`
+                                `${invoicesRemaining}/${totalInvoices} ${t('invoices_used_this_month')}`
                             )}
                         </span>
                     </div>
@@ -891,7 +894,7 @@ const CreateInvoicePage = () => {
                                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-12">
                                         <div className="flex-shrink-0">
                                             <div className="bg-[#F8F8FA] flex items-start md:items-center justify-center border border-[#EDEDED] rounded-lg px-16 py-1">
-                                                <h2 className="text-[18px] font-medium text-[#101828]">Invoice</h2>
+                                                <h2 className="text-[18px] font-medium text-[#101828]">{t('invoice')}</h2>
                                             </div>
                                         </div>
                                         <div className="md:flex-1 w-full md:max-w-[200px] md:ml-auto h-[150px]">

@@ -337,9 +337,9 @@ const resources = {
             igbo: "Igbo",
             yoruba: "Yorùbá",
 
-            /* ================= STATUS & STATES ================= */
             paid: "Paid",
             draft: "Draft",
+            draft_loaded: "Draft loaded",
             loading: "Loading...",
             error: "Error",
             success: "Success",
@@ -966,6 +966,7 @@ const resources = {
             /* ================= STATUS & STATES ================= */
             paid: "Ti sán",
             draft: "Àkọsílẹ̀",
+            draft_loaded: "A ti gbé àkọsílẹ̀ wọlé",
             loading: "À n gbé e jáde...",
             error: "Àṣìṣe",
             success: "Àṣeyọrí",
@@ -1588,9 +1589,9 @@ const resources = {
             igbo: "Igbo",
             yoruba: "Yorùbá",
 
-            /* ================= STATUS & STATES ================= */
             paid: "A kwụọla",
             draft: "Ihe e dere ede",
+            draft_loaded: "E bubatala ihe e dere ede",
             loading: "Ọ na-abata...",
             error: "Nsogbu",
             success: "Ọ gara nke ọma",
@@ -2128,6 +2129,7 @@ const resources = {
 
             paid: "An Biya",
             draft: "Draft",
+            draft_loaded: "An loda draft",
             loading: "Ana loda...",
             error: "An samu matsala",
             success: "An yi nasara",
