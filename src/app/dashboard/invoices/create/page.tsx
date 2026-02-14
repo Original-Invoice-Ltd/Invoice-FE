@@ -841,7 +841,7 @@ const CreateInvoicePage = () => {
                 type={toast.type}
                 onClose={hideToast}
             />
-            <div className="mt-[6px] mx-4 ">
+            <div className="mt-[6px] md:mx-4 mx-2">
                 <div className="mb-4 flex md:items-center justify-between items-start flex-col md:flex-row ">
                     <div className="flex items-center gap-4">
                         <Link href="/dashboard/invoices" className="p-2 text-[#2F80ED] ">
@@ -883,21 +883,18 @@ const CreateInvoicePage = () => {
                         </span>
                     </div>
                 </div>
-                <div className="flex gap-[22px] mb-14">
-                    <div className="w-[630px]">
-                        {/* Left Column - Form */}
+                <div className="flex flex-col md:flex-row md:gap-[22px] md:mb-14">
+                    <div className="w-full md:w-[630px]">
                         <div className="lg:col-span-3 bg-white rounded-lg p-4 space-y-6">
-                            {/* First Border: Invoice Header + Bill From + Bill To */}
-                            <div className="bg-white rounded-lg border border-[#E4E7EC] p-4 space-y-6">
-                                {/* Invoice Header */}
+                            <div className="bg-white rounded-lg border border-[#E4E7EC] p-4 space-y-2 md:space-y-6">
                                 <div>
-                                    <div className="flex items-center justify-between gap-12">
+                                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-12">
                                         <div className="flex-shrink-0">
-                                            <div className="bg-[#F8F8FA] flex items-center justify-center border border-[#EDEDED] rounded-lg px-16 py-1">
+                                            <div className="bg-[#F8F8FA] flex items-start md:items-center justify-center border border-[#EDEDED] rounded-lg px-16 py-1">
                                                 <h2 className="text-[18px] font-medium text-[#101828]">Invoice</h2>
                                             </div>
                                         </div>
-                                        <div className="flex-1 max-w-[200px] ml-auto">
+                                        <div className="md:flex-1 w-full md:max-w-[200px] md:ml-auto h-[150px]">
                                             <input
                                                 type="file"
                                                 id="logo-upload"
@@ -912,22 +909,22 @@ const CreateInvoicePage = () => {
                                                         };
                                                         reader.readAsDataURL(file);
                                                     } else {
-                                                        alert('File size must be less than 5MB');
+                                                        showError('File size must be less than 5MB');
                                                     }
                                                 }}
                                             />
-                                            <label htmlFor="logo-upload" className="block border border-dashed border-[#E5E5E5] rounded-lg py-1 px-1 text-center cursor-pointer hover:border-[#2F80ED] transition-colors">
+                                            <label htmlFor="logo-upload" className="w-full h-full block border border-dashed border-[#E5E5E5] rounded-lg py-1 px-1 text-center cursor-pointer hover:border-[#2F80ED] transition-colors">
                                                 {logo ? (
                                                     // Show image preview when logo is selected
-                                                    <div className="flex flex-col items-center">
-                                                        <div className="w-18 h-12 rounded-lg overflow-hidden mb-2">
+                                                    <div className="flex flex-col items-center w-full h-full">
+                                                        <div className="w-full h-full rounded-lg overflow-hidden mb-2">
                                                             <img
                                                                 src={logo}
                                                                 alt="Business Logo"
-                                                                className="w-full h-full object-cover"
+                                                                className="w-full h-full object-cover object-contain"
                                                             />
                                                         </div>
-                                                        <p className="text-[10px] text-[#667085]">Click to replace</p>
+                                                        {/* <p className="text-[10px] text-[#667085]">Click to replace</p> */}
                                                     </div>
                                                 ) : (
                                                     // Show upload UI when no logo is selected
@@ -947,9 +944,8 @@ const CreateInvoicePage = () => {
                                         </div>
                                     </div>
                                 </div>
-                                {/* Bill From */}
                                 <div>
-                                    <h2 className="text-[20px] font-semibold text-[#101828] mb-4">Bill From</h2>
+                                    <h2 className="text-[20px] font-semibold text-[#101828] mb-2 md:mb-4">Bill From</h2>
                                     <div className="space-y-4">
                                         <div>
                                             <label className="block text-[14px] font-medium text-[#344054] mb-2">
@@ -967,7 +963,7 @@ const CreateInvoicePage = () => {
                                                 <p className="text-red-500 text-xs mt-1">{fieldErrors.billFromFullName}</p>
                                             )}
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-[14px] font-medium text-[#344054] mb-2">
                                                     Email <span className="text-red-500">*</span>
@@ -1005,7 +1001,7 @@ const CreateInvoicePage = () => {
                                                 />
                                             </div>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-[14px] font-medium text-[#344054] mb-2">
                                                     Phone Number <span className="text-red-500">*</span>
@@ -1042,9 +1038,8 @@ const CreateInvoicePage = () => {
                                     </div>
                                 </div>
 
-                                {/* Bill To */}
                                 <div>
-                                    <h2 className="text-[20px] font-semibold text-[#101828] mb-4">Bill To</h2>
+                                    <h2 className="text-[20px] font-semibold text-[#101828] mb-2 md:mb-4">Bill To</h2>
                                     <div className="space-y-4">
                                         <div>
                                             <label className="block text-[14px] font-medium text-[#344054] mb-2">
@@ -1062,7 +1057,6 @@ const CreateInvoicePage = () => {
                                                     </svg>
                                                 </div>
 
-                                                {/* Client Dropdown */}
                                                 {showClientDropdown && (
                                                     <div className="absolute z-10 w-full mt-1 bg-white border border-[#D0D5DD] rounded-lg shadow-lg max-h-80 overflow-y-auto">
                                                         {/* Loading State */}
@@ -1128,7 +1122,7 @@ const CreateInvoicePage = () => {
                                                 <p className="text-red-500 text-xs mt-1">{fieldErrors.billToCustomer}</p>
                                             )}
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-[14px] font-medium text-[#344054] mb-2">
                                                     Invoice Number
@@ -1152,7 +1146,7 @@ const CreateInvoicePage = () => {
                                                 />
                                             </div>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-[14px] font-medium text-[#344054] mb-2">
                                                     Invoice Date <span className="text-red-500">*</span>
@@ -1190,7 +1184,6 @@ const CreateInvoicePage = () => {
                                 </div>
                             </div>
 
-                            {/* Second Border: Table Items */}
                             <div className="bg-white rounded-lg border border-[#E4E7EC] p-4">
                                 <h2 className="text-[20px] font-semibold text-[#101828] mb-4">Table Item</h2>
                                 {fieldErrors.items && (
@@ -1329,7 +1322,6 @@ const CreateInvoicePage = () => {
                                 </div>
                             </div>
 
-                            {/* Third Border: Additional Fields + Signature */}
                             <div className="bg-white rounded-lg border border-[#E4E7EC] p-4 space-y-6">
                                 <div>
                                     <label className="block text-[16px] font-medium text-[#101828] mb-3">
@@ -1369,8 +1361,7 @@ const CreateInvoicePage = () => {
                                 </div>
                             </div>
 
-                            {/* Action Buttons - No Border */}
-                            <div className="flex justify-between items-center">
+                            <div className="hidden md:flex justify-between items-center">
                                 <div className="flex gap-4">
                                     <Link href="/dashboard/invoices" className="px-8 py-3 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50 text-[14px] font-medium">
                                         Cancel
@@ -1398,7 +1389,6 @@ const CreateInvoicePage = () => {
                             </div>
                         </div>
 
-                        {/* Signature Modal */}
                         {showSignatureModal && (
                             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                                 <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
@@ -1456,10 +1446,8 @@ const CreateInvoicePage = () => {
                         )}
                     </div>
 
-                    {/* Right Column - Summary */}
-                    <div className="bg-white rounded-lg w-[320px] self-start">
+                    <div className="bg-white rounded-lg w-full md:w-[320px] self-start">
                         <div className="space-y-6">
-                            {/* Language & Currency */}
                             <div className=" rounded-lg   p-4">
                                 <h3 className="font-medium text-[16px] mb-2">Language</h3>
                                 <div className="relative mb-4">
@@ -1550,9 +1538,6 @@ const CreateInvoicePage = () => {
                                 </div>
                             </div>
 
-                            {/* Payment Details */}
-
-                            {/* Signature Modal */}
                             {showSignatureModal && (
                                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                                     <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
@@ -1610,11 +1595,10 @@ const CreateInvoicePage = () => {
                             )}
                         </div>
 
-                        <div className="bg-white rounded-lg w-[320px] self-start">
+                        <div className="bg-white rounded-lg w-full md:w-[320px] self-start mt-2 md:mt-0">
                             <div className="space-y-6">
-                                {/* Payment Details */}
                                 <div className="p-4">
-                                    <h3 className="font-medium mb-2 text-[16px]">Payment Details</h3>
+                                    <h3 className="font-medium mb-2 text-lg sm:text-[16px]">Payment Details</h3>
                                     <div className="space-y-4">
                                         <div>
                                             <label className="block text-sm font-medium text-[#344054] mb-2">
@@ -1744,9 +1728,34 @@ const CreateInvoicePage = () => {
 
                         </div>
                     </div>
+                    <div className="flex flex-col md:hidden w-full  justify-center items-center bg-white pt-3 px-3 text-center">
+                        <div className="flex flex-row gap-4 w-full mb-4">
+                            <Link href="/dashboard/invoices" className="w-[50%] px-8 py-3 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50 text-[14px] font-medium">
+                                Cancel
+                            </Link>
+                            <button
+                                onClick={handleSaveDraft}
+                                disabled={isSavingDraft || !hasFormChanges()}
+                                className={`w-[50%] px-8 py-3 border border-[#D0D5DD] rounded-lg text-[14px] font-medium transition-colors ${isSavingDraft || !hasFormChanges()
+                                    ? 'text-gray-400 bg-gray-50 cursor-not-allowed'
+                                    : 'text-[#344054] hover:bg-gray-50 cursor-pointer'
+                                    }`}
+                            >
+                                {isSavingDraft ? 'Saving...' : 'Save as Draft'}
+                            </button>
+                        </div>
+                        <button
+                            onClick={handlePreviewInvoice}
+                            className="w-full flex justify-center items-center gap-2 px-8 py-3 rounded-lg text-[14px] font-medium transition-colors bg-[#2F80ED] text-white hover:bg-[#2563EB] cursor-pointer"
+                        >
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12.7578 1.25C13.2987 1.25007 13.8276 1.36713 14.3105 1.58691C14.7155 1.77119 15.0885 2.02799 15.4092 2.34863L19.6514 6.59082C19.972 6.91146 20.2288 7.28452 20.4131 7.68945C20.6329 8.17244 20.7499 8.70127 20.75 9.24219V19C20.75 21.0711 19.0711 22.75 17 22.75H7C4.92893 22.75 3.25 21.0711 3.25 19V5C3.25 2.92893 4.92893 1.25 7 1.25H12.7578ZM7 2.75C5.75736 2.75 4.75 3.75736 4.75 5V19C4.75 20.2426 5.75736 21.25 7 21.25H17C18.2426 21.25 19.25 20.2426 19.25 19V9.24219C19.2499 8.9177 19.1797 8.60037 19.0479 8.31055C18.9987 8.20264 18.9398 8.09929 18.874 8H15C14.4477 8 14 7.55228 14 7V3.12598C13.9007 3.06015 13.7974 3.00126 13.6895 2.95215C13.3996 2.82026 13.0823 2.75007 12.7578 2.75H7ZM15.25 10.75C15.6642 10.75 16 11.0858 16 11.5V11.8662C16.5728 12.0136 17.0489 12.3242 17.3613 12.7217C17.6172 13.0473 17.5608 13.5194 17.2354 13.7754C16.9097 14.0313 16.4376 13.975 16.1816 13.6494C16.0477 13.479 15.732 13.2725 15.25 13.2725C14.4818 13.2725 14.25 13.7402 14.25 13.8867C14.2501 14.2045 14.3442 14.2907 14.4092 14.3359C14.5279 14.4186 14.78 14.5 15.25 14.5C15.83 14.5 16.4535 14.5891 16.9473 14.9326C17.4946 15.3135 17.7499 15.9094 17.75 16.6133C17.75 17.5939 16.9913 18.3658 16 18.6289V19C16 19.4142 15.6642 19.75 15.25 19.75C14.8358 19.75 14.5 19.4142 14.5 19V18.6328C13.9273 18.4854 13.4511 18.1757 13.1387 17.7783C12.8828 17.4527 12.9392 16.9806 13.2646 16.7246C13.5903 16.4687 14.0624 16.525 14.3184 16.8506C14.4523 17.021 14.768 17.2275 15.25 17.2275C16.0182 17.2275 16.25 16.7598 16.25 16.6133C16.2499 16.2955 16.1558 16.2093 16.0908 16.1641C15.9721 16.0814 15.72 16 15.25 16C14.67 16 14.0465 15.9109 13.5527 15.5674C13.0054 15.1865 12.7501 14.5906 12.75 13.8867C12.75 12.906 13.5086 12.1332 14.5 11.8701V11.5C14.5 11.0858 14.8358 10.75 15.25 10.75ZM12 9.25C12.4142 9.25 12.75 9.58579 12.75 10C12.75 10.4142 12.4142 10.75 12 10.75H7C6.58579 10.75 6.25 10.4142 6.25 10C6.25 9.58579 6.58579 9.25 7 9.25H12ZM11 5.25C11.4142 5.25 11.75 5.58579 11.75 6C11.75 6.41421 11.4142 6.75 11 6.75H7C6.58579 6.75 6.25 6.41421 6.25 6C6.25 5.58579 6.58579 5.25 7 5.25H11Z" fill="white" />
+                            </svg>
+                            Preview Invoice
+                        </button>
+                    </div>
                 </div>
 
-                {/* Add New Client Modal */}
                 {showAddClientModal && (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
                         <div className="bg-white rounded-2xl p-5 w-[500px] shadow-2xl max-h-[90vh] overflow-y-auto">
