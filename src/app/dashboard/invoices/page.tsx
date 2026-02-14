@@ -23,13 +23,13 @@ const InvoicesPage = () => {
     // const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
-    
+
     // Received invoices state
     const [receivedSearchTerm, setReceivedSearchTerm] = useState("");
     const [receivedInvoices, setReceivedInvoices] = useState<any[]>([]);
     const [receivedLoading, setReceivedLoading] = useState(true);
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-    
+
     const [deleteModal, setDeleteModal] = useState<{
         isOpen: boolean;
         invoice: InvoiceResponse | null;
@@ -41,7 +41,7 @@ const InvoicesPage = () => {
         isLoading: false,
         error: null
     });
-    
+
     const fetchInvoices = useCallback(async () => {
         try {
             setLoading(true);
@@ -61,7 +61,7 @@ const InvoicesPage = () => {
             setLoading(false);
         }
     }, [showError, user?.id]);
-    
+
     const fetchReceivedInvoices = useCallback(async () => {
         try {
             setReceivedLoading(true);
@@ -75,14 +75,14 @@ const InvoicesPage = () => {
             setReceivedLoading(false);
         }
     }, [user?.email]);
-    
+
     useEffect(() => {
         refreshUser();
         fetchInvoices();
         fetchReceivedInvoices();
     }, [fetchInvoices, fetchReceivedInvoices, refreshUser]);
 
-   
+
 
 
     // Filter and sort invoices
@@ -199,55 +199,46 @@ const InvoicesPage = () => {
                 isVisible={toast.isVisible}
                 onClose={hideToast}
             />
-            {/* Header */}
-            <div className="mb-6 flex flex-col md:flex-row items-start justify-between">
-                <div className="flex md:flex-col flex-row justify-between w-full h-full items-center md:items-start ">
-                    <h1 className="text-[1rem] md:text-[20px] font-semibold text-[#101828] mb-1">{t('invoice_management')}</h1>
-                    <p className="hidden md:flex text-[0.75rem] md:text-[14px] text-[#667085]">
+            <div className="mb-6 flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0">
+                <div className="flex flex-col justify-between w-full h-full items-start ">
+                    <h1 className="text-[20px] font-semibold text-[#101828] mb-1">{t('invoice_management')}</h1>
+                    <p className="flex md:text-[14px] text-[#667085]">
                         {t('invoice_management_desc')}
                     </p>
-                    <Link
-                    href="/dashboard/invoices/create"
-                    className="flex items-center md:hidden gap-2 px-5 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors text-[0.85rem] md:text-[16px] font-medium whitespace-nowrap"
-                >
-                    <Plus size={20} />
-                    {t('create_invoice')}
-
-                </Link>
                 </div>
                 <Link
                     href="/dashboard/invoices/create"
-                    className="hidden md:flex items-center gap-2 px-5 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors text-[0.85rem] md:text-[16px] font-medium whitespace-nowrap"
+                    className="flex items-center gap-2 px-5 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors text-[16px] font-medium whitespace-nowrap"
                 >
                     <Plus size={20} />
                     {t('create_invoice')}
 
                 </Link>
-                  <p className="md:hidden text-[0.75rem] md:text-[14px] text-[#667085]">
-                        {t('invoice_management_desc')}
-                    </p>
+                {/* <p className="md:hidden text-[0.75rem] md:text-[14px] text-[#667085]">
+                    {t('invoice_management_desc')}
+                </p> */}
             </div>
 
             {/* All Invoices Section */}
             <div className="bg-white rounded-lg border border-[#E4E7EC]">
                 {/* Header with Search */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4E7EC]">
+                <div className="flex items-center justify-between px-3 sm:px-6 py-4 border-b border-[#E4E7EC]">
                     <h2 className="text-[18px] font-semibold text-[#101828]">{t('all_invoices')}</h2>
                     <div className="flex items-center gap-3">
-                        <div className="relative w-64">
+                        <div className="relative w-full md:w-64">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#98A2B3]" size={18} />
                             <input
                                 type="text"
                                 placeholder={t('search_clients')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#667085] placeholder:text-[#98A2B3] bg-white focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                className="max-w-[200px] sm:max-w-full sm:w-full pl-10 pr-4 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#667085] placeholder:text-[#98A2B3] bg-white focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                             />
                         </div>
                         <select
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value)}
-                            className="px-4 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#667085] bg-white focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                            className="hidden md:flex px-4 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#667085] bg-white focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                         >
                             <option value="date">{t('sort_by_date')}</option>
                             <option value="amount">{t('sort_by_amount')}</option>
@@ -285,7 +276,7 @@ const InvoicesPage = () => {
                             }
                         </p>
                         {!searchQuery && (
-                             <Link
+                            <Link
                                 href="/dashboard/invoices/create"
                                 className="flex items-center gap-2 px-6 py-3 bg-transparent border-2 border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-[#EFF8FF] transition-colors text-[16px] font-medium"
                             >
@@ -297,7 +288,6 @@ const InvoicesPage = () => {
                     </div>
                 ) : (
                     <>
-                        {/* Table Header */}
                         <div className="px-6 py-3 bg-[#F9FAFB] border-b border-[#E4E7EC]">
                             <div className="grid grid-cols-8 gap-4 text-[12px] font-medium text-[#667085] uppercase tracking-wide">
                                 <div>{t('date')}</div>
@@ -311,7 +301,6 @@ const InvoicesPage = () => {
                             </div>
                         </div>
 
-                        {/* Table Body */}
                         <div className="divide-y divide-[#E4E7EC]">
                             {paginatedInvoices.map((invoice) => (
                                 <div key={invoice.id} className="px-6 py-4 hover:bg-[#F9FAFB] transition-colors">
@@ -356,7 +345,7 @@ const InvoicesPage = () => {
                                                         <Link
                                                             href={`/dashboard/invoices/edit/${invoice.id}`}
                                                             className={`flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors 
-                                                                ${invoice.status.toLowerCase() === "unpaid"? '' : 'hidden'}`}
+                                                                ${invoice.status.toLowerCase() === "unpaid" ? '' : 'hidden'}`}
                                                         >
                                                             <Edit size={16} />
                                                             {t('edit_invoice')}
@@ -364,7 +353,7 @@ const InvoicesPage = () => {
                                                         <Link
                                                             href={`/dashboard/invoices/edit/${invoice.id}`}
                                                             className={`flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors 
-                                                                ${invoice.status.toLowerCase() === "overdue"? '' : 'hidden'}`}
+                                                                ${invoice.status.toLowerCase() === "overdue" ? '' : 'hidden'}`}
                                                         >
                                                             <Edit size={16} />
                                                             {t('overdue')}
@@ -384,8 +373,7 @@ const InvoicesPage = () => {
                                 </div>
                             ))}
                         </div>
-
-                        {/* Pagination */}
+                        
                         {totalPages > 1 && (
                             <div className="flex items-center justify-center px-6 py-4 border-t border-[#E4E7EC]">
                                 <div className="flex items-center gap-2">
@@ -395,7 +383,7 @@ const InvoicesPage = () => {
                                         className="p-2 text-[#667085] hover:text-[#101828] disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                            <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round"/>
+                                            <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
                                     </button>
 
@@ -415,11 +403,10 @@ const InvoicesPage = () => {
                                             <button
                                                 key={pageNum}
                                                 onClick={() => setCurrentPage(pageNum)}
-                                                className={`w-10 h-10 rounded-lg text-[14px] font-medium transition-colors ${
-                                                    currentPage === pageNum
+                                                className={`w-10 h-10 rounded-lg text-[14px] font-medium transition-colors ${currentPage === pageNum
                                                         ? 'bg-[#2F80ED] text-white'
                                                         : 'text-[#667085] hover:bg-[#F9FAFB] hover:text-[#101828]'
-                                                }`}
+                                                    }`}
                                             >
                                                 {pageNum}
                                             </button>
@@ -444,7 +431,7 @@ const InvoicesPage = () => {
                                         className="p-2 text-[#667085] hover:text-[#101828] disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                            <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round"/>
+                                            <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
                                     </button>
                                 </div>
@@ -454,7 +441,6 @@ const InvoicesPage = () => {
                 )}
             </div>
 
-            {/* Received Invoices Section */}
             <div className="bg-white rounded-lg border border-[#E4E7EC] mt-8">
                 <div className="px-6 py-4 border-b border-[#E4E7EC]">
                     <h2 className="text-[18px] font-semibold text-[#101828]">Received Invoices</h2>
@@ -532,7 +518,7 @@ const InvoicesPage = () => {
                                             </div>
                                             <div className="flex items-center justify-end">
                                                 <div className="relative">
-                                                    <button 
+                                                    <button
                                                         className="p-2 hover:bg-[#F2F4F7] rounded-lg transition-colors"
                                                         onClick={() => setOpenDropdown(openDropdown === invoice.id ? null : invoice.id)}
                                                     >
@@ -562,7 +548,6 @@ const InvoicesPage = () => {
                 )}
             </div>
 
-            {/* Delete Confirmation Modal */}
             <DeleteConfirmationModal
                 isOpen={deleteModal.isOpen}
                 onClose={closeDeleteModal}

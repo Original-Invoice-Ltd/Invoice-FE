@@ -74,16 +74,13 @@ const CreateInvoicePage = () => {
         paymentAccountNumber: ''
     });
 
-    // Products dropdown state
     const [showProductsDropdown, setShowProductsDropdown] = useState(false);
     const [products, setProducts] = useState<{ id: string; itemName: string; quantity: number; rate: number; amount: number }[]>([]);
     const [isLoadingProducts, setIsLoadingProducts] = useState(false);
     const [productsLoaded, setProductsLoaded] = useState(false);
 
-    // Add Product Modal state
     const [showAddProductModal, setShowAddProductModal] = useState(false);
 
-    // Bank dropdown state
     const [showBankDropdown, setShowBankDropdown] = useState(false);
     const [bankSearchQuery, setBankSearchQuery] = useState("");
 
@@ -92,7 +89,6 @@ const CreateInvoicePage = () => {
         { category: "Commercial Banks", banks: ["Access Bank", "Zenith Bank", "GTBank", "First Bank", "UBA", "Fidelity Bank", "Union Bank", "Stanbic IBTC", "Sterling Bank", "Ecobank", "FCMB", "Wema Bank", "Polaris Bank", "Keystone Bank", "Unity Bank"] }
     ];
 
-    // Load products from API
     const loadProducts = async () => {
         if (productsLoaded || isLoadingProducts) return;
         try {
@@ -112,7 +108,6 @@ const CreateInvoicePage = () => {
         }
     };
 
-    // Handle products dropdown open
     const handleProductsDropdownClick = () => {
         if (!showProductsDropdown) {
             loadProducts();
@@ -120,7 +115,6 @@ const CreateInvoicePage = () => {
         setShowProductsDropdown(!showProductsDropdown);
     };
 
-    // Handle product selection - add to table
     const handleSelectProduct = (product: { id: string; itemName: string; quantity: number; rate: number; amount: number }) => {
         const newItem: InvoiceItem = {
             id: Date.now(),
@@ -133,7 +127,6 @@ const CreateInvoicePage = () => {
         setShowProductsDropdown(false);
     };
 
-    // Load clients from API
     const loadClients = async () => {
         if (clientsLoaded || isLoadingClients) return;
 
@@ -155,7 +148,6 @@ const CreateInvoicePage = () => {
         }
     };
 
-    // Handle dropdown open - fetch clients
     const handleClientDropdownClick = () => {
         if (!showClientDropdown) {
             loadClients();
@@ -163,9 +155,7 @@ const CreateInvoicePage = () => {
         setShowClientDropdown(!showClientDropdown);
     };
 
-    // Save new client to API
     const handleSaveNewClient = async () => {
-        // Validate required fields
         setClientFormError(null);
         if (!newClientForm.customerType || !newClientForm.title || !newClientForm.fullName ||
 
@@ -205,7 +195,6 @@ const CreateInvoicePage = () => {
         }
     };
 
-    // Form state
     const [billFrom, setBillFrom] = useState({
         fullName: "",
         email: "",
@@ -239,7 +228,7 @@ const CreateInvoicePage = () => {
 
     const [vat, setVat] = useState(7.5);
     const [wht, setWht] = useState(5);
-    const [invoiceTaxRate, setInvoiceTaxRate] = useState(0); // Overall tax rate for the invoice
+    const [invoiceTaxRate, setInvoiceTaxRate] = useState(0);
 
     const hasFormChanges = () => {
         const hasBillFromChanges = billFrom.fullName.trim() !== "" ||
@@ -290,10 +279,7 @@ const CreateInvoicePage = () => {
             rate: product.rate || 0,
             amount: product.amount || ((product.quantity || 1) * (product.rate || 0))
         };
-        // Add the new item to the items array
         setItems([...items, newItem]);
-
-        // Close the modal
         setShowAddProductModal(false);
     };
 
@@ -327,25 +313,25 @@ const CreateInvoicePage = () => {
         return calculateSubtotal() + calculateTax();
     };
 
-    const isFormValid = () => {
-        const billFromValid = billFrom.fullName.trim() !== "" &&
-            ApiClient.isValidEmail(billFrom.email.trim()) &&
-            ApiClient.isValidPhone(billFrom.phoneNumber.trim()) &&
-            billFrom.businessName.trim() !== "";
+    // const isFormValid = () => {
+    //     const billFromValid = billFrom.fullName.trim() !== "" &&
+    //         ApiClient.isValidEmail(billFrom.email.trim()) &&
+    //         ApiClient.isValidPhone(billFrom.phoneNumber.trim()) &&
+    //         billFrom.businessName.trim() !== "";
 
-        const billToValid = billTo.customer.trim() !== "" &&
-            billTo.title.trim() !== "" &&
-            billTo.invoiceDate.trim() !== "" &&
-            billTo.dueDate.trim() !== "";
+    //     const billToValid = billTo.customer.trim() !== "" &&
+    //         billTo.title.trim() !== "" &&
+    //         billTo.invoiceDate.trim() !== "" &&
+    //         billTo.dueDate.trim() !== "";
 
-        const itemsValid = items.length > 0;
+    //     const itemsValid = items.length > 0;
 
-        const paymentDetailsValid = paymentDetails.bankAccount.trim() !== "" &&
-            paymentDetails.accountName.trim() !== "" &&
-            paymentDetails.accountNumber.trim() !== "";
+    //     const paymentDetailsValid = paymentDetails.bankAccount.trim() !== "" &&
+    //         paymentDetails.accountName.trim() !== "" &&
+    //         paymentDetails.accountNumber.trim() !== "";
 
-        return billFromValid && billToValid && itemsValid && paymentDetailsValid;
-    };
+    //     return billFromValid && billToValid && itemsValid && paymentDetailsValid;
+    // };
 
     const validateFormAndGetErrors = () => {
         const errors = {
@@ -538,7 +524,7 @@ const CreateInvoicePage = () => {
 
         loadSavedDraft();
     }, [loadDraft]);
-    
+
     useEffect(() => {
         if (!isLoadingDraft && loadedDraftData) {
             setBillFrom(loadedDraftData.billFrom);
@@ -649,57 +635,57 @@ const CreateInvoicePage = () => {
         setFormValidationError(null);
         setShowPreview(true);
     };
-    const getPreviewData = () => {
-        const selectedClient = clients.find(client => client.id === selectedClientId);
+    // const getPreviewData = () => {
+    //     const selectedClient = clients.find(client => client.id === selectedClientId);
 
-        return {
-            id: "preview",
-            title: billTo.title || "Invoice",
-            invoiceNumber: billTo.title || "INV-PREVIEW",
-            creationDate: billTo.invoiceDate,
-            dueDate: billTo.dueDate,
-            currency: currency,
-            invoiceColor: color,
-            status: "DRAFT" as const,
-            subtotal: items.reduce((sum, item) => sum + item.amount, 0),
-            totalTaxAmount: calculateTax(),
-            totalDue: calculateTotal(),
-            logoUrl: logo || undefined,
-            signatureUrl: signature || undefined,
-            note: customerNote,
-            termsAndConditions: termsAndConditions,
-            paymentTerms: billTo.paymentTerms,
-            bank: paymentDetails.bankAccount,
-            accountNumber: paymentDetails.accountNumber,
-            accountName: paymentDetails.accountName,
-            billFrom: {
-                fullName: billFrom.fullName,
-                email: billFrom.email,
-                phone: billFrom.phoneNumber,
-                address: billFrom.address
-            },
-            billTo: {
-                id: "preview-client",
-                customerType: "",
-                title: "",
-                fullName: billTo.customer,
-                businessName: billTo.customer,
-                email: selectedClient?.email || "",
-                phone: "",
-                country: ""
-            },
-            items: items.map(item => ({
-                id: item.id,
-                itemName: item.itemName,
-                quantity: item.quantity,
+    //     return {
+    //         id: "preview",
+    //         title: billTo.title || "Invoice",
+    //         invoiceNumber: billTo.title || "INV-PREVIEW",
+    //         creationDate: billTo.invoiceDate,
+    //         dueDate: billTo.dueDate,
+    //         currency: currency,
+    //         invoiceColor: color,
+    //         status: "DRAFT" as const,
+    //         subtotal: items.reduce((sum, item) => sum + item.amount, 0),
+    //         totalTaxAmount: calculateTax(),
+    //         totalDue: calculateTotal(),
+    //         logoUrl: logo || undefined,
+    //         signatureUrl: signature || undefined,
+    //         note: customerNote,
+    //         termsAndConditions: termsAndConditions,
+    //         paymentTerms: billTo.paymentTerms,
+    //         bank: paymentDetails.bankAccount,
+    //         accountNumber: paymentDetails.accountNumber,
+    //         accountName: paymentDetails.accountName,
+    //         billFrom: {
+    //             fullName: billFrom.fullName,
+    //             email: billFrom.email,
+    //             phone: billFrom.phoneNumber,
+    //             address: billFrom.address
+    //         },
+    //         billTo: {
+    //             id: "preview-client",
+    //             customerType: "",
+    //             title: "",
+    //             fullName: billTo.customer,
+    //             businessName: billTo.customer,
+    //             email: selectedClient?.email || "",
+    //             phone: "",
+    //             country: ""
+    //         },
+    //         items: items.map(item => ({
+    //             id: item.id,
+    //             itemName: item.itemName,
+    //             quantity: item.quantity,
 
-                rate: item.rate,
-                amount: item.amount,
-                description: ""
-            })),
-            appliedTaxes: []
-        };
-    };
+    //             rate: item.rate,
+    //             amount: item.amount,
+    //             description: ""
+    //         })),
+    //         appliedTaxes: []
+    //     };
+    // };
 
     const handleBackToEdit = () => {
         setFormValidationError(null);
@@ -707,7 +693,6 @@ const CreateInvoicePage = () => {
         setShowPreview(false);
     };
 
-    // Send invoice to backend (called from preview page)
     const handleSendInvoice = async (): Promise<{ success: boolean; error?: string }> => {
 
         const error = getFirstValidationError();
@@ -856,13 +841,13 @@ const CreateInvoicePage = () => {
                 type={toast.type}
                 onClose={hideToast}
             />
-            <div className="mt-[6px] mx-4 ">   {/* Header */}
-                <div className="mb-4 flex items-center justify-between">
+            <div className="mt-[6px] mx-4 ">
+                <div className="mb-4 flex md:items-center justify-between items-start flex-col md:flex-row ">
                     <div className="flex items-center gap-4">
                         <Link href="/dashboard/invoices" className="p-2 text-[#2F80ED] ">
                             <ArrowLeft size={24} />
                         </Link>
-                        <h1 className="text-[20px] font-semibold text-[#101828] flex items-center gap-2">
+                        <h1 className="text-[20px] font-semibold text-[#101828] flex items-center gap-2 text-nowrap  flex flex-col md:flex-row ">
                             Create New Invoice
                             {isLoadingDraft && (
                                 <div className="flex items-center gap-2 text-[14px] text-[#667085]">
@@ -873,7 +858,7 @@ const CreateInvoicePage = () => {
                             {hasDraft && !isLoadingDraft && (
                                 <div className="flex items-center gap-1 px-2 py-1 bg-[#F0F7FF] border border-[#2F80ED] rounded-md text-[12px] text-[#2F80ED]">
                                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
                                     Draft loaded
                                 </div>
@@ -881,7 +866,6 @@ const CreateInvoicePage = () => {
                         </h1>
                     </div>
 
-                    {/* Invoice Count Display */}
                     <div className="flex items-center gap-2 px-3 py-2 bg-[#F9FAFB] border border-[#E4E7EC] rounded-lg">
                         <div className={`w-2 h-2 rounded-full ${limitLoading ? 'bg-[#667085]' :
                             totalInvoices === -1 ? 'bg-[#10B981]' :
