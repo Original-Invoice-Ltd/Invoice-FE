@@ -17,10 +17,10 @@ const PaymentTableHeader = ({
   onSortChange,
 }: PaymentTableHeaderProps) => {
   const { t } = useTranslation();
-  
+
   return (
-    <>
-      <h2 className="text-lg font-semibold text-[#000000]">{t('all_invoice')}</h2>
+    <div className="flex justify-between items-center gap-4 md:gap-0  w-full">
+      <h2 className="text-[0.85rem] md:text-lg font-semibold text-[#000000] text-nowrap">{t('all_invoice')}</h2>
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1 sm:w-64">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={18} />
@@ -29,11 +29,10 @@ const PaymentTableHeader = ({
             placeholder={t('search_invoices')}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-[#D0D5DD] rounded-lg text-sm 
-            focus:outline-none focus:ring-0"
+            className="w-full pl-10 pr-4 py-2 border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-0"
           />
         </div>
-        <button className="flex items-center justify-center gap-2 px-4 py-2 
+        <button className="hidden md:flex items-center justify-center gap-2 px-4 py-2 
         border border-[#D0D5DD] rounded-lg text-sm text-[#344054] hover:bg-[#F9FAFB] whitespace-nowrap">
           {t('sort_by')}
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -41,7 +40,7 @@ const PaymentTableHeader = ({
           </svg>
         </button>
       </div>
-    </>
+    </div>
   );
 };
 

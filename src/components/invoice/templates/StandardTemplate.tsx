@@ -85,17 +85,17 @@ const StandardTemplate = ({ data }: StandardTemplateProps) => {
     };
 
     return (
-        <div className="bg-white p-12 relative">
+        <div className="bg-white p-4 sm:p-8 lg:p-12 relative">
             {/* Watermark */}
             <div 
-                className="absolute left-8 top-2/3 -translate-y-2/3 pointer-events-none select-none z-0"
+                className="absolute left-4 sm:left-8 top-2/3 -translate-y-2/3 pointer-events-none select-none z-0"
                 style={{
                     transform: 'translateY(-50%) rotate(-22deg)',
                     transformOrigin: 'center',
                 }}
             >
                 <span 
-                    className="text-blue-200 font-bold whitespace-nowrap text-[2rem] md:text-[4rem]"
+                    className="text-blue-200 font-bold whitespace-nowrap text-[1.5rem] sm:text-[2rem] md:text-[4rem]"
                     style={{
                         opacity: 0.3,
                         letterSpacing: '0.1em'
@@ -108,19 +108,19 @@ const StandardTemplate = ({ data }: StandardTemplateProps) => {
             {/* Invoice content */}
             <div className="relative z-10">
             {/* Logo */}
-            <div className="mb-12">
+            <div className="mb-6 sm:mb-8 lg:mb-12">
                 {data.logo ? (
-                    <img src={data.logo} alt="Logo" className="w-16 h-16 object-contain" />
+                    <img src={data.logo} alt="Logo" className="w-12 h-12 sm:w-16 sm:h-16 object-contain" />
                 ) : (
-                    <span className="text-4xl font-semibold text-gray-900">Logo</span>
+                    <span className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-900">Logo</span>
                 )}
             </div>
 
             {/* Invoice Title */}
-            <h1 className="text-3xl font-bold text-gray-900 mb-8">INVOICE</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">INVOICE</h1>
 
             {/* Bill From and Bill To */}
-            <div className="grid grid-cols-2 gap-12 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 mb-6 sm:mb-8 lg:mb-12">
                 <div>
                     <h3 className="text-sm font-semibold text-gray-900 mb-3">Bill From</h3>
                     <p className="text-sm font-semibold text-gray-900">{data.billFrom.fullName}</p>
@@ -136,7 +136,7 @@ const StandardTemplate = ({ data }: StandardTemplateProps) => {
             </div>
 
             {/* Invoice Details */}
-            <div className="grid grid-cols-2 gap-12 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 mb-6 sm:mb-8 lg:mb-12">
                 <div className="space-y-2">
                     <div className="flex justify-between">
                         <span className="text-sm text-gray-600">Invoice</span>
@@ -176,51 +176,53 @@ const StandardTemplate = ({ data }: StandardTemplateProps) => {
             </div>
 
             {/* Items Table */}
-            <div className="mb-8">
-                <table className="w-full border-collapse">
-                    <thead>
-                        <tr style={{ backgroundColor: hexToRgba(data.color, 0.12) }}>
-                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900" style={{ borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>#</th>
-                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900" style={{ borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>Item Detail</th>
-                            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900" style={{ borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>Qty</th>
-                            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900" style={{ borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>Rate</th>
-                            <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900" style={{ borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data.items.map((item, index) => (
-                            <tr key={item.id} className="border border-gray-200">
-                                <td className="py-4 px-4 text-sm text-gray-900 border border-gray-200">{index + 1}</td>
-                                <td className="py-4 px-4 text-sm text-gray-900 border border-gray-200">{item.itemName}</td>
-                                <td className="py-4 px-4 text-right text-sm text-gray-900 border border-gray-200">{item.quantity}</td>
-                                <td className="py-4 px-4 text-right text-sm text-gray-900 border border-gray-200">{item.rate.toLocaleString()}</td>
-                                <td className="py-4 px-4 text-right text-sm font-medium text-gray-900 border border-gray-200">{formatCurrency(item.amount)}</td>
+            <div className="mb-6 sm:mb-8 overflow-x-auto -mx-4 sm:mx-0">
+                <div className="min-w-[600px] px-4 sm:px-0">
+                    <table className="w-full border-collapse">
+                        <thead>
+                            <tr style={{ backgroundColor: hexToRgba(data.color, 0.12) }}>
+                                <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-900" style={{ borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>#</th>
+                                <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-900" style={{ borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>Item Detail</th>
+                                <th className="text-right py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-900" style={{ borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>Qty</th>
+                                <th className="text-right py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-900" style={{ borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>Rate</th>
+                                <th className="text-right py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-900" style={{ borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>Amount</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {data.items.map((item, index) => (
+                                <tr key={item.id} className="border border-gray-200">
+                                    <td className="py-2 sm:py-4 px-2 sm:px-4 text-xs sm:text-sm text-gray-900 border border-gray-200">{index + 1}</td>
+                                    <td className="py-2 sm:py-4 px-2 sm:px-4 text-xs sm:text-sm text-gray-900 border border-gray-200">{item.itemName}</td>
+                                    <td className="py-2 sm:py-4 px-2 sm:px-4 text-right text-xs sm:text-sm text-gray-900 border border-gray-200">{item.quantity}</td>
+                                    <td className="py-2 sm:py-4 px-2 sm:px-4 text-right text-xs sm:text-sm text-gray-900 border border-gray-200">{item.rate.toLocaleString()}</td>
+                                    <td className="py-2 sm:py-4 px-2 sm:px-4 text-right text-xs sm:text-sm font-medium text-gray-900 border border-gray-200">{formatCurrency(item.amount)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* Totals Section - Right Aligned */}
-            <div className="flex justify-end mb-12">
-                <div className="w-80">
-                    <div className="flex justify-between py-2 text-sm">
+            <div className="flex justify-end mb-6 sm:mb-8 lg:mb-12">
+                <div className="w-full sm:w-80">
+                    <div className="flex justify-between py-2 text-xs sm:text-sm">
                         <span className="text-gray-600">Sub Total</span>
                         <span className="text-gray-900 font-medium">{formatCurrency(calculateSubtotal())}</span>
                     </div>
-                    <div className="flex justify-between py-2 text-sm">
+                    <div className="flex justify-between py-2 text-xs sm:text-sm">
                         <span className="text-gray-600">VAT ({data.vat}%)</span>
                         <span className="text-gray-900 font-medium">{formatCurrency(calculateVAT())}</span>
                     </div>
-                    <div className="flex justify-between py-2 text-sm">
+                    <div className="flex justify-between py-2 text-xs sm:text-sm">
                         <span className="text-gray-600">WHT ({data.wht}%)</span>
                         <span className="text-gray-900 font-medium">{formatCurrency(calculateWHT())}</span>
                     </div>
-                    <div className="flex justify-between py-2 text-sm border-t border-gray-200 mt-2 pt-2">
+                    <div className="flex justify-between py-2 text-xs sm:text-sm border-t border-gray-200 mt-2 pt-2">
                         <span className="text-gray-900 font-semibold">Total</span>
                         <span className="text-gray-900 font-semibold">{formatCurrency(calculateTotal())}</span>
                     </div>
-                    <div className="flex justify-between py-3 px-4 text-gray-900 rounded mt-2 text-sm font-semibold" style={{ backgroundColor: hexToRgba(data.color, 0.12), borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>
+                    <div className="flex justify-between py-2 sm:py-3 px-3 sm:px-4 text-gray-900 rounded mt-2 text-xs sm:text-sm font-semibold" style={{ backgroundColor: hexToRgba(data.color, 0.12), borderColor: hexToRgba(data.color, 0.25), border: '1px solid' }}>
                         <span>Balance Due</span>
                         <span>{formatCurrency(calculateTotal())}</span>
                     </div>

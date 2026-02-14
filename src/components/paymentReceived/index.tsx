@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/useToast";
 import Toast from "../ui/Toast";
 import { useTranslation } from "react-i18next";
+import { Plus } from "lucide-react";
 
 interface PaymentReceivedProps {
   onCreateInvoice: () => void;
@@ -151,7 +152,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
         onClose={hideToast}
       />
       <div className="mb-2">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row gap-2 md:gap-0 items-start md:items-center  justify-between">
           <div>
             <h1 className="text-[20px] md:text-[20px] font-semibold text-gray-900">
               Incoming Payments
@@ -162,14 +163,14 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
           </div>
           <button
             onClick={onCreateInvoice}
-            className="text-white rounded-md font-medium hover:bg-blue-700 transition-colors whitespace-nowrap flex items-center px-4 py-3 bg-[#2F80ED]"
+            className="text-white flex gap-4 justify-center md:max-w-[200px] w-full rounded-md font-medium hover:bg-blue-700 transition-colors whitespace-nowrap flex items-center px-4 py-3 bg-[#2F80ED]"
           >
+            <Plus size={20} />
             {t('create_invoice')}
           </button>
         </div>
       </div>
 
-      {/* Main Content */}
       {!hasPayments ? (
         <div className="w-full bg-white rounded-lg border border-[#E4E7EC]" style={{ minHeight: '372px' }}>
           <div className="pt-4 pr-[14px] pl-[14px] flex flex-col sm:flex-row sm:items-center 
@@ -194,7 +195,6 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
               onSortChange={setSortBy}
             />
           </div>
-
           <PaymentTable
             payments={payments}
             onMarkPaid={handleMarkPaid}
@@ -212,7 +212,6 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
         </div>
       )}
 
-      {/* Modals */}
       {modalType && (
         <Modals
           modalType={modalType}
