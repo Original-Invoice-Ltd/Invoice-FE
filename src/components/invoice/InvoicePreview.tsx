@@ -223,7 +223,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
                     </button>
                 </div>
 
-                <div className="bg-white  mb-4 rounded-lg shadow-sm relative" ref={invoiceRef}>
+                <div className="bg-white mb-4 rounded-lg shadow-sm relative overflow-hidden" ref={invoiceRef}>
 
                     {data.template === 'simple' && <SimpleTemplate data={data} />}
                     {data.template === 'standard' && <StandardTemplate data={data} />}
