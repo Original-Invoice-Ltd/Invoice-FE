@@ -63,7 +63,13 @@ export const downloadElementAsPDF = async (
   const finalOptions = { ...defaultOptions, ...options };
 
   try {
-    const html2pdf = (await import('html2pdf.js')).default;    
+    const html2pdfModule = await import('html2pdf.js');
+    const html2pdf = html2pdfModule.default;
+    
+    if (!html2pdf) {
+      throw new Error('html2pdf library not loaded correctly');
+    }
+    
     const sanitizedElement = sanitizeElementForPDF(element);
     sanitizedElement.style.position = 'absolute';
     sanitizedElement.style.left = '-9999px';
@@ -80,7 +86,11 @@ export const downloadElementAsPDF = async (
     }
   } catch (error) {
     console.error('Error generating PDF:', error);
-    throw new Error('Failed to generate PDF');
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    throw error;
   }
 };
 

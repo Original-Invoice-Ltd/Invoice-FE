@@ -1153,7 +1153,7 @@ const CreateInvoicePage = () => {
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    placeholder="INV-0012"
+                                                    placeholder="invoice title"
                                                     value={billTo.title}
                                                     onChange={(e) => setBillTo({ ...billTo, title: e.target.value })}
                                                     className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
