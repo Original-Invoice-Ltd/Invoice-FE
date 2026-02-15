@@ -370,9 +370,9 @@ const CreateInvoicePage = () => {
             errors.billFrom = "Invalid Sender's email provided";
             newFieldErrors.billFromEmail = "Invalid email format";
         }
-        else if (!ApiClient.isValidPhone(billFrom.phoneNumber.trim())) {
-            errors.billFrom = "Invalid Sender's Phone number must be in +234********** format";
-            newFieldErrors.billFromPhone = "Phone must be in +234********** format";
+        else if (billFrom.phoneNumber.trim() === "") {
+            errors.billFrom = "Sender's Phone number is required";
+            newFieldErrors.billFromPhone = "Phone number is required";
         } else if (billFrom.businessName.trim() === "") {
             errors.billFrom = "Sender's Business name is required";
             newFieldErrors.billFromBusinessName = "Business name is required";
@@ -434,8 +434,8 @@ const CreateInvoicePage = () => {
         if (billFrom.email.trim() === "") {
             return "Sender's email is required";
         }
-        if (!ApiClient.isValidPhone(billFrom.phoneNumber.trim())) {
-            return "Valid phone number is required";
+        if (billFrom.phoneNumber.trim() === "") {
+            return "Phone number is required";
         }
         if (billFrom.businessName.trim() === "") {
             return "Business name is required";
