@@ -521,7 +521,7 @@ const CreateInvoicePage = () => {
             try {
                 await loadDraft();
             } catch (error) {
-                console.error('Error loading draft:', error);
+                throw new Error('Error loading draft:' );
             }
         };
 
