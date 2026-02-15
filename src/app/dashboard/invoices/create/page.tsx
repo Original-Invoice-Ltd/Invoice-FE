@@ -18,7 +18,6 @@ import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
 import { useDraft } from "@/hooks/useDraft";
 import { useTranslation } from "react-i18next";
-import { formatCurrency } from "@/lib/currencyFormatter";
 
 const CreateInvoicePage = () => {
     const { t } = useTranslation();
@@ -231,7 +230,7 @@ const CreateInvoicePage = () => {
 
     const [vat, setVat] = useState(7.5);
     const [wht, setWht] = useState(5);
-    const [invoiceTaxRate, setInvoiceTaxRate] = useState(0);
+    const [invoiceTaxRate, setInvoiceTaxRate] = useState(7.5);
 
     const hasFormChanges = () => {
         const hasBillFromChanges = billFrom.fullName.trim() !== "" ||
@@ -805,6 +804,111 @@ const CreateInvoicePage = () => {
         }
     };
 
+    const handleSendWhatsApp = async (phoneNumber: string, message?: string): Promise<{ success: boolean; error?: string }> => {
+        const error = getFirstValidationError();
+        if (!canCreateInvoice) {
+            showBlockedNotif();
+            return { success: false, error: "Invoice limit reached" };
+        }
+        if (error) {
+            setFormValidationError(error);
+            showError(error);
+            return { success: false, error: getFirstValidationError() as string };
+        }
+        setFormValidationError(null);
+
+        try {
+            setIsSendingInvoice(true);
+
+            if (hasDraft) {
+                // Send draft invoice via WhatsApp
+                const result = await ApiClient.sendDraftWhatsApp(phoneNumber, message);
+
+                if (result.status === 200 || result.status === 201) {
+                    setTimeout(() => {
+                        window.location.href = '/dashboard/invoices';
+                    }, 1500);
+                    return { success: true };
+                } else {
+                    setFormValidationError(result.error || 'Failed to send invoice via WhatsApp');
+                    return { success: false, error: result.error || 'Failed to send invoice via WhatsApp' };
+                }
+            }
+
+            // Otherwise, create new invoice and send via WhatsApp
+            let logoFile: File | null = null;
+            if (logo) {
+                logoFile = base64ToFile(logo, 'logo.png');
+            }
+
+            let signatureFile: File | null = null;
+            if (signature) {
+                signatureFile = dataURLtoFile(signature, 'signature.png');
+            }
+
+            const subtotal = calculateSubtotal();
+            const totalDue = calculateTotal();
+
+            const invoiceData: CreateInvoiceData = {
+                logo: logoFile,
+                billFrom: {
+                    fullName: billFrom.fullName,
+                    email: billFrom.email,
+                    address: billFrom.address,
+                    phoneNumber: billFrom.phoneNumber,
+                    businessName: billFrom.businessName,
+                },
+                billTo: {
+                    clientId: selectedClientId,
+                    title: billTo.title,
+                    invoiceNumber: billTo.invoiceNumber,
+                    paymentTerms: billTo.paymentTerms,
+                    invoiceDate: billTo.invoiceDate,
+                    dueDate: billTo.dueDate,
+                },
+                items: items.map(item => ({
+                    id: item.id,
+                    itemName: item.itemName,
+                    quantity: item.quantity,
+                    rate: item.rate,
+                    amount: item.amount,
+                })),
+                note: customerNote,
+                termsAndConditions: termsAndConditions,
+                signature: signatureFile,
+                language: language,
+                currency: currency,
+                invoiceColor: color,
+                subtotal: subtotal,
+                totalDue: totalDue,
+                paymentDetails: {
+                    accountNumber: paymentDetails.accountNumber,
+                    accountName: paymentDetails.accountName,
+                    bank: paymentDetails.bankAccount,
+                },
+            };
+
+            const formData = buildInvoiceFormData(invoiceData);
+
+            const response = await ApiClient.sendInvoiceWhatsApp(formData, phoneNumber, message);
+
+            if (response.status === 201 || response.status === 200) {
+                setTimeout(() => {
+                    window.location.href = '/dashboard/invoices';
+                }, 1500);
+                return { success: true };
+            } else {
+                setFormValidationError(response.error || 'Failed to send invoice via WhatsApp');
+                return { success: false, error: response.error || 'Failed to send invoice via WhatsApp' };
+            }
+        } catch (error) {
+            setFormValidationError('An unexpected error occurred while sending the invoice via WhatsApp.');
+            return { success: false, error: 'An unexpected error occurred' };
+        } finally {
+            setIsSendingInvoice(false);
+        }
+    };
+
     if (showPreview) {
         return (
             <InvoicePreview
@@ -830,6 +934,7 @@ const CreateInvoicePage = () => {
                 onEmailInvoice={() => {
                 }}
                 onSendInvoice={handleSendInvoice}
+                onSendWhatsApp={handleSendWhatsApp}
                 validationMessage={getSpecificValidationMessage()}
                 hasDraft={hasDraft}
             />
@@ -1268,7 +1373,7 @@ const CreateInvoicePage = () => {
                                 <div className="mt-4 flex items-center justify-between">
                                     <button
                                         onClick={addNewRow}
-                                        className="flex items-center gap-2 px-4 py-2.5 text-[#2F80ED] border border-[#D0D5DD] rounded-lg hover:bg-[#F0F7FF] transition-colors text-[14px] font-medium"
+                                        className="flex flex-row items-center gap-2 px-4 py-2.5 text-[#2F80ED] border border-[#D0D5DD] rounded-lg hover:bg-[#F0F7FF] transition-colors text-[0.75rem] md:text-[14px] font-medium"
                                     >
                                         <Plus size={18} />
                                         Add New Row
@@ -1532,7 +1637,7 @@ const CreateInvoicePage = () => {
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-[#667085] text-[18px]">WHT (5%)</span>
-                                        <span className=" text-[18px] font-semibold">₦0.00</span>
+                                        <span className=" text-[18px] font-semibold">{Number(calculateTotal().toFixed(2)) * 0.05 }</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-[18px] text-[#667085]">Total Due</span>

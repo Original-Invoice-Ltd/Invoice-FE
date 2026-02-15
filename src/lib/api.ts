@@ -569,6 +569,43 @@ export class ApiClient {
     }
   }
 
+  static async sendDraftWhatsApp(phoneNumber: string, message?: string): Promise<ApiResponse<DraftInvoiceResponse | SendDraftErrorResponse>> {
+    try {
+      const cleanPhoneNumber = phoneNumber.startsWith('+') ? phoneNumber.substring(1) : phoneNumber;
+      
+      const response = await axiosInstance.post("/api/invoices/draft/send/whatsapp", {
+        phoneNumber: cleanPhoneNumber,
+        message: message || undefined
+      }, {
+        withCredentials: true,
+      });
+      return this.handleResponse<DraftInvoiceResponse>(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  static async sendInvoiceWhatsApp(formData: FormData, phoneNumber: string, message?: string): Promise<ApiResponse<any>> {
+    try {
+      const cleanPhoneNumber = phoneNumber.startsWith('+') ? phoneNumber.substring(1) : phoneNumber;
+      
+      formData.append('phoneNumber', cleanPhoneNumber);
+      if (message) {
+        formData.append('message', message);
+      }
+      
+      const response = await axiosInstance.post("/api/invoices/whatsapp", formData, {
+        headers: {
+          "Content-Type": undefined as any,
+        },
+        withCredentials: true,
+      });
+      return this.handleResponse<any>(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
   static async getCurrentSubscription() {
     return this.request("GET", "/api/subscriptions/current");
   }
