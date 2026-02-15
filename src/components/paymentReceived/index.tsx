@@ -132,15 +132,40 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
 
   const handleViewReceipt = async (payment: Payment) => {
     try {
+      console.log('Viewing receipt for payment:', payment);
+      console.log('Invoice ID being sent:', payment.id);
+      
       const response = await ApiClient.getPaymentEvidenceUrl(payment.id);
+      console.log('Receipt API response:', response);
+      
       if (response.status === 200 && response.data) {
-        setReceiptUrl(response.data);
-        setShowReceiptModal(true);
+        // The API might return the URL directly as a string, or in an object
+        const url = typeof response.data === 'string' ? response.data : response.data.url || response.data.evidenceUrl;
+        
+        if (url) {
+          setReceiptUrl(url);
+          setShowReceiptModal(true);
+        } else {
+          showError('No receipt found for this payment');
+        }
+      } else if (response.status === 403) {
+        showError('You do not have permission to view this receipt');
+      } else if (response.status === 404) {
+        showError('No receipt has been uploaded for this invoice yet');
       } else {
-        showError('No receipt found for this payment');
+        showError(response.error || 'No receipt found for this payment');
       }
-    } catch (error) {
-      showError('Failed to load receipt');
+    } catch (error: any) {
+      console.error('Full error object:', error);
+      
+      if (error?.response?.status === 403) {
+        showError('You do not have permission to view this receipt');
+      } else if (error?.response?.status === 404) {
+        showError('No receipt has been uploaded for this invoice yet');
+      } else {
+        const errorMessage = error?.response?.data?.message || error?.message || 'Failed to load receipt';
+        showError(errorMessage);
+      }
       console.error('Error loading receipt:', error);
     }
   };
