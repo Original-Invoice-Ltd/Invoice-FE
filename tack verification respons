@@ -1,0 +1,2655 @@
+[33mcommit 8915f76cdccbc88b6d9a72b0fe9bbd31c83d4d20[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeat/cleaup[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Feb 9 19:39:51 2026 +0100
+
+    update: fix double strokes outside template seector preview type when selected
+
+[33mcommit 847deddf6557b56a658be951d2f7517459c6fea3[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Feb 9 18:01:47 2026 +0100
+
+    FIX: function display when updating user last and first name
+
+[33mcommit c0f5332ecea7857ed447bfba07b0da0bc1d9b8a5[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Feb 9 11:26:40 2026 +0100
+
+    update: updated laguage translations
+
+[33mcommit dac24e447e2ddc864d1917a112c73b0955f703c5[m
+Merge: 70be218 5c3ce4b
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Feb 9 08:28:23 2026 +0100
+
+    Merge branch 'dev' of https://github.com/Original-Invoice-Ltd/Invoice-FE into feat/cleaup
+
+[33mcommit 70be2182bace7eb3f248e6860c0914ebee05bee0[m[33m ([m[1;32mfeat/language[m[33m, [m[1;32mfeat/cleanup[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Feb 8 16:41:39 2026 +0100
+
+    update: language setting, customerDashboard settings
+
+[33mcommit 5c3ce4b594f6782bc2551f556a2ef2887d8b8264[m[33m ([m[1;31morigin/dev[m[33m)[m
+Merge: 866426b 9e1c1c0
+Author: Yisaterese <151354744+Yisaterese@users.noreply.github.com>
+Date:   Sun Feb 8 11:40:24 2026 +0100
+
+    Merge pull request #139 from Original-Invoice-Ltd/UI-layout-refactoring
+    
+    updated the invoice count
+
+[33mcommit 9e1c1c008f2d00a665665146cd7ea8b9acf3e31d[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Feb 8 11:37:46 2026 +0100
+
+    updated the invoice count
+
+[33mcommit 866426bde14a7edc7b5971d2879a19898f340d42[m
+Merge: 7c027bd 976c7e6
+Author: Yisaterese <151354744+Yisaterese@users.noreply.github.com>
+Date:   Sun Feb 8 11:19:00 2026 +0100
+
+    Merge pull request #138 from Original-Invoice-Ltd/UI-layout-refactoring
+    
+    UI layout refactoring
+
+[33mcommit 976c7e6e201e67909607601f16d985887f31141e[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Feb 8 11:15:16 2026 +0100
+
+    updated the invoice creation numbers
+
+[33mcommit 3e3869c9bb51ca19e82e39fb41fa6f60206e943d[m
+Merge: e3214ac 7c027bd
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Feb 8 11:07:23 2026 +0100
+
+    Merge branch 'dev' of https://github.com/Original-Invoice-Ltd/Invoice-FE into UI-layout-refactoring
+
+[33mcommit e3214ac06a35dd78d7ba9b07ce79d8aa80f3880b[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Feb 8 11:07:05 2026 +0100
+
+    updated the invoice creation numbers
+
+[33mcommit 7c027bd6bfd65ba224fd0798db135f0316b3f2a7[m
+Merge: dd91c65 de175e8
+Author: Yisaterese <151354744+Yisaterese@users.noreply.github.com>
+Date:   Sun Feb 8 10:26:50 2026 +0100
+
+    Merge pull request #136 from Original-Invoice-Ltd/UI-layout-refactoring
+    
+    restructured the UI layout
+
+[33mcommit de175e864a1cd780974046d02fc7ad96dbf6782a[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Feb 8 09:03:48 2026 +0100
+
+    updated page refres after the user uploads receipt
+
+[33mcommit ab1d83a93320e713ca156f7f15d8a8c6f5756dee[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Feb 8 08:25:58 2026 +0100
+
+    restructured the UI layout
+
+[33mcommit dd91c65cdd04663bcdebd04f9e61950fcc21cdae[m
+Merge: bb706f9 e45d398
+Author: Yisaterese <151354744+Yisaterese@users.noreply.github.com>
+Date:   Fri Feb 6 15:12:54 2026 +0100
+
+    Merge pull request #135 from Original-Invoice-Ltd/updates
+    
+    updates
+
+[33mcommit e45d398c5393e29401838d95c80c4450a7e8c6ce[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Feb 6 15:10:34 2026 +0100
+
+    updates
+
+[33mcommit bb706f99a3523e6e9280e4b11099ce73f2c4f999[m
+Merge: 64dd624 308bd35
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Fri Feb 6 08:04:05 2026 +0100
+
+    Merge pull request #134 from Original-Invoice-Ltd/feat/language
+    
+    Feat/language
+
+[33mcommit 308bd355cf3ecece2fa8727f2d43bb6a67c1deed[m[33m ([m[1;31morigin/feat/language[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Feb 6 02:39:43 2026 +0100
+
+    fix: refactor languageProcider wrapping and component inheritance
+
+[33mcommit 3d645870862eb72baff38fb35659abe0a290a3bf[m
+Merge: 5e3c155 64dd624
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Feb 6 02:27:27 2026 +0100
+
+    Merge branch 'dev' of https://github.com/Original-Invoice-Ltd/Invoice-FE into feat/language
+
+[33mcommit 5e3c1557e7bcf6f133309f2d35277b5743e310b2[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Feb 6 02:27:16 2026 +0100
+
+    update: translate dashboard/pricing page
+
+[33mcommit e2033b25219b66cc46df887461b31ea93fd5c866[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Feb 6 02:10:15 2026 +0100
+
+    update: complete translation of all text in dashboard routes
+
+[33mcommit a430f1b8337b64ac8be0b2460d0aaad858b1f5a3[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Thu Feb 5 23:14:25 2026 +0100
+
+    update: added translations to the dashboard/overview and dashboard/clientManagements
+
+[33mcommit 4d4acc09bdbf852beb72aa57460f93be4085d119[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Thu Feb 5 21:01:49 2026 +0100
+
+    FIX: infinite rendering when fetching user details
+
+[33mcommit 5397df005a832929dd4f8a38c1bba7e3ab68407b[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Thu Feb 5 20:36:53 2026 +0100
+
+    FIX: added language context for fetching and sync with dashbaorSetting wit header
+
+[33mcommit 9bfc787ad084c287e4dd661bb41f8b867d13deb9[m[33m ([m[1;32mfix/dashboard_client[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Thu Feb 5 16:39:50 2026 +0100
+
+    FIX: remove forceful routing form client page when not signedin to signin
+
+[33mcommit 64dd624ba73bfae4f81fa24df69db02c4903bb92[m
+Merge: b28ce37 60d4980
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Wed Feb 4 18:33:21 2026 +0100
+
+    Merge pull request #133 from Original-Invoice-Ltd/customer-update
+    
+    Customer update
+
+[33mcommit 60d4980d28682a881726dce4f36f78d0f016789e[m
+Merge: 4c19824 b28ce37
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Wed Feb 4 18:17:20 2026 +0100
+
+    Merge branch 'dev' of https://github.com/Original-Invoice-Ltd/Invoice-FE into customer-update
+
+[33mcommit 4c198249d24fb0e4072781aaf193ecd9405999a6[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Wed Feb 4 18:16:50 2026 +0100
+
+    added update
+
+[33mcommit b28ce371be22b4586d4f4b1ad17ef3077774319f[m
+Merge: 1a582f5 47a66e1
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Wed Feb 4 16:23:17 2026 +0100
+
+    Merge pull request #131 from Original-Invoice-Ltd/fix/dashboard_client
+    
+    fix: replace hardcoded status distribution in dashboard/reports
+
+[33mcommit 47a66e11527ed6caab83e147cec3c8ebe2e140e8[m[33m ([m[1;31morigin/fix/dashboard_client[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Wed Feb 4 16:16:53 2026 +0100
+
+    fix: replace hardcoded status distribution in dashboard/reports
+
+[33mcommit 1a582f523c100e06cbdbbb81dc31078f2b3ee67a[m
+Merge: e94ce90 a3317cb
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Wed Feb 4 14:51:34 2026 +0100
+
+    Merge pull request #130 from Original-Invoice-Ltd/fix/dashboard_client
+    
+    update: added markInvoiceAsPaid integrations for dashboard/payments
+
+[33mcommit a3317cbaebd3f2e56f91c94f659823ecc6ce3e94[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Wed Feb 4 14:42:16 2026 +0100
+
+    update: added markInvoiceAsPaid integrations for dashboard/payments
+
+[33mcommit e94ce9085ec4e354a609bf379aba0b64daf9979b[m
+Merge: da5b1fc 8378450
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Wed Feb 4 12:17:00 2026 +0100
+
+    Merge pull request #129 from Original-Invoice-Ltd/fix/dashboard_client
+    
+    update: fixed unpaid and paid payment display
+
+[33mcommit 8378450f5725275dd9ed7bf80f3cb97889bec60e[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Wed Feb 4 12:09:42 2026 +0100
+
+    update: fixed unpaid and paid payment display
+
+[33mcommit da5b1fcc40f905665b1dacb9937d1ce60534c32f[m
+Merge: a10634a e49f96b
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Wed Feb 4 08:28:02 2026 +0100
+
+    Merge pull request #128 from Original-Invoice-Ltd/fix/dashboard_client
+    
+    Fix/dashboard client
+
+[33mcommit e49f96ba149ae6c87e9a60d93bc0bc3fc646e97b[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Wed Feb 4 08:15:44 2026 +0100
+
+    update: fix PENDING viewing in REcieved payment
+
+[33mcommit 19d5d7cb43df8f89b8f81b698e7a458742f37dbe[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Wed Feb 4 00:24:53 2026 +0100
+
+    fix hidden edit mini modal for client deletion/edit section
+
+[33mcommit a10634aa78cf5a6fd6200691ed414f7962ca1538[m
+Merge: 5d35f7d 211d065
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Tue Feb 3 22:27:25 2026 +0100
+
+    Merge pull request #127 from Original-Invoice-Ltd/fix/dashboard_client
+    
+    update: fix forgot Password Email failing integration
+
+[33mcommit 211d06579797b273bb2accba7fe704ce8fab076f[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Tue Feb 3 22:23:45 2026 +0100
+
+    update: fix forgotPasswordEmail failign integration
+
+[33mcommit 5d35f7d0fc00138a18ede158dad14923778c1cbd[m
+Merge: 29c70fe 35dc6ba
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Tue Feb 3 20:59:03 2026 +0100
+
+    Merge pull request #126 from Original-Invoice-Ltd/fix/dashboard_client
+    
+    Fix/dashboard client
+
+[33mcommit 35dc6ba90da54f195a67cd4a75847510591005d7[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Tue Feb 3 20:46:23 2026 +0100
+
+    fixed Invoice preview page merge conflict
+
+[33mcommit 84a92c728dfe265f73461ff2de5a35fe82ee91f3[m
+Merge: 4a85350 29c70fe
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Tue Feb 3 20:33:09 2026 +0100
+
+    fixed Invoice preview page merge conflict
+
+[33mcommit 4a8535001251dca928a9f2eac7f187ba9234e290[m
+Merge: aabce76 7c09f4e
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Tue Feb 3 20:24:10 2026 +0100
+
+    chore: stop tracking pnpm lock file
+
+[33mcommit aabce76b7e83ceff8aff84530ee180b2d286c6c4[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Tue Feb 3 11:45:33 2026 +0100
+
+    fix: update invoice creatio validation and sending button disbled validation fixes
+
+[33mcommit 94247b7409d6a80407b6a081614d4318ffff0115[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Tue Feb 3 09:22:03 2026 +0100
+
+    fix: remove dark modal overlay for deleting  client
+
+[33mcommit 05524113e9c01f84e4fa0da7d4991c6e54b50416[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Tue Feb 3 09:19:15 2026 +0100
+
+    fix: add create and update client validation, remove dark modal overlay after creating client
+
+[33mcommit 29c70feda4fe85ec026b79c6616702d937472920[m
+Merge: a76b6d8 c5e2ce9
+Author: Yisaterese <151354744+Yisaterese@users.noreply.github.com>
+Date:   Mon Feb 2 19:41:26 2026 +0100
+
+    Merge pull request #124 from Original-Invoice-Ltd/send-button-validation
+    
+    commented the send button validation
+
+[33mcommit c5e2ce9aaeb9f94fd823b2d72cae698cf5086a11[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Feb 2 19:37:50 2026 +0100
+
+    commented the send button validation
+
+[33mcommit 7c09f4e5aef0729bc6a709f503c89dbfe3eb5a53[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Merge: 0f2297c a76b6d8
+Author: Yisaterese <151354744+Yisaterese@users.noreply.github.com>
+Date:   Mon Feb 2 17:47:28 2026 +0100
+
+    Merge pull request #123 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit a76b6d8126da22dc92f070eb724e5432b473e45c[m
+Merge: b2aa499 064a088
+Author: Yisaterese <151354744+Yisaterese@users.noreply.github.com>
+Date:   Mon Feb 2 17:45:11 2026 +0100
+
+    Merge pull request #122 from Original-Invoice-Ltd/added-lock-jason-package
+    
+    Added lock jason package
+
+[33mcommit 064a088124a2d7088ac3fc2e6d72f297c83c9932[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Feb 2 17:31:39 2026 +0100
+
+    installed deps
+
+[33mcommit 724dc929af3dde91edadd5630f8751f12210753e[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Feb 2 17:16:11 2026 +0100
+
+    making a new pr
+
+[33mcommit 0f2297c418b1c943c67e3290247a71a0ea53b820[m
+Merge: 9949e09 427ae60
+Author: Yisaterese <151354744+Yisaterese@users.noreply.github.com>
+Date:   Mon Feb 2 16:25:24 2026 +0100
+
+    Merge pull request #120 from Original-Invoice-Ltd/feat/dashboard_fixes
+    
+    Feat/dashboard fixes
+
+[33mcommit 427ae60620d203964349de023b807bd1cd83b255[m[33m ([m[1;31morigin/feat/dashboard_fixes[m[33m, [m[1;32mfeat/dashboard_fixes[m[33m)[m
+Merge: b5c52a7 9949e09
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Feb 2 16:16:04 2026 +0100
+
+    Merge branch 'main' of
+    https://github.com/Original-Invoice-Ltd/Invoice-FE into
+    feat/dashboard_fixes
+
+[33mcommit b5c52a7f4333db782fa7951ec218c573d144a6d2[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Feb 2 16:15:25 2026 +0100
+
+    update: user dashboard fixes, integrations for report, [FIX]: dashboard/overview unlimited render
+
+[33mcommit 895b1ded7cbd933d0e7a8f858068ffb1378c868d[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Feb 2 09:22:02 2026 +0100
+
+    update: refactor dashboardHeader image fetching
+
+[33mcommit c1a76f77698cfe724ec468762c7e0762de13e11e[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Feb 2 07:41:54 2026 +0100
+
+    update: refactor api.ts, layout, sidebar
+
+[33mcommit 9949e095f470bf9c3ab8d5b1a2cc523c116400ff[m
+Merge: a45bbdc 03e5382
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Sat Jan 31 22:11:30 2026 +0100
+
+    Merge pull request #119 from Original-Invoice-Ltd/feat/integrations_patches
+    
+    Feat/integrations patches
+
+[33mcommit 03e53825c5029e98d13e7f79afa3172b69cd20d1[m[33m ([m[1;31morigin/feat/integrations_patches[m[33m, [m[1;32mfeat/integrations_patches[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 31 21:37:03 2026 +0100
+
+    update: refactor api.ts, invoice creation, invoice display
+
+[33mcommit bd3a2a271c65f8411cc48966eed4a2d97c7ef8d3[m[33m ([m[1;31morigin/feat/conflict-fixes[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Jan 30 23:05:45 2026 +0100
+
+    Fix: resolve all git conflict
+
+[33mcommit 0dd6562f74c050548f144fffec9e582b4173cccd[m[33m ([m[1;32mmain[m[33m)[m
+Merge: a45bbdc b729d2b
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Jan 30 17:59:13 2026 +0100
+
+    fixes: solve conflicts
+
+[33mcommit b729d2b4e15fd6bac6a5abea4b0695f92a8c16b0[m
+Merge: daf3b90 2384e2e
+Author: Yisaterese <151354744+Yisaterese@users.noreply.github.com>
+Date:   Fri Jan 30 16:33:36 2026 +0100
+
+    Merge pull request #4 from Yisaterese/feat/int
+    
+    Feat/int
+
+[33mcommit 2384e2e790056054a0094a34e146a81e3b7a86f7[m[33m ([m[1;31morigin/feat/int[m[33m)[m
+Author: Biokes <106444765+Biokes@users.noreply.github.com>
+Date:   Thu Jan 29 15:47:47 2026 +0100
+
+    FIX + PATCHES: update error handling in local for testing, usages and cfix code smells
+
+[33mcommit 4eb725177d942e40e67ed6610675c430acd2ed06[m
+Author: Biokes <106444765+Biokes@users.noreply.github.com>
+Date:   Wed Jan 28 17:37:20 2026 +0100
+
+    fix: api data fetching, phonenumber validations, user refresh updating
+
+[33mcommit a45bbdcb9eeb78794fc6c2a1241f12f0217d9ded[m[33m ([m[1;32mmain-backup[m[33m, [m[1;32mfeat/fixes[m[33m)[m
+Merge: 45e9bf4 b2aa499
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Wed Jan 28 19:21:14 2026 +0300
+
+    Merge pull request #116 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit b2aa4999b617c71e8c017863a9efe71cdfcb63e8[m
+Merge: e3255c7 c929fd3
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Wed Jan 28 19:20:40 2026 +0300
+
+    Merge pull request #118 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit c929fd37de3ca6e1ae631511d2fcae2381a24c5e[m[33m ([m[1;31morigin/Landing-Home[m[33m)[m
+Merge: f8a5bd1 e3255c7
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Wed Jan 28 19:18:31 2026 +0300
+
+    commit
+
+[33mcommit f8a5bd1ce409df5b2d98e5cd548ea2e0ed18cc4e[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Wed Jan 28 19:17:37 2026 +0300
+
+    commit
+
+[33mcommit e3255c7a19c52d3c861b0e39e163c0cb46e682ef[m
+Merge: b25f23c 45e9bf4
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Wed Jan 28 19:09:06 2026 +0300
+
+    Merge branch 'main' into dev
+
+[33mcommit b25f23c12d977eba9e7ac5bc7c8240022730ab43[m
+Merge: 7ebecb5 2262c8d
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Wed Jan 28 19:06:27 2026 +0300
+
+    Merge pull request #117 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit 2262c8d574703a28b845d00a76654b88b639dde6[m
+Merge: 21cc906 7ebecb5
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Wed Jan 28 19:01:10 2026 +0300
+
+    commit
+
+[33mcommit 21cc906f0f264478f7a394ba875729847281c7d7[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Wed Jan 28 18:58:38 2026 +0300
+
+    commit
+
+[33mcommit 7ebecb544c0323c9000fa9e82e7f49d308d0ac21[m
+Merge: 4bd9241 4716cad
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Wed Jan 28 13:02:21 2026 +0300
+
+    Merge pull request #115 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit 4716cad21b60e63094af35ca18827727d203de90[m
+Merge: 2e9a89f 4bd9241
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Wed Jan 28 12:51:16 2026 +0300
+
+    commit
+
+[33mcommit 2e9a89fc229ac5fa688c7a5051c4080e77c2844c[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Wed Jan 28 12:47:13 2026 +0300
+
+    commit
+
+[33mcommit b389f1aa82c04030413185509d9c0c0940808a18[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Wed Jan 28 12:40:30 2026 +0300
+
+    commit
+
+[33mcommit 9ec389331744bbf29719e71d2194cad3a72ae8d6[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Wed Jan 28 11:42:49 2026 +0300
+
+    commit
+
+[33mcommit daf3b900ef548e3cba02107ece6f2fd340709a18[m
+Merge: 1bdca97 05cef0b
+Author: Yisaterese <151354744+Yisaterese@users.noreply.github.com>
+Date:   Tue Jan 27 20:02:06 2026 +0100
+
+    Merge pull request #3 from Yisaterese/feat/int
+    
+    Feat/int
+
+[33mcommit 05cef0b43f1a781a380e5fc5e2afeb4b9199fe4d[m
+Author: Biokes <106444765+Biokes@users.noreply.github.com>
+Date:   Tue Jan 27 16:31:09 2026 +0100
+
+    fix: update integration with axiosIntance
+
+[33mcommit d23dbf3e62f924e32eaba0c4b31bdd0fdee80cab[m
+Merge: eaf9f7b 1bdca97
+Author: Biokes <106444765+Biokes@users.noreply.github.com>
+Date:   Tue Jan 27 15:50:03 2026 +0100
+
+    Merge branch 'main' of https://github.com/Yisaterese/my_code into feat/int
+
+[33mcommit eaf9f7b3cab1c701bf48d77d0c4bd1160e4d74b3[m
+Author: Biokes <106444765+Biokes@users.noreply.github.com>
+Date:   Tue Jan 27 15:49:50 2026 +0100
+
+    added PAYMENT_EVIDENCE_UPLOADED case to getNotificationsIcon switch case
+
+[33mcommit 1bdca97b1197e0e634bf6529e61769f05c811a82[m
+Merge: 8d0c328 b42ecea
+Author: Yisaterese <151354744+Yisaterese@users.noreply.github.com>
+Date:   Tue Jan 27 07:53:06 2026 +0100
+
+    Merge pull request #2 from Yisaterese/feat/int
+    
+    update
+
+[33mcommit b42eceaef8ecd5475df799e063c7c294feeab687[m
+Author: Biokes <106444765+Biokes@users.noreply.github.com>
+Date:   Tue Jan 27 07:33:03 2026 +0100
+
+    update
+
+[33mcommit 8d0c3287defa0355df07aff4c69dffbf5ee072ec[m
+Merge: cd05dc4 3e8aa09
+Author: Yisaterese <151354744+Yisaterese@users.noreply.github.com>
+Date:   Mon Jan 26 17:07:17 2026 +0100
+
+    Merge pull request #1 from Yisaterese/feat/int
+    
+    iupdate
+
+[33mcommit 3e8aa09ec71417040054edf16f1c9bdc7795b923[m
+Author: Biokes <106444765+Biokes@users.noreply.github.com>
+Date:   Mon Jan 26 16:34:08 2026 +0100
+
+    iupdate
+
+[33mcommit 4bd9241a970810ae7e38b0d752eb35351481aa10[m
+Merge: 644f97f c383204
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Sun Jan 25 15:03:35 2026 +0100
+
+    Merge pull request #114 from Original-Invoice-Ltd/validate-payment-receipt
+    
+    added the complete flow for marking and invoice as paid
+
+[33mcommit c3832044cab14bd85079219aa21d06745857ea28[m[33m ([m[1;31morigin/validate-payment-receipt[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Jan 25 11:57:28 2026 +0100
+
+    added the complete flow for marking and invoice as paid
+
+[33mcommit 644f97f78d5523e69a790392f199f86ace842d51[m
+Merge: 96638db 9fd002c
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Sat Jan 24 18:57:52 2026 +0100
+
+    Merge pull request #113 from Original-Invoice-Ltd/customer-profile-update
+    
+    Customer profile update
+
+[33mcommit 9fd002c908e2903734f0f63956531d1444bc8d74[m[33m ([m[1;31morigin/customer-profile-update[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 24 18:25:13 2026 +0100
+
+    update the customer profile
+
+[33mcommit 8ecd10aeb66777ebea08a876f4c2a4e77122f79b[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 24 16:37:05 2026 +0100
+
+    added the update for api call on the dashboard to fetch invoices
+
+[33mcommit 96638db9a977640240c3b5ead841e27d68edbbe1[m
+Merge: 1586db6 9a9ae4f
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Sat Jan 24 15:37:10 2026 +0100
+
+    Merge pull request #112 from Original-Invoice-Ltd/profile-update
+    
+    Profile update
+
+[33mcommit 9a9ae4f1420664e17f4174d6a5976f069d6e1530[m[33m ([m[1;31morigin/profile-update[m[33m)[m
+Merge: 04a8dac 1586db6
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 24 15:12:04 2026 +0100
+
+    chore: reconcile unrelated histories with dev
+
+[33mcommit 04a8dacf7590b15931eb772a362b9cb6ce0d2c13[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 24 14:59:16 2026 +0100
+
+    updated the user profile on the customer side bar
+
+[33mcommit 1548b4a41a247d6ab6d98b7af691285f95d11a43[m[33m ([m[1;31morigin/user-notification-implementation[m[33m, [m[1;31morigin/customer-notification-receipt-upload[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 24 14:42:28 2026 +0100
+
+    refactored the upload receipt endpoi n t
+
+[33mcommit 245a72a3806a8d5421de310ebff8189154b57d52[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 24 13:25:50 2026 +0100
+
+    Initial commit (reset history)
+
+[33mcommit 45e9bf42f0b0e425955a50d2137e5c5f6f6034f2[m
+Merge: 17aa415 fe644ce
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Sat Jan 24 12:33:10 2026 +0100
+
+    Merge pull request #110 from Original-Invoice-Ltd/customer-invoice-refactoring
+    
+    Customer invoice refactoring
+
+[33mcommit 1586db6e7eef37b433fbf1dff6b1db7e827cec22[m
+Merge: e6e4708 fe644ce
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Sat Jan 24 12:32:54 2026 +0100
+
+    Merge pull request #111 from Original-Invoice-Ltd/customer-invoice-refactoring
+    
+    refactored the routes for customer invoice
+
+[33mcommit cd05dc4a23a7b50fda526c0c6339e8dfed480f81[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 24 11:48:47 2026 +0100
+
+    FU
+
+[33mcommit 2cbec84414d3a2791aa4fd0cf09c93e372fce287[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 24 11:46:19 2026 +0100
+
+    first commit
+
+[33mcommit fe644ce06c59269111c829c5e1d54301ae43c6fe[m[33m ([m[1;31morigin/customer-invoice-refactoring[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 24 10:50:41 2026 +0100
+
+    refactored the routes for customer invoice
+
+[33mcommit e6e4708ddfd7e2428bbfa63ae1742fe68fe5c14c[m
+Merge: 5103b65 425260c
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Fri Jan 23 12:36:59 2026 +0100
+
+    Merge pull request #109 from Original-Invoice-Ltd/customer-invoice-refactoring
+    
+    changes the api call for fetching invoice on the customer flow
+
+[33mcommit 425260c0358e14bb43146db002eb33c3625b8bf1[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Jan 23 12:22:37 2026 +0100
+
+    changes the api call for fetching invoice on the customer flow
+
+[33mcommit 17aa415881c0c32623dac1d50305492fa6e883a1[m
+Merge: 8586595 5103b65
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Thu Jan 22 22:25:57 2026 +0300
+
+    Merge pull request #108 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit 5103b65f56c2feef8a1132b350e3143e82121d83[m
+Merge: 50b9730 ae00090
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Thu Jan 22 22:19:39 2026 +0300
+
+    Merge pull request #107 from Original-Invoice-Ltd/upload-payment-receipt-integration
+    
+    added the integration for the upload of the receipt
+
+[33mcommit ae00090ebb781116e32788a9902d6691e743090b[m[33m ([m[1;31morigin/upload-payment-receipt-integration[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Thu Jan 22 20:05:46 2026 +0100
+
+    added the integration for the upload of the receipt
+
+[33mcommit 85865958040ecb9b2a45e1fbf7df21e0c7cc4c1a[m
+Merge: ead7a1b 50b9730
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Jan 18 20:18:04 2026 +0300
+
+    Merge pull request #106 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit 50b973006a10f42b15fb117ad58532fe3e3edee9[m
+Merge: 46489c9 bd26017
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Jan 18 20:16:39 2026 +0300
+
+    Merge pull request #105 from Original-Invoice-Ltd/customer-integration
+    
+    resolved the logo display for invoice display
+
+[33mcommit ead7a1b694871ffcb9975531dab4b0994b303fe3[m
+Merge: d51323e 740db8d
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Jan 18 20:15:17 2026 +0300
+
+    Merge pull request #103 from Original-Invoice-Ltd/invoiceTemplates
+    
+    Invoice templates
+
+[33mcommit d51323e2c52009270b8d1d72e08a0dac24fcd931[m
+Merge: 2276c2a 46489c9
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Jan 18 20:14:38 2026 +0300
+
+    Merge pull request #102 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit bd2601753fe3d6e84b2f39b3ac56daad86ad2f27[m[33m ([m[1;31morigin/customer-integration[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Jan 18 18:02:38 2026 +0100
+
+    resolved the logo display for invoice display
+
+[33mcommit 740db8d3adaf9fd584b6bec6b2947e04fc400a7e[m
+Merge: 9d15db9 46489c9
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sun Jan 18 17:48:03 2026 +0100
+
+    Merge branch 'dev' of https://github.com/Original-Invoice-Ltd/Invoice-FE into invoiceTemplates
+
+[33mcommit 9d15db9767f4b274ef239889a5836dad702643d2[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sun Jan 18 17:31:01 2026 +0100
+
+    Laid Foundation For the Invoice Templates
+
+[33mcommit 46489c96b37b9deadcb014dec655e8dafc5716b3[m
+Merge: a4517da a8620c6
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Sun Jan 18 13:17:15 2026 +0100
+
+    Merge pull request #101 from Original-Invoice-Ltd/customer-integration
+    
+    Customer integration
+
+[33mcommit a8620c6073208a2a92fdec3ad0250a8d0f2a6cd8[m
+Merge: 95e84b3 a4517da
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Jan 18 12:16:26 2026 +0100
+
+    resolved build fail
+
+[33mcommit 95e84b32e564b12b5239480d644e1fbbb6f2f497[m[33m ([m[1;31morigin/customer[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Jan 18 12:01:41 2026 +0100
+
+    updated the customer flow with invoice routing
+
+[33mcommit 2276c2ae33c18726117df265ee1c294aa15c50ab[m
+Merge: 127b5c7 4da3570
+Author: Banjo Solomon <151349000+banjoSolomon@users.noreply.github.com>
+Date:   Sat Jan 17 19:00:44 2026 +0100
+
+    Merge pull request #99 from Original-Invoice-Ltd/customer
+    
+    Customer
+
+[33mcommit 4da3570c0d8f8c6c0b166c8d5675d793dea67934[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 17 16:56:44 2026 +0100
+
+    added the customer flow
+
+[33mcommit a4517dad32784e9ab536418a56e68c6b7740ed73[m[33m ([m[1;31morigin/customerFlow[m[33m)[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sat Jan 17 15:31:13 2026 +0100
+
+    Git conflicts resolved before pulling
+
+[33mcommit 97bd6cbc920d36de63b603bb6aa4fb853599aed2[m
+Merge: 216f4e1 f5ac7fd
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sat Jan 17 15:22:22 2026 +0100
+
+    Git conflict
+
+[33mcommit c96dab2bac6f95d91cbf44fc80a156fb4ae314b7[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Jan 16 21:28:27 2026 +0100
+
+    implemented the responsiveness for the screens
+
+[33mcommit 6da0a1f42834075012d1b4bbb6fb4755e6cdca4d[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Jan 16 15:45:14 2026 +0100
+
+    added implementation fr the payment page
+
+[33mcommit a2d552953291654f1c3520d6573ff2eadcf2c91b[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Jan 16 12:38:23 2026 +0100
+
+    added implementation for the customer flow
+
+[33mcommit 966b1bb648164c0d81e725ebaf576ad1ffb20ae2[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Thu Jan 15 17:06:10 2026 +0100
+
+    design the customer flow
+
+[33mcommit a7b2681edf49b3f8346d4729deeae1a6afe717c8[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Thu Jan 15 14:40:42 2026 +0100
+
+    removed all console logs
+
+[33mcommit f349c81ac49dd0cbdf638b1abd8a6972913fea96[m[33m ([m[1;31morigin/invoice-templates[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Tue Jan 13 13:41:44 2026 +0100
+
+    added invoice templates
+
+[33mcommit 1e2d8808cba7745b62259daf4fc45756d540701f[m[33m ([m[1;31morigin/refactoring-signup[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Jan 12 14:13:59 2026 +0100
+
+    removed the dark bacground on the signup page
+
+[33mcommit 985c15fbee5cdb8962d9ded57833e0d205cf9840[m
+Merge: 5f968eb f5ac7fd
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Jan 11 18:56:04 2026 +0100
+
+    resolved merge request
+
+[33mcommit 5f968eb5d4e81f2e6e61304b2fcf4e4511853ba9[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Jan 11 18:45:17 2026 +0100
+
+    making pR
+
+[33mcommit 127b5c7fbf5d7f0618e0a46d33d51544181d7752[m
+Merge: dfb122f f5ac7fd
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Jan 11 20:31:14 2026 +0300
+
+    Merge pull request #98 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit f5ac7fd4fe0157ef766a51c63ca8000a00d8de4c[m
+Merge: 8de7b8d 436c707
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Jan 11 20:30:00 2026 +0300
+
+    Merge pull request #97 from Original-Invoice-Ltd/Landing-Home
+    
+    commit
+
+[33mcommit 436c7075e537e20d87e32873da7a9051acf30719[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Jan 11 20:28:24 2026 +0300
+
+    commit
+
+[33mcommit dfb122fbc2001ea35a80f7ef993133b8ba8539ed[m
+Merge: 4135c43 8de7b8d
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Jan 11 19:57:30 2026 +0300
+
+    Merge pull request #95 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit 8de7b8d05f42911f4eddb5d108711f593def8ab5[m
+Merge: 120b983 ba2d5ee
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Jan 11 19:56:16 2026 +0300
+
+    Merge pull request #96 from Original-Invoice-Ltd/Landing-Home
+    
+    commit
+
+[33mcommit ba2d5eee9598bf389a68dcfb04cbaa424529bfef[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Jan 11 19:53:45 2026 +0300
+
+    commit
+
+[33mcommit 120b9839b28d950977bb2bc968fd94123eecd386[m
+Merge: f5cf334 2284deb
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Jan 11 19:40:52 2026 +0300
+
+    Merge pull request #94 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit 2284deb2d4a0115cd35dbe9c552db88fa553a891[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Jan 11 19:38:34 2026 +0300
+
+    commit
+
+[33mcommit ce04a4df3f6479fb7be81db88d90db49fc629f2a[m
+Merge: 7e6e316 f5cf334
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Jan 11 16:13:35 2026 +0300
+
+    commit
+
+[33mcommit 7e6e3165909a3e5072355714889e52b8bb5aa316[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Jan 11 16:12:30 2026 +0300
+
+    commit
+
+[33mcommit 66614336b1d0392401ba5f609cb8b86195176f14[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sat Jan 10 22:32:50 2026 +0300
+
+    commit
+
+[33mcommit 4135c43cb321b28e583c119a16e75be8910bfa09[m
+Merge: 5be30d4 f5cf334
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Jan 10 17:31:43 2026 +0300
+
+    Merge pull request #93 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit f5cf334fa6a98dde8baf23970fff80dbeb81baee[m
+Merge: 7a9107e da0dfd2
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Jan 10 17:29:28 2026 +0300
+
+    Merge pull request #92 from Original-Invoice-Ltd/createInvoice-refactoring
+    
+    fixed errors and handled properly
+
+[33mcommit da0dfd23530c5e8f0761dafc70adf3c8979169e1[m[33m ([m[1;31morigin/createInvoice-refactoring[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 10 15:03:15 2026 +0100
+
+    fixed errors and handled properly
+
+[33mcommit 5be30d4a1f88c9e156b701e9a9e04a7101f0be24[m
+Merge: 3bfe39b 7a9107e
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Jan 10 16:49:48 2026 +0300
+
+    Merge pull request #91 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit 7a9107e1f5facf7b7227470791fd0a170e3a6757[m
+Merge: 894156a 7f30526
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Jan 10 16:48:14 2026 +0300
+
+    Merge pull request #90 from Original-Invoice-Ltd/createInvoice-refactoring
+    
+    Create invoice refactoring
+
+[33mcommit 7f305267a15e1a4f5b8c5306d67454a923495c71[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 10 14:40:35 2026 +0100
+
+    added the drop downn for country on the add client modal
+
+[33mcommit 0d67ea79bc8325ba7b2ffb4669a6ea1b2a596c18[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 10 14:24:39 2026 +0100
+
+    restyling the modals on the create invoice screen
+
+[33mcommit ba626c8da59a74a26e5cdafabee164ada914944a[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 10 14:00:57 2026 +0100
+
+    making PR
+
+[33mcommit 70245346e6ca05fd4aa6910789e70c1f1df2d105[m
+Merge: 0cf0157 894156a
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Jan 9 15:23:31 2026 +0100
+
+    resolved merge conflict
+
+[33mcommit 0cf0157adbf023ca74b3194fafc515b70632d545[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Jan 9 11:57:55 2026 +0100
+
+    edited the add item tble on the create invoice page
+
+[33mcommit 3bfe39b10b3c9c1ffb048d413354635b1042e481[m
+Merge: 91dea6f 894156a
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Fri Jan 9 13:06:49 2026 +0300
+
+    Merge pull request #89 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit 894156aba8e0f7d437bc689045e9ed692438ff79[m
+Merge: c112bd6 84c7f10
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Fri Jan 9 13:04:04 2026 +0300
+
+    Merge pull request #88 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit 91dea6f9d895bd4cb7ec57fb80df4574f9be5ff4[m
+Merge: 5c3231e c112bd6
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Fri Jan 9 13:01:19 2026 +0300
+
+    Merge pull request #87 from Original-Invoice-Ltd/dev
+    
+    Merge pull request #86 from Original-Invoice-Ltd/createInvoice-integr…
+
+[33mcommit 84c7f10270fe261b30629f72af4bc0cc11c71372[m
+Merge: f9c7595 c112bd6
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Fri Jan 9 12:56:58 2026 +0300
+
+    commit
+
+[33mcommit f9c759580071d3bd35994b51ac9b18b172cede28[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Fri Jan 9 12:52:59 2026 +0300
+
+    commit
+
+[33mcommit c112bd6106dc5564a1376b9eb3def591f6245b0f[m
+Merge: 6f5ca65 795d1e3
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Fri Jan 9 12:46:47 2026 +0300
+
+    Merge pull request #86 from Original-Invoice-Ltd/createInvoice-integration
+    
+    added the create invoice function in the api.ts
+
+[33mcommit 216f4e1503606239772c6e956f520f2c45a7d14b[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Mon Jan 5 05:16:13 2026 +0100
+
+    implement customer flow with invoice detail view and upload receipt modal
+
+[33mcommit 7ace13c4c8c89de931b0774d0fc15731bd17d0fc[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Jan 4 20:53:55 2026 +0300
+
+    commit
+
+[33mcommit fec48cec81ecbe09bc57f3a109b4e86abc7fd8a9[m
+Merge: 77a7d5a 5c3231e
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Jan 4 20:10:44 2026 +0300
+
+    commit
+
+[33mcommit 77a7d5a7ef10b323929b39242be5b9f6120b2867[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Jan 4 20:09:18 2026 +0300
+
+    commit
+
+[33mcommit 5c3231e12ecb3d25c2347eb537f7ba96a13a7c7b[m
+Merge: 55b402b 795d1e3
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Jan 4 19:27:22 2026 +0300
+
+    Merge pull request #85 from Original-Invoice-Ltd/createInvoice-integration
+    
+    added the create invoice function in the api.ts
+
+[33mcommit 795d1e3c7d0e315b58353851628fc9390c143d62[m[33m ([m[1;31morigin/createInvoice-integration[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Jan 4 16:34:12 2026 +0100
+
+    added the create invoice function in the api.ts
+
+[33mcommit 55b402b87f88968d520a9766208f0b574b510aea[m
+Merge: 7d7a700 6f5ca65
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Jan 4 15:27:27 2026 +0300
+
+    Merge pull request #84 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit 6f5ca659f495243039cb2d2e271bd385748d633e[m
+Merge: 0a1298e da9f201
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Jan 4 15:24:49 2026 +0300
+
+    Merge pull request #83 from Original-Invoice-Ltd/createInvoice-integration
+    
+    Create invoice integration
+
+[33mcommit da9f20164e79dfd2968191ec7e073017e948b627[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Jan 4 12:11:07 2026 +0100
+
+    added the dropdown for the account details and items
+
+[33mcommit 6e8dce1f8d8aefca58832047a03421d8b4e93225[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Jan 4 12:07:34 2026 +0100
+
+    added the dropdown for the account details and items
+
+[33mcommit 7d7a700f5894cb4aa694b5928e9effd133c23e51[m
+Merge: 688bc4a 0a1298e
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Jan 4 12:11:01 2026 +0300
+
+    Merge pull request #81 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit 0a1298e0e4d92a54daad33716452892833760f11[m
+Merge: 0e3137c 739f0fc
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Jan 4 12:08:28 2026 +0300
+
+    Merge pull request #75 from Original-Invoice-Ltd/customerFlow
+    
+    Customer flow
+
+[33mcommit 0e3137cfdf68530a15fbbc40b5f14b9813f89721[m
+Merge: fad2f29 da1d41c
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Jan 4 12:07:48 2026 +0300
+
+    Merge pull request #76 from Original-Invoice-Ltd/createInvoice-integration
+    
+    Create invoice integration
+
+[33mcommit da1d41c066ec16de9a720291fd855d99f3aa4326[m
+Merge: a73dfff fad2f29
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 3 16:24:06 2026 +0100
+
+    resolved merge request
+
+[33mcommit a73dfff5bdc1bc0327f8c50e8923734e30baa540[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 3 16:11:27 2026 +0100
+
+    added integration for add new client
+
+[33mcommit 688bc4a6a1042b82a126ab95f2a802ea66cb7756[m
+Merge: 67adb35 fad2f29
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Jan 3 17:29:23 2026 +0300
+
+    Merge pull request #79 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit fad2f29797346476854bc1e14f9f38540c317ccb[m
+Merge: 3904291 80a5c87
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Jan 3 17:27:29 2026 +0300
+
+    Merge pull request #80 from Original-Invoice-Ltd/Landing-Home
+    
+    commit
+
+[33mcommit 80a5c87df4aa745ee1d3b1cf1d7cada015a96ad7[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sat Jan 3 17:23:39 2026 +0300
+
+    commit
+
+[33mcommit 6f6fe42b158b6b72e79b87b0f54dfaf77d2a1a98[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 3 15:07:26 2026 +0100
+
+    re-integrated the add invoice to have same auth extraction with products
+
+[33mcommit 39042917421e8efb9a5d246b9e18d2f911597bf2[m
+Merge: 4386e23 c78989f
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Jan 3 15:56:56 2026 +0300
+
+    Merge pull request #78 from Original-Invoice-Ltd/paymentMethod
+    
+    Payment method
+
+[33mcommit 4386e230592f7da87103e8fc44fa9610efd97406[m
+Merge: 0fadf61 8e54b9a
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Jan 3 15:55:41 2026 +0300
+
+    Merge pull request #77 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit ae99ddfa40d3384791236c130f82afe19b5e5226[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 3 03:27:37 2026 +0100
+
+    added svg text tp the successful invoice creation
+
+[33mcommit ffa10fb9177080f0082d6e942fbb7deab8e416af[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 3 02:26:50 2026 +0100
+
+    compresed the svg path
+
+[33mcommit e428d3ff73be52317450a9de9ac2668be3c23bce[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 3 02:15:26 2026 +0100
+
+    restyled the color picker
+
+[33mcommit 2063f4fe56c30d380f70e125d3d0db13c4738828[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 3 02:06:16 2026 +0100
+
+    added a color picker to the create invoice flow
+
+[33mcommit 667f59c469c945e875ef68fc58d8fdac6990df58[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Jan 3 01:08:06 2026 +0100
+
+    added invoice integration
+
+[33mcommit 739f0fc9a3d73fb4048a54675796f758122106ce[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Fri Jan 2 18:18:52 2026 +0100
+
+    Done With The Header for Customer Flow
+
+[33mcommit 7384acb0858958d3f5917f664fbf72688cab962e[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Fri Jan 2 17:42:10 2026 +0100
+
+    Laid Foundation for customer Flow
+
+[33mcommit 8e54b9a82268b2161e217aeafaf06c4b95e0c57e[m
+Merge: a7b6c9f 0fadf61
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Fri Jan 2 15:46:30 2026 +0300
+
+    commit
+
+[33mcommit a7b6c9fc3de4f9b0db15ce3ae57398ac43542c8b[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Fri Jan 2 15:45:19 2026 +0300
+
+    commit
+
+[33mcommit 285a546bf606de8d6755a1b1ea5c2d5dc3a4e3ac[m
+Merge: 216b3c0 0fadf61
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Thu Jan 1 16:07:43 2026 +0100
+
+    resolved merge conflicts
+
+[33mcommit 216b3c0b01d75c257d925d17807b9565bc7399d5[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Thu Jan 1 16:05:27 2026 +0100
+
+    making pR
+
+[33mcommit c78989f94ba5eebe7fc0f7d56a770d6d2b06903e[m[33m ([m[1;31morigin/paymentMethod[m[33m)[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Thu Jan 1 12:15:19 2026 +0100
+
+    Adjusted the payment method Form, modal
+
+[33mcommit 90837e922a146819800c77918014577aadea7e80[m
+Merge: aa0240e 0fadf61
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Wed Dec 31 20:18:05 2025 +0100
+
+    Merge branch 'dev' of https://github.com/Original-Invoice-Ltd/Invoice-FE into paymentMethod
+
+[33mcommit 67adb3536b7955105f52d01569d98f6315ed6f1a[m
+Merge: c36589a 0fadf61
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Wed Dec 31 15:03:38 2025 +0300
+
+    Merge pull request #74 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit 0fadf61185b7f0aebdc556ac2cf0110d44cbc690[m
+Merge: 82a67bd 5ef12ed
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Wed Dec 31 15:02:12 2025 +0300
+
+    Merge pull request #73 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit 5ef12ed297e669d0c9da09ac291f27b5629a9a21[m
+Merge: db9f248 82a67bd
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Wed Dec 31 14:55:15 2025 +0300
+
+    commit
+
+[33mcommit db9f2489d73c5f65ad552de5ca64119548941108[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Wed Dec 31 14:52:04 2025 +0300
+
+    commit
+
+[33mcommit c36589a03c165585139454ac5aa0e0c83446d1f2[m
+Merge: cecc561 82a67bd
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Dec 29 20:54:23 2025 +0300
+
+    Merge pull request #72 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit 82a67bd94ed7970e9f619663b9e2e864a87647b8[m
+Merge: 8ee6372 8c0756e
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Dec 29 20:53:09 2025 +0300
+
+    Merge pull request #71 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit 8ee63720064a96d44e777788b6acf3d624deb630[m
+Merge: 89ed137 7ff0f4b
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Dec 29 20:52:29 2025 +0300
+
+    Merge pull request #70 from Original-Invoice-Ltd/reports
+    
+    Reports
+
+[33mcommit 8c0756e96332b38403e49bd1fe91f1f2fc113baa[m
+Merge: ebf59f2 89ed137
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Mon Dec 29 20:49:17 2025 +0300
+
+    commit
+
+[33mcommit ebf59f25114ac234f76445e341f2a5b3d3907d5a[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Mon Dec 29 20:44:03 2025 +0300
+
+    commit
+
+[33mcommit d57a5e94cc47d1c356b661708186bfa91295808b[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Mon Dec 29 20:43:24 2025 +0300
+
+    commit
+
+[33mcommit cecc5616a56b0f9e2c33002941add164c9f9ee0c[m
+Merge: da541b5 89ed137
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Dec 29 19:19:53 2025 +0300
+
+    Merge pull request #67 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit 89ed1370d4d73a2d3213a93fdec91b9f99a4dc0f[m
+Merge: 8c04ffe d1bcaeb
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Dec 29 19:18:35 2025 +0300
+
+    Merge pull request #69 from Original-Invoice-Ltd/Landing-Home
+    
+    commit
+
+[33mcommit d1bcaeb96db17e88c7e49165a25dfeff397a8283[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Mon Dec 29 19:16:46 2025 +0300
+
+    commit
+
+[33mcommit 8c04ffeb6a55f3fd5d67e494e4ae4db4c8e1933d[m
+Merge: 1c5a3c0 ea67ccb
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Dec 29 19:06:41 2025 +0300
+
+    Merge pull request #68 from Original-Invoice-Ltd/Landing-Home
+    
+    commit
+
+[33mcommit ea67ccb37b29193b8a89102ceb628522291eb364[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Mon Dec 29 19:04:48 2025 +0300
+
+    commit
+
+[33mcommit 1c5a3c0862085269e030684418f24823d9a3d0b9[m
+Merge: e75eacc 56f6dd0
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Dec 29 18:36:35 2025 +0300
+
+    Merge pull request #66 from Original-Invoice-Ltd/Landing-Home
+    
+    commit
+
+[33mcommit 56f6dd0ee6fe7dbd3c682981d84f98f325eb451d[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Mon Dec 29 18:27:33 2025 +0300
+
+    commit
+
+[33mcommit d579984c825d618f9982019d26aa9d7e6c6ab4f6[m[33m ([m[1;31morigin/authlayout-restructuring[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Dec 29 09:18:21 2025 +0100
+
+    restyled the signup and signin pages
+
+[33mcommit aa0240e69ca24093b532e1c15577b299609125aa[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sun Dec 28 18:43:54 2025 +0100
+
+    Edited the Payment Form
+
+[33mcommit 65face2ccab93650777af7d7eacf6b81fc853d3c[m[33m ([m[1;31morigin/authlayout-restructing[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Dec 28 15:57:42 2025 +0100
+
+    restyled the signin layout to appear on view port
+
+[33mcommit 1e6d25f97f368d012698c0bf58b1c4581cd8601a[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sat Dec 27 18:05:55 2025 +0100
+
+    Laid Scaffold for Payment Method Page
+
+[33mcommit 7ff0f4b91c87ab9809558a08006dd79b334f682b[m[33m ([m[1;31morigin/reports[m[33m)[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Wed Dec 24 07:57:22 2025 +0100
+
+    worked on reports Page
+
+[33mcommit 6fb9c8a410c9f23c5984b7ff1450e24482ee886b[m
+Merge: 2a14c59 cc339c8
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Dec 22 16:16:30 2025 +0100
+
+    Merge branch 'reports' of https://github.com/Original-Invoice-Ltd/Invoice-FE into create-invoice
+
+[33mcommit cc339c8bc28490e12526f671911b02a322c14dbe[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Mon Dec 22 06:50:45 2025 +0100
+
+    Edited the empty state of the Status Chart
+
+[33mcommit 2a14c59dd125035187004b51192b4ecfaa390b2e[m[33m ([m[1;31morigin/create-invoice[m[33m)[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Dec 21 08:41:33 2025 +0100
+
+    making pr
+
+[33mcommit 38d235b9bba6c2e719cbc1e0eb60ca42b127b0a9[m
+Merge: 9862a92 2c3719c
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Dec 20 19:04:28 2025 +0100
+
+    Merge branch 'reports' of https://github.com/Original-Invoice-Ltd/Invoice-FE into create-invoice
+
+[33mcommit 9862a922131bac1927ecba86fe4de6026d1ff497[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Dec 20 19:04:00 2025 +0100
+
+    added the preview invoice screen
+
+[33mcommit 2c3719c741690736c18d7fd6b76739d0cda92f3b[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Tue Dec 16 07:44:09 2025 +0100
+
+    Modified the Reports Header and KPICards
+
+[33mcommit b4c92ad917f712d52baa10f554b4e6bb9c31965c[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Mon Dec 15 04:47:38 2025 +0100
+
+    Laid Foundation for Reports and Analytics
+
+[33mcommit abae44ee04ae32dcb261484a9b0bf42d94a98b64[m
+Merge: deea5e4 e75eacc
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Dec 15 04:12:58 2025 +0100
+
+    resolved merge conflict
+
+[33mcommit deea5e4b4a84779eef327ef33a8bfc6c573d764d[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Dec 15 04:06:54 2025 +0100
+
+    refactoring create invoice page
+
+[33mcommit 2e204fa62b9aa0b8ff6bda6712daf4516e323335[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Dec 15 03:57:35 2025 +0100
+
+    refactored invoice creation page
+
+[33mcommit da541b50e024137aa80df02fbcbb9144072f5adc[m
+Merge: 6188867 e75eacc
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Dec 14 19:38:21 2025 +0100
+
+    Merge pull request #62 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit e75eaccadecbb6b8efe59f100c3d9069d68d51eb[m
+Merge: 863ae7b 42294f4
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Dec 14 19:36:32 2025 +0100
+
+    Merge pull request #63 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit 42294f4c9651334816120bc0c0da20d830ac60e9[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Dec 14 19:33:10 2025 +0100
+
+    commit
+
+[33mcommit bc4448538654cf76c7f195bb45623b1eae392023[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Dec 14 14:58:57 2025 +0100
+
+    Merge branch 'Landing-Home' of https://github.com/Original-Invoice-Ltd/Invoice-FE into Landing-Home
+
+[33mcommit 1f0724f2f3d8cb7603b7cc5193603f8d6d4a29df[m
+Merge: e1e39d9 863ae7b
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Dec 14 14:58:45 2025 +0100
+
+    commit
+
+[33mcommit e1e39d9d410b30393ff3be7606498c67155e9e7f[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Dec 14 14:55:45 2025 +0100
+
+    commit
+
+[33mcommit 863ae7b7ca7b69e693da00b7fa93b6bd4ad1c9a7[m
+Merge: 1da9c08 6188867
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Dec 13 18:15:14 2025 +0100
+
+    Merge branch 'main' into dev
+
+[33mcommit 1da9c08440d12cbbf17c3beea47898769ac14342[m
+Merge: 327afd0 e989179
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Dec 13 17:53:40 2025 +0100
+
+    Merge pull request #61 from Original-Invoice-Ltd/create-invoice
+    
+    Create invoice
+
+[33mcommit 327afd0271721e43a16ef5c919953a7f0969a4db[m
+Merge: 91ee64e 6be9cae
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Dec 13 17:51:43 2025 +0100
+
+    Merge pull request #60 from Original-Invoice-Ltd/paymentReceived
+    
+    Payment received
+
+[33mcommit 91ee64e05af9bdae61304c4eac6ddf60f63f1012[m
+Merge: c14fdcb 38cb073
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Dec 13 17:48:59 2025 +0100
+
+    Merge pull request #59 from Original-Invoice-Ltd/productManagement
+    
+    Product management
+
+[33mcommit 6be9cae7135f4c2fcce515a334bf6860b58f1433[m[33m ([m[1;31morigin/paymentReceived[m[33m)[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sat Dec 13 15:19:25 2025 +0100
+
+    Made Some Adjustments to the modals and Also Their Backgrounds
+
+[33mcommit e9891790b5ebf8b2592c8cad745c5e5ddb68b349[m
+Merge: 10b40a8 c14fdcb
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Dec 13 08:07:34 2025 +0100
+
+    refactoring the create invoice
+
+[33mcommit 10b40a82196d8422d33a6ad4a0b3ab79d6df1e4b[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Dec 12 22:45:35 2025 +0100
+
+    refactored the creat invoice page
+
+[33mcommit df35c502cb8623636b4c84065f5d5a39ddc9940c[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Fri Dec 12 04:31:57 2025 +0100
+
+    Laid Foundation for Payment Received Page
+
+[33mcommit 1c8ebc84539fcbd6e124a9e26c035677f4588cc2[m
+Merge: 38cb073 c14fdcb
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Thu Dec 11 15:33:47 2025 +0100
+
+    Merge branch 'dev' of https://github.com/Original-Invoice-Ltd/Invoice-FE into productManagement
+
+[33mcommit c14fdcbb7e157f6d144a3d4307a7547eff4a7e9e[m
+Merge: 986d8ee 58172bc
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Thu Dec 11 15:27:58 2025 +0100
+
+    Merge pull request #57 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit 58172bc9364d7763bf6ae99c1591a0a43db46c12[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Thu Dec 11 15:24:56 2025 +0100
+
+    integrated auth
+
+[33mcommit 08f259d29a555e0d1c3b5eb96f57aedfffe9768a[m
+Merge: 6ee738d c1cf6dc
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Thu Dec 11 11:18:17 2025 +0100
+
+    commit
+
+[33mcommit d2a78a7a36b2fca294827252b80eeca6727572b6[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Thu Dec 11 05:33:53 2025 +0100
+
+    refactoring the create invoice page
+
+[33mcommit 38cb073628543c0f7c2a67eb966312ebea662a42[m[33m ([m[1;31morigin/productManagement[m[33m)[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Wed Dec 10 05:04:27 2025 +0100
+
+    Remove deleted productManagement components
+
+[33mcommit 968633ac10e3e7c293716416acbc17d3d52a9588[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Tue Dec 9 19:52:44 2025 +0100
+
+    Made changes to the Delete Successful Modal
+
+[33mcommit 2fdbc63fce36b8b412bcc2d7c8aaeab089439863[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Tue Dec 9 17:01:17 2025 +0100
+
+    Modified the Delete Successful Modal
+
+[33mcommit bf318970e8a78db41b9fdfa76e48e44bf5d5e636[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Tue Dec 9 15:53:41 2025 +0100
+
+    Worked on Add Items Modal
+
+[33mcommit 93158e33cb460c6ff89c78b68b624ea19ecdaeff[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sun Dec 7 17:31:24 2025 +0100
+
+    Laid Foundation for Products Management System
+
+[33mcommit 6ee738d988385e4e622db265d09163636baa1c0a[m
+Merge: 848decf ab6ecd1
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Dec 7 14:48:37 2025 +0100
+
+    commit
+
+[33mcommit c1cf6dcca33f115f7a17681c69e33b6669a68ada[m
+Merge: ab6ecd1 986d8ee
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Dec 7 14:34:19 2025 +0100
+
+    Merge branch 'CManagement' into Landing-Home
+
+[33mcommit ab6ecd124f315c96d044cf1be8de162aa0c9bfcf[m
+Merge: 5bed479 618f1a1
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Dec 7 14:17:51 2025 +0100
+
+    Merge pull request #54 from Original-Invoice-Ltd/clientManagement
+    
+    Laid Foundation For Client Management Page
+
+[33mcommit 848decf5ffd7f59e7408fc1d50e7dd089e524beb[m
+Merge: 5bed479 986d8ee
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Dec 7 14:10:30 2025 +0100
+
+    commit
+
+[33mcommit 986d8eef63b1c7e8f34137a76dde9bc5bf39b2eb[m[33m ([m[1;31morigin/CManagement[m[33m)[m
+Merge: 84ac9b7 f394c3b
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Dec 7 14:03:55 2025 +0100
+
+    Merge pull request #53 from Original-Invoice-Ltd/CManagement
+    
+    C management
+
+[33mcommit f394c3b6218e563a39eec6cd961369512db374b7[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sun Dec 7 13:56:56 2025 +0100
+
+    Client Management Updated
+
+[33mcommit b8e8daca185408663781cb0c53035dab5cfbf662[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sun Dec 7 13:51:18 2025 +0100
+
+    refine form label components to support separate text color and red required asterisk styling
+
+[33mcommit 61888676748b5d538518af8b20f9275a787cbe2f[m
+Merge: 10e7fbb 84ac9b7
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Dec 7 06:48:50 2025 +0100
+
+    Merge pull request #51 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit 84ac9b7c4175d5675638ecfc962010f828f409ff[m
+Merge: 1b1a592 e709315
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Dec 7 06:47:20 2025 +0100
+
+    Merge pull request #50 from Original-Invoice-Ltd/signup-refactoring
+    
+    Signup refactoring
+
+[33mcommit e70931522668afbe9d80eda91617707d16303e1b[m[33m ([m[1;31morigin/signup-refactoring[m[33m)[m
+Merge: c61f779 1b1a592
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Dec 6 23:50:43 2025 +0100
+
+    refactored the responsiveness for the signup form and auth screens
+
+[33mcommit 10e7fbb370bb28f41d725382e2a64e94dfd72177[m
+Merge: ad541c0 5bed479
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Dec 6 23:32:10 2025 +0100
+
+    Merge pull request #49 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit 5bed4795207f00ab155fe60c4773ef3f3c749b8e[m
+Merge: 5a417e6 1b1a592
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sat Dec 6 23:22:17 2025 +0100
+
+    commit
+
+[33mcommit 5a417e69222d85ccb25b56c57d6acb2b0554aaba[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sat Dec 6 23:19:46 2025 +0100
+
+    commit
+
+[33mcommit c61f779cd43ff619701564a07544ebd13973f548[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Dec 6 23:12:23 2025 +0100
+
+    added responsiveness for the auth screen
+
+[33mcommit ad541c0bf1d1541b73d82b373a400ef649c186e4[m
+Merge: de85b09 1b1a592
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Dec 6 17:11:10 2025 +0100
+
+    Merge pull request #48 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit 1b1a5924ab29d905e360dc194dd37e23904d2964[m
+Merge: 1a2dd9e 2e02437
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Dec 6 17:09:56 2025 +0100
+
+    Merge pull request #47 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit 2e02437afed8c7290302609be1ada5c12d1e7f14[m
+Merge: 1182924 1a2dd9e
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sat Dec 6 17:06:53 2025 +0100
+
+    commit
+
+[33mcommit 11829246793a49b19ecd7ac11a02528df6a95be3[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sat Dec 6 17:05:55 2025 +0100
+
+    commit
+
+[33mcommit de85b095e971e7d7a9caecaeaf5e52e3de2ac5c7[m
+Merge: f837804 1a2dd9e
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Dec 6 12:07:37 2025 +0100
+
+    Merge pull request #43 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit 1a2dd9e7003125c5368fb43b29945aadf72404f7[m
+Merge: a06a502 ca55a0b
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Dec 6 12:06:43 2025 +0100
+
+    Merge pull request #46 from Original-Invoice-Ltd/signup-refactoring
+    
+    Signup refactoring
+
+[33mcommit ca55a0b726e4c75d816f6bab3a8aaa5107a5eb04[m
+Merge: 128ed9e a06a502
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Dec 6 11:59:46 2025 +0100
+
+    Merge branch 'dev' of https://github.com/Original-Invoice-Ltd/Invoice-FE into signup-refactoring
+
+[33mcommit 128ed9eeb7665eddd4293656d00ba94f56e3f323[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Dec 6 11:59:35 2025 +0100
+
+    resolved build error
+
+[33mcommit a06a50273f7360638cd79565472c82ee696c8950[m
+Merge: 21ec134 61e1820
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Dec 6 11:46:54 2025 +0100
+
+    Merge pull request #45 from Original-Invoice-Ltd/signup-refactoring
+    
+    updated the signup page
+
+[33mcommit 618f1a153cc95d5954760b5e1ccedfa42b6f811d[m[33m ([m[1;31morigin/clientManagement[m[33m)[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sat Dec 6 03:54:36 2025 +0100
+
+    Laid Foundation For Client Management Page
+
+[33mcommit 61e18203b97d0a3eec6a292361f64704828c4c16[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Dec 6 02:18:31 2025 +0100
+
+    updated the signup page
+
+[33mcommit 21ec134509888fe6fa0163e8f8e1d210122def66[m
+Merge: eb6fd62 ab5a71d
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Dec 6 00:22:59 2025 +0100
+
+    Merge pull request #42 from Original-Invoice-Ltd/signup-refactoring
+    
+    Signup refactoring
+
+[33mcommit ab5a71d51ef1dcfc071666d7d293dbe52ab51652[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sat Dec 6 00:16:29 2025 +0100
+
+    refactored the login pge
+
+[33mcommit 7866c2b1d2a23605dfb1a1e5b49c0fae09b333a7[m
+Merge: 02d30fe eb6fd62
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Dec 5 23:49:12 2025 +0100
+
+    Merge branch 'dev' of https://github.com/Original-Invoice-Ltd/Invoice-FE into signup-refactoring
+
+[33mcommit 02d30feef08489b856c0e7fb85b7c9e6bfed34b1[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Dec 5 23:48:56 2025 +0100
+
+    refactored signup page
+
+[33mcommit eb6fd62bec8cf6b400c821600488ecfa9529e6ce[m
+Merge: b43b4e7 6a51a81
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Fri Dec 5 22:53:49 2025 +0100
+
+    Merge pull request #41 from Original-Invoice-Ltd/dashBoard
+    
+    Dash board
+
+[33mcommit 6a51a81168425717742d043e31784d18d85b1cc7[m[33m ([m[1;31morigin/dashBoard[m[33m)[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Fri Dec 5 21:12:50 2025 +0100
+
+    Edited the Charts
+
+[33mcommit f758997824171e592875973e3eb2f26dc302ea5e[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Fri Dec 5 19:03:05 2025 +0100
+
+    Done with the Dashboard Header
+
+[33mcommit 526240f0a0ef47169b90771a7310d4cb3a49bd1e[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Thu Dec 4 19:31:50 2025 +0100
+
+    signup-refactoring
+
+[33mcommit b43b4e7ea794aa012441c70ca7372113f1c0727f[m
+Merge: fc317ff 852a76c
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Thu Dec 4 11:07:12 2025 +0100
+
+    Merge pull request #39 from Original-Invoice-Ltd/Landing-Home
+    
+    dashboard overview
+
+[33mcommit 852a76c1c208b187aff874c4979dd046579acabe[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Thu Dec 4 11:01:46 2025 +0100
+
+    dashboard overview
+
+[33mcommit f5874b9456f2b2684169294f8b7f24ee3a994745[m[33m ([m[1;31morigin/contact[m[33m)[m
+Merge: c80ed72 fc317ff
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Nov 24 13:04:19 2025 +0100
+
+    Merge branch 'dev' of https://github.com/Original-Invoice-Ltd/Invoice-FE into contact
+
+[33mcommit c80ed72bcc596e1305b59dd6f27736eb48fcb275[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Nov 24 13:03:59 2025 +0100
+
+    added the social links
+
+[33mcommit f83780426ea29b002b9fa4ddbbecffb7a0f6a189[m
+Merge: d981613 fc317ff
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Nov 24 09:58:56 2025 +0100
+
+    Merge pull request #38 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit fc317ff2fe644f3348015a057024ce48ae10e38e[m
+Merge: 91405d0 441a4db
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Nov 24 09:57:42 2025 +0100
+
+    Merge pull request #37 from Original-Invoice-Ltd/contact
+    
+    Contact
+
+[33mcommit 441a4db05323ae1b2bfd06aa1e8ff2b7c7047cd6[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Nov 24 09:47:30 2025 +0100
+
+    resolved the most popular arrow pointing at the pricing cards
+
+[33mcommit b7a5b12feed03903f2635f30080f8fee1eb18db0[m
+Merge: 621c12c 91405d0
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Nov 24 09:09:52 2025 +0100
+
+    Merge branch 'dev' of https://github.com/Original-Invoice-Ltd/Invoice-FE into contact
+
+[33mcommit 621c12c77b511a62877110a81dafa5388dd48824[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Nov 24 09:09:39 2025 +0100
+
+    removed the space between the header and get in touch on the contact us page
+
+[33mcommit d8889f3d1982523c01feb357f6b8ec5d3e295ffb[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Nov 24 09:03:28 2025 +0100
+
+    removed the space between the header and get in touch on the contact us page
+
+[33mcommit d981613bc4ae833290bfe3a1541f10841e991e96[m
+Merge: 3faa62b 91405d0
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Nov 24 08:46:47 2025 +0100
+
+    Merge pull request #36 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit 91405d06cb2f580f1d43edc8ef3557b73cda52ce[m
+Merge: 15857bf 5a988fb
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Nov 24 08:45:18 2025 +0100
+
+    Merge pull request #35 from Original-Invoice-Ltd/contact
+    
+    Contact
+
+[33mcommit 5a988fb58d1abd3f48aa59360a082d2756721f00[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Nov 24 06:34:20 2025 +0100
+
+    refactored the page responsiveness
+
+[33mcommit 03969e1ed4ba1d93dfc20f72b6c6eb03ab8433d7[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Nov 24 05:34:44 2025 +0100
+
+    refactored the about page
+
+[33mcommit ddb3da077fc66ab67d473d297316a8a244cd9d2a[m
+Merge: cd73cd8 15857bf
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Nov 24 04:00:33 2025 +0100
+
+    resolved merge conflict
+
+[33mcommit cd73cd869b6de758cae3f0b92e493ed1e20c0ce2[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Nov 24 03:50:41 2025 +0100
+
+    updated the icons on the sidebar
+
+[33mcommit 3faa62b8154ff121063b5261be651130ff65228d[m
+Merge: d3c7dcf 15857bf
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Nov 24 02:56:46 2025 +0100
+
+    Merge pull request #34 from Original-Invoice-Ltd/dev
+    
+    Merge pull request #31 from Original-Invoice-Ltd/Landing-Home
+
+[33mcommit d3c7dcffde01b46d196e7acb6a260ad05fd6667c[m
+Merge: 2c45625 190e2ed
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Nov 24 02:53:15 2025 +0100
+
+    Merge pull request #33 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit 2c45625a628a06123dbaa1ef81b0754b4cbcabda[m
+Merge: 52929c8 69ab0f9
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Nov 24 02:30:39 2025 +0100
+
+    Merge pull request #32 from Original-Invoice-Ltd/contact
+    
+    Contact
+
+[33mcommit 15857bf797adf74de8a322c494a1708dea7cc698[m
+Merge: e11db47 190e2ed
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Nov 24 02:22:40 2025 +0100
+
+    Merge pull request #31 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit 190e2edb8c2374dc42eb1b4dae4cea5911de2798[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Mon Nov 24 02:21:17 2025 +0100
+
+    commit
+
+[33mcommit 585aa637401f18c173bcf9030fa811a7152e0156[m
+Merge: 19d7270 e11db47
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Mon Nov 24 02:12:54 2025 +0100
+
+    commit
+
+[33mcommit 19d72703d1ffffa76d8d0ed1817dfae907ac8665[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Mon Nov 24 02:11:34 2025 +0100
+
+    commit
+
+[33mcommit 52929c82786fc7eeac4586f027ad30ebbecd5a39[m
+Merge: bc1518c e11db47
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Nov 24 02:09:56 2025 +0100
+
+    Merge pull request #30 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit e11db476ce25f49c72c468f8604b80d3b74c8cd8[m
+Merge: b89dae5 c383062
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Mon Nov 24 02:06:44 2025 +0100
+
+    Merge pull request #29 from Original-Invoice-Ltd/aboutUs
+    
+    About us
+
+[33mcommit c3830621ef6a859fe971139ece25b5e67a6f1dc0[m[33m ([m[1;31morigin/aboutUs[m[33m)[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Mon Nov 24 01:32:41 2025 +0100
+
+    fixed svg pictures
+
+[33mcommit ffebd634a88cddd13bdb3e7e903180f2fdc06336[m
+Merge: eb931a2 b89dae5
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Mon Nov 24 01:03:13 2025 +0100
+
+    commit
+
+[33mcommit eb931a22b935c11bd3da6025ba00db254c80af90[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Mon Nov 24 01:02:12 2025 +0100
+
+    commit
+
+[33mcommit 69ab0f942b0613c83fa1cc4d793995f051609d98[m
+Merge: 4781737 b89dae5
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Nov 24 00:08:27 2025 +0100
+
+    resolved merged conflict
+
+[33mcommit 478173741d35c3222856ba3e2e8e4660c20d1b56[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Mon Nov 24 00:06:14 2025 +0100
+
+    fixed the scroll buttons on the testimonials
+
+[33mcommit bc1518ca8ed3c5f9bbde74e2379a866f237e2371[m
+Merge: 499679e b89dae5
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 21:45:45 2025 +0100
+
+    Merge pull request #28 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit b89dae53da56afdd54cf82142a026384255df473[m
+Merge: 6a4a326 1348d86
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 21:44:12 2025 +0100
+
+    Merge pull request #27 from Original-Invoice-Ltd/contact
+    
+    Contact
+
+[33mcommit 1348d86131421ee15d80d1a7f4e5c9dbbfdc3599[m
+Merge: 434ce75 6a4a326
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Nov 23 20:24:20 2025 +0100
+
+    Merge branch 'dev' of https://github.com/Original-Invoice-Ltd/Invoice-FE into contact
+
+[33mcommit 434ce75c9d897e716d58babe1db16d89e02aaee2[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Nov 23 20:24:03 2025 +0100
+
+    changed the new logo icon on the footer
+
+[33mcommit 499679e2ad39a8f4de120992445eb6df1fbed639[m
+Merge: 1422a5c 6a4a326
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 19:45:13 2025 +0100
+
+    Merge pull request #26 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit 6a4a32603e4c5a08f3111d6ca5bb971d96290d4c[m
+Merge: cd5d36c 1c00282
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 19:43:50 2025 +0100
+
+    Merge pull request #25 from Original-Invoice-Ltd/contact
+    
+    Contact
+
+[33mcommit 1c00282fa09bb4c0c94b1f1532be33f04572bc32[m
+Merge: ccb373b cd5d36c
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Nov 23 19:40:42 2025 +0100
+
+    Merge branch 'dev' of https://github.com/Original-Invoice-Ltd/Invoice-FE into contact
+
+[33mcommit ccb373bbeb5a7c56435282f5f3cd56e070ae7e63[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Nov 23 19:38:52 2025 +0100
+
+    resize the shape of the images on the sections of the homepage
+
+[33mcommit 998a7bd306fbf8e9da1723eba607e7ab59342a82[m
+Merge: a18115d cd5d36c
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sun Nov 23 19:15:57 2025 +0100
+
+    Merge branch 'dev' of https://github.com/Original-Invoice-Ltd/Invoice-FE into aboutUs
+
+[33mcommit a18115d8b645c9029704a02510ea227d7968248a[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sun Nov 23 19:15:21 2025 +0100
+
+    redesign HeroSection for improved responsiveness and visual hierarchy
+
+[33mcommit 1422a5ce58692e76b93f48314d86b3b8a02adfe7[m
+Merge: 11cf04e 379e5f6
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 18:57:46 2025 +0100
+
+    Merge pull request #24 from Original-Invoice-Ltd/Landing-Home
+    
+    commit
+
+[33mcommit 379e5f67f1f8fd05f9c7e30916f6c4b0ae238133[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Nov 23 18:55:41 2025 +0100
+
+    commit
+
+[33mcommit 11cf04ef597aa4a5a1126eb836b9887574df343d[m
+Merge: 80b695f cd5d36c
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 18:49:52 2025 +0100
+
+    Merge pull request #23 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit cd5d36cf2e0e5779a5619e1dbc38e1720b0f02da[m
+Merge: 6946c8b 421f696
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 18:47:48 2025 +0100
+
+    Merge pull request #22 from Original-Invoice-Ltd/Landing-Home
+    
+    commit
+
+[33mcommit 421f696f8c1e30d4c69c39de6837b53f495eb19d[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Nov 23 18:45:30 2025 +0100
+
+    commit
+
+[33mcommit d9b1770d3057c961c92176584191c1c611a1882c[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sun Nov 23 18:39:40 2025 +0100
+
+    Modified The about us page
+
+[33mcommit 80b695f417b47efc26d95d2388f1dc5133fc11ab[m
+Merge: 4bf5678 6946c8b
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 18:38:13 2025 +0100
+
+    Merge pull request #21 from Original-Invoice-Ltd/dev
+    
+    Dev
+
+[33mcommit 6946c8b9725b52d8bdfce8814946ed502ae66d0a[m
+Merge: 80523b4 fcc960c
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 18:33:11 2025 +0100
+
+    Merge pull request #20 from Original-Invoice-Ltd/contact
+    
+    Contact
+
+[33mcommit fcc960cfb5d71bb4731165de9e46e644c9f63227[m
+Merge: b0bfe57 2a813f6
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Nov 23 18:31:39 2025 +0100
+
+    added the why choose original invoice section to the homepage and also changed the icons on the fetures tabs
+
+[33mcommit 80523b458d065d5ab6d5720cc9850b22286ab73c[m
+Merge: 2a813f6 1dc6332
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 18:28:25 2025 +0100
+
+    Merge pull request #18 from Original-Invoice-Ltd/aboutUs
+    
+    Implement About us Page
+
+[33mcommit 1dc6332dc1a223258bf748b9b2eed21ba05c0601[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sun Nov 23 18:21:20 2025 +0100
+
+    Implement About us Page
+
+[33mcommit b0bfe576eb082b0757e611a062f5324428e8fe80[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Nov 23 18:21:06 2025 +0100
+
+    fixed the icons on features
+
+[33mcommit 2a813f6fe17a7c037ed7ae8370895bedb1cf2756[m
+Merge: fbeac81 ab64b93
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 16:26:07 2025 +0100
+
+    Merge pull request #17 from Original-Invoice-Ltd/Landing-Home
+    
+    commit
+
+[33mcommit ab64b9343f85dce57d97c3e6af77bc3a794204b7[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Nov 23 16:24:53 2025 +0100
+
+    commit
+
+[33mcommit 4bf5678b1ac671eb8560c8b571f767f427db3893[m
+Merge: 5a3a6ed f2e64e9
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 15:57:44 2025 +0100
+
+    Merge pull request #11 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit 5a3a6edb5753660615f8178f6175aadb12554e62[m
+Merge: 5574271 32a23b5
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 15:57:15 2025 +0100
+
+    Merge pull request #15 from Original-Invoice-Ltd/contact
+    
+    Contact
+
+[33mcommit fbeac81002f8f8f6bc2c056acb2388b3acdc6c8c[m
+Merge: 90bdada 32a23b5
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 15:55:13 2025 +0100
+
+    Merge pull request #16 from Original-Invoice-Ltd/contact
+    
+    Contact
+
+[33mcommit 90bdada4b5a4cf613a8f6e74bc838c0370de1f31[m
+Merge: 94019a0 f2e64e9
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 15:53:38 2025 +0100
+
+    Merge pull request #14 from Original-Invoice-Ltd/Landing-Home
+    
+    commit
+
+[33mcommit 32a23b53193dc6b54f27d34ddb9a3ac57f031b37[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Nov 23 15:43:09 2025 +0100
+
+    reduced the spaceing between input tags
+
+[33mcommit 21e6db6cae6b0d688ae29634d7f8be997ae102dd[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Nov 23 13:45:31 2025 +0100
+
+    added styles
+
+[33mcommit 6a5daada351337c057309da633d0d39d3c6f0b33[m
+Merge: 5fcc80b 94019a0
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Nov 23 13:23:46 2025 +0100
+
+    resolved merge confict
+
+[33mcommit 5fcc80b2386ab4c48dee46c26ebfb380b8846285[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Nov 23 13:21:59 2025 +0100
+
+    enforced inter tight font to be used accross the whole app
+
+[33mcommit c04faa8c0d46585c509afc0c81f15288e722afbf[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Sun Nov 23 12:39:26 2025 +0100
+
+    added contact page
+
+[33mcommit f2e64e9a725589b871f70e8f98ce909f8781a26a[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Nov 23 11:39:43 2025 +0100
+
+    commit
+
+[33mcommit 94019a0d4da1f91f67627c6ec899f253c2d3a3d4[m
+Merge: a709921 b56995d
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 11:28:58 2025 +0100
+
+    Merge pull request #13 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit b56995d85c62244af32abf2de0e132e654447a55[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Nov 23 11:26:10 2025 +0100
+
+    commit
+
+[33mcommit 286d2fc2d1129cacde2397bdbea1adf02445d159[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Nov 23 10:37:57 2025 +0100
+
+    commit
+
+[33mcommit a709921c344ae85f80ef7e0d192073dd0ee95e34[m
+Merge: 5fbf0aa 9546174
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sun Nov 23 10:05:33 2025 +0100
+
+    Merge pull request #12 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit 954617425371f443162ffd3d3afc5deb4379f34f[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Nov 23 10:03:24 2025 +0100
+
+    commit
+
+[33mcommit bcc3585cb9dedb3577bd9e5a417443a5e684ac8d[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Sun Nov 23 09:56:17 2025 +0100
+
+    changed logo, refactored landing page, implemented pricing page
+
+[33mcommit 5fbf0aa2cc8cb3dfbfba780bd821e0cea52901bd[m
+Merge: e501a39 7ec5263
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Nov 22 23:17:16 2025 +0100
+
+    Merge pull request #10 from Original-Invoice-Ltd/signUp
+    
+    Sign up
+
+[33mcommit 7ec5263aa9887d879645c867cf1befc26a970325[m[33m ([m[1;31morigin/signUp[m[33m)[m
+Merge: ad62ffe e501a39
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sat Nov 22 05:53:28 2025 +0100
+
+    Resolved Git Conflicts in Index.tsx
+
+[33mcommit ad62ffe4165d1b2921308ac5a3cee2282b26600e[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Fri Nov 21 16:56:26 2025 +0100
+
+    implement SetupAccountForm component with business name and category fields
+
+[33mcommit e501a39e9ba15d2bcb90eb2197cf47b6418712e5[m
+Merge: 7f156dc 31527ac
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Fri Nov 21 14:33:04 2025 +0100
+
+    Merge pull request #9 from Original-Invoice-Ltd/Landing-Home
+    
+    commit
+
+[33mcommit 31527ac0fa81d741989067ce6af3db76d61d603d[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Fri Nov 21 14:30:39 2025 +0100
+
+    commit
+
+[33mcommit 7f156dcdf81934c4703c878d139025cf9181e30b[m
+Merge: a0987d5 26ca562
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Fri Nov 21 12:47:52 2025 +0100
+
+    Merge pull request #8 from Original-Invoice-Ltd/Landing-Home
+    
+    Landing home
+
+[33mcommit 26ca56278c8f6997fda959de06e95682c3f9fb01[m
+Merge: 0aae99c a0987d5
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Fri Nov 21 12:44:59 2025 +0100
+
+    commit
+
+[33mcommit 0aae99c0c4f3709f83170287edb40eec4f2eae56[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Fri Nov 21 12:42:45 2025 +0100
+
+    commit
+
+[33mcommit a0987d517b874c752dfbc16f17fa2145bde56075[m
+Merge: 74995f9 5d25150
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Fri Nov 21 12:28:55 2025 +0100
+
+    Merge pull request #7 from Original-Invoice-Ltd/homepage-downtofooter
+    
+    Homepage downtofooter
+
+[33mcommit 5d2515016957e244a1088fd1a08678c8bf82a304[m[33m ([m[1;31morigin/homepage-downtofooter[m[33m)[m
+Merge: d757452 74995f9
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Nov 21 11:19:30 2025 +0100
+
+    completed the landing page
+
+[33mcommit d7574526558cad13c0a2389f0c5a6e7e38a80984[m
+Author: Yisaterese <teresejosephyisa@gmail.com>
+Date:   Fri Nov 21 05:18:23 2025 +0100
+
+    ran test
+
+[33mcommit 74995f96dc5b524937c22a9a6bcf33a4e78a5929[m
+Merge: 5e9d4a4 1672ac4
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Fri Nov 21 02:56:27 2025 +0100
+
+    Merge pull request #5 from Original-Invoice-Ltd/Landing-Home
+    
+    implemented header, hero sections
+
+[33mcommit 1672ac4f36b86d73e34e831a65690ec8a6420da1[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Fri Nov 21 02:54:17 2025 +0100
+
+    implemented header, hero sections
+
+[33mcommit 5e9d4a4df265919b2aca033d920dc0c7eab2ede7[m
+Merge: b409bdc 79856d3
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Fri Nov 21 02:48:48 2025 +0100
+
+    Merge pull request #4 from Original-Invoice-Ltd/Landing-Home
+    
+    implemented header, hero sections
+
+[33mcommit 79856d38863b082ee37c1432eb15e9781504db30[m
+Author: Victor <victor.orlu@bdic.ng>
+Date:   Fri Nov 21 02:45:56 2025 +0100
+
+    implemented header, hero sections
+
+[33mcommit b409bdc55d81921c6d057990c89acbf64773906a[m
+Merge: d8fe139 2a90c5f
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Wed Nov 19 15:49:32 2025 +0100
+
+    Merge pull request #3 from Original-Invoice-Ltd/signUp
+    
+    Sign up images replaced
+
+[33mcommit 8c3d799a2bfa779c9d36458d434cd7d9133e8dd6[m
+Merge: 2a90c5f d8fe139
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Wed Nov 19 14:29:36 2025 +0100
+
+    Merge branch 'dev' of https://github.com/Original-Invoice-Ltd/Invoice-FE into signUp
+
+[33mcommit 2a90c5fe362cd335d5b8ee005349097b9907815f[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Wed Nov 19 14:28:43 2025 +0100
+
+    add LeftIllustrationPanel with gradient background and invoice automation illustration
+
+[33mcommit 6d3945d259e1e91fdf00b377fac131321eda0a4f[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sun Nov 16 04:38:31 2025 +0100
+
+    correct ref assignment type in VerifyCodeForm to resolve Next.js TypeScript build error
+
+[33mcommit d8fe139fcc65cb4cb4889020135933e9dfe71c15[m
+Merge: 5574271 1e8ed93
+Author: Victor-Maverick <victormsonter@gmail.com>
+Date:   Sat Nov 15 20:17:47 2025 +0100
+
+    Merge pull request #1 from Original-Invoice-Ltd/signUp
+    
+    Implement Sign Up Screens
+
+[33mcommit 1e8ed9386b5452f0ae46107780227b6bdd2ac994[m
+Author: aondofe014704 <songujack@gmail.com>
+Date:   Sat Nov 15 19:56:12 2025 +0100
+
+    Implement Sign Up Screens
+
+[33mcommit 557427160bc3892ec8e01cde13f1f6edf59f2ac3[m
+Author: Solomon <ayomidebanjo02@gmail.com>
+Date:   Tue Nov 4 21:46:49 2025 +0100
+
+    Initial commit
