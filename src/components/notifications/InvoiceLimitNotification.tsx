@@ -20,10 +20,16 @@ const InvoiceLimitNotification = ({
 }: InvoiceLimitNotificationProps) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
+   const handleClose = () => {
+    setIsAnimating(false);
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  };
+
   useEffect(() => {
     if (isVisible) {
       setIsAnimating(true);
-      // Auto-hide after 10 seconds for warning, 15 seconds for blocked
       const timer = setTimeout(() => {
         handleClose();
       }, type === "blocked" ? 15000 : 10000);
@@ -31,12 +37,7 @@ const InvoiceLimitNotification = ({
     }
   }, [isVisible, type]);
 
-  const handleClose = () => {
-    setIsAnimating(false);
-    setTimeout(() => {
-      onClose();
-    }, 300);
-  };
+ 
 
   if (!isVisible) return null;
 
@@ -63,17 +64,15 @@ const InvoiceLimitNotification = ({
   return (
     <div className="fixed top-4 right-4 z-50">
       <div 
-        className={`
+        className={`w-full md:w-[359px] h-full md:min-h-[147px]
           bg-white rounded-2xl shadow-lg border border-[#E4E7EC] p-6 relative
           transform transition-all duration-300 ease-in-out
           ${isAnimating ? 'translate-x-0 opacity-100 scale-100' : 'translate-x-full opacity-0 scale-95'}
         `}
-        style={{ width: '359px', minHeight: '147px' }}
       >
-        {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-[#667085] hover:text-[#344054] transition-colors"
+          className="hidden md:flex absolute top-4 right-4 text-[#667085] hover:text-[#344054] transition-colors"
         >
           <X size={20} />
         </button>

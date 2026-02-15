@@ -73,8 +73,8 @@ const PaymentTable = ({
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm text-[#333436]">{payment.dueDate}</td>
-                <td className="px-6 py-4 text-sm text-[#333436] text-center">${payment.amount.toLocaleString()}</td>
-                <td className="px-6 py-4 text-sm text-[#333436] text-center">${payment.balanceDue.toLocaleString()}</td>
+                <td className="px-6 py-4 text-sm text-[#333436] text-center">₦{payment.amount.toLocaleString()}</td>
+                <td className="px-6 py-4 text-sm text-[#333436] text-center">₦{payment.balanceDue.toLocaleString()}</td>
                 <td className="px-6 py-4 text-right">
                   <button
                     onClick={() => toggleMenu(payment.id)}
@@ -176,11 +176,11 @@ const PaymentTable = ({
               </div>
               <div>
                 <span className="text-[#667085]">{t('amount')}:</span>
-                <span className="ml-1 text-[#101828] font-medium">${payment.amount.toLocaleString()}</span>
+                <span className="ml-1 text-[#101828] font-medium">₦{payment.amount.toLocaleString()}</span>
               </div>
               <div>
                 <span className="text-[#667085]">{t('balance_due')}:</span>
-                <span className="ml-1 text-[#101828]">${payment.balanceDue.toLocaleString()}</span>
+                <span className="ml-1 text-[#101828]">₦{payment.balanceDue.toLocaleString()}</span>
               </div>
             </div>
             <div className="flex items-center">

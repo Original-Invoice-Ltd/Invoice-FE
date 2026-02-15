@@ -99,10 +99,7 @@ export default function TemplateSelector({ selectedTemplate, onTemplateChange }:
                 <div className="h-1.5 bg-[#D0D5DD] rounded w-16"></div>
                 <div className="h-1.5 bg-[#D0D5DD] rounded w-20"></div>
               </div>
-              <div className="space-y-1">
-                <div className="h-1.5 bg-[#D0D5DD] rounded w-16"></div>
-                <div className="h-1.5 bg-[#D0D5DD] rounded w-20"></div>
-              </div>
+              {/* \ */}
             </div>
             {/* Table */}
             <div className="border-t border-[#D0D5DD] pt-2 flex gap-2">
@@ -131,6 +128,7 @@ export default function TemplateSelector({ selectedTemplate, onTemplateChange }:
             {/* Template Preview */}
             {getTemplatePreview(template.id)}
             {/* Template Name */}
+
             <p className="text-[14px] font-semibold text-[#101828] mt-3 text-center">{template.name}</p>
           </div>
         ))}

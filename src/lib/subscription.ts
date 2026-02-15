@@ -78,7 +78,6 @@ export const getCurrentSubscription = async (): Promise<CurrentSubscription | nu
   try {
     const response = await ApiClient.getCurrentSubscription();
     if (response.status === 200) {
-      console.log("subscription: ", response)
       return response.data;
     }
     return null;
@@ -200,10 +199,8 @@ export const formatPlanPrice = (plan: "ESSENTIALS" | "PREMIUM"): string => {
   return `₦${price.toLocaleString()}`;
 };
 
-/**
- * Helper function to get plan features
- */
-export const getPlanFeatures = (plan: "ESSENTIALS" | "PREMIUM"): string[] => {
+
+export const getPlanFeatures = (plan: "ESSENTIALS" | "PREMIUM") => {
   return PLAN_DETAILS[plan].features;
 };
 

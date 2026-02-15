@@ -5,6 +5,11 @@ import {
   PaymentTrend,
   RecentInvoice,
 } from "@/types/invoice";
+import {
+  DraftInvoiceResponse,
+  GetDraftResponse,
+  SendDraftErrorResponse,
+} from "@/types/draft";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -528,7 +533,42 @@ export class ApiClient {
     return this.request("DELETE", `/api/invoices/delete/${id}`);
   }
 
-  // Subscription Management APIs
+  static async saveDraft(formData: FormData): Promise<ApiResponse<DraftInvoiceResponse>> {
+    try {
+      const response = await axiosInstance.put("/api/invoices/draft", formData, {
+        headers: {
+          "Content-Type": undefined as any,
+        },
+        withCredentials: true,
+      });
+      return this.handleResponse<DraftInvoiceResponse>(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  static async getDraft(): Promise<ApiResponse<GetDraftResponse>> {
+    try {
+      const response = await axiosInstance.get("/api/invoices/draft", {
+        withCredentials: true,
+      });
+      return this.handleResponse<GetDraftResponse>(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  static async sendDraft(): Promise<ApiResponse<DraftInvoiceResponse | SendDraftErrorResponse>> {
+    try {
+      const response = await axiosInstance.post("/api/invoices/draft/send", {}, {
+        withCredentials: true,
+      });
+      return this.handleResponse<DraftInvoiceResponse>(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
   static async getCurrentSubscription() {
     return this.request("GET", "/api/subscriptions/current");
   }
@@ -655,7 +695,9 @@ export class ApiClient {
 
   // Business Profile APIs
   static async getBusinessProfile() {
-    return this.request("GET", "/api/settings/businessProfile");
+    return await axiosInstance.get("/api/settings/businessProfile",{
+      withCredentials : true
+    });
   }
 
   static async updateBusinessProfile(businessProfileData: {
@@ -766,32 +808,6 @@ export class ApiClient {
   // Utility methods for customer invoice operations
   static getStatusColor(status: string): string {
     switch (status.toLowerCase()) {
-      // <<<<<<< HEAD
-
-      //   static getDropdownOptions(status: string): Array<{ label: string; action: string }> {
-      //     const baseOptions = [
-      //       { label: "View Detail", action: "view" }
-      //     ];
-
-      //     const statusLower = status.toLowerCase();
-
-      //     if (statusLower === 'paid') {
-      //       return [
-      //         ...baseOptions,
-      //         { label: "View Receipt", action: "receipt" }
-      //       ];
-      //     } else if (statusLower === 'pending') {
-      //       // Pending invoices can only be viewed, no upload allowed
-      //       return baseOptions;
-      //     } else {
-      //       // Unpaid/Overdue invoices can upload receipt
-      //       return [
-      //         ...baseOptions,
-      //         { label: "Upload Receipt", action: "upload" }
-      //       ];
-      //     }
-      //   }
-      // =======
       case "paid":
         return "bg-green-100 text-green-700 border-green-200";
       case "pending":
@@ -808,7 +824,7 @@ export class ApiClient {
   ): Array<{ label: string; action: string }> {
     const baseOptions = [{ label: "View Detail", action: "view" }];
 
-    if (status.toLowerCase() === "paid") {
+    if (status.toLowerCase() !== "paid") {
       return [...baseOptions, { label: "View Receipt", action: "receipt" }];
     } else {
       return [...baseOptions, { label: "Upload Receipt", action: "upload" }];

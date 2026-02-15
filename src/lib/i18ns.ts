@@ -20,8 +20,7 @@ const resources = {
             logout: "Logout",
             sign_out: "Sign out",
             upgrade_now: "Upgrade Now",
-
-            /* ================= AUTH ================= */
+            premium_plan: "Premium Plan",
             email_address: "Email Address",
             password: "Password",
             full_name: "Full Name",
@@ -134,16 +133,21 @@ const resources = {
             description_label: "Description",
             enter_product_description: "Enter product description",
             quantity_label: "Quantity",
-            rate_label: "Rate ($)",
-            amount_label: "Amount ($)",
+            rate_label: "Rate (₦)",
+            amount_label: "Amount (₦)",
             saving: "Saving...",
             update_product: "Update Product",
             add_product_button: "Add Product",
             delete_button: "Delete",
             failed_to_save_product: "Failed to save product",
             unexpected_error: "An unexpected error occurred",
+            all_products: "All Products",
+            sort_by_name: "Sort by Name",
+            sort_by_category: "Sort by Category",
+            sort_by_quantity: "Sort by Quantity",
+            sort_by_rate: "Sort by Rate",
+            try_adjusting_search_products: "Try adjusting your search terms.",
 
-            /* ================= REPORTS & ANALYTICS ================= */
             total_invoiced: "Total Invoiced",
             payments_received_total: "Payments Received",
             outstanding_amount: "Outstanding Amount",
@@ -338,9 +342,9 @@ const resources = {
             igbo: "Igbo",
             yoruba: "Yorùbá",
 
-            /* ================= STATUS & STATES ================= */
             paid: "Paid",
             draft: "Draft",
+            draft_loaded: "Draft loaded",
             loading: "Loading...",
             error: "Error",
             success: "Success",
@@ -534,12 +538,106 @@ const resources = {
             cancel_plan_question: "Are you sure you want to cancel your plan? This action cannot be undone.",
             plan_cancelled_successfully: "Plan cancelled successfully!",
             failed_to_cancel_plan: "Failed to cancel plan. Please try again.",
+            invoices_received: 'Invoices Received',
+            
+            /* ================= DASHBOARD OVERVIEW ================= */
+            invoices_sent: "Invoices Sent",
+            sent_invoices: "Sent Invoices",
+            received_invoices: "Received Invoices",
+            total_invoice_received: "Total Invoice Received",
+            paid_invoice: "Paid Invoice",
+            pending_invoice: "Pending Invoice",
+            overdue_invoice: "Overdue Invoice",
+
+            /* ================= CUSTOMER DASHBOARD ================= */
+            welcome_back: "Welcome back",
+            invoices_from_business: "Here are all your invoices from",
+
+            serial_number: "S/N",
+            issued_by: "Issued By",
+            view_detail: "View Detail",
+            view_receipt: "View Receipt",
+            upload_receipt: "Upload Receipt",
+
+            /* ================= INVOICE DETAIL ================= */
+            back: "Back",
+            logo: "Logo",
+            bill_to: "Bill To",
+            bill_from: "Bill From",
+            invoice: "INVOICE",
+            invoice_date: "Invoice Date",
+            payment_terms: "Payment Terms",
+            item_detail: "Item Detail",
+            qty: "Qty",
+            sub_total: "Sub Total",
+            vat_label: "VAT",
+            wht_label: "WHT ",
+            total: "Total",
+            signature: "Signature",
+            note: "Note",
+            terms_of_payment: "Terms of Payment",
+            payment_method_bank: "Payment Method: Bank Transfer",
+            bank_name: "Bank Name:",
+            account_number: "Account Number",
+            account_name: "Account Name",
+            send: "Send",
+            download_pdf: "Download PDF",
+            unpaid: "Unpaid",
+
+            /* ================= UPLOAD RECEIPT ================= */
+            upload_payment_receipt: "Upload Payment Receipt",
+            upload_receipt_instructions: "Please upload proof of your payment so the business can review and confirm it. Supported files: JPG, PNG, PDF (max 10MB).",
+            pdf_document: "PDF Document",
+            upload_successful: "Upload Successful",
+            uploading: "Uploading...",
+            completed: "Completed",
+            failed: "Failed",
+            drag_drop_upload: "Drag & drop or click to upload",
+            browse_file: "Browse File",
+            save: "Save",
+
+            /* ================= INVOICE CREATION ================= */
+            invoice_items: "Invoice Items",
+            add_item: "Add Item",
+            item_description: "Item/Description",
+            item_name: "Item name",
+            from_products: "From Products",
+            no_items_added: "No items added yet",
+            select_products: "Select Products",
+            search_products: "Search products...",
+            no_products_found: "No products found",
+            invoice_taxes: "Invoice Taxes",
+            no_taxes_available: "No taxes available",
+            total_tax_amount: "Total Tax Amount:",
+            subtotal_plus_taxes: "Subtotal + Taxes:",
+            individual_rate: "individual rate",
+            business_rate: "business rate",
+            on: "on",
+
+            /* ================= COLOR PICKER ================= */
+            select_color: "Select Color",
+            color_picker: "Color Picker",
+            saved_colors: "Saved colors:",
+            hex: "Hex",
+            rgb: "RGB",
+            hsl: "HSL",
+
+            /* ================= COMPLETE PROFILE ================= */
+            complete_profile: "Complete Your Profile",
+            provide_phone_registration: "Please provide your phone number to complete your registration",
+            phone_updated_success: "Phone number updated successfully!",
+            failed_update_phone: "Failed to update phone number",
+            invalid_phone_number: "Invalid phone number",
+            updating: "Updating...",
+            skip_for_now: "Skip for now",
         }
     },
     yo: {
         translation: {
             /* ================= NAVIGATION & HEADER ================= */
             home: "Ilé",
+            overdue:'Ó ti kọjá ọjọ́',
+            invoices_received:'Ìn\'vóìsì tí a gbà',
             features: "Àwọn Ohunèlò",
             about_us: "Nípa Wa",
             pricing: "Iye Owó",
@@ -553,6 +651,7 @@ const resources = {
             logout: "Jáde",
             sign_out: "Jáde kúrò",
             upgrade_now: "Mú iṣẹ́ rẹ sunwọ̀n sí i",
+            premium_plan: "Ètò Àràbarà",
 
             /* ================= AUTH ================= */
             email_address: "Àdírẹ́sì Ímèlì",
@@ -666,22 +765,27 @@ const resources = {
             description_label: "Àpèjúwe",
             enter_product_description: "Tẹ àpèjúwe ọjà",
             quantity_label: "Iye",
-            rate_label: "Iye Owó ($)",
-            amount_label: "Àpapọ̀ Owó ($)",
+            rate_label: "Iye Owó (₦)",
+            amount_label: "Àpapọ̀ Owó (₦)",
             saving: "À n fipamọ́...",
             update_product: "Mú Ọjà ṣe àtúnṣe",
             add_product_button: "Fi Ọjà kún un",
             delete_button: "Parẹ́",
-            failed_to_save_product: "A kò lè fipamọ́ ọjà náà",
-            unexpected_error: "Àṣìṣe tí a kò retí wáyé",
-
-            /* ================= REPORTS & ANALYTICS ================= */
+            failed_to_save_product: "Kò ṣe é fipamọ́ ọjà",
+            unexpected_error: "Àṣìṣe àìrò tẹ́lẹ̀ ṣẹlẹ̀",
+            all_products: "Gbogbo Àwọn Ọjà",
+            search_products: "Wá àwọn ọjà",
+            sort_by_name: "Tò gẹ́gẹ́ bí Orúkọ",
+            sort_by_category: "Tò gẹ́gẹ́ bí Ẹ̀ka",
+            sort_by_quantity: "Tò gẹ́gẹ́ bí Iye",
+            sort_by_rate: "Tò gẹ́gẹ́ bí Iye Owó",
+            no_products_found: "A kò rí ọjà kankan",
+            try_adjusting_search_products: "Gbìyànjú láti ṣàtúnṣe àwọn ọ̀rọ̀ wíwá rẹ.",
             total_invoiced: "Àpapọ̀ Ìn'vóìsì",
             payments_received_total: "Àpapọ̀ Owó tí a gbà",
             outstanding_amount: "Owó tó ṣẹ́ kù",
             pending: "Tó n dúró",
             overdue_amount: "Owó tó ti kọjá ọjọ́",
-            overdue: "Ó ti kọjá ọjọ́",
 
             /* ================= NOTIFICATIONS ================= */
             notifications: "Àwọn Ìfitónilétí",
@@ -873,6 +977,7 @@ const resources = {
             /* ================= STATUS & STATES ================= */
             paid: "Ti sán",
             draft: "Àkọsílẹ̀",
+            draft_loaded: "A ti gbé àkọsílẹ̀ wọlé",
             loading: "À n gbé e jáde...",
             error: "Àṣìṣe",
             success: "Àṣeyọrí",
@@ -1066,12 +1171,105 @@ const resources = {
             cancel_plan_question: "Ṣé o dá ọ lójú pé o fẹ́ fagílé ètò rẹ? A kò lè dá iṣẹ́ yìí padà.",
             plan_cancelled_successfully: "A ti fagílé ètò ní àṣeyọrí!",
             failed_to_cancel_plan: "A kò lè fagílé ètò. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan sí i.",
+
+            /* ================= CUSTOMER DASHBOARD ================= */
+            welcome_back: "Káàbọ̀ padà,",
+            invoices_from_business: "Wọ̀nyí ni gbogbo ìn'vóìsì rẹ látọ̀dọ̀.",
+            total_invoice_received: "Àpapọ̀ Ìn'vóìsì Tí a Gbà",
+            paid_invoice: "Ìn'vóìsì Tí a Ti Sanwó",
+            pending_invoice: "Ìn'vóìsì Tó N Dúró",
+            overdue_invoice: "Ìn'vóìsì Tó Ti Kọjá Ọjọ́",
+            serial_number: "S/N",
+            issued_by: "Ẹni Tó Dá a",
+            view_detail: "Wo Àlàyé",
+            view_receipt: "Wo Ìwé-ẹ̀rí",
+            upload_receipt: "Gbé Ìwé-ẹ̀rí Wọlé",
+
+            /* ================= INVOICE DETAIL ================= */
+            back: "Padà",
+            logo: "Àmì",
+            bill_to: "Fún",
+            bill_from: "Látọ̀dọ̀",
+            invoice: "ÌN'VÓÌSÌ",
+            invoice_date: "Ọjọ́ Ìn'vóìsì",
+            payment_terms: "Ìlànà Ìsanwó",
+            item_detail: "Àlàyé Ohun",
+            qty: "Iye",
+            sub_total: "Àpapọ̀ Àkọ́kọ́",
+            vat_label: "VAT",
+            wht_label: "WHT",
+            total: "Àpapọ̀",
+            signature: "Ìbọwọ́lù",
+            note: "Àkíyèsí",
+            terms_of_payment: "Ìlànà Ìsanwó",
+            payment_method_bank: "Ọ̀nà Ìsanwó: Ìfowópamọ́ Báǹkì",
+            bank_name: "Orúkọ Báǹkì:",
+            account_number: "Nọ́mbà Àkáǹtì",
+            account_name: "Orúkọ Àkáǹtì",
+            send: "Fi Ránṣẹ́",
+            download_pdf: "Gbé PDF Sílẹ̀",
+            unpaid: "A Kò Tíì Sanwó",
+
+            /* ================= UPLOAD RECEIPT ================= */
+            upload_payment_receipt: "Gbé Ìwé-ẹ̀rí Ìsanwó Wọlé",
+            upload_receipt_instructions: "Jọ̀wọ́ gbé ẹ̀rí ìsanwó rẹ wọlé kí iléeṣẹ́ lè ṣàyẹ̀wò kí ó sì jẹ́rìísí rẹ̀. Àwọn fáìlì tí a gbà: JPG, PNG, PDF (títí dé 10MB).",
+            pdf_document: "Ìwé PDF",
+            upload_successful: "Gbígbé Wọlé Yọrí",
+            uploading: "À n gbé wọlé...",
+            completed: "Parí",
+            failed: "Kùnà",
+            drag_drop_upload: "Fà kí o sì jù tàbí tẹ láti gbé wọlé",
+            browse_file: "Wá Fáìlì",
+            save: "Fipamọ́",
+
+            /* ================= INVOICE CREATION ================= */
+            invoice_items: "Àwọn Ohun Ìn'vóìsì",
+            add_item: "Fi Ohun Kún un",
+            item_description: "Ohun/Àpèjúwe",
+            item_name: "Orúkọ ohun",
+            from_products: "Látọ̀dọ̀ Àwọn Ọjà",
+            no_items_added: "A kò tíì fi ohun kankan kún un",
+            select_products: "Yan Àwọn Ọjà",
+            search_products: "Wá àwọn ọjà...",
+            no_products_found: "A kò rí ọjà kankan",
+            invoice_taxes: "Àwọn Owó-orí Ìn'vóìsì",
+            no_taxes_available: "Kò sí owó-orí kankan",
+            total_tax_amount: "Àpapọ̀ Owó-orí:",
+            subtotal_plus_taxes: "Àpapọ̀ Àkọ́kọ́ + Owó-orí:",
+            individual_rate: "ìdíyelé ẹnìkọ̀ọ̀kan",
+            business_rate: "ìdíyelé iléeṣẹ́",
+            on: "lórí",
+
+            /* ================= COLOR PICKER ================= */
+            select_color: "Yan Àwọ̀",
+            color_picker: "Olùyàn Àwọ̀",
+            saved_colors: "Àwọn àwọ̀ tí a fipamọ́:",
+            hex: "Hex",
+            rgb: "RGB",
+            hsl: "HSL",
+
+            /* ================= COMPLETE PROFILE ================= */
+            complete_profile: "Parí Àkọsílẹ̀ Rẹ",
+            provide_phone_registration: "Jọ̀wọ́ pèsè nọ́mbà tẹlifóònù rẹ láti parí ìforúkọsílẹ̀ rẹ",
+            phone_updated_success: "A ti mú nọ́mbà tẹlifóònù ṣe àtúnṣe ní àṣeyọrí!",
+            failed_update_phone: "A kò lè mú nọ́mbà tẹlifóònù ṣe àtúnṣe",
+            invalid_phone_number: "Nọ́mbà tẹlifóònù kò tọ́",
+            updating: "À n mú ṣe àtúnṣe...",
+            skip_for_now: "Fò ó sílẹ̀ fún ìsinsin yìí",
+            
+            /* ================= DASHBOARD OVERVIEW ================= */
+            invoices_sent: "Àwọn Ìn'vóìsì tí a fi ránṣẹ́",
+            sent_invoices: "Ìn'vóìsì tí a fi ránṣẹ́",
+            received_invoices: "Ìn'vóìsì tí a gbà",
+           
         }
     },
     ig: {
         translation: {
             /* ================= NAVIGATION & HEADER ================= */
             home: "Ulo",
+            overdue:'Oge agafeelụ',
+            invoices_received:'Invois a nwetara',
             features: "Atụmatụ",
             about_us: "Gbasara Anyị",
             pricing: "Ọnụ Ahịa",
@@ -1085,6 +1283,7 @@ const resources = {
             logout: "Pụọ",
             sign_out: "Pụọ n'akaụntụ",
             upgrade_now: "Melite Ugbu a",
+            premium_plan: "Atụmatụ Premium",
 
             /* ================= AUTH ================= */
             email_address: "Adreesị Email",
@@ -1198,22 +1397,27 @@ const resources = {
             description_label: "Nkọwa",
             enter_product_description: "Tinye nkọwa ngwa ahịa",
             quantity_label: "Ọnụ ọgụgụ",
-            rate_label: "Ọnụ ahịa ($)",
-            amount_label: "Ego niile ($)",
-            saving: "Ọ na-echekwa...",
+            rate_label: "Ọnụ ahịa (₦)",
+            amount_label: "Ego niile (₦)",
+            saving: "Na-echekwa...",
             update_product: "Melite ngwa ahịa",
             add_product_button: "Tinye ngwa ahịa",
             delete_button: "Hichapụ",
-            failed_to_save_product: "Enweghị ike ichekwa ngwa ahịa",
-            unexpected_error: "Nsogbu na-atụghị anya anya emeela",
-
-            /* ================= REPORTS & ANALYTICS ================= */
+            failed_to_save_product: "Enweghị ike ịchekwa ngwa ahịa",
+            unexpected_error: "Njehie na-atụghị anya anya mere",
+            all_products: "Ngwa Ahịa Niile",
+            search_products: "Chọọ ngwa ahịa",
+            sort_by_name: "Hazie site na Aha",
+            sort_by_category: "Hazie site na Ụdị",
+            sort_by_quantity: "Hazie site na Ọnụ ọgụgụ",
+            sort_by_rate: "Hazie site na Ọnụ ahịa",
+            no_products_found: "Achọtaghị ngwa ahịa ọ bụla",
+            try_adjusting_search_products: "Gbalịa ịhazigharị okwu ọchụchọ gị.",
             total_invoiced: "Invois niile",
             payments_received_total: "Ego niile a nwetara",
             outstanding_amount: "Ego fọdụrụnụ",
             pending: "Na-eche",
             overdue_amount: "Ego gachara oge",
-            overdue: "Gachara oge",
 
             /* ================= NOTIFICATIONS ================= */
             notifications: "Ịma Ọkwa",
@@ -1402,9 +1606,9 @@ const resources = {
             igbo: "Igbo",
             yoruba: "Yorùbá",
 
-            /* ================= STATUS & STATES ================= */
             paid: "A kwụọla",
             draft: "Ihe e dere ede",
+            draft_loaded: "E bubatala ihe e dere ede",
             loading: "Ọ na-abata...",
             error: "Nsogbu",
             success: "Ọ gara nke ọma",
@@ -1598,12 +1802,23 @@ const resources = {
             cancel_plan_question: "Ị ji n'aka na ị chọrọ ikagbu atụmatụ gị? Enweghị ike ịlaghachi omume a.",
             plan_cancelled_successfully: "E kagbuola atụmatụ nke ọma!",
             failed_to_cancel_plan: "Enweghị ike ikagbu atụmatụ. Biko nwaa ọzọ.",
+            
+            /* ================= DASHBOARD OVERVIEW ================= */
+            invoices_sent: "Invois E Zigara",
+            sent_invoices: "Invois E Zigara",
+            received_invoices: "Invois E Natara",
+            total_invoice_received: "Ngụkọta Invois E Natara",
+            paid_invoice: "Invois A Kwụrụ Ụgwọ",
+            pending_invoice: "Invois Na-eche",
+            overdue_invoice: "Invois Gafere Oge",
         }
     },
     ha: {
         translation: {
             /* ================= NAVIGATION & HEADER ================= */
             home: "Gida",
+            overdue:'Ya wuce kwanan wata',
+            invoices_received:'Invois-invois da aka karɓa',
             features: "Abubuwan Musamman",
             about_us: "Game da Mu",
             pricing: "Farashi",
@@ -1617,6 +1832,7 @@ const resources = {
             logout: "Fita",
             sign_out: "Fita Daga Akanti",
             upgrade_now: "Haɓaka Yanzu",
+            premium_plan: "Tsarin Premium",
 
             /* ================= AUTH ================= */
             email_address: "Adireshin Imel",
@@ -1730,24 +1946,28 @@ const resources = {
             description_label: "Bayani",
             enter_product_description: "Shigar da bayanin kayayyaki",
             quantity_label: "Adadi",
-            rate_label: "Farashin Ɗaya ($)",
-            amount_label: "Jimillar Kuɗi ($)",
+            unexpected_error: "Kuskure da ba a zata ba ya faru",
+            all_products: "Duk Kayayyaki",
+            search_products: "Nemo kayayyaki",
+            sort_by_name: "Jera ta Suna",
+            sort_by_category: "Jera ta Nau'i",
+            sort_by_quantity: "Jera ta Adadi",
+            sort_by_rate: "Jera ta Farashin Ɗaya",
+            no_products_found: "Ba a sami kayayyaki ba",
+            try_adjusting_search_products: "Gwada gyara kalmomin bincike.",
+            rate_label: "Farashin Ɗaya (₦)",
+            amount_label: "Jimillar Kuɗi (₦)",
             saving: "Ana adanawa...",
             update_product: "Sabunta Kayayyaki",
             add_product_button: "Ƙara Kayayyaki",
             delete_button: "Goge",
             failed_to_save_product: "An kasa adana kayayyaki",
-            unexpected_error: "An samu matsala da ba a zata ba",
 
-            /* ================= REPORTS & ANALYTICS ================= */
             total_invoiced: "Jimillar Invois",
             payments_received_total: "Jimillar Kuɗin da aka Karba",
             outstanding_amount: "Kuɗin da ya Rage",
             pending: "Yana jiran aiki",
             overdue_amount: "Kuɗin da ya wuce kwanan wata",
-            overdue: "Ya wuce kwanan wata",
-
-            /* ================= NOTIFICATIONS ================= */
             notifications: "Sanarwa",
             stay_updated: "Kasance da masaniya kan harkokin invois, biyan kuɗi, da gargadin akanti.",
             all: "Duka",
@@ -1931,6 +2151,7 @@ const resources = {
 
             paid: "An Biya",
             draft: "Draft",
+            draft_loaded: "An loda draft",
             loading: "Ana loda...",
             error: "An samu matsala",
             success: "An yi nasara",
@@ -2123,6 +2344,15 @@ const resources = {
             cancel_plan_question: "Ka tabbata kana son soke tsarin ka? Ba za a iya mayar da wannan aikin ba.",
             plan_cancelled_successfully: "An soke tsarin cikin nasara!",
             failed_to_cancel_plan: "An kasa soke tsarin. Don Allah sake gwadawa.",
+            
+            /* ================= DASHBOARD OVERVIEW ================= */
+            invoices_sent: "Invois-invois da aka Aika",
+            sent_invoices: "Invois da aka Aika",
+            received_invoices: "Invois-invois da aka Karɓa",
+            total_invoice_received: "Jimillar Invois da aka Karɓa",
+            paid_invoice: "Invois da aka Biya",
+            pending_invoice: "Invois da ke Jiran Aiki",
+            overdue_invoice: "Invois da ya Wuce Kwanan Wata",
         }
     }
 }
