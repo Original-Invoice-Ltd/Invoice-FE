@@ -29,6 +29,8 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [modalType, setModalType] = useState<ModalType>(null);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
+  const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
   const { showError, hideToast, toast } = useToast()
   const totalPages = 99;
 
@@ -128,6 +130,21 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
     // TODO: Implement get link functionality
   };
 
+  const handleViewReceipt = async (payment: Payment) => {
+    try {
+      const response = await ApiClient.getPaymentEvidenceUrl(payment.id);
+      if (response.status === 200 && response.data) {
+        setReceiptUrl(response.data);
+        setShowReceiptModal(true);
+      } else {
+        showError('No receipt found for this payment');
+      }
+    } catch (error) {
+      showError('Failed to load receipt');
+      console.error('Error loading receipt:', error);
+    }
+  };
+
   const handleDelete = (payment: Payment) => {
     setPayments(payments.filter(p => p.id !== payment.id));
   };
@@ -202,6 +219,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
             onEmail={handleEmail}
             onGetLink={handleGetLink}
             onDelete={handleDelete}
+            onViewReceipt={handleViewReceipt}
           />
 
           <Pagination
@@ -227,6 +245,43 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
             }
           }}
         />
+      )}
+
+      {showReceiptModal && receiptUrl && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h2 className="text-lg font-semibold">Payment Receipt</h2>
+              <button
+                onClick={() => {
+                  setShowReceiptModal(false);
+                  setReceiptUrl(null);
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            <div className="p-4">
+              <img 
+                src={receiptUrl} 
+                alt="Payment Receipt" 
+                className="w-full h-auto"
+                onError={(e) => {
+                  // If image fails to load, try to open as PDF or other file
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const iframe = document.createElement('iframe');
+                  iframe.src = receiptUrl;
+                  iframe.className = 'w-full h-[70vh]';
+                  target.parentElement?.appendChild(iframe);
+                }}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
