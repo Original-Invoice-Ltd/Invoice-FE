@@ -1128,7 +1128,7 @@ const CreateInvoicePage = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-[14px] font-medium text-[#344054] mb-2">
-                                                    Invoice Number
+                                                    Invoice Title
                                                 </label>
                                                 <input
                                                     type="text"
@@ -1731,7 +1731,7 @@ const CreateInvoicePage = () => {
 
                         </div>
                     </div>
-                    <div className="flex flex-col md:hidden w-full  justify-center items-center bg-white pt-3 px-3 text-center">
+                    <div className="flex flex-col md:hidden w-full pb-12 justify-center items-center bg-white pt-5 px-3 text-center">
                         <div className="flex flex-row gap-4 w-full mb-4">
                             <Link href="/dashboard/invoices" className="w-[50%] px-8 py-3 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50 text-[14px] font-medium">
                                 Cancel

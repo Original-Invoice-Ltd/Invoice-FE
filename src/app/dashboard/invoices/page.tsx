@@ -21,7 +21,6 @@ const InvoicesPage = () => {
     const [sortBy, setSortBy] = useState("date");
     const [invoices, setInvoices] = useState<InvoiceResponse[]>([]);
     const [loading, setLoading] = useState(true);
-    // const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
 
@@ -469,7 +468,6 @@ const InvoicesPage = () => {
                     </div>
                 ) : (
                     <>
-                        {/* Search Bar */}
                         <div className="px-6 py-4 border-b border-[#E4E7EC]">
                             <div className="relative w-64 ml-auto">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#98A2B3]" size={18} />
