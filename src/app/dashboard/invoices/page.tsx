@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { Plus, Search, MoreHorizontal, Eye, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 
@@ -20,16 +21,18 @@ const InvoicesPage = () => {
     const [sortBy, setSortBy] = useState("date");
     const [invoices, setInvoices] = useState<InvoiceResponse[]>([]);
     const [loading, setLoading] = useState(true);
-    // const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
-    
+
     // Received invoices state
     const [receivedSearchTerm, setReceivedSearchTerm] = useState("");
     const [receivedInvoices, setReceivedInvoices] = useState<any[]>([]);
     const [receivedLoading, setReceivedLoading] = useState(true);
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-    
+    const [openMainDropdown, setOpenMainDropdown] = useState<string | null>(null);
+    const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
+    const [receivedDropdownPosition, setReceivedDropdownPosition] = useState<{ top: number; right: number } | null>(null);
+
     const [deleteModal, setDeleteModal] = useState<{
         isOpen: boolean;
         invoice: InvoiceResponse | null;
@@ -41,7 +44,7 @@ const InvoicesPage = () => {
         isLoading: false,
         error: null
     });
-    
+
     const fetchInvoices = useCallback(async () => {
         try {
             setLoading(true);
@@ -61,7 +64,7 @@ const InvoicesPage = () => {
             setLoading(false);
         }
     }, [showError, user?.id]);
-    
+
     const fetchReceivedInvoices = useCallback(async () => {
         try {
             setReceivedLoading(true);
@@ -75,14 +78,60 @@ const InvoicesPage = () => {
             setReceivedLoading(false);
         }
     }, [user?.email]);
-    
+
     useEffect(() => {
         refreshUser();
         fetchInvoices();
         fetchReceivedInvoices();
     }, [fetchInvoices, fetchReceivedInvoices, refreshUser]);
 
-   
+    // Close dropdowns when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as HTMLElement;
+            if (!target.closest('[data-dropdown-trigger]') && !target.closest('[data-dropdown-menu]')) {
+                setOpenMainDropdown(null);
+                setOpenDropdown(null);
+                setDropdownPosition(null);
+                setReceivedDropdownPosition(null);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleMainDropdownToggle = (invoiceId: string, event: React.MouseEvent<HTMLButtonElement>) => {
+        if (openMainDropdown === invoiceId) {
+            setOpenMainDropdown(null);
+            setDropdownPosition(null);
+        } else {
+            const button = event.currentTarget;
+            const rect = button.getBoundingClientRect();
+            setDropdownPosition({
+                top: rect.bottom + window.scrollY,
+                right: window.innerWidth - rect.right + window.scrollX
+            });
+            setOpenMainDropdown(invoiceId);
+        }
+    };
+
+    const handleReceivedDropdownToggle = (invoiceId: string, event: React.MouseEvent<HTMLButtonElement>) => {
+        if (openDropdown === invoiceId) {
+            setOpenDropdown(null);
+            setReceivedDropdownPosition(null);
+        } else {
+            const button = event.currentTarget;
+            const rect = button.getBoundingClientRect();
+            setReceivedDropdownPosition({
+                top: rect.bottom + window.scrollY,
+                right: window.innerWidth - rect.right + window.scrollX
+            });
+            setOpenDropdown(invoiceId);
+        }
+    };
+
+
 
 
     // Filter and sort invoices
@@ -199,11 +248,10 @@ const InvoicesPage = () => {
                 isVisible={toast.isVisible}
                 onClose={hideToast}
             />
-            {/* Header */}
-            <div className="mb-6 flex items-start justify-between">
-                <div>
+            <div className="mb-6 flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0">
+                <div className="flex flex-col justify-between w-full h-full items-start ">
                     <h1 className="text-[20px] font-semibold text-[#101828] mb-1">{t('invoice_management')}</h1>
-                    <p className="text-[14px] text-[#667085]">
+                    <p className="flex md:text-[14px] text-[#667085]">
                         {t('invoice_management_desc')}
                     </p>
                 </div>
@@ -217,26 +265,24 @@ const InvoicesPage = () => {
                 </Link>
             </div>
 
-            {/* All Invoices Section */}
             <div className="bg-white rounded-lg border border-[#E4E7EC]">
-                {/* Header with Search */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4E7EC]">
-                    <h2 className="text-[18px] font-semibold text-[#101828]">{t('all_invoices')}</h2>
+                <div className="flex items-center justify-between px-3 sm:px-6 py-4 border-b border-[#E4E7EC]">
+                    <h2 className="text-[1rem] md:text-[18px] font-semibold text-[#101828]">{t('all_invoices')}</h2>
                     <div className="flex items-center gap-3">
-                        <div className="relative w-64">
+                        <div className="relative w-full md:w-64">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#98A2B3]" size={18} />
                             <input
                                 type="text"
                                 placeholder={t('search_clients')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#667085] placeholder:text-[#98A2B3] bg-white focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                className="max-w-[200px] sm:max-w-full sm:w-full pl-10 pr-4 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#667085] placeholder:text-[#98A2B3] bg-white focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                             />
                         </div>
                         <select
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value)}
-                            className="px-4 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#667085] bg-white focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                            className="hidden md:flex px-4 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#667085] bg-white focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                         >
                             <option value="date">{t('sort_by_date')}</option>
                             <option value="amount">{t('sort_by_amount')}</option>
@@ -246,12 +292,7 @@ const InvoicesPage = () => {
                     </div>
                 </div>
 
-
-                {/* {error && (
-                    <div className="px-6 py-4 bg-red-50 border-b border-red-200">
-                        <p className="text-red-600 text-sm">{error}</p>
-                    </div>
-                )} */}
+           
 
                 {paginatedInvoices.length === 0 ? (
                     /* Empty State */
@@ -274,7 +315,7 @@ const InvoicesPage = () => {
                             }
                         </p>
                         {!searchQuery && (
-                             <Link
+                            <Link
                                 href="/dashboard/invoices/create"
                                 className="flex items-center gap-2 px-6 py-3 bg-transparent border-2 border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-[#EFF8FF] transition-colors text-[16px] font-medium"
                             >
@@ -286,95 +327,64 @@ const InvoicesPage = () => {
                     </div>
                 ) : (
                     <>
-                        {/* Table Header */}
-                        <div className="px-6 py-3 bg-[#F9FAFB] border-b border-[#E4E7EC]">
-                            <div className="grid grid-cols-8 gap-4 text-[12px] font-medium text-[#667085] uppercase tracking-wide">
-                                <div>{t('date')}</div>
-                                <div>{t('client_name')}</div>
-                                <div>{t('invoice_id')}</div>
-                                <div>{t('status')}</div>
-                                <div>{t('due_date')}</div>
-                                <div>{t('amount')}</div>
-                                <div>{t('balance_due')}</div>
-                                <div></div>
-                            </div>
-                        </div>
+                        <div className="overflow-x-auto overflow-y-visible  relative">
+                            <div className="min-w-[800px]">
+                                <div className="px-6 py-3 bg-[#F9FAFB] border-b border-[#E4E7EC]">
+                                    <div className="grid grid-cols-8 gap-4 text-[12px] font-medium text-[#667085] uppercase tracking-wide">
+                                        <div>{t('date')}</div>
+                                        <div>{t('client_name')}</div>
+                                        <div>{t('invoice_id')}</div>
+                                        <div>{t('status')}</div>
+                                        <div>{t('due_date')}</div>
+                                        <div>{t('amount')}</div>
+                                        <div>{t('balance_due')}</div>
+                                        <div></div>
+                                    </div>
+                                </div>
 
-                        {/* Table Body */}
-                        <div className="divide-y divide-[#E4E7EC]">
-                            {paginatedInvoices.map((invoice) => (
-                                <div key={invoice.id} className="px-6 py-4 hover:bg-[#F9FAFB] transition-colors">
-                                    <div className="grid grid-cols-8 gap-4 items-center">
-                                        <div className="text-[14px] text-[#101828]">
-                                            {invoice.creationDate ? formatDate(invoice.creationDate) : 'N/A'}
-                                        </div>
-                                        <div className="text-[14px] text-[#101828] font-medium">
-                                            {invoice.billTo?.businessName || invoice.billTo?.fullName || 'N/A'}
-                                        </div>
-                                        <div className="text-[14px] text-[#101828] font-mono">
-                                            {invoice.invoiceNumber || 'N/A'}
-                                        </div>
-                                        <div>
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(invoice.status)}`}>
-                                                {invoice.status || 'Unknown'}
-                                            </span>
-                                        </div>
-                                        <div className="text-[14px] text-[#101828]">
-                                            {invoice.dueDate ? formatDate(invoice.dueDate) : 'N/A'}
-                                        </div>
-                                        <div className="text-[14px] text-[#101828] font-medium">
-                                            {formatCurrency(invoice.totalDue || 0, invoice.currency)}
-                                        </div>
-                                        <div className="text-[14px] text-[#101828] font-medium">
-                                            {formatCurrency(invoice.totalDue || 0, invoice.currency)}
-                                        </div>
-                                        <div className="flex items-center justify-end">
-                                            <div className="relative group">
-                                                <button className="p-2 hover:bg-[#F2F4F7] rounded-lg transition-colors">
-                                                    <MoreHorizontal size={16} className="text-[#667085]" />
-                                                </button>
-                                                <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-[#E4E7EC] rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                                                    <div className="py-1">
-                                                        <Link
-                                                            href={`/dashboard/invoices/${invoice.id}`}
-                                                            className="flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors"
-                                                        >
-                                                            <Eye size={16} />
-                                                            {t('view_invoice')}
-                                                        </Link>
-                                                        <Link
-                                                            href={`/dashboard/invoices/edit/${invoice.id}`}
-                                                            className={`flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors 
-                                                                ${invoice.status.toLowerCase() === "unpaid"? '' : 'hidden'}`}
-                                                        >
-                                                            <Edit size={16} />
-                                                            {t('edit_invoice')}
-                                                        </Link>
-                                                        <Link
-                                                            href={`/dashboard/invoices/edit/${invoice.id}`}
-                                                            className={`flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors 
-                                                                ${invoice.status.toLowerCase() === "overdue"? '' : 'hidden'}`}
-                                                        >
-                                                            <Edit size={16} />
-                                                            {t('overdue')}
-                                                        </Link>
-                                                        <button
-                                                            onClick={() => handleDeleteInvoice(invoice)}
-                                                            className="flex items-center gap-2 px-4 py-2 text-[14px] text-[#D92D20] hover:bg-[#FEF3F2] transition-colors w-full text-left"
-                                                        >
-                                                            <Trash2 size={16} />
-                                                            {t('delete_invoice')}
-                                                        </button>
-                                                    </div>
+                                <div className="divide-y divide-[#E4E7EC]">
+                                    {paginatedInvoices.map((invoice) => (
+                                        <div key={invoice.id} className="px-6 py-4 hover:bg-[#F9FAFB] transition-colors">
+                                            <div className="grid grid-cols-8 gap-4 items-center">
+                                                <div className="text-[14px] text-[#101828]">
+                                                    {invoice.creationDate ? formatDate(invoice.creationDate) : 'N/A'}
+                                                </div>
+                                                <div className="text-[14px] text-[#101828] font-medium w-[70px] truncate text-nowrap">
+                                                    {invoice.billTo?.businessName || invoice.billTo?.fullName || 'N/A'}
+                                                </div>
+                                                <div className="text-[14px] text-[#101828] font-mono">
+                                                    {invoice.invoiceNumber || 'N/A'}
+                                                </div>
+                                                <div>
+                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(invoice.status)}`}>
+                                                        {invoice.status || 'Unknown'}
+                                                    </span>
+                                                </div>
+                                                <div className="text-[14px] text-[#101828]">
+                                                    {invoice.dueDate ? formatDate(invoice.dueDate) : 'N/A'}
+                                                </div>
+                                                <div className="text-[14px] text-[#101828] font-medium">
+                                                    {formatCurrency(invoice.totalDue || 0, invoice.currency)}
+                                                </div>
+                                                <div className="text-[14px] text-[#101828] font-medium">
+                                                    {formatCurrency(invoice.totalDue || 0, invoice.currency)}
+                                                </div>
+                                                <div className="flex items-center justify-end">
+                                                    <button
+                                                        data-dropdown-trigger
+                                                        className="p-2 hover:bg-[#F2F4F7] rounded-lg transition-colors"
+                                                        onClick={(e) => handleMainDropdownToggle(invoice.id, e)}
+                                                    >
+                                                        <MoreHorizontal size={16} className="text-[#667085]" />
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    ))}
                                 </div>
-                            ))}
+                            </div>
                         </div>
 
-                        {/* Pagination */}
                         {totalPages > 1 && (
                             <div className="flex items-center justify-center px-6 py-4 border-t border-[#E4E7EC]">
                                 <div className="flex items-center gap-2">
@@ -384,7 +394,7 @@ const InvoicesPage = () => {
                                         className="p-2 text-[#667085] hover:text-[#101828] disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                            <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round"/>
+                                            <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
                                     </button>
 
@@ -404,11 +414,10 @@ const InvoicesPage = () => {
                                             <button
                                                 key={pageNum}
                                                 onClick={() => setCurrentPage(pageNum)}
-                                                className={`w-10 h-10 rounded-lg text-[14px] font-medium transition-colors ${
-                                                    currentPage === pageNum
-                                                        ? 'bg-[#2F80ED] text-white'
-                                                        : 'text-[#667085] hover:bg-[#F9FAFB] hover:text-[#101828]'
-                                                }`}
+                                                className={`w-10 h-10 rounded-lg text-[14px] font-medium transition-colors ${currentPage === pageNum
+                                                    ? 'bg-[#2F80ED] text-white'
+                                                    : 'text-[#667085] hover:bg-[#F9FAFB] hover:text-[#101828]'
+                                                    }`}
                                             >
                                                 {pageNum}
                                             </button>
@@ -433,7 +442,7 @@ const InvoicesPage = () => {
                                         className="p-2 text-[#667085] hover:text-[#101828] disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                            <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round"/>
+                                            <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
                                     </button>
                                 </div>
@@ -443,7 +452,6 @@ const InvoicesPage = () => {
                 )}
             </div>
 
-            {/* Received Invoices Section */}
             <div className="bg-white rounded-lg border border-[#E4E7EC] mt-8">
                 <div className="px-6 py-4 border-b border-[#E4E7EC]">
                     <h2 className="text-[18px] font-semibold text-[#101828]">Received Invoices</h2>
@@ -460,7 +468,6 @@ const InvoicesPage = () => {
                     </div>
                 ) : (
                     <>
-                        {/* Search Bar */}
                         <div className="px-6 py-4 border-b border-[#E4E7EC]">
                             <div className="relative w-64 ml-auto">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#98A2B3]" size={18} />
@@ -474,84 +481,172 @@ const InvoicesPage = () => {
                             </div>
                         </div>
 
-                        {/* Table Header */}
-                        <div className="px-6 py-3 bg-[#F9FAFB] border-b border-[#E4E7EC]">
-                            <div className="grid grid-cols-8 gap-4 text-[12px] font-medium text-[#667085] uppercase tracking-wide">
-                                <div>S/N</div>
-                                <div>Date</div>
-                                <div>Issued By</div>
-                                <div>Invoice ID</div>
-                                <div>Status</div>
-                                <div>Due Date</div>
-                                <div>Amount</div>
-                                <div>Actions</div>
-                            </div>
-                        </div>
+                        <div className="overflow-x-auto overflow-y-visible relative">
+                            <div className="min-w-[800px]">
+                                <div className="px-6 py-3 bg-[#F9FAFB] border-b border-[#E4E7EC]">
+                                    <div className="grid grid-cols-8 gap-4 text-[12px] font-medium text-[#667085] uppercase tracking-wide">
+                                        <div>S/N</div>
+                                        <div>Date</div>
+                                        <div>Issued By</div>
+                                        <div>Invoice ID</div>
+                                        <div>Status</div>
+                                        <div>Due Date</div>
+                                        <div>Amount</div>
+                                        <div>Actions</div>
+                                    </div>
 
-                        {/* Table Body */}
-                        <div className="divide-y divide-[#E4E7EC]">
-                            {receivedInvoices
-                                .filter(invoice =>
-                                    invoice.billFrom.fullName.toLowerCase().includes(receivedSearchTerm.toLowerCase()) ||
-                                    invoice.invoiceNumber.toLowerCase().includes(receivedSearchTerm.toLowerCase())
-                                )
-                                .map((invoice, index) => (
-                                    <div key={invoice.id} className="px-6 py-4 hover:bg-[#F9FAFB] transition-colors">
-                                        <div className="grid grid-cols-8 gap-4 items-center">
-                                            <div className="text-[14px] text-[#101828]">{index + 1}</div>
-                                            <div className="text-[14px] text-[#101828]">
-                                                {new Date(invoice.creationDate).toLocaleDateString()}
-                                            </div>
-                                            <div className="text-[14px] text-[#101828] font-medium">
-                                                {invoice.billFrom.fullName}
-                                            </div>
-                                            <div className="text-[14px] text-[#101828] font-mono">
-                                                {invoice.invoiceNumber}
-                                            </div>
-                                            <div>
-                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(invoice.status)}`}>
-                                                    {invoice.status}
-                                                </span>
-                                            </div>
-                                            <div className="text-[14px] text-[#101828]">
-                                                {new Date(invoice.dueDate).toLocaleDateString()}
-                                            </div>
-                                            <div className="text-[14px] text-[#101828] font-medium">
-                                                {invoice.currency} {invoice.totalDue.toFixed(2)}
-                                            </div>
-                                            <div className="flex items-center justify-end">
-                                                <div className="relative">
-                                                    <button 
-                                                        className="p-2 hover:bg-[#F2F4F7] rounded-lg transition-colors"
-                                                        onClick={() => setOpenDropdown(openDropdown === invoice.id ? null : invoice.id)}
-                                                    >
-                                                        <MoreHorizontal size={16} className="text-[#667085]" />
-                                                    </button>
-                                                    {openDropdown === invoice.id && (
-                                                        <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-10">
-                                                            <div className="py-1">
-                                                                <Link
-                                                                    href={`/customer/invoices/${invoice.id}`}
-                                                                    className="flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors"
-                                                                    onClick={() => setOpenDropdown(null)}
-                                                                >
-                                                                    <Eye size={16} />
-                                                                    View Detail
-                                                                </Link>
-                                                            </div>
-                                                        </div>
-                                                    )}
+                                </div>
+
+                                <div className="divide-y divide-[#E4E7EC]">
+                                    {receivedInvoices
+                                        .filter(invoice =>
+                                            invoice.billFrom.fullName.toLowerCase().includes(receivedSearchTerm.toLowerCase()) ||
+                                            invoice.invoiceNumber.toLowerCase().includes(receivedSearchTerm.toLowerCase())
+                                        )
+                                        .map((invoice, index) => (
+                                            <div key={invoice.id} className="px-6 py-4 hover:bg-[#F9FAFB] transition-colors">
+                                                <div className="grid grid-cols-8 gap-4 items-center">
+                                                    <div className="text-[14px] text-[#101828]">{index + 1}</div>
+                                                    <div className="text-[14px] text-[#101828]">
+                                                        {new Date(invoice.creationDate).toLocaleDateString()}
+                                                    </div>
+                                                    <div className="text-[14px] text-[#101828] font-medium">
+                                                        {invoice.billFrom.fullName}
+                                                    </div>
+                                                    <div className="text-[14px] text-[#101828] font-mono">
+                                                        {invoice.invoiceNumber}
+                                                    </div>
+                                                    <div>
+                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(invoice.status)}`}>
+                                                            {invoice.status}
+                                                        </span>
+                                                    </div>
+                                                    <div className="text-[14px] text-[#101828]">
+                                                        {new Date(invoice.dueDate).toLocaleDateString()}
+                                                    </div>
+                                                    <div className="text-[14px] text-[#101828] font-medium">
+                                                        {invoice.currency} {invoice.totalDue.toFixed(2)}
+                                                    </div>
+                                                    <div className="flex items-center justify-end">
+                                                        <button
+                                                            data-dropdown-trigger
+                                                            className="p-2 hover:bg-[#F2F4F7] rounded-lg transition-colors"
+                                                            onClick={(e) => handleReceivedDropdownToggle(invoice.id, e)}
+                                                        >
+                                                            <MoreHorizontal size={16} className="text-[#667085]" />
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                ))}
+                                        ))}
+                                </div>
+                            </div>
                         </div>
                     </>
                 )}
             </div>
 
-            {/* Delete Confirmation Modal */}
+            {/* Main Invoices Dropdown Portal */}
+            {openMainDropdown && dropdownPosition && typeof window !== 'undefined' && createPortal(
+                <div
+                    data-dropdown-menu
+                    className="fixed w-48 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-[9999]"
+                    style={{
+                        top: `${dropdownPosition.top}px`,
+                        right: `${dropdownPosition.right}px`
+                    }}
+                >
+                    <div className="py-1">
+                        {paginatedInvoices.find(inv => inv.id === openMainDropdown) && (() => {
+                            const invoice = paginatedInvoices.find(inv => inv.id === openMainDropdown)!;
+                            return (
+                                <>
+                                    <Link
+                                        href={`/dashboard/invoices/${invoice.id}`}
+                                        className="flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors"
+                                        onClick={() => {
+                                            setOpenMainDropdown(null);
+                                            setDropdownPosition(null);
+                                        }}
+                                    >
+                                        <Eye size={16} />
+                                        {t('view_invoice')}
+                                    </Link>
+                                    <Link
+                                        href={`/dashboard/invoices/edit/${invoice.id}`}
+                                        className={`flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors 
+                                            ${invoice.status.toLowerCase() === "unpaid" ? '' : 'hidden'}`}
+                                        onClick={() => {
+                                            setOpenMainDropdown(null);
+                                            setDropdownPosition(null);
+                                        }}
+                                    >
+                                        <Edit size={16} />
+                                        {t('edit_invoice')}
+                                    </Link>
+                                    <Link
+                                        href={`/dashboard/invoices/edit/${invoice.id}`}
+                                        className={`flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors 
+                                            ${invoice.status.toLowerCase() === "overdue" ? '' : 'hidden'}`}
+                                        onClick={() => {
+                                            setOpenMainDropdown(null);
+                                            setDropdownPosition(null);
+                                        }}
+                                    >
+                                        <Edit size={16} />
+                                        {t('overdue')}
+                                    </Link>
+                                    <button
+                                        onClick={() => {
+                                            setOpenMainDropdown(null);
+                                            setDropdownPosition(null);
+                                            handleDeleteInvoice(invoice);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 text-[14px] text-[#D92D20] hover:bg-[#FEF3F2] transition-colors w-full text-left"
+                                    >
+                                        <Trash2 size={16} />
+                                        {t('delete_invoice')}
+                                    </button>
+                                </>
+                            );
+                        })()}
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* Received Invoices Dropdown Portal */}
+            {openDropdown && receivedDropdownPosition && typeof window !== 'undefined' && createPortal(
+                <div
+                    data-dropdown-menu
+                    className="fixed w-48 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-[9999]"
+                    style={{
+                        top: `${receivedDropdownPosition.top}px`,
+                        right: `${receivedDropdownPosition.right}px`
+                    }}
+                >
+                    <div className="py-1">
+                        {receivedInvoices.find(inv => inv.id === openDropdown) && (() => {
+                            const invoice = receivedInvoices.find(inv => inv.id === openDropdown)!;
+                            return (
+                                <Link
+                                    href={`/customer/invoices/${invoice.id}`}
+                                    className="flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors"
+                                    onClick={() => {
+                                        setOpenDropdown(null);
+                                        setReceivedDropdownPosition(null);
+                                    }}
+                                >
+                                    <Eye size={16} />
+                                    View Detail
+                                </Link>
+                            );
+                        })()}
+                    </div>
+                </div>,
+                document.body
+            )}
+
             <DeleteConfirmationModal
                 isOpen={deleteModal.isOpen}
                 onClose={closeDeleteModal}

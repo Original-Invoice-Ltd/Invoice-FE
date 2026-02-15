@@ -318,7 +318,6 @@ const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeader
                 onClose={hideToast}
             />
 
-            {/* Notifications Panel */}
             <NotificationsPanel 
                 isOpen={showNotifications} 
                 onClose={() => {

@@ -72,23 +72,20 @@ const DashboardContent = () => {
         fetchCustomerStats();
     }, [user?.email]);
 
-    // Get user's first name for welcome message - wait for user to load
     const getFirstName = () => {
         if (userLoading) return t('loading');
         if (!user?.fullName) return 'User';
         return user.fullName.split(' ')[0];
     };
 
-    // Transform payment trends data for chart
     const getChartData = () => {
         if (!data.paymentTrends) return [];
         return data.paymentTrends.map(trend => ({
-            month: trend.periodLabel.split(' ')[0], // Extract month name
+            month: trend.periodLabel.split(' ')[0],
             value: trend.totalAmount
         }));
     };
 
-    // Transform status distribution for pie chart
     const getStatusDistributionData = () => {
         if (!data.stats?.statusDistribution) return [];
         
@@ -143,7 +140,6 @@ const DashboardContent = () => {
         }
     };
 
-    // Loading state - show skeleton loaders that maintain sizes
     const isInitialLoading = loading.stats && loading.trends && loading.invoices;
     
     if (isInitialLoading) {

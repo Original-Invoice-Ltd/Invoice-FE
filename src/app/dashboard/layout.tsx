@@ -53,11 +53,8 @@ function DashboardLayoutContent({
                     onNotificationsChange={setNotificationsOpen}
                 />
                 
-                {/* Page Content - with consistent padding matching header */}
                 <main className="flex-1 overflow-auto scrollbar-hide">
-                    <div className="px-1 lg:px-2 py-6">
-                        {children}
-                    </div>
+                    {children}
                 </main>
             </div>
             {/* Invoice Limit Notification */}

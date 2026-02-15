@@ -29,7 +29,7 @@ const ProductManagement = () => {
         description: "",
         unit: "",
         unitPrice: "",
-        currency: "USD",
+        currency: "NGN",
         tax: "",
     });
 
@@ -55,7 +55,7 @@ const ProductManagement = () => {
             description: "",
             unit: "",
             unitPrice: "",
-            currency: "USD",
+            currency: "NGN",
             tax: "",
         });
     };

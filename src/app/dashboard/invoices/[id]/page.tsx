@@ -103,10 +103,10 @@ const InvoiceViewPage = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors">
+                    {/* <button className="flex items-center gap-2 px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors">
                         <Send size={16} />
                         Send Invoice
-                    </button>
+                    </button> */}
                     <button
                         onClick={() => {
                             
@@ -120,9 +120,7 @@ const InvoiceViewPage = () => {
 
             {/* Invoice Preview */}
             <div className="bg-white rounded-lg border border-[#E4E7EC] overflow-hidden mx-6">
-                {/* Watermark overlay */}
                 <div className="relative">
-                    {/* Status-based watermark */}
                     <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
                         {invoice.status === 'PAID' && (
                             <>
@@ -372,8 +370,7 @@ const InvoiceViewPage = () => {
                 </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex justify-center gap-4 mt-6 px-6">
+            <div className="flex justify-between md:justify-start gap-4 mt-6 px-6">
                 <button className="flex items-center gap-2 px-6 py-3 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors">
                     <Download size={16} />
                     Save as PDF
