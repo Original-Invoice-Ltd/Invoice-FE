@@ -751,7 +751,7 @@ const CreateInvoicePage = () => {
                     fullName: billFrom.fullName,
                     email: billFrom.email,
                     address: billFrom.address,
-                    phoneNumber: billFrom.phoneNumber,
+                    phoneNumber: billFrom.phoneNumber.startsWith('+234') ? billFrom.phoneNumber : `+234${billFrom.phoneNumber.replace(/^0/, '')}`,
                     businessName: billFrom.businessName,
                 },
                 billTo: {
