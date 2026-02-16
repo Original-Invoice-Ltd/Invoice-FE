@@ -310,9 +310,14 @@ const CreateInvoicePage = () => {
         const subtotal = calculateSubtotal();
         return subtotal * invoiceTaxRate / 100;
     };
+    const calculateWht = () => {
+        const subtotal = calculateSubtotal();
+        return subtotal * 5 / 100;
+    };
+
 
     const calculateTotal = () => {
-        return calculateSubtotal() + calculateTax();
+        return calculateSubtotal() + calculateTax() + calculateWht();
     };
 
     // const isFormValid = () => {
@@ -1637,7 +1642,7 @@ const CreateInvoicePage = () => {
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-[#667085] text-[18px]">WHT (5%)</span>
-                                        <span className=" text-[18px] font-semibold">{Number(calculateTotal().toFixed(2)) * 0.05 }</span>
+                                        <span className=" text-[18px] font-semibold">₦{calculateWht().toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-[18px] text-[#667085]">Total Due</span>

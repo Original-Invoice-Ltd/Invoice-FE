@@ -19,7 +19,7 @@ const BYPASS_AUTH_REDIRECT = true;
 // Configure axios defaults
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true, // CRITICAL: Include cookies
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -575,8 +575,11 @@ export class ApiClient {
       
       const response = await axiosInstance.post("/api/invoices/draft/send/whatsapp", {
         phoneNumber: cleanPhoneNumber,
-        message: message || undefined
+        message: message
       }, {
+        headers: {
+          "Content-Type": "application/json",
+        },
         withCredentials: true,
       });
       return this.handleResponse<DraftInvoiceResponse>(response);
@@ -589,12 +592,12 @@ export class ApiClient {
     try {
       const cleanPhoneNumber = phoneNumber.startsWith('+') ? phoneNumber.substring(1) : phoneNumber;
       
-      formData.append('phoneNumber', cleanPhoneNumber);
+      formData.append('receiverPhoneNumber', cleanPhoneNumber);
       if (message) {
         formData.append('message', message);
       }
       
-      const response = await axiosInstance.post("/api/invoices/whatsapp", formData, {
+      const response = await axiosInstance.post("/api/invoices/add/whatsapp", formData, {
         headers: {
           "Content-Type": undefined as any,
         },

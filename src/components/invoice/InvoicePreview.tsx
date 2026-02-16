@@ -67,7 +67,7 @@ interface InvoicePreviewProps {
     hasDraft?: boolean;
 }
 
-const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWhatsApp, validationMessage, hasDraft = false }: InvoicePreviewProps) => {
+const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWhatsApp, validationMessage}: InvoicePreviewProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -219,18 +219,18 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 ">
+        <div className="min-h-screen bg-gray-50 pb-4 md:pb-2">
             <Toast
                 isVisible={toast.isVisible}
                 message={toast.message}
                 type={toast.type}
                 onClose={hideToast}
             />
-            <div className="max-w-5xl mx-auto">
-                <div className="flex justify-end gap-3 mb-6">
+            <div className="max-w-5xl mx-auto px-2">
+                <div className="flex justify-end gap-3 mb-6 py-4">
                     <button
                         onClick={onEdit}
-                        className="flex items-center gap-2 px-6 py-2.5 border border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-blue-50 transition-colors bg-white"
+                        className="flex items-center gap-2 px-3 md:px-6 py-2.5 border border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-blue-50 transition-colors bg-white"
                     >
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M10.2055 19.5733C9.86497 19.9139 9.42656 20.1395 8.95154 20.2186L4.34563 20.9863C3.56372 21.1166 2.88583 20.4387 3.01615 19.6568L3.7838 15.0509C3.86297 14.5759 4.08859 14.1375 4.42911 13.797M10.2055 19.5733L18.7258 11.053L12.9494 5.27665M10.2055 19.5733L4.42911 13.797M4.42911 13.797L12.9494 5.27665M12.9494 5.27665L14.6119 3.61413C15.4308 2.79529 16.7584 2.79529 17.5772 3.61413L20.3859 6.42279C21.2057 7.24258 21.2046 8.57207 20.3834 9.39051L18.7258 11.0427M21 20.9863H15" stroke="#2F80ED" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -251,14 +251,14 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                     </button>
                     <button
                         onClick={handleEmailOptionClick}
-                        className="flex items-center gap-2 px-8 py-2.5 bg-[#2F80ED] text-white rounded-lg cursor-pointer hover:bg-blue-600 transition-colors"
+                        className="flex items-center gap-2 px-4 md:px-8 py-2.5 bg-[#2F80ED] text-white rounded-lg cursor-pointer hover:bg-blue-600 transition-colors"
                     >
                         <Mail size={20} />
                         Email Invoice
                     </button>
                 </div>
 
-                <div className="bg-white mb-4 rounded-lg shadow-sm relative overflow-hidden" ref={invoiceRef}>
+                <div className="bg-white mb-4 rounded-lg shadow-sm relative overflow-hidden " ref={invoiceRef}>
 
                     {data.template === 'simple' && <SimpleTemplate data={data} />}
                     {data.template === 'standard' && <StandardTemplate data={data} />}
