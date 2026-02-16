@@ -4,6 +4,7 @@ import {
   DashboardStats,
   PaymentTrend,
   RecentInvoice,
+  InvoiceResponse,
 } from "@/types/invoice";
 import {
   DraftInvoiceResponse,
@@ -449,6 +450,17 @@ export class ApiClient {
       : await axiosInstance.get(`/api/invoices/all-user`, {
           withCredentials: true,
         });
+  }
+
+  static async getReceivedInvoices(): Promise<ApiResponse<InvoiceResponse[]>> {
+    try {
+      const response = await axiosInstance.get("/api/invoices/received", {
+        withCredentials: true,
+      });
+      return this.handleResponse<InvoiceResponse[]>(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
   }
 
   static async getInvoiceById(id: string) {

@@ -24,7 +24,6 @@ export default function EmailInvoicePage(){
 
     const handleModalClose = () => {
         setIsUploadModalOpen(false);
-        // Refresh invoice data after modal closes (in case upload was successful)
         refetch();
     };
 

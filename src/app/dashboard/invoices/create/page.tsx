@@ -954,7 +954,7 @@ const CreateInvoicePage = () => {
                 type={toast.type}
                 onClose={hideToast}
             />
-            <div className="mt-[6px] md:mx-4 mx-2 p-6">
+            <div className="mt-[6px] md:mx-4 mx-2 p-2 md:p-6">
                 <div className="mb-4 flex md:items-center justify-between items-start flex-col md:flex-row ">
                     <div className="flex items-center gap-4">
                         <Link href="/dashboard/invoices" className="p-2 text-[#2F80ED] ">
@@ -1378,7 +1378,7 @@ const CreateInvoicePage = () => {
                                 <div className="mt-4 flex items-center justify-between">
                                     <button
                                         onClick={addNewRow}
-                                        className="flex flex-row items-center gap-2 px-4 py-2.5 text-[#2F80ED] border border-[#D0D5DD] rounded-lg hover:bg-[#F0F7FF] transition-colors text-[0.75rem] md:text-[14px] font-medium"
+                                        className="flex flex-row items-center text-nowrap gap-2 px-2 md:px-4 py-2.5 text-[#2F80ED] border border-[#D0D5DD] rounded-lg hover:bg-[#F0F7FF] transition-colors text-[0.7rem] md:text-[14px] font-medium"
                                     >
                                         <Plus size={18} />
                                         Add New Row
@@ -1388,7 +1388,7 @@ const CreateInvoicePage = () => {
                                     <div className="relative">
                                         <button
                                             onClick={handleProductsDropdownClick}
-                                            className="flex items-center gap-2 px-4 py-2.5 text-[#344054] text-[14px] font-medium"
+                                            className="flex text-nowrap items-center gap-2 px-4 py-2.5 text-[#344054] text-[0.7rem] md:text-[14px] font-medium"
                                         >
                                             Select products
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
