@@ -467,6 +467,10 @@ export class ApiClient {
     }
   }
 
+  static async getPaymentEvidenceUrl(id: string): Promise<ApiResponse<any>> {
+    return this.request("GET", `/api/payment-evidence-url/${id}`);
+  }
+
   // Dashboard Analytics APIs
   static async getDashboardStats(): Promise<ApiResponse<DashboardStats>> {
     return this.request<DashboardStats>("GET", "/api/invoices/dashboard/stats");

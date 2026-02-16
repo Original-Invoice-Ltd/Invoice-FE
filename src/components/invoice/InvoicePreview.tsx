@@ -219,7 +219,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-4 md:pb-2">
+        <div className="min-h-screen bg-gray-50 p-4 md:p-6">
             <Toast
                 isVisible={toast.isVisible}
                 message={toast.message}

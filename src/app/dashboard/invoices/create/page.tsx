@@ -374,9 +374,9 @@ const CreateInvoicePage = () => {
             errors.billFrom = "Invalid Sender's email provided";
             newFieldErrors.billFromEmail = "Invalid email format";
         }
-        else if (!ApiClient.isValidPhone(billFrom.phoneNumber.trim())) {
-            errors.billFrom = "Invalid Sender's Phone number must be in +234********** format";
-            newFieldErrors.billFromPhone = "Phone must be in +234********** format";
+        else if (billFrom.phoneNumber.trim() === "") {
+            errors.billFrom = "Sender's Phone number is required";
+            newFieldErrors.billFromPhone = "Phone number is required";
         } else if (billFrom.businessName.trim() === "") {
             errors.billFrom = "Sender's Business name is required";
             newFieldErrors.billFromBusinessName = "Business name is required";
@@ -438,8 +438,8 @@ const CreateInvoicePage = () => {
         if (billFrom.email.trim() === "") {
             return "Sender's email is required";
         }
-        if (!ApiClient.isValidPhone(billFrom.phoneNumber.trim())) {
-            return "Valid phone number is required";
+        if (billFrom.phoneNumber.trim() === "") {
+            return "Phone number is required";
         }
         if (billFrom.businessName.trim() === "") {
             return "Business name is required";
@@ -525,7 +525,7 @@ const CreateInvoicePage = () => {
             try {
                 await loadDraft();
             } catch (error) {
-                console.error('Error loading draft:', error);
+                throw new Error('Error loading draft:' );
             }
         };
 
@@ -755,7 +755,7 @@ const CreateInvoicePage = () => {
                     fullName: billFrom.fullName,
                     email: billFrom.email,
                     address: billFrom.address,
-                    phoneNumber: billFrom.phoneNumber,
+                    phoneNumber: billFrom.phoneNumber.startsWith('+234') ? billFrom.phoneNumber : `+234${billFrom.phoneNumber.replace(/^0/, '')}`,
                     businessName: billFrom.businessName,
                 },
                 billTo: {
@@ -954,7 +954,7 @@ const CreateInvoicePage = () => {
                 type={toast.type}
                 onClose={hideToast}
             />
-            <div className="mt-[6px] md:mx-4 mx-2">
+            <div className="mt-[6px] md:mx-4 mx-2 p-6">
                 <div className="mb-4 flex md:items-center justify-between items-start flex-col md:flex-row ">
                     <div className="flex items-center gap-4">
                         <Link href="/dashboard/invoices" className="p-2 text-[#2F80ED] ">
@@ -1242,7 +1242,7 @@ const CreateInvoicePage = () => {
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    placeholder="INV-0012"
+                                                    placeholder="title"
                                                     value={billTo.title}
                                                     onChange={(e) => setBillTo({ ...billTo, title: e.target.value })}
                                                     className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
