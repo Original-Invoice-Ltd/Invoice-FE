@@ -1,19 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import { CustomerLayout } from "@/components/customerSection";
 import { UploadReceiptModal } from "@/components/modals";
 import { ApiClient } from "@/lib/api";
 import { usePublicInvoiceByUuid } from "@/hooks/useCustomerInvoices";
+import html2pdf from "html2pdf.js";
 
-export default function EmailInvoicePage(){
+export default function EmailInvoicePage() {
     const params = useParams();
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-    
+    const invoiceRef = useRef<HTMLDivElement>(null);
     const invoiceId = params.id as string;
-    
+
     // Use custom hook for invoice data - public endpoint (no auth required)
     const { invoice, loading, error, refetch } = usePublicInvoiceByUuid(invoiceId);
 
@@ -41,12 +41,12 @@ export default function EmailInvoicePage(){
 
     if (loading) {
         return (
-                <div className="flex items-center justify-center min-h-screen">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                        <p className="text-gray-600">Loading invoice...</p>
-                    </div>
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading invoice...</p>
                 </div>
+            </div>
         );
     }
 
@@ -57,19 +57,19 @@ export default function EmailInvoicePage(){
                     <div className="text-center max-w-md mx-auto px-4">
                         {/* Empty State SVG */}
                         <div className="mb-6">
-                            <Image 
-                                src="/assets/icons/emptyInvoicesStates.svg" 
-                                alt="Invoice Not Found" 
+                            <Image
+                                src="/assets/icons/emptyInvoicesStates.svg"
+                                alt="Invoice Not Found"
                                 width={192}
                                 height={192}
                                 className="mx-auto"
                             />
                         </div>
-                        
+
                         {/* Error Message */}
                         <h2 className="text-xl font-semibold text-gray-600 mb-2">Invoice Not Found</h2>
-                        
-    
+
+
                     </div>
                 </div>
             </>
@@ -84,36 +84,35 @@ export default function EmailInvoicePage(){
             <div className="max-w-5xl mx-auto p-4 md:p-6">
                 {/* Header with Back Button and Upload Button */}
                 <div className="flex items-center justify-end mb-4 md:mb-6">
-               
+
 
                     {/* Upload Receipt Button - always show */}
-                    <button 
+                    <button
                         onClick={() => setIsUploadModalOpen(true)}
                         disabled={invoice.status.toLowerCase() === 'pending' || invoice.status.toLowerCase() === 'paid'}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-medium text-sm md:text-base ${
-                            invoice.status.toLowerCase() === 'pending' || invoice.status.toLowerCase() === 'paid'
-                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                : 'bg-[#2F80ED] text-white hover:bg-blue-600'
-                        }`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-medium text-sm md:text-base ${invoice.status.toLowerCase() === 'pending' || invoice.status.toLowerCase() === 'paid'
+                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            : 'bg-[#2F80ED] text-white hover:bg-blue-600'
+                            }`}
                         title={
-                            invoice.status.toLowerCase() === 'paid' 
-                                ? 'Receipt already submitted for this paid invoice' 
+                            invoice.status.toLowerCase() === 'paid'
+                                ? 'Receipt already submitted for this paid invoice'
                                 : invoice.status.toLowerCase() === 'pending'
-                                ? 'Cannot upload receipt for pending invoice'
-                                : 'Upload payment receipt'
+                                    ? 'Cannot upload receipt for pending invoice'
+                                    : 'Upload payment receipt'
                         }
                     >
-                        <svg 
-                            className="w-4 h-4" 
-                            fill="none" 
-                            stroke="currentColor" 
+                        <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                         >
-                            <path 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round" 
-                                strokeWidth={2} 
-                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                             />
                         </svg>
                         <span>Upload Receipt</span>
@@ -121,16 +120,16 @@ export default function EmailInvoicePage(){
                 </div>
 
                 {/* Invoice Content - White background */}
-                <div className="bg-white rounded-lg shadow-sm relative overflow-hidden">
+                <div className="bg-white rounded-lg shadow-sm relative overflow-hidden" ref={invoiceRef}>
                     {/* Watermark for unpaid invoices */}
                     {invoice.status.toLowerCase() !== 'paid' && (
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                            <div 
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 -mt-42">
+                            <div
                                 className="text-orange-100 font-bold select-none"
                                 style={{
                                     fontSize: 'clamp(60px, 15vw, 120px)',
                                     transform: 'rotate(-45deg)',
-                                    opacity: 0.1,
+                                    opacity: 0.7,
                                     letterSpacing: '8px'
                                 }}
                             >
@@ -138,15 +137,28 @@ export default function EmailInvoicePage(){
                             </div>
                         </div>
                     )}
-                    
+
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 mt-24">
+                        <div
+                            className="text-blue-200 font-bold select-none"
+                            style={{
+                                fontSize: 'clamp(40px, 15vw, 80px)',
+                                transform: 'rotate(-45deg)',
+                                opacity: 0.7,
+                                letterSpacing: '8px'
+                            }}
+                        >
+                            Original Invoice
+                        </div>
+                    </div>
                     <div className="px-4 md:px-12 py-4 relative z-20">
                         {/* Invoice Header */}
                         <div className="flex flex-col sm:flex-row justify-between items-start mb-8 md:mb-12 gap-4">
                             <div className="flex items-center mt-4 md:mt-8">
                                 {invoice.logoUrl ? (
-                                    <img 
-                                        src={invoice.logoUrl} 
-                                        alt="Company Logo" 
+                                    <img
+                                        src={invoice.logoUrl}
+                                        alt="Company Logo"
                                         className="max-h-16 w-auto object-contain"
                                     />
                                 ) : (
@@ -286,9 +298,9 @@ export default function EmailInvoicePage(){
                         <div className="mb-8 md:mb-12">
                             <h3 className="text-sm font-semibold text-gray-900 mb-3">Signature</h3>
                             {invoice.signatureUrl ? (
-                                <img 
-                                    src={invoice.signatureUrl} 
-                                    alt="Signature" 
+                                <img
+                                    src={invoice.signatureUrl}
+                                    alt="Signature"
                                     className="max-h-16 w-auto object-contain"
                                 />
                             ) : (
@@ -338,25 +350,27 @@ export default function EmailInvoicePage(){
                                 </div>
                             </div>
                         )}
-
-                        {/* Action Buttons */}
-                        <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6">
-                            <button className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm md:text-base">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                Download PDF
-                            </button>
-                            {/* <button className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors text-sm md:text-base">
+                    </div>
+                </div>
+                <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6">
+                    <button
+                        onClick={() => {
+                            
+                        }}
+                        className="flex cursor-pointer items-center justify-center gap-2 px-4 md:px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm md:text-base"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Download PDF
+                    </button>
+                    {/* <button className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors text-sm md:text-base">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                                 </svg>
                                 Share
                             </button> */}
-                        </div>
-                    </div>
                 </div>
-
                 {/* Upload Receipt Modal */}
                 <UploadReceiptModal
                     isOpen={isUploadModalOpen}
@@ -366,8 +380,8 @@ export default function EmailInvoicePage(){
                 />
             </div>
         </div>
-            
+
     );
-    
+
 
 }

@@ -469,7 +469,6 @@ export class ApiClient {
 
   static async getPublicInvoiceByUuid(uuid: string): Promise<ApiResponse<any>> {
     try {
-      // Use axios directly for public endpoint - no authentication required
       const response = await axios.get(
         `https://api.originalinvoice.com/api/invoices/public/${uuid}`,
       );
