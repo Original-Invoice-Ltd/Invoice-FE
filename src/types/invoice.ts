@@ -140,3 +140,52 @@ export interface ApiResponse<T>{
   isSuccessful: boolean,
   data: T
 }
+
+// Received Invoice Types
+export interface ReceivedInvoiceResponse {
+  id: string;
+  billFrom: {
+    fullName: string;
+    businessName: string;
+    email: string;
+    phone: string;
+    address: string;
+  };
+  billTo: {
+    fullName: string;
+    businessName: string;
+    email: string;
+    phone: string;
+    address: string;
+  };
+  title: string;
+  invoiceNumber: string;
+  invoiceColor: string;
+  logoUrl: string;
+  signatureUrl: string;
+  paymentEvidenceUrl: string;
+  creationDate: string;
+  dueDate: string;
+  status: "PAID" | "PENDING" | "UNPAID" | "OVERDUE" | "OUTSTANDING";
+  currency: string;
+  items: Array<{
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    amount: number;
+  }>;
+  appliedTaxes: Array<{
+    taxName: string;
+    taxRate: number;
+    taxAmount: number;
+  }>;
+  subtotal: number;
+  totalTaxAmount: number;
+  totalDue: number;
+  note: string;
+  termsAndConditions: string;
+  paymentTerms: string;
+  accountNumber: string;
+  accountName: string;
+  bank: string;
+}

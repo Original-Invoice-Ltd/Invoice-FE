@@ -6,10 +6,12 @@ import { ArrowLeft, Download, Send, Edit, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { ApiClient } from "@/lib/api";
 import { InvoiceResponse } from "@/types/invoice";
+import { useTranslation } from "react-i18next";
 
 const InvoiceViewPage = () => {
     const params = useParams();
     const router = useRouter();
+    const { t } = useTranslation();
     const [invoice, setInvoice] = useState<InvoiceResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -28,11 +30,11 @@ const InvoiceViewPage = () => {
             if (response.status === 200 && response.data) {
                 setInvoice(response.data);
             } else {
-                setError(response.error || response.message || "Failed to fetch invoice");
+                setError(response.error || response.message || t('error_loading_invoices'));
             }
         } catch (err) {
             console.error("Error fetching invoice:", err);
-            setError("An error occurred while fetching the invoice");
+            setError(t('unexpected_error'));
         } finally {
             setLoading(false);
         }
@@ -70,14 +72,14 @@ const InvoiceViewPage = () => {
         return (
             <div className="max-w-7xl mx-auto mb-[200px] p-6">
                 <div className="text-center">
-                    <h2 className="text-xl font-semibold text-red-600 mb-2">Error</h2>
-                    <p className="text-gray-600 mb-4">{error || "Invoice not found"}</p>
+                    <h2 className="text-xl font-semibold text-red-600 mb-2">{t('error')}</h2>
+                    <p className="text-gray-600 mb-4">{error || t('invoice_not_found')}</p>
                     <Link
                         href="/dashboard/invoices"
                         className="inline-flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
                     >
                         <ArrowLeft size={16} />
-                        Back to Invoices
+                        {t('back_to_invoices')}
                     </Link>
                 </div>
             </div>
@@ -96,16 +98,16 @@ const InvoiceViewPage = () => {
                         <ArrowLeft size={20} className="text-[#667085]" />
                     </Link>
                     <div>
-                        <h1 className="text-[20px] font-semibold text-[#101828]">Invoice Details</h1>
+                        <h1 className="text-[20px] font-semibold text-[#101828]">{t('invoice_details')}</h1>
                         <p className="text-[14px] text-[#667085]">
-                            Invoice #{invoice.invoiceNumber}
+                            {t('invoice')} #{invoice.invoiceNumber}
                         </p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
                     {/* <button className="flex items-center gap-2 px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors">
                         <Send size={16} />
-                        Send Invoice
+                        {t('send_invoice')}
                     </button> */}
                     <button
                         onClick={() => {
@@ -113,7 +115,7 @@ const InvoiceViewPage = () => {
                         }}
                         className="flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors">
                         <Download size={16} />
-                        Mark as Paid
+                        {t('mark_as_paid')}
                     </button>
                 </div>
             </div>
@@ -213,12 +215,12 @@ const InvoiceViewPage = () => {
                                     />
                                 ) : (
                                     <div className="h-16 w-24 bg-gray-200 rounded flex items-center justify-center text-gray-500 text-sm">
-                                        Logo
+                                        {t('logo')}
                                     </div>
                                 )}
                             </div>
                             <div className="text-right">
-                                <div className="text-[14px] text-[#667085] mb-1">Bill From</div>
+                                <div className="text-[14px] text-[#667085] mb-1">{t('bill_from_label')}</div>
                                 <div className="text-[16px] font-semibold text-[#101828]">{invoice.billFrom?.fullName}</div>
                                 <div className="text-[14px] text-[#667085]">{invoice.billFrom?.email}</div>
                                 <div className="text-[14px] text-[#667085]">{invoice.billFrom?.phone}</div>
@@ -230,13 +232,13 @@ const InvoiceViewPage = () => {
 
                         {/* Invoice Title */}
                         <div className="text-center mb-8">
-                            <h1 className="text-[32px] font-bold text-[#101828]">Invoice</h1>
+                            <h1 className="text-[32px] font-bold text-[#101828]">{t('invoice_label')}</h1>
                         </div>
 
                         {/* Bill To and Invoice Details */}
                         <div className="flex justify-between mb-8">
                             <div>
-                                <div className="text-[14px] text-[#667085] mb-2">Bill To</div>
+                                <div className="text-[14px] text-[#667085] mb-2">{t('bill_to_label')}</div>
                                 <div className="text-[16px] font-semibold text-[#101828] mb-1">
                                     {invoice.billTo?.businessName || invoice.billTo?.fullName}
                                 </div>
@@ -247,11 +249,11 @@ const InvoiceViewPage = () => {
                                 )}
                             </div>
                             <div className="text-right">
-                                <div className="text-[14px] text-[#667085] mb-1">Invoice ID</div>
+                                <div className="text-[14px] text-[#667085] mb-1">{t('invoice_id_label')}</div>
                                 <div className="text-[16px] font-semibold text-[#101828] mb-4">{invoice.invoiceNumber}</div>
-                                <div className="text-[14px] text-[#667085] mb-1">Invoice Date</div>
+                                <div className="text-[14px] text-[#667085] mb-1">{t('invoice_date_label')}</div>
                                 <div className="text-[14px] text-[#101828] mb-2">{formatDate(invoice.creationDate)}</div>
-                                <div className="text-[14px] text-[#667085] mb-1">Due Date</div>
+                                <div className="text-[14px] text-[#667085] mb-1">{t('due_date_label')}</div>
                                 <div className="text-[14px] text-[#101828]">{formatDate(invoice.dueDate)}</div>
                             </div>
                         </div>
@@ -260,10 +262,10 @@ const InvoiceViewPage = () => {
                         <div className="mb-8">
                             <div className="bg-[#2F80ED] text-white px-6 py-3 rounded-t-lg">
                                 <div className="grid grid-cols-5 gap-4 text-[14px] font-medium">
-                                    <div className="col-span-2">Item Description</div>
-                                    <div className="text-center">Qty</div>
-                                    <div className="text-center">Rate</div>
-                                    <div className="text-right">Amount</div>
+                                    <div className="col-span-2">{t('item_description')}</div>
+                                    <div className="text-center">{t('qty_label')}</div>
+                                    <div className="text-center">{t('rate_label_short')}</div>
+                                    <div className="text-right">{t('amount_label_short')}</div>
                                 </div>
                             </div>
                             <div className="border border-t-0 border-[#E4E7EC] rounded-b-lg">
@@ -292,7 +294,7 @@ const InvoiceViewPage = () => {
                             <div className="w-80">
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-[14px]">
-                                        <span className="text-[#667085]">Sub Total</span>
+                                        <span className="text-[#667085]">{t('sub_total_label')}</span>
                                         <span className="text-[#101828] font-medium">
                                             {formatCurrency(invoice.subtotal, invoice.currency)}
                                         </span>
@@ -309,7 +311,7 @@ const InvoiceViewPage = () => {
                                     ))}
                                     <div className="border-t border-[#E4E7EC] pt-2">
                                         <div className="flex justify-between text-[16px] font-semibold">
-                                            <span className="text-[#101828]">Total</span>
+                                            <span className="text-[#101828]">{t('total_label')}</span>
                                             <span className="text-[#101828]">
                                                 {formatCurrency(invoice.totalDue, invoice.currency)}
                                             </span>
@@ -317,7 +319,7 @@ const InvoiceViewPage = () => {
                                     </div>
                                 </div>
                                 <div className="mt-4 bg-[#2F80ED] text-white px-4 py-2 rounded text-center">
-                                    <div className="text-[14px] font-medium">Amount Due</div>
+                                    <div className="text-[14px] font-medium">{t('amount_due')}</div>
                                     <div className="text-[18px] font-bold">
                                         {formatCurrency(invoice.totalDue, invoice.currency)}
                                     </div>
@@ -328,7 +330,7 @@ const InvoiceViewPage = () => {
                         {/* Signature */}
                         {invoice.signatureUrl && (
                             <div className="mb-8">
-                                <div className="text-[14px] font-medium text-[#101828] mb-2">Signature</div>
+                                <div className="text-[14px] font-medium text-[#101828] mb-2">{t('signature_label')}</div>
                                 <img 
                                     src={invoice.signatureUrl} 
                                     alt="Signature" 
@@ -342,25 +344,25 @@ const InvoiceViewPage = () => {
                             <div className="space-y-6">
                                 {invoice.note && (
                                     <div>
-                                        <div className="text-[14px] font-medium text-[#101828] mb-2">Note</div>
+                                        <div className="text-[14px] font-medium text-[#101828] mb-2">{t('note_label')}</div>
                                         <div className="text-[14px] text-[#667085]">{invoice.note}</div>
                                     </div>
                                 )}
                                 
                                 {invoice.termsAndConditions && (
                                     <div>
-                                        <div className="text-[14px] font-medium text-[#101828] mb-2">Terms of Payment</div>
+                                        <div className="text-[14px] font-medium text-[#101828] mb-2">{t('terms_of_payment_label')}</div>
                                         <div className="text-[14px] text-[#667085]">{invoice.termsAndConditions}</div>
                                     </div>
                                 )}
 
                                 {(invoice.accountNumber || invoice.accountName || invoice.bank) && (
                                     <div>
-                                        <div className="text-[14px] font-medium text-[#101828] mb-2">Payment Method Bank Transfer</div>
+                                        <div className="text-[14px] font-medium text-[#101828] mb-2">{t('payment_method_bank_transfer')}</div>
                                         <div className="space-y-1 text-[14px] text-[#667085]">
-                                            {invoice.bank && <div>Bank Name: {invoice.bank}</div>}
-                                            {invoice.accountNumber && <div>Account Number: {invoice.accountNumber}</div>}
-                                            {invoice.accountName && <div>Account Name: {invoice.accountName}</div>}
+                                            {invoice.bank && <div>{t('bank_name_label')} {invoice.bank}</div>}
+                                            {invoice.accountNumber && <div>{t('account_number_label')} {invoice.accountNumber}</div>}
+                                            {invoice.accountName && <div>{t('account_name_label')} {invoice.accountName}</div>}
                                         </div>
                                     </div>
                                 )}
@@ -373,14 +375,14 @@ const InvoiceViewPage = () => {
             <div className="flex justify-between md:justify-start gap-4 mt-6 px-6">
                 <button className="flex items-center gap-2 px-6 py-3 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors">
                     <Download size={16} />
-                    Save as PDF
+                    {t('save_as_pdf')}
                 </button>
                 <Link
                     href={`/dashboard/invoices/edit/${invoice.id}`}
                     className="flex items-center gap-2 px-6 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
                 >
                     <Edit size={16} />
-                    Edit Invoice
+                    {t('edit_invoice_button')}
                 </Link>
             </div>
         </div>

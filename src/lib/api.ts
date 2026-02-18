@@ -4,6 +4,7 @@ import {
   DashboardStats,
   PaymentTrend,
   RecentInvoice,
+  InvoiceResponse,
 } from "@/types/invoice";
 import {
   DraftInvoiceResponse,
@@ -19,7 +20,7 @@ const BYPASS_AUTH_REDIRECT = true;
 // Configure axios defaults
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true, // CRITICAL: Include cookies
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -451,13 +452,23 @@ export class ApiClient {
         });
   }
 
+  static async getReceivedInvoices(): Promise<ApiResponse<InvoiceResponse[]>> {
+    try {
+      const response = await axiosInstance.get("/api/invoices/received", {
+        withCredentials: true,
+      });
+      return this.handleResponse<InvoiceResponse[]>(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
   static async getInvoiceById(id: string) {
     return this.request("GET", `/api/invoices/public/${id}`);
   }
 
   static async getPublicInvoiceByUuid(uuid: string): Promise<ApiResponse<any>> {
     try {
-      // Use axios directly for public endpoint - no authentication required
       const response = await axios.get(
         `https://api.originalinvoice.com/api/invoices/public/${uuid}`,
       );
@@ -568,6 +579,46 @@ export class ApiClient {
         withCredentials: true,
       });
       return this.handleResponse<DraftInvoiceResponse>(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  static async sendDraftWhatsApp(phoneNumber: string, message?: string): Promise<ApiResponse<DraftInvoiceResponse | SendDraftErrorResponse>> {
+    try {
+      const cleanPhoneNumber = phoneNumber.startsWith('+') ? phoneNumber.substring(1) : phoneNumber;
+      
+      const response = await axiosInstance.post("/api/invoices/draft/send/whatsapp", {
+        phoneNumber: cleanPhoneNumber,
+        message: message
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+      return this.handleResponse<DraftInvoiceResponse>(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
+  static async sendInvoiceWhatsApp(formData: FormData, phoneNumber: string, message?: string): Promise<ApiResponse<any>> {
+    try {
+      const cleanPhoneNumber = phoneNumber.startsWith('+') ? phoneNumber.substring(1) : phoneNumber;
+      
+      formData.append('receiverPhoneNumber', cleanPhoneNumber);
+      if (message) {
+        formData.append('message', message);
+      }
+      
+      const response = await axiosInstance.post("/api/invoices/add/whatsapp", formData, {
+        headers: {
+          "Content-Type": undefined as any,
+        },
+        withCredentials: true,
+      });
+      return this.handleResponse<any>(response);
     } catch (error) {
       return this.handleError(error as AxiosError);
     }
