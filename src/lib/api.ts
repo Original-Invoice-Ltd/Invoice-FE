@@ -478,6 +478,8 @@ export class ApiClient {
     }
   }
 
+
+  
   static async getPaymentEvidenceUrl(id: string): Promise<ApiResponse<any>> {
     return this.request("GET", `/api/invoices/payment-evidence-url/${id}`);
   }
