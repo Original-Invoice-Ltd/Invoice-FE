@@ -54,7 +54,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
                 month: 'short',
                 day: '2-digit'
               }),
-              clientName: invoice.billTo?.fullName || invoice.billTo?.businessName || 'Unknown Client',
+              clientName: invoice.billTo ? (invoice.billTo.fullName || invoice.billTo.businessName || 'Unknown Client') : 'Unknown Client',
               invoiceId: invoice.invoiceNumber || `INV-${invoice.id}`,
               status: invoice.status === 'PAID' ? 'Paid' as const : 'Pending' as const,
               dueDate: new Date(invoice.dueDate).toLocaleDateString('en-US', {
