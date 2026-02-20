@@ -142,8 +142,10 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
       console.log('Receipt API response:', response);
 
       if (response.status === 200 && response.data) {
-        // The API might return the URL directly as a string, or in an object
-        const url = typeof response.data === 'string' ? response.data : response.data.url || response.data.evidenceUrl;
+        // The API returns the URL in response.data.data.paymentEvidenceUrl
+        const url = typeof response.data === 'string' 
+          ? response.data 
+          : response.data.data?.paymentEvidenceUrl || response.data.paymentEvidenceUrl || response.data.url || response.data.evidenceUrl;
 
         if (url) {
           setReceiptUrl(url);
