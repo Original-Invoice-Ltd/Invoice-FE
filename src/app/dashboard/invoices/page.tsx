@@ -49,7 +49,6 @@ const InvoicesPage = () => {
         try {
             setLoading(true);
             const response = await ApiClient.getAllUserInvoices(user?.id);
-            console.log("Response is fetched")
             if (response.status === 200 && response.data) {
                 const invoicesData = Array.isArray(response.data) ? response.data : [];
                 setInvoices(invoicesData);
@@ -66,9 +65,11 @@ const InvoicesPage = () => {
     }, [showError, user?.id]);
 
     const fetchReceivedInvoices = useCallback(async () => {
+
         try {
             setReceivedLoading(true);
             const response = await ApiClient.getInvoiceStats(user?.email || '');
+             console.log("User received invoices response is fetched: ", fetchReceivedInvoices);
             if (response.status === 200 && response.data?.invoices) {
                 setReceivedInvoices(response.data.invoices);
             }
