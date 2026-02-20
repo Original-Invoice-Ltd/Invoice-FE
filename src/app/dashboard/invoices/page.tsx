@@ -68,17 +68,17 @@ const InvoicesPage = () => {
 
         try {
             setReceivedLoading(true);
-            const response = await ApiClient.getInvoiceStats(user?.email || '');
-            console.log("Received invoices from invoice page: ", response.data?.invoices);
-            if (response.status === 200 && response.data?.invoices) {
-                setReceivedInvoices(response.data.invoices);
+            const response = await ApiClient.getReceivedInvoices();
+            console.log("Received invoices from invoice page: ", response.data);
+            if (response.status === 200 && response.data) {
+                setReceivedInvoices(Array.isArray(response.data) ? response.data : []);
             }
         } catch (err) {
             console.error("Error fetching received invoices:", err);
         } finally {
             setReceivedLoading(false);
         }
-    }, [user?.email]);
+    }, []);
 
     useEffect(() => {
         refreshUser();
