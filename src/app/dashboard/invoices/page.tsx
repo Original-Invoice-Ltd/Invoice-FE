@@ -501,7 +501,7 @@ const InvoicesPage = () => {
                                 <div className="divide-y divide-[#E4E7EC]">
                                     {receivedInvoices
                                         .filter(invoice =>
-                                            invoice.billFrom.fullName.toLowerCase().includes(receivedSearchTerm.toLowerCase()) ||
+                                            invoice.billFrom?.fullName?.toLowerCase().includes(receivedSearchTerm.toLowerCase()) ||
                                             invoice.invoiceNumber.toLowerCase().includes(receivedSearchTerm.toLowerCase())
                                         )
                                         .map((invoice, index) => (
@@ -512,7 +512,7 @@ const InvoicesPage = () => {
                                                         {new Date(invoice.creationDate).toLocaleDateString()}
                                                     </div>
                                                     <div className="text-[14px] text-[#101828] font-medium">
-                                                        {invoice.billFrom.fullName}
+                                                        {invoice.billFrom?.fullName || 'N/A'}
                                                     </div>
                                                     <div className="text-[14px] text-[#101828] font-mono">
                                                         {invoice.invoiceNumber}
