@@ -78,7 +78,7 @@ const ReceivedInvoices = () => {
   const filteredInvoices = invoices.filter(
     (invoice) =>
       invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.billFrom.fullName?.toLowerCase().includes(searchTerm.toLowerCase())
+      invoice.billFrom?.fullName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const itemsPerPage = 10;
@@ -193,7 +193,7 @@ const ReceivedInvoices = () => {
                         {invoice.invoiceNumber}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {invoice.billFrom.fullName  }
+                        {invoice.billFrom?.fullName || 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {invoice.currency}
@@ -310,7 +310,7 @@ const ReceivedInvoices = () => {
                   <div>
                     <p className="font-medium text-gray-900">{invoice.invoiceNumber}</p>
                     <p className="text-sm text-gray-500">
-                      {invoice.billFrom.fullName}
+                      {invoice.billFrom?.fullName || 'N/A'}
                     </p>
                   </div>
                   <div className="relative">
