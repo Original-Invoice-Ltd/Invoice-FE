@@ -26,7 +26,7 @@ const ReceivedInvoices = () => {
       try {
         setIsLoading(true);
         const response = await ApiClient.getReceivedInvoices();
-        console.log("Received invoices response:", response);
+        console.log("Received invoices(payment made to other business) response payment page:", response);
 
         if (response.status === 200 && response.data) {
           setInvoices(Array.isArray(response.data) ? response.data : []);
