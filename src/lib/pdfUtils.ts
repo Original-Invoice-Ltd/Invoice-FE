@@ -14,8 +14,8 @@ export interface PDFOptions {
 }
 
 /**
- * AGGRESSIVE FIX: Strips out all problematic color properties during PDF generation.
- * This prevents any modern CSS color functions from breaking the PDF engine.
+ * NUCLEAR OPTION: Strips ALL color properties to prevent any parsing errors.
+ * No color checking, no parsing - just remove everything and use safe defaults.
  */
 const fixUnsupportedColors = (clonedDoc: Document) => {
   const clonedElement = clonedDoc.body;
@@ -34,38 +34,32 @@ const fixUnsupportedColors = (clonedDoc: Document) => {
     el.classList.remove('overflow-x-auto');
   });
 
-  // 2. Strip out problematic colors entirely
+  // 2. STRIP ALL COLORS - no parsing, no checking
   const allElements = clonedElement.querySelectorAll('*');
   const colorProps = ['color', 'backgroundColor', 'borderColor', 'borderTopColor', 
                       'borderRightColor', 'borderBottomColor', 'borderLeftColor',
-                      'fill', 'stroke', 'outlineColor'];
+                      'fill', 'stroke', 'outlineColor', 'background', 'border'];
 
   allElements.forEach((el) => {
     const htmlEl = el as HTMLElement;
-    const computedStyle = window.getComputedStyle(el);
 
+    // Remove ALL color-related properties without checking their values
     colorProps.forEach((prop) => {
       try {
-        const value = computedStyle.getPropertyValue(prop);
-        
-        // If color contains modern syntax, strip it out completely
-        if (value && (value.includes('lab') || value.includes('oklch') || value.includes('lch'))) {
-          // Remove the property entirely to avoid parsing errors
-          htmlEl.style.removeProperty(prop);
-          
-          // For critical properties, set safe fallbacks
-          if (prop === 'color') {
-            htmlEl.style.setProperty(prop, '#000000', 'important');
-          } else if (prop === 'backgroundColor') {
-            htmlEl.style.setProperty(prop, 'transparent', 'important');
-          } else if (prop.includes('border')) {
-            htmlEl.style.setProperty(prop, 'transparent', 'important');
-          }
-        }
+        htmlEl.style.removeProperty(prop);
       } catch (e) {
-        // Silent catch for elements that don't support specific properties
+        // Silent catch
       }
     });
+
+    // Set safe defaults for critical properties only
+    try {
+      htmlEl.style.setProperty('color', '#000000', 'important');
+      htmlEl.style.setProperty('background-color', '#ffffff', 'important');
+      htmlEl.style.setProperty('border-color', '#cccccc', 'important');
+    } catch (e) {
+      // Silent catch
+    }
   });
 };
 
