@@ -1,66 +1,61 @@
-// /**
-//  * Uses browser's native print dialog to save as PDF.
-//  * This is the most reliable method - no color parsing issues, no library dependencies.
-//  */
-// export const printInvoiceAsPDF = (invoiceElement: HTMLElement, invoiceNumber?: string): void => {
-//   if (!invoiceElement) {
-//     throw new Error('Invoice element is required');
-//   }
+import { toPng } from 'html-to-image';
+import { jsPDF } from 'jspdf';
 
-//   // Store original body content
-//   const originalContents = document.body.innerHTML;
-//   const originalTitle = document.title;
+/**
+ * Downloads an invoice as PDF using html-to-image + jsPDF.
+ * This approach takes a visual snapshot (like a screenshot) and embeds it in a PDF.
+ * It avoids all CSS parsing issues with modern color functions.
+ */
+export const downloadInvoiceAsPDF = async (
+  invoiceElement: HTMLElement,
+  invoiceNumber?: string
+): Promise<void> => {
+  if (!invoiceElement) {
+    throw new Error('Invoice element is required for PDF generation');
+  }
 
-//   // Set document title for the PDF filename suggestion
-//   if (invoiceNumber) {
-//     document.title = `Invoice-${invoiceNumber}`;
-//   }
+  try {
+    // Generate filename
+    const filename = invoiceNumber 
+      ? `invoice-${invoiceNumber}.pdf` 
+      : `invoice-${new Date().toISOString().split('T')[0]}.pdf`;
 
-//   // Replace body with just the invoice content
-//   document.body.innerHTML = invoiceElement.outerHTML;
+    // Get the dimensions of the invoice element
+    const width = invoiceElement.offsetWidth;
+    const height = invoiceElement.offsetHeight;
 
-//   // Add print-specific styles
-//   const style = document.createElement('style');
-//   style.textContent = `
-//     @media print {
-//       body {
-//         margin: 0;
-//         padding: 20px;
-//       }
-//       @page {
-//         margin: 10mm;
-//         size: A4;
-//       }
-//       /* Hide elements that shouldn't be printed */
-//       button, .no-print {
-//         display: none !important;
-//       }
-//       /* Ensure colors print */
-//       * {
-//         -webkit-print-color-adjust: exact !important;
-//         print-color-adjust: exact !important;
-//         color-adjust: exact !important;
-//       }
-//     }
-//   `;
-//   document.head.appendChild(style);
+    // Convert HTML to PNG image with high quality
+    const dataUrl = await toPng(invoiceElement, {
+      quality: 1.0,
+      pixelRatio: 2, // Higher resolution for better quality
+      cacheBust: true,
+      backgroundColor: '#ffffff',
+    });
 
-//   // Trigger print dialog
-//   window.print();
+    // Calculate PDF dimensions (A4 size in mm)
+    const pdfWidth = 210; // A4 width in mm
+    const pdfHeight = (height * pdfWidth) / width; // Maintain aspect ratio
 
-//   // Restore original content after print dialog closes
-//   setTimeout(() => {
-//     document.body.innerHTML = originalContents;
-//     document.title = originalTitle;
-//     style.remove();
-//     // Re-trigger React hydration by reloading
-//     window.location.reload();
-//   }, 100);
-// };
+    // Create PDF with appropriate orientation
+    const orientation = pdfHeight > pdfWidth ? 'portrait' : 'landscape';
+    const pdf = new jsPDF({
+      orientation,
+      unit: 'mm',
+      format: 'a4',
+    });
 
-// export const downloadInvoiceAsPDF = (
-//   invoiceElement: HTMLElement,
-//   invoiceNumber?: string
-// ): Promise<void> => {
-//   return Promise.resolve(printInvoiceAsPDF(invoiceElement, invoiceNumber));
-// };
+    // Add the image to the PDF
+    pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+    // Save the PDF
+    pdf.save(filename);
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    throw new Error('Failed to generate PDF');
+  }
+};
+
+/**
+ * Alternative function name for compatibility
+ */
+export const printInvoiceAsPDF = downloadInvoiceAsPDF;

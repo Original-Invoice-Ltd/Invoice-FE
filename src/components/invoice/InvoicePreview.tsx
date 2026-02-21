@@ -6,6 +6,7 @@ import CompactTemplate from "./templates/CompactTemplate";
 import StandardTemplate from "./templates/StandardTemplate";
 import SimpleTemplate from "./templates/SimpleTemplate";
 import { ApiClient } from "@/lib/api";
+import { downloadInvoiceAsPDF } from "@/lib/pdfUtils";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
 import dynamic from 'next/dynamic';
@@ -80,6 +81,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
     const [phoneNumber, setPhoneNumber] = useState("");
     const [message, setMessage] = useState("");
     const [showValidationTooltip, setShowValidationTooltip] = useState(false);
+    const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
     const sendDropdownRef = useRef<HTMLDivElement>(null);
     const invoiceRef = useRef<HTMLDivElement>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -170,18 +172,25 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
         setShowTelegramModal(true);
     };
 
-    const handleDownloadPDF = () => {
-        // Set document title for PDF filename suggestion
-        const originalTitle = document.title;
-        document.title = `Invoice-${data.billTo.invoiceNumber || data.billTo.title}`;
-        
-        // Trigger browser print dialog
-        window.print();
-        
-        // Restore original title after a short delay
-        setTimeout(() => {
-            document.title = originalTitle;
-        }, 100);
+    const handleDownloadPDF = async () => {
+        if (!invoiceRef.current) {
+            console.error('Invoice element not found');
+            showError('Unable to generate PDF. Please try again.');
+            return;
+        }
+        setIsDownloadingPDF(true);
+        try {
+            await downloadInvoiceAsPDF(
+                invoiceRef.current, 
+                data.billTo.invoiceNumber || data.billTo.title
+            );
+            showSuccess('Invoice PDF downloaded successfully!');
+        } catch (error) {
+            console.error('Failed to download PDF:', error);
+            showError('Failed to download PDF. Please try again.');
+        } finally {
+            setIsDownloadingPDF(false);
+        }
     };
 
     const calculateSubtotal = () => {
@@ -230,10 +239,15 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                     </button>
                     <button 
                         onClick={handleDownloadPDF}
-                        className="flex items-center justify-center w-12 h-12 border border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-blue-50 transition-colors bg-white"
+                        disabled={isDownloadingPDF}
+                        className="flex items-center justify-center w-12 h-12 border border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-blue-50 transition-colors bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Download as PDF"
                     >
-                        <Download size={20} />
+                        {isDownloadingPDF ? (
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#2F80ED]"></div>
+                        ) : (
+                            <Download size={20} />
+                        )}
                     </button>
                     <button
                         onClick={handleEmailOptionClick}
