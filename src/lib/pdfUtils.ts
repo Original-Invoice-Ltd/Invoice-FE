@@ -1,112 +1,61 @@
-export interface PDFOptions {
-  filename?: string;
-  margin?: number | [number, number] | [number, number, number, number];
-  image?: { type: 'jpeg' | 'png' | 'webp'; quality: number };
-  html2canvas?: { 
-    scale?: number; 
-    useCORS?: boolean; 
-    logging?: boolean; 
-    backgroundColor?: string; 
-    windowWidth?: number;
-    onclone?: (clonedDoc: Document) => void;
-  };
-  jsPDF?: { unit: string; format: string; orientation: 'portrait' | 'landscape' };
-}
+import { toPng } from 'html-to-image';
+import { jsPDF } from 'jspdf';
 
 /**
- * NUCLEAR OPTION: Strips ALL color properties to prevent any parsing errors.
- * No color checking, no parsing - just remove everything and use safe defaults.
+ * Downloads an invoice as PDF using html-to-image + jsPDF.
+ * This approach takes a visual snapshot (like a screenshot) and embeds it in a PDF.
+ * It avoids all CSS parsing issues with modern color functions.
  */
-const fixUnsupportedColors = (clonedDoc: Document) => {
-  const clonedElement = clonedDoc.body;
-
-  // 1. Fix images and layout issues in the clone
-  const images = clonedElement.querySelectorAll('img');
-  images.forEach((img) => {
-    if (img.src && img.src.startsWith('http')) {
-      img.setAttribute('crossorigin', 'anonymous');
-    }
-  });
-
-  const overflowElements = clonedElement.querySelectorAll('.overflow-x-auto');
-  overflowElements.forEach((el) => {
-    (el as HTMLElement).style.overflow = 'visible';
-    el.classList.remove('overflow-x-auto');
-  });
-
-  // 2. STRIP ALL COLORS - no parsing, no checking
-  const allElements = clonedElement.querySelectorAll('*');
-  const colorProps = ['color', 'backgroundColor', 'borderColor', 'borderTopColor', 
-                      'borderRightColor', 'borderBottomColor', 'borderLeftColor',
-                      'fill', 'stroke', 'outlineColor', 'background', 'border'];
-
-  allElements.forEach((el) => {
-    const htmlEl = el as HTMLElement;
-
-    // Remove ALL color-related properties without checking their values
-    colorProps.forEach((prop) => {
-      try {
-        htmlEl.style.removeProperty(prop);
-      } catch (e) {
-        // Silent catch
-      }
-    });
-
-    // Set safe defaults for critical properties only
-    try {
-      htmlEl.style.setProperty('color', '#000000', 'important');
-      htmlEl.style.setProperty('background-color', '#ffffff', 'important');
-      htmlEl.style.setProperty('border-color', '#cccccc', 'important');
-    } catch (e) {
-      // Silent catch
-    }
-  });
-};
-
-export const downloadElementAsPDF = async (
-  element: HTMLElement,
-  options: PDFOptions = {}
+export const downloadInvoiceAsPDF = async (
+  invoiceElement: HTMLElement,
+  invoiceNumber?: string
 ): Promise<void> => {
-  if (!element) throw new Error('Element is required for PDF generation');
-
-  const defaultOptions = {
-    filename: 'invoice.pdf',
-    margin: [10, 10, 10, 10] as [number, number, number, number],
-    image: { type: 'jpeg' as const, quality: 0.95 },
-    html2canvas: { 
-      scale: 2,
-      logging: false,
-      backgroundColor: '#ffffff',
-      windowWidth: 1024,
-      onclone: fixUnsupportedColors // Injecting the fix here
-    },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
-  };
-
-  const finalOptions = { ...defaultOptions, ...options };
+  if (!invoiceElement) {
+    throw new Error('Invoice element is required for PDF generation');
+  }
 
   try {
-    const html2pdf = (await import('html2pdf.js')).default;
-    
-    // Activity pulse to keep browser responsive
-    const pulse = () => document.dispatchEvent(new MouseEvent('mousemove', { bubbles: true }));
-    
-    pulse();
-    await html2pdf().set(finalOptions).from(element).save();
-    pulse();
+    // Generate filename
+    const filename = invoiceNumber 
+      ? `invoice-${invoiceNumber}.pdf` 
+      : `invoice-${new Date().toISOString().split('T')[0]}.pdf`;
+
+    // Get the dimensions of the invoice element
+    const width = invoiceElement.offsetWidth;
+    const height = invoiceElement.offsetHeight;
+
+    // Convert HTML to PNG image with high quality
+    const dataUrl = await toPng(invoiceElement, {
+      quality: 1.0,
+      pixelRatio: 2, // Higher resolution for better quality
+      cacheBust: true,
+      backgroundColor: '#ffffff',
+    });
+
+    // Calculate PDF dimensions (A4 size in mm)
+    const pdfWidth = 210; // A4 width in mm
+    const pdfHeight = (height * pdfWidth) / width; // Maintain aspect ratio
+
+    // Create PDF with appropriate orientation
+    const orientation = pdfHeight > pdfWidth ? 'portrait' : 'landscape';
+    const pdf = new jsPDF({
+      orientation,
+      unit: 'mm',
+      format: 'a4',
+    });
+
+    // Add the image to the PDF
+    pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+    // Save the PDF
+    pdf.save(filename);
   } catch (error) {
     console.error('Error generating PDF:', error);
     throw new Error('Failed to generate PDF');
   }
 };
 
-export const downloadInvoiceAsPDF = async (
-  invoiceElement: HTMLElement,
-  invoiceNumber?: string
-): Promise<void> => {
-  const filename = invoiceNumber 
-    ? `invoice-${invoiceNumber}.pdf` 
-    : `invoice-${new Date().toISOString().split('T')[0]}.pdf`;
-
-  return downloadElementAsPDF(invoiceElement, { filename });
-};
+/**
+ * Alternative function name for compatibility
+ */
+export const printInvoiceAsPDF = downloadInvoiceAsPDF;
