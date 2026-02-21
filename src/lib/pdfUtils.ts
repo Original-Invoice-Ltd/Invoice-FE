@@ -14,8 +14,8 @@ export interface PDFOptions {
 }
 
 /**
- * OPTIMIZED: Fixes unsupported modern CSS colors (lab, oklch) for PDF engines.
- * This runs inside the 'onclone' hook of html2canvas.
+ * AGGRESSIVE FIX: Strips out all problematic color properties during PDF generation.
+ * This prevents any modern CSS color functions from breaking the PDF engine.
  */
 const fixUnsupportedColors = (clonedDoc: Document) => {
   const clonedElement = clonedDoc.body;
@@ -34,10 +34,11 @@ const fixUnsupportedColors = (clonedDoc: Document) => {
     el.classList.remove('overflow-x-auto');
   });
 
-  // 2. High-speed color conversion
-  // We target the most common properties to save CPU cycles
+  // 2. Strip out problematic colors entirely
   const allElements = clonedElement.querySelectorAll('*');
-  const colorProps = ['color', 'backgroundColor', 'borderColor', 'fill', 'stroke'];
+  const colorProps = ['color', 'backgroundColor', 'borderColor', 'borderTopColor', 
+                      'borderRightColor', 'borderBottomColor', 'borderLeftColor',
+                      'fill', 'stroke', 'outlineColor'];
 
   allElements.forEach((el) => {
     const htmlEl = el as HTMLElement;
@@ -46,10 +47,20 @@ const fixUnsupportedColors = (clonedDoc: Document) => {
     colorProps.forEach((prop) => {
       try {
         const value = computedStyle.getPropertyValue(prop);
-        // If the color contains modern syntax, force it to the RGB string
-        // that the browser has already calculated in computedStyle.
+        
+        // If color contains modern syntax, strip it out completely
         if (value && (value.includes('lab') || value.includes('oklch') || value.includes('lch'))) {
-          htmlEl.style.setProperty(prop, value, 'important');
+          // Remove the property entirely to avoid parsing errors
+          htmlEl.style.removeProperty(prop);
+          
+          // For critical properties, set safe fallbacks
+          if (prop === 'color') {
+            htmlEl.style.setProperty(prop, '#000000', 'important');
+          } else if (prop === 'backgroundColor') {
+            htmlEl.style.setProperty(prop, 'transparent', 'important');
+          } else if (prop.includes('border')) {
+            htmlEl.style.setProperty(prop, 'transparent', 'important');
+          }
         }
       } catch (e) {
         // Silent catch for elements that don't support specific properties
