@@ -203,11 +203,11 @@ const DashboardContent = () => {
                 <h1 className="text-xl lg:text-2xl font-semibold text-[#101828] mb-1">
                     {userLoading ? (
                         <span className="inline-flex items-center gap-2">
-                            {t('home')}, 
+                            Welcome back, 
                             <div className="animate-pulse bg-gray-200 h-6 w-16 rounded"></div>
                         </span>
                     ) : (
-                        `${t('home')}, ${getFirstName()}`
+                        `Welcome back, ${getFirstName()}`
                     )}
                 </h1>
                 <p className="text-sm text-[#667085]">{t('performance_glance')}</p>
