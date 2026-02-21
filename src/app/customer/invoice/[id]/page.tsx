@@ -6,11 +6,12 @@ import Image from "next/image";
 import { UploadReceiptModal } from "@/components/modals";
 import { ApiClient } from "@/lib/api";
 import { usePublicInvoiceByUuid } from "@/hooks/useCustomerInvoices";
-import html2pdf from "html2pdf.js";
+import { downloadInvoiceAsPDF } from "@/lib/pdfUtils";
 
 export default function EmailInvoicePage() {
     const params = useParams();
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
     const invoiceRef = useRef<HTMLDivElement>(null);
     const invoiceId = params.id as string;
 
@@ -25,6 +26,25 @@ export default function EmailInvoicePage() {
     const handleModalClose = () => {
         setIsUploadModalOpen(false);
         refetch();
+    };
+
+    const handleDownloadPDF = async () => {
+        if (!invoiceRef.current || !invoice) {
+            console.error('Invoice element or data not found');
+            return;
+        }
+        setIsDownloadingPDF(true);
+        try {
+            await downloadInvoiceAsPDF(
+                invoiceRef.current,
+                invoice.invoiceNumber || invoice.title
+            );
+        } catch (error) {
+            console.error('Failed to download PDF:', error);
+            alert('Failed to download PDF. Please try again.');
+        } finally {
+            setIsDownloadingPDF(false);
+        }
     };
 
     const formatCurrency = (amount: number) => {
@@ -354,15 +374,23 @@ export default function EmailInvoicePage() {
                 </div>
                 <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6">
                     <button
-                        onClick={() => {
-                            
-                        }}
-                        className="flex cursor-pointer items-center justify-center gap-2 px-4 md:px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm md:text-base"
+                        onClick={handleDownloadPDF}
+                        disabled={isDownloadingPDF}
+                        className="flex cursor-pointer items-center justify-center gap-2 px-4 md:px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        Download PDF
+                        {isDownloadingPDF ? (
+                            <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700"></div>
+                                Downloading...
+                            </>
+                        ) : (
+                            <>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Download PDF
+                            </>
+                        )}
                     </button>
                     {/* <button className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors text-sm md:text-base">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

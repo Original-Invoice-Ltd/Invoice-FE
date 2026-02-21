@@ -3,7 +3,7 @@ export interface PDFOptions {
   margin?: number | [number, number] | [number, number, number, number];
   image?: { type: 'jpeg' | 'png' | 'webp'; quality: number };
   html2canvas?: { 
-    scale: number; 
+    scale?: number; 
     useCORS?: boolean; 
     logging?: boolean; 
     backgroundColor?: string; 
@@ -13,13 +13,56 @@ export interface PDFOptions {
   jsPDF?: { unit: string; format: string; orientation: 'portrait' | 'landscape' };
 }
 
+/**
+ * OPTIMIZED: Fixes unsupported modern CSS colors (lab, oklch) for PDF engines.
+ * This runs inside the 'onclone' hook of html2canvas.
+ */
+const fixUnsupportedColors = (clonedDoc: Document) => {
+  const clonedElement = clonedDoc.body;
+
+  // 1. Fix images and layout issues in the clone
+  const images = clonedElement.querySelectorAll('img');
+  images.forEach((img) => {
+    if (img.src && img.src.startsWith('http')) {
+      img.setAttribute('crossorigin', 'anonymous');
+    }
+  });
+
+  const overflowElements = clonedElement.querySelectorAll('.overflow-x-auto');
+  overflowElements.forEach((el) => {
+    (el as HTMLElement).style.overflow = 'visible';
+    el.classList.remove('overflow-x-auto');
+  });
+
+  // 2. High-speed color conversion
+  // We target the most common properties to save CPU cycles
+  const allElements = clonedElement.querySelectorAll('*');
+  const colorProps = ['color', 'backgroundColor', 'borderColor', 'fill', 'stroke'];
+
+  allElements.forEach((el) => {
+    const htmlEl = el as HTMLElement;
+    const computedStyle = window.getComputedStyle(el);
+
+    colorProps.forEach((prop) => {
+      try {
+        const value = computedStyle.getPropertyValue(prop);
+        // If the color contains modern syntax, force it to the RGB string
+        // that the browser has already calculated in computedStyle.
+        if (value && (value.includes('lab') || value.includes('oklch') || value.includes('lch'))) {
+          htmlEl.style.setProperty(prop, value, 'important');
+        }
+      } catch (e) {
+        // Silent catch for elements that don't support specific properties
+      }
+    });
+  });
+};
+
 export const downloadElementAsPDF = async (
   element: HTMLElement,
   options: PDFOptions = {}
 ): Promise<void> => {
-  if (!element) {
-    throw new Error('Element is required for PDF generation');
-  }
+  if (!element) throw new Error('Element is required for PDF generation');
 
   const defaultOptions = {
     filename: 'invoice.pdf',
@@ -30,21 +73,7 @@ export const downloadElementAsPDF = async (
       logging: false,
       backgroundColor: '#ffffff',
       windowWidth: 1024,
-      onclone: (clonedDoc: Document) => {
-        const clonedElement = clonedDoc.body;
-        const images = clonedElement.querySelectorAll('img');
-        images.forEach((img) => {
-          if (img.src && (img.src.startsWith('http://') || img.src.startsWith('https://'))) {
-            img.setAttribute('crossorigin', 'anonymous');
-          }
-        });
-        
-        const overflowElements = clonedElement.querySelectorAll('.overflow-x-auto');
-        overflowElements.forEach((el) => {
-          el.classList.remove('overflow-x-auto');
-          (el as HTMLElement).style.overflow = 'visible';
-        });
-      }
+      onclone: fixUnsupportedColors // Injecting the fix here
     },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
   };
@@ -54,27 +83,14 @@ export const downloadElementAsPDF = async (
   try {
     const html2pdf = (await import('html2pdf.js')).default;
     
-    const activityEvent = new MouseEvent('mousemove', {
-      bubbles: true,
-      cancelable: true,
-      view: window
-    });
-    document.dispatchEvent(activityEvent);
+    // Activity pulse to keep browser responsive
+    const pulse = () => document.dispatchEvent(new MouseEvent('mousemove', { bubbles: true }));
     
-    await html2pdf()
-      .set(finalOptions)
-      .from(element)
-      .save();
-      
-    document.dispatchEvent(activityEvent);
+    pulse();
+    await html2pdf().set(finalOptions).from(element).save();
+    pulse();
   } catch (error) {
     console.error('Error generating PDF:', error);
-    const activityEvent = new MouseEvent('mousemove', {
-      bubbles: true,
-      cancelable: true,
-      view: window
-    });
-    document.dispatchEvent(activityEvent);
     throw new Error('Failed to generate PDF');
   }
 };
@@ -87,37 +103,5 @@ export const downloadInvoiceAsPDF = async (
     ? `invoice-${invoiceNumber}.pdf` 
     : `invoice-${new Date().toISOString().split('T')[0]}.pdf`;
 
-  const options: PDFOptions = {
-    filename,
-    margin: [10, 10, 10, 10] as [number, number, number, number],
-    image: { type: 'jpeg', quality: 0.95 },
-    html2canvas: { 
-      scale: 2,
-      logging: false,
-      backgroundColor: '#ffffff',
-      windowWidth: 1024,
-      onclone: (clonedDoc: Document) => {
-        const clonedElement = clonedDoc.body;
-        const images = clonedElement.querySelectorAll('img');
-        images.forEach((img) => {
-          if (img.src && (img.src.startsWith('http://') || img.src.startsWith('https://'))) {
-            img.setAttribute('crossorigin', 'anonymous');
-          }
-        });
-        
-        const overflowElements = clonedElement.querySelectorAll('.overflow-x-auto');
-        overflowElements.forEach((el) => {
-          el.classList.remove('overflow-x-auto');
-          (el as HTMLElement).style.overflow = 'visible';
-        });
-      }
-    },
-    jsPDF: { 
-      unit: 'mm', 
-      format: 'a4', 
-      orientation: 'portrait' 
-    }
-  };
-
-  return downloadElementAsPDF(invoiceElement, options);
+  return downloadElementAsPDF(invoiceElement, { filename });
 };
