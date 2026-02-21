@@ -345,18 +345,17 @@ const BusinessProfilePage = () => {
               />
             </div>
 
-            {/* Business Name (Second Field) */}
-
+            {/* Business Registration Number */}
             <div>
               <label className="block text-sm font-medium text-[#101828] mb-2">
-                {t("business_name")} <span className="text-red-500">*</span>
+                {t("business_registration_number")}
               </label>
               <input
                 type="text"
-                name="businessFullName"
-                value={formData.businessFullName}
+                name="businessRegistrationNumber"
+                value={formData.businessRegistrationNumber}
                 onChange={handleInputChange}
-                placeholder={t("enter_business_name")}
+                placeholder={t("enter_registration_number")}
                 className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
               />
             </div>
@@ -386,41 +385,26 @@ const BusinessProfilePage = () => {
               </select>
             </div>
 
-            {/* Business Registration Number */}
+            {/* Country */}
             <div>
               <label className="block text-sm font-medium text-[#101828] mb-2">
-                {t("business_registration_number")}
+                {t("country")} <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
-                name="businessRegistrationNumber"
-                value={formData.businessRegistrationNumber}
+              <select
+                name="country"
+                value={formData.country}
                 onChange={handleInputChange}
-                placeholder={t("enter_registration_number")}
-                className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
-              />
+                className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent appearance-none bg-white"
+                required
+              >
+                <option value="">{t("select_country")}</option>
+                {countries.map((country) => (
+                  <option key={country.value} value={country.value}>
+                    {country.label}
+                  </option>
+                ))}
+              </select>
             </div>
-          </div>
-
-          {/* Country */}
-          <div>
-            <label className="block text-sm font-medium text-[#101828] mb-2">
-              {t("country")} <span className="text-red-500">*</span>
-            </label>
-            <select
-              name="country"
-              value={formData.country}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent appearance-none bg-white"
-              required
-            >
-              <option value="">{t("select_country")}</option>
-              {countries.map((country) => (
-                <option key={country.value} value={country.value}>
-                  {country.label}
-                </option>
-              ))}
-            </select>
           </div>
 
           {/* Logo Upload */}
