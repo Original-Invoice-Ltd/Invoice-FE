@@ -10,6 +10,7 @@ import { downloadInvoiceAsPDF } from "@/lib/pdfUtils";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
 import dynamic from 'next/dynamic';
+import { useSubscription } from "@/hooks/useSubscription";
 
 interface InvoiceItem {
     id: number;
@@ -86,6 +87,9 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
     const invoiceRef = useRef<HTMLDivElement>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const { toast, showSuccess, showError, hideToast } = useToast();
+    const { subscription } = useSubscription();
+    
+    const isFreePlan = !subscription || subscription.plan === 'FREE';
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -187,7 +191,8 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
         try {
             await downloadInvoiceAsPDF(
                 invoiceRef.current, 
-                data.billTo.invoiceNumber || data.billTo.title
+                data.billTo.invoiceNumber || data.billTo.title,
+                isFreePlan
             );
             showSuccess('Invoice PDF downloaded successfully!');
         } catch (error) {
@@ -264,6 +269,25 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                 </div>
 
                 <div className="bg-white mb-4 rounded-lg shadow-sm relative overflow-hidden " ref={invoiceRef}>
+                    {isFreePlan && (
+                        <div 
+                            className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
+                            style={{
+                                transform: 'rotate(-45deg)',
+                            }}
+                        >
+                            <div 
+                                className="text-gray-300 font-bold select-none"
+                                style={{
+                                    fontSize: '4rem',
+                                    opacity: 0.15,
+                                    letterSpacing: '0.1em',
+                                }}
+                            >
+                                originalinvoice.com
+                            </div>
+                        </div>
+                    )}
 
                     {data.template === 'simple' && <SimpleTemplate data={data} />}
                     {data.template === 'standard' && <StandardTemplate data={data} />}

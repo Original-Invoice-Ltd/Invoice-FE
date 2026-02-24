@@ -1508,16 +1508,34 @@ const CreateInvoicePage = () => {
                                     />
                                 </div>
                                 {/* Signature */}
-                                <div className="flex items-center gap-4">
-                                    <label className="text-[16px] font-medium text-[#101828]">
-                                        Add Signature
-                                    </label>
-                                    <button
-                                        onClick={() => setShowSignatureModal(true)}
-                                        className="flex items-center justify-center w-10 h-10 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
-                                    >
-                                        <Plus size={20} />
-                                    </button>
+                                <div>
+                                    <div className="flex items-center gap-4 mb-3">
+                                        <label className="text-[16px] font-medium text-[#101828]">
+                                            Add Signature
+                                        </label>
+                                        <button
+                                            onClick={() => setShowSignatureModal(true)}
+                                            className="flex items-center justify-center w-10 h-10 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
+                                        >
+                                            <Plus size={20} />
+                                        </button>
+                                    </div>
+                                    {signature && (
+                                        <div className="relative inline-block">
+                                            <img 
+                                                src={signature} 
+                                                alt="Signature preview" 
+                                                className="h-16 border border-gray-200 rounded-lg p-2 bg-white"
+                                            />
+                                            <button
+                                                onClick={() => setSignature(null)}
+                                                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                                                title="Remove signature"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
