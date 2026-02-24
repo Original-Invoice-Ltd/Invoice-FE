@@ -70,14 +70,24 @@ const PersonalProfilePage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-  if (formData.phoneNumber.length > 0 && !ApiClient.isValidPhone(formData.phoneNumber)) {
+    
+    // Normalize phone number: if starts with 0, convert to +234
+    let normalizedPhone = formData.phoneNumber.trim();
+    if (normalizedPhone.length > 0) {
+      if (normalizedPhone.startsWith('0')) {
+        normalizedPhone = '+234' + normalizedPhone.substring(1);
+      }
+      
+      if (!ApiClient.isValidPhone(normalizedPhone)) {
         setIsLoading(false);
         showError("Phone number must be in international format. Example: +234***********");
         return;
       }
+    }
+    
     try {
       const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim();
-      const success = await updateUserProfile(fullName, formData.phoneNumber);
+      const success = await updateUserProfile(fullName, normalizedPhone);
       if (!success) {
         throw new Error("Failed to update profile");
       }

@@ -182,11 +182,19 @@ const BusinessProfilePage = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    if (formData.phoneNumber.length > 0 && !ApiClient.isValidPhone(formData.phoneNumber)) {
-      setIsLoading(false);
-      showError(t("phone_international_format"));
-      return;
+    let normalizedPhone = formData.phoneNumber.trim();
+    if (normalizedPhone.length > 0) {
+      if (normalizedPhone.startsWith('0')) {
+        normalizedPhone = '+234' + normalizedPhone.substring(1);
+      }
+      
+      if (!ApiClient.isValidPhone(normalizedPhone)) {
+        setIsLoading(false);
+        showError(t("phone_international_format"));
+        return;
+      }
     }
+    
     try {
       let businessLogoUrl = existingLogoUrl;
       let logoUploadFailed = false;
@@ -207,7 +215,7 @@ const BusinessProfilePage = () => {
         businessFullName: formData.businessFullName,
         registeredBusinessAddress: formData.registeredBusinessAddress,
         emailAddress: formData.emailAddress,
-        phoneNumber: formData.phoneNumber,
+        phoneNumber: normalizedPhone,
         businessType: formData.businessType,
         country: formData.country,
         businessRegistrationNumber: formData.businessRegistrationNumber,

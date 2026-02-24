@@ -103,14 +103,19 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
         setErrorMessage(null);
         
         try {
-            if (!ApiClient.isValidPhone(phoneNumber)) {
+            let normalizedPhone = phoneNumber.trim();
+            if (normalizedPhone.startsWith('0')) {
+                normalizedPhone = '+234' + normalizedPhone.substring(1);
+            }
+            
+            if (!ApiClient.isValidPhone(normalizedPhone)) {
                 setErrorMessage('Invalid phone number format. Use +234********** format');
                 setIsSubmitting(false);
                 return;
             }
 
             if (onSendWhatsApp) {
-                const result = await onSendWhatsApp(phoneNumber, message);
+                const result = await onSendWhatsApp(normalizedPhone, message);
                 if (result.success) {
                     setSubmitSuccess(true);
                     setShowWhatsAppModal(false);
@@ -718,7 +723,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                             </button>
                             <button
                                 onClick={handleSendWhatsappInvoice}
-                                disabled={isSubmitting || !ApiClient.isValidPhone(phoneNumber)}
+                                disabled={isSubmitting || !ApiClient.isValidPhone(phoneNumber.trim().startsWith('0') ? '+234' + phoneNumber.trim().substring(1) : phoneNumber.trim())}
                                 className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? 'Sending...' : 'Send Invoice'}
