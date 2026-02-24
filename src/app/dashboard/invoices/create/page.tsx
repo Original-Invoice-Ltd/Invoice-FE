@@ -525,7 +525,7 @@ const CreateInvoicePage = () => {
             try {
                 await loadDraft();
             } catch (error) {
-                throw new Error('Error loading draft:' );
+                throw new Error('Error loading draft:');
             }
         };
 
@@ -571,7 +571,7 @@ const CreateInvoicePage = () => {
         }
     }, [loadedDraftData?.selectedClientId, clientsLoaded]);
 
-    const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
         setIsDrawing(true);
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -581,10 +581,16 @@ const CreateInvoicePage = () => {
         if (!ctx) return;
 
         ctx.beginPath();
-        ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+
+        if ('touches' in e) {
+            const touch = e.touches[0];
+            ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        } else {
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
     };
 
-    const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
         if (!isDrawing) return;
 
         const canvas = canvasRef.current;
@@ -594,7 +600,12 @@ const CreateInvoicePage = () => {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        if ('touches' in e) {
+            const touch = e.touches[0];
+            ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        } else {
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
         ctx.stroke();
     };
 
@@ -619,6 +630,42 @@ const CreateInvoicePage = () => {
         const dataUrl = canvas.toDataURL();
         setSignature(dataUrl);
         setShowSignatureModal(false);
+    };
+
+    const handleSignatureFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            showError('Please select a valid image file');
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            showError('Signature file size too large. upload must not be greater than 2mb');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+                const x = (canvas.width - img.width * scale) / 2;
+                const y = (canvas.height - img.height * scale) / 2;
+
+                ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+            };
+            img.src = event.target?.result as string;
+        };
+        reader.readAsDataURL(file);
     };
 
     const handlePreviewInvoice = () => {
@@ -1519,6 +1566,7 @@ const CreateInvoicePage = () => {
                                     </div>
 
                                     <div className="mb-4">
+                                        <p className="text-sm text-gray-600 mb-3">Draw your signature or upload an image</p>
                                         <canvas
                                             ref={canvasRef}
                                             width={400}
@@ -1527,17 +1575,41 @@ const CreateInvoicePage = () => {
                                             onMouseMove={draw}
                                             onMouseUp={stopDrawing}
                                             onMouseLeave={stopDrawing}
-                                            className="w-full border-2 border-[#D0D5DD] rounded-lg cursor-crosshair bg-white"
+                                            onTouchStart={(e) => {
+                                                e.preventDefault();
+                                                startDrawing(e);
+                                            }}
+                                            onTouchMove={(e) => {
+                                                e.preventDefault();
+                                                draw(e);
+                                            }}
+                                            onTouchEnd={(e) => {
+                                                e.preventDefault();
+                                                stopDrawing();
+                                            }}
+                                            className="w-full border-2 border-[#D0D5DD] rounded-lg cursor-crosshair bg-white touch-none"
                                         />
                                     </div>
 
-                                    <div className="flex gap-3">
+                                    <div className="flex gap-3 mb-3">
                                         <button
                                             onClick={clearCanvas}
                                             className="px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50"
                                         >
                                             Clear
                                         </button>
+                                        <label className="flex-1 px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50 cursor-pointer text-center">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleSignatureFileUpload}
+                                                className="hidden"
+                                            />
+                                            Upload Image
+                                        </label>
+                                    </div>
+                                    
+                                    <div className="flex gap-3">
                                         <button
                                             onClick={() => {
                                                 setShowSignatureModal(false);
@@ -1668,6 +1740,7 @@ const CreateInvoicePage = () => {
                                         </div>
 
                                         <div className="mb-4">
+                                            <p className="text-sm text-gray-600 mb-3">Draw your signature or upload an image</p>
                                             <canvas
                                                 ref={canvasRef}
                                                 width={400}
@@ -1676,17 +1749,41 @@ const CreateInvoicePage = () => {
                                                 onMouseMove={draw}
                                                 onMouseUp={stopDrawing}
                                                 onMouseLeave={stopDrawing}
-                                                className="w-full border-2 border-[#D0D5DD] rounded-lg cursor-crosshair bg-white"
+                                                onTouchStart={(e) => {
+                                                    e.preventDefault();
+                                                    startDrawing(e);
+                                                }}
+                                                onTouchMove={(e) => {
+                                                    e.preventDefault();
+                                                    draw(e);
+                                                }}
+                                                onTouchEnd={(e) => {
+                                                    e.preventDefault();
+                                                    stopDrawing();
+                                                }}
+                                                className="w-full border-2 border-[#D0D5DD] rounded-lg cursor-crosshair bg-white touch-none"
                                             />
                                         </div>
 
-                                        <div className="flex gap-3">
+                                        <div className="flex gap-3 mb-3">
                                             <button
                                                 onClick={clearCanvas}
                                                 className="px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50"
                                             >
                                                 Clear
                                             </button>
+                                            <label className="flex-1 px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50 cursor-pointer text-center">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleSignatureFileUpload}
+                                                    className="hidden"
+                                                />
+                                                Upload Image
+                                            </label>
+                                        </div>
+                                        
+                                        <div className="flex gap-3">
                                             <button
                                                 onClick={() => {
                                                     setShowSignatureModal(false);
