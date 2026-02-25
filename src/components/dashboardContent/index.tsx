@@ -30,10 +30,7 @@ const DashboardContent = () => {
     });
     const [customerStatsLoading, setCustomerStatsLoading] = useState(true);
     
-    // Auto-refresh all data every 5 minutes
-    // useAutoRefreshDashboard(refreshAll);
 
-    // Handle trends period change - only refresh trends data
     const handleTrendsPeriodChange = async () => {
         const newPeriod = trendsPeriod === 'month' ? 'year' : 'month';
         setTrendsPeriod(newPeriod);
@@ -383,7 +380,7 @@ const DashboardContent = () => {
                         <ChevronDown size={16} />
                     </button>
                 </div>
-                <div className="w-full h-[200px] lg:h-[280px]" style={{ minWidth: '300px', minHeight: '200px' }}>
+                <div className="w-full h-[200px] lg:h-[225px]" style={{ minWidth: '300px', minHeight: '200px' }}>
                     {loading.trends ? (
                         <div className="animate-pulse h-full bg-gray-100 rounded flex items-center justify-center">
                             <div className="text-gray-400">{t('loading')}</div>
@@ -438,7 +435,9 @@ const DashboardContent = () => {
                             <ChevronDown size={16} />
                         </button>
                     </div>
-                    <div className="w-full h-[280px]" style={{ minWidth: '400px', minHeight: '280px' }}>
+                    {/* <div className="w-full h-[200px]" style={{ minWidth: '400px', minHeight: '225px' }}> */}
+                    <div className="w-full h-[200px] lg:h-[350px]" style={{ minWidth: '300px', minHeight: '250px' }}>
+    
                         {loading.trends ? (
                             <div className="animate-pulse h-full bg-gray-100 rounded flex items-center justify-center">
                                 <div className="text-gray-400">{t('loading')}</div>
@@ -479,7 +478,7 @@ const DashboardContent = () => {
                 </div>
 
                 {/* Status Distribution - Desktop */}
-                <div className="w-[392px] bg-white p-4 rounded-xl border border-[#E4E7EC]">
+                <div className="w-[392px] bg-white p-4 rounded-xl border border-[#E4E7EC] flex flex-col">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-[#101828]">{t('status')}</h3>
                         <button className="flex items-center gap-2 text-sm text-[#667085]">
@@ -487,7 +486,7 @@ const DashboardContent = () => {
                             <ChevronDown size={16} />
                         </button>
                     </div>
-                    <div className="w-full h-[180px] flex items-center justify-center" style={{ minWidth: '300px', minHeight: '180px' }}>
+                    <div className="w-full h-[280px] flex items-center justify-center" style={{ minWidth: '300px', minHeight: '200px' }}>
                         {isClient && statusDistributionData.length > 0 && (
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
@@ -495,8 +494,8 @@ const DashboardContent = () => {
                                         data={statusDistributionData}
                                         cx="50%"
                                         cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={80}
+                                        innerRadius={70}
+                                        outerRadius={100}
                                         paddingAngle={5}
                                         dataKey="value"
                                     >

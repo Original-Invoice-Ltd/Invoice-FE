@@ -38,7 +38,6 @@ export const downloadInvoiceAsPDF = async (
     
     const style = document.createElement('style');
     style.textContent = `
-      /* Force desktop layout for PDF generation */
       .sm\\:px-8, .sm\\:px-12, .md\\:px-8, .md\\:px-12, .lg\\:px-12 { padding-left: 3rem !important; padding-right: 3rem !important; }
       .sm\\:py-4, .md\\:py-4 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
       .sm\\:text-sm { font-size: 0.875rem !important; }

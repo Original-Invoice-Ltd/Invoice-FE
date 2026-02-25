@@ -111,7 +111,7 @@ export const StatusChart = ({ data, isEmpty }: StatusChartProps) => {
   }, []);
 
   return (
-    <div className="bg-white rounded-xl border border-[#E4E7EC] p-4">
+    <div className="bg-white rounded-xl border border-[#E4E7EC] p-4 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base lg:text-lg font-semibold text-[#101828]">
           {t('status_distribution')}
@@ -126,12 +126,12 @@ export const StatusChart = ({ data, isEmpty }: StatusChartProps) => {
       </div>
       
       {isEmpty ? (
-        <div className="flex items-center justify-center h-[180px]">
+        <div className="flex items-center justify-center h-[200px] lg:h-[225px]">
           <div className="text-gray-500">{t('no_status_data')}</div>
         </div>
       ) : (
         <div className="flex flex-col">
-          <div className="w-full h-[180px] flex items-center justify-center mb-4">
+          <div className="w-full h-[200px] lg:h-[225px] flex items-center justify-center mb-4">
             {isClient && data.length > 0 && (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -139,8 +139,8 @@ export const StatusChart = ({ data, isEmpty }: StatusChartProps) => {
                     data={data}
                     cx="50%"
                     cy="50%"
-                    innerRadius={50}
-                    outerRadius={70}
+                    innerRadius={60}
+                    outerRadius={90}
                     paddingAngle={5}
                     dataKey="value"
                   >
