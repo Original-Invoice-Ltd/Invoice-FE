@@ -7,8 +7,9 @@ import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
 import { ApiResponse } from "@/types/invoice";
 import { useTranslation } from "react-i18next";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
+import Link from "next/link";
 
-// TypeScript interfaces for tax settings
 interface TaxSettingsDto {
   taxApplied?: string;
   taxId?: string;
@@ -20,6 +21,7 @@ interface TaxSettingsDto {
 const TaxSettingsPage = () => {
   const { toast, showSuccess, showError, hideToast } = useToast();
   const { t } = useTranslation();
+  const { hasAccess, getFeatureUpgradeMessage } = usePlanAccess();
   
   const [settings, setSettings] = useState({
     enableVAT: false,
@@ -32,7 +34,6 @@ const TaxSettingsPage = () => {
 
   const [isLoadingData, setIsLoadingData] = useState(true);
 
-  // Load existing tax settings on component mount
   useEffect(() => {
     loadTaxSettings();
   }, []);
@@ -60,9 +61,8 @@ const TaxSettingsPage = () => {
     }
   };
 
-  // Map backend taxApplied enum to UI defaultTax
   const mapTaxAppliedToDefaultTax = (taxApplied?: string): string => {
-    if (!taxApplied) return 'vat'; // Default fallback
+    if (!taxApplied) return 'vat';
     
     switch (taxApplied.toLowerCase()) {
       case 'vat':
@@ -78,7 +78,6 @@ const TaxSettingsPage = () => {
     }
   };
 
-  // Map UI defaultTax to backend taxApplied enum
   const mapDefaultTaxToTaxApplied = (defaultTax: string): string => {
     switch (defaultTax) {
       case 'vat':
@@ -153,12 +152,9 @@ const TaxSettingsPage = () => {
   };
 
   const handleCancel = () => {
-
-    // Reload settings from server to reset any unsaved changes
     loadTaxSettings();
   };
 
-  // Show loading state while fetching data
   if (isLoadingData) {
     return (
       <div className="p-6">
@@ -166,6 +162,30 @@ const TaxSettingsPage = () => {
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED]"></div>
             <span className="ml-3 text-[#667085]">{t("loading_tax_settings")}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasAccess('taxCompliance')) {
+    return (
+      <div className="p-6">
+        <div className="max-w-2xl">
+          <div className="bg-white rounded-lg border border-[#E4E7EC] p-8 text-center">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="#667085"/>
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-[#101828] mb-2">Tax Compliance Tools</h3>
+            <p className="text-[#667085] mb-6">{getFeatureUpgradeMessage('taxCompliance')}</p>
+            <Link 
+              href="/dashboard/pricing"
+              className="inline-flex items-center justify-center px-6 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#1E6FCC] transition-colors"
+            >
+              Upgrade to Essentials
+            </Link>
           </div>
         </div>
       </div>

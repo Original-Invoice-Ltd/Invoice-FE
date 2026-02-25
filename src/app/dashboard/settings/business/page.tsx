@@ -8,6 +8,8 @@ import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
 import { ApiResponse } from "@/types/invoice";
 import { useTranslation } from "react-i18next";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
+import Link from "next/link";
 
 interface BusinessProfileDto {
   businessName?: string;
@@ -25,6 +27,7 @@ interface BusinessProfileDto {
 const BusinessProfilePage = () => {
   const { toast, showSuccess, showError, hideToast } = useToast();
   const { t } = useTranslation();
+  const { hasAccess, getFeatureUpgradeMessage } = usePlanAccess();
 
   const [formData, setFormData] = useState({
     businessName: "",
@@ -421,38 +424,62 @@ const BusinessProfilePage = () => {
               {t("upload_business_logo")}
             </label>
             <p className="text-xs text-[#667085] mb-3">{t("max_file_size")}</p>
-            {logoPreview ? (
-              <div className="relative w-32 h-32 border-2 border-dashed border-[#D0D5DD] rounded-lg flex items-center justify-center bg-[#F9FAFB]">
-                <Image
-                  src={logoPreview}
-                  alt="Logo preview"
-                  width={120}
-                  height={120}
-                  className="object-contain rounded-lg"
-                />
-                <button
-                  type="button"
-                  onClick={removeLogo}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
-                >
-                  <X size={14} />
-                </button>
-              </div>
+            {hasAccess('customLogo') ? (
+              <>
+                {logoPreview ? (
+                  <div className="relative w-32 h-32 border-2 border-dashed border-[#D0D5DD] rounded-lg flex items-center justify-center bg-[#F9FAFB]">
+                    <Image
+                      src={logoPreview}
+                      alt="Logo preview"
+                      width={120}
+                      height={120}
+                      className="object-contain rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeLogo}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-32 h-32 border-2 border-dashed border-[#D0D5DD] rounded-lg flex flex-col items-center justify-center bg-[#F9FAFB] cursor-pointer hover:bg-gray-100 transition-colors">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      className="hidden"
+                      id="logo-upload"
+                    />
+                    <label htmlFor="logo-upload" className="cursor-pointer flex flex-col items-center">
+                      <Upload size={24} className="text-[#667085] mb-2" />
+                      <span className="text-xs text-[#667085] text-center">
+                        {t("click_to_upload")}
+                      </span>
+                    </label>
+                  </div>
+                )}
+              </>
             ) : (
-              <div className="w-32 h-32 border-2 border-dashed border-[#D0D5DD] rounded-lg flex flex-col items-center justify-center bg-[#F9FAFB] cursor-pointer hover:bg-gray-100 transition-colors">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoUpload}
-                  className="hidden"
-                  id="logo-upload"
-                />
-                <label htmlFor="logo-upload" className="cursor-pointer flex flex-col items-center">
-                  <Upload size={24} className="text-[#667085] mb-2" />
-                  <span className="text-xs text-[#667085] text-center">
-                    {t("click_to_upload")}
+              <div className="w-32 h-32 border-2 border-dashed border-[#E5E5E5] rounded-lg flex flex-col items-center justify-center bg-gray-50 relative">
+                <div className="flex flex-col items-center opacity-50">
+                  <Upload size={24} className="text-gray-400 mb-2" />
+                  <span className="text-xs text-gray-500 text-center px-2">
+                    Custom Logo
                   </span>
-                </label>
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg">
+                  <div className="text-center px-4">
+                    <p className="text-xs text-gray-600 mb-2">{getFeatureUpgradeMessage('customLogo')}</p>
+                    <Link 
+                      href="/dashboard/pricing"
+                      className="text-xs text-[#2F80ED] hover:underline"
+                    >
+                      Upgrade Plan
+                    </Link>
+                  </div>
+                </div>
               </div>
             )}
           </div>
