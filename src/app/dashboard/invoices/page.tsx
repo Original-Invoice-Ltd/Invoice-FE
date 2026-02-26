@@ -49,7 +49,6 @@ const InvoicesPage = () => {
         try {
             setLoading(true);
             const response = await ApiClient.getAllUserInvoices(user?.id);
-            console.log("Response is fetched")
             if (response.status === 200 && response.data) {
                 const invoicesData = Array.isArray(response.data) ? response.data : [];
                 setInvoices(invoicesData);
@@ -66,18 +65,20 @@ const InvoicesPage = () => {
     }, [showError, user?.id]);
 
     const fetchReceivedInvoices = useCallback(async () => {
+
         try {
             setReceivedLoading(true);
-            const response = await ApiClient.getInvoiceStats(user?.email || '');
-            if (response.status === 200 && response.data?.invoices) {
-                setReceivedInvoices(response.data.invoices);
+            const response = await ApiClient.getReceivedInvoices();
+            console.log("Received invoices from invoice page: ", response.data);
+            if (response.status === 200 && response.data) {
+                setReceivedInvoices(Array.isArray(response.data) ? response.data : []);
             }
         } catch (err) {
             console.error("Error fetching received invoices:", err);
         } finally {
             setReceivedLoading(false);
         }
-    }, [user?.email]);
+    }, []);
 
     useEffect(() => {
         refreshUser();
@@ -500,7 +501,7 @@ const InvoicesPage = () => {
                                 <div className="divide-y divide-[#E4E7EC]">
                                     {receivedInvoices
                                         .filter(invoice =>
-                                            invoice.billFrom.fullName.toLowerCase().includes(receivedSearchTerm.toLowerCase()) ||
+                                            invoice.billFrom?.fullName?.toLowerCase().includes(receivedSearchTerm.toLowerCase()) ||
                                             invoice.invoiceNumber.toLowerCase().includes(receivedSearchTerm.toLowerCase())
                                         )
                                         .map((invoice, index) => (
@@ -511,7 +512,7 @@ const InvoicesPage = () => {
                                                         {new Date(invoice.creationDate).toLocaleDateString()}
                                                     </div>
                                                     <div className="text-[14px] text-[#101828] font-medium">
-                                                        {invoice.billFrom.fullName}
+                                                        {invoice.billFrom?.fullName || 'N/A'}
                                                     </div>
                                                     <div className="text-[14px] text-[#101828] font-mono">
                                                         {invoice.invoiceNumber}

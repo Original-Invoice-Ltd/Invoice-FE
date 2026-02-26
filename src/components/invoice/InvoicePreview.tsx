@@ -62,11 +62,12 @@ interface InvoicePreviewProps {
     onEdit: () => void;
     onEmailInvoice: () => void;
     onSendInvoice: () => Promise<{ success: boolean; error?: string }>;
+    onSendWhatsApp?: (phoneNumber: string, message?: string) => Promise<{ success: boolean; error?: string }>;
     validationMessage: string | null;
     hasDraft?: boolean;
 }
 
-const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validationMessage, hasDraft = false }: InvoicePreviewProps) => {
+const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWhatsApp, validationMessage}: InvoicePreviewProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -96,6 +97,40 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    const handleSendWhatsappInvoice = async () => {
+        setIsSubmitting(true);
+        setSubmitError(null);
+        setErrorMessage(null);
+        
+        try {
+            if (!ApiClient.isValidPhone(phoneNumber)) {
+                setErrorMessage('Invalid phone number format. Use +234********** format');
+                setIsSubmitting(false);
+                return;
+            }
+
+            if (onSendWhatsApp) {
+                const result = await onSendWhatsApp(phoneNumber, message);
+                if (result.success) {
+                    setSubmitSuccess(true);
+                    setShowWhatsAppModal(false);
+                    setShowSuccessModal(true);
+                } else {
+                    setSubmitError(result.error || 'Failed to send invoice via WhatsApp');
+                    setErrorMessage(result.error || 'Failed to send invoice via WhatsApp');
+                }
+            } else {
+                throw new Error('WhatsApp sending not configured');
+            }
+        } catch (error) {
+            const errorMsg = 'An unexpected error occurred while sending invoice via WhatsApp';
+            setSubmitError(errorMsg);
+            setErrorMessage(errorMsg);
+        } finally {
+            setIsSubmitting(false);
+        }
+    }
+
     const handleSendInvoice = async () => {
         setIsSubmitting(true);
         setSubmitError(null);
@@ -108,7 +143,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
                 setShowTelegramModal(false);
                 setShowSuccessModal(true);
             } else {
-                setSubmitError(result.error || 'Failed to send invoice');
+                setSubmitError(result.error || 'Failed to send invoice via email');
             }
         } catch (error) {
             setSubmitError('An unexpected error occurred');
@@ -184,18 +219,18 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
+        <div className="min-h-screen bg-gray-50 p-4 md:p-6">
             <Toast
                 isVisible={toast.isVisible}
                 message={toast.message}
                 type={toast.type}
                 onClose={hideToast}
             />
-            <div className="max-w-5xl mx-auto">
-                <div className="flex justify-end gap-3 mb-6">
+            <div className="max-w-5xl mx-auto px-2">
+                <div className="flex justify-end gap-3 mb-6 py-4">
                     <button
                         onClick={onEdit}
-                        className="flex items-center gap-2 px-6 py-2.5 border border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-blue-50 transition-colors bg-white"
+                        className="flex items-center gap-2 px-3 md:px-6 py-2.5 border border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-blue-50 transition-colors bg-white"
                     >
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M10.2055 19.5733C9.86497 19.9139 9.42656 20.1395 8.95154 20.2186L4.34563 20.9863C3.56372 21.1166 2.88583 20.4387 3.01615 19.6568L3.7838 15.0509C3.86297 14.5759 4.08859 14.1375 4.42911 13.797M10.2055 19.5733L18.7258 11.053L12.9494 5.27665M10.2055 19.5733L4.42911 13.797M4.42911 13.797L12.9494 5.27665M12.9494 5.27665L14.6119 3.61413C15.4308 2.79529 16.7584 2.79529 17.5772 3.61413L20.3859 6.42279C21.2057 7.24258 21.2046 8.57207 20.3834 9.39051L18.7258 11.0427M21 20.9863H15" stroke="#2F80ED" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -216,14 +251,14 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
                     </button>
                     <button
                         onClick={handleEmailOptionClick}
-                        className="flex items-center gap-2 px-8 py-2.5 bg-[#2F80ED] text-white rounded-lg cursor-pointer hover:bg-blue-600 transition-colors"
+                        className="flex items-center gap-2 px-4 md:px-8 py-2.5 bg-[#2F80ED] text-white rounded-lg cursor-pointer hover:bg-blue-600 transition-colors"
                     >
                         <Mail size={20} />
                         Email Invoice
                     </button>
                 </div>
 
-                <div className="bg-white mb-4 rounded-lg shadow-sm relative overflow-hidden" ref={invoiceRef}>
+                <div className="bg-white mb-4 rounded-lg shadow-sm relative overflow-hidden " ref={invoiceRef}>
 
                     {data.template === 'simple' && <SimpleTemplate data={data} />}
                     {data.template === 'standard' && <StandardTemplate data={data} />}
@@ -383,7 +418,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
 
                                 {/* Payment Method */}
                                 <div className="mb-8">
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment Method: Bank Transfer</h3>
+                                    <h3 className="md:text-lg text-[0.9rem] font-semibold text-gray-900 mb-4">Payment Method: Bank Transfer</h3>
                                     <div className="space-y-3">
                                         <div className="flex justify-between">
                                             <span className="text-gray-600">Bank Name:</span>
@@ -553,14 +588,16 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
                 </div>
             )}
 
-            {/* WhatsApp Modal */}
             {showWhatsAppModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg w-full max-w-md mx-4 p-6">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-lg font-semibold text-gray-900">Send via WhatsApp</h2>
                             <button
-                                onClick={() => setShowWhatsAppModal(false)}
+                                onClick={() => {
+                                    setShowWhatsAppModal(false);
+                                    setErrorMessage(null);
+                                }}
                                 className="text-gray-400 hover:text-gray-600"
                             >
                                 <X size={24} />
@@ -576,8 +613,11 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
                                     <input
                                         type="tel"
                                         value={phoneNumber}
-                                        onChange={(e) => setPhoneNumber(e.target.value)}
-                                        placeholder="Enter client phone number"
+                                        onChange={(e) => {
+                                            setPhoneNumber(e.target.value);
+                                            setErrorMessage(null);
+                                        }}
+                                        placeholder="+234*************"
                                         className="w-full px-3 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                     <svg className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -599,16 +639,20 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
                                 />
                             </div>
                         </div>
+                        <p className={`h-[20px] ${errorMessage && "text-red-400 text-[0.9rem]"}`}> {errorMessage}</p>
 
                         <div className="flex justify-between mt-6">
                             <button
-                                onClick={() => setShowWhatsAppModal(false)}
+                                onClick={() => {
+                                    setShowWhatsAppModal(false);
+                                    setErrorMessage(null);
+                                }}
                                 className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
-                                onClick={handleSendInvoice}
+                                onClick={handleSendWhatsappInvoice}
                                 disabled={isSubmitting || !phoneNumber}
                                 className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
@@ -619,7 +663,6 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
                 </div>
             )}
 
-            {/* Telegram Modal */}
             {showTelegramModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg w-full max-w-md mx-4 p-6">
@@ -674,8 +717,8 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, validatio
                                 Cancel
                             </button>
                             <button
-                                onClick={handleSendInvoice}
-                                disabled={isSubmitting || !phoneNumber}
+                                onClick={handleSendWhatsappInvoice}
+                                disabled={isSubmitting || !ApiClient.isValidPhone(phoneNumber)}
                                 className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? 'Sending...' : 'Send Invoice'}

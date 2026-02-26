@@ -12,6 +12,7 @@ interface PaymentTableProps {
   onEmail: (payment: Payment) => void;
   onGetLink: (payment: Payment) => void;
   onDelete: (payment: Payment) => void;
+  onViewReceipt: (payment: Payment) => void;
 }
 
 const PaymentTable = ({
@@ -21,6 +22,7 @@ const PaymentTable = ({
   onEmail,
   onGetLink,
   onDelete,
+  onViewReceipt,
 }: PaymentTableProps) => {
   const { t } = useTranslation();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -123,12 +125,12 @@ const PaymentTable = ({
                         </button>
                         <button
                           onClick={() => {
-                            onGetLink(payment);
+                            onViewReceipt(payment);
                             setOpenMenuId(null);
                           }}
                           className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
-                          {t('get_link')}
+                          View Receipt
                         </button>
                         <button
                           onClick={() => {
@@ -230,12 +232,12 @@ const PaymentTable = ({
                   </button>
                   <button
                     onClick={() => {
-                      onGetLink(payment);
+                      onViewReceipt(payment);
                       setOpenMenuId(null);
                     }}
                     className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    {t('get_link')}
+                    View Receipt
                   </button>
                   <button
                     onClick={() => {
