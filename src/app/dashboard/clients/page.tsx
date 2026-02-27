@@ -171,7 +171,13 @@ const ClientsPage = () => {
             setClientFormError('Invalid Client email provided. eg. name@gmail.com');
             return;
         }
-        if (!ApiClient.isValidPhone(formData.phone)) {
+        
+        let normalizedPhone = formData.phone.trim();
+        if (normalizedPhone.startsWith('0')) {
+            normalizedPhone = '+234' + normalizedPhone.substring(1);
+        }
+        
+        if (!ApiClient.isValidPhone(normalizedPhone)) {
             setClientFormError('Phone number must be in international format. Example: +234***********');
             return;
         }
@@ -184,10 +190,12 @@ const ClientsPage = () => {
             setIsLoading(true);
             let response;
 
+            const clientData = { ...formData, phone: normalizedPhone };
+
             if (isEditMode && editingClientId) {
-                response = await ApiClient.updateClient(editingClientId, formData);
+                response = await ApiClient.updateClient(editingClientId, clientData);
             } else {
-                response = await ApiClient.addClient(formData);
+                response = await ApiClient.addClient(clientData);
             }
 
             const expectedStatus = isEditMode ? 200 : 201;

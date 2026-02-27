@@ -2,14 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Save, Eye, Edit3 } from "lucide-react";
+import { ArrowLeft, Save, Eye, Edit3, Upload, X } from "lucide-react";
 import Link from "next/link";
 import { ApiClient } from "@/lib/api";
 import { InvoiceResponse } from "@/types/invoice";
+import { usePlanAccess } from "@/hooks/usePlanAccess";
+import Image from "next/image";
 
 const InvoiceEditPage = () => {
     const params = useParams();
     const router = useRouter();
+    const { hasAccess, canUseTemplate, getFeatureUpgradeMessage } = usePlanAccess();
     const [invoice, setInvoice] = useState<InvoiceResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -236,7 +239,66 @@ const InvoiceEditPage = () => {
                     {/* Header Section */}
                     <div className="flex justify-between items-start mb-8">
                         <div className="flex items-center gap-4">
-                            {editedInvoice.logoUrl ? (
+                            {isEditing && hasAccess('customLogo') ? (
+                                <div className="relative">
+                                    {editedInvoice.logoUrl ? (
+                                        <div className="relative h-16 w-24">
+                                            <Image 
+                                                src={editedInvoice.logoUrl} 
+                                                alt="Company Logo" 
+                                                width={96}
+                                                height={64}
+                                                className="h-16 w-auto object-contain"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => handleFieldChange('logoUrl', null)}
+                                                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <label className="h-16 w-24 border-2 border-dashed border-[#D0D5DD] rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file && file.size <= 5 * 1024 * 1024) {
+                                                        const reader = new FileReader();
+                                                        reader.onloadend = () => {
+                                                            handleFieldChange('logoUrl', reader.result as string);
+                                                        };
+                                                        reader.readAsDataURL(file);
+                                                    }
+                                                }}
+                                            />
+                                            <Upload size={16} className="text-[#667085] mb-1" />
+                                            <span className="text-[10px] text-[#667085]">Upload</span>
+                                        </label>
+                                    )}
+                                </div>
+                            ) : isEditing && !hasAccess('customLogo') ? (
+                                <div className="h-16 w-24 border-2 border-dashed border-[#E5E5E5] rounded-lg flex flex-col items-center justify-center bg-gray-50 relative">
+                                    <div className="flex flex-col items-center opacity-50">
+                                        <Upload size={16} className="text-gray-400 mb-1" />
+                                        <span className="text-[10px] text-gray-500">Logo</span>
+                                    </div>
+                                    <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg">
+                                        <div className="text-center px-2">
+                                            <p className="text-[8px] text-gray-600 mb-1">{getFeatureUpgradeMessage('customLogo')}</p>
+                                            <Link 
+                                                href="/dashboard/pricing"
+                                                className="text-[8px] text-[#2F80ED] hover:underline"
+                                            >
+                                                Upgrade
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : editedInvoice.logoUrl ? (
                                 <img 
                                     src={editedInvoice.logoUrl} 
                                     alt="Company Logo" 
@@ -440,6 +502,77 @@ const InvoiceEditPage = () => {
                             ) : (
                                 <div className="text-[14px] text-[#667085]">{editedInvoice.note}</div>
                             )}
+                        </div>
+                    )}
+
+                    {/* Signature Section */}
+                    {(editedInvoice.signatureUrl || isEditing) && (
+                        <div className="mb-6">
+                            <div className="text-[14px] font-medium text-[#101828] mb-2">Signature</div>
+                            {isEditing && hasAccess('clientSignatures') ? (
+                                <div className="relative">
+                                    {editedInvoice.signatureUrl ? (
+                                        <div className="relative inline-block">
+                                            <img 
+                                                src={editedInvoice.signatureUrl} 
+                                                alt="Signature" 
+                                                className="h-20 w-auto border border-gray-300 rounded"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => handleFieldChange('signatureUrl', null)}
+                                                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <label className="inline-flex items-center gap-2 px-4 py-2 border border-[#D0D5DD] rounded-lg cursor-pointer hover:bg-gray-50">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file && file.size <= 2 * 1024 * 1024) {
+                                                        const reader = new FileReader();
+                                                        reader.onloadend = () => {
+                                                            handleFieldChange('signatureUrl', reader.result as string);
+                                                        };
+                                                        reader.readAsDataURL(file);
+                                                    }
+                                                }}
+                                            />
+                                            <Upload size={16} className="text-[#667085]" />
+                                            <span className="text-[14px] text-[#667085]">Upload Signature</span>
+                                        </label>
+                                    )}
+                                </div>
+                            ) : isEditing && !hasAccess('clientSignatures') ? (
+                                <div className="inline-flex items-center gap-2 px-4 py-2 border border-[#E5E5E5] rounded-lg bg-gray-50 relative">
+                                    <div className="flex items-center gap-2 opacity-50">
+                                        <Upload size={16} className="text-gray-400" />
+                                        <span className="text-[14px] text-gray-500">Upload Signature</span>
+                                    </div>
+                                    <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg">
+                                        <div className="text-center px-4">
+                                            <p className="text-[10px] text-gray-600 mb-1">{getFeatureUpgradeMessage('clientSignatures')}</p>
+                                            <Link 
+                                                href="/dashboard/pricing"
+                                                className="text-[10px] text-[#2F80ED] hover:underline"
+                                            >
+                                                Upgrade
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : editedInvoice.signatureUrl ? (
+                                <img 
+                                    src={editedInvoice.signatureUrl} 
+                                    alt="Signature" 
+                                    className="h-20 w-auto border border-gray-300 rounded"
+                                />
+                            ) : null}
                         </div>
                     )}
                 </div>

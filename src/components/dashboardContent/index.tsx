@@ -11,14 +11,18 @@ import {
 } from '@/hooks/useDashboard';
 import { useTranslation } from 'react-i18next';
 import { ApiClient } from '@/lib/api';
+import { usePlanAccess } from '@/hooks/usePlanAccess';
+import { useInvoiceLimit } from '@/contexts/InvoiceLimitContext';
+import InvoiceLimitWarning from '@/components/ui/InvoiceLimitWarning';
 
 const DashboardContent = () => {
     const { user, loading: userLoading } = useAuth();
     const { t } = useTranslation();
     const [isClient, setIsClient] = useState(false);
     const [trendsPeriod, setTrendsPeriod] = useState<'month' | 'year'>('month');
+    const { hasAccess, getFeatureUpgradeMessage } = usePlanAccess();
+    const { invoicesRemaining, totalInvoices } = useInvoiceLimit();
     
-    // Fetch dashboard data with separated loading states
     const { data, loading, error, refreshTrends, refreshAll } = useDashboard('month', 5);
     
     // Customer invoice stats
@@ -30,10 +34,7 @@ const DashboardContent = () => {
     });
     const [customerStatsLoading, setCustomerStatsLoading] = useState(true);
     
-    // Auto-refresh all data every 5 minutes
-    // useAutoRefreshDashboard(refreshAll);
 
-    // Handle trends period change - only refresh trends data
     const handleTrendsPeriodChange = async () => {
         const newPeriod = trendsPeriod === 'month' ? 'year' : 'month';
         setTrendsPeriod(newPeriod);
@@ -224,6 +225,11 @@ const DashboardContent = () => {
                 </Link>
             </div>
 
+            <InvoiceLimitWarning 
+                invoicesRemaining={invoicesRemaining}
+                totalInvoices={totalInvoices}
+            />
+
             {/* Invoices Sent Stats Cards */}
             <div className="mb-6">
                 <h2 className="text-lg font-semibold text-[#101828] mb-4">{t('invoices_sent')}</h2>
@@ -383,44 +389,70 @@ const DashboardContent = () => {
                         <ChevronDown size={16} />
                     </button>
                 </div>
-                <div className="w-full h-[200px] lg:h-[280px]" style={{ minWidth: '300px', minHeight: '200px' }}>
-                    {loading.trends ? (
-                        <div className="animate-pulse h-full bg-gray-100 rounded flex items-center justify-center">
-                            <div className="text-gray-400">{t('loading')}</div>
+                {hasAccess('advancedAnalytics') ? (
+                    <div className="w-full h-[200px] lg:h-[225px]" style={{ minWidth: '300px', minHeight: '200px' }}>
+                        {loading.trends ? (
+                            <div className="animate-pulse h-full bg-gray-100 rounded flex items-center justify-center">
+                                <div className="text-gray-400">{t('loading')}</div>
+                            </div>
+                        ) : isClient && chartData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#E8E9ED" />
+                                    <XAxis 
+                                        dataKey="month" 
+                                        tick={{ fill: '#333436', fontSize: 10 }}
+                                        axisLine={{ stroke: '#E4E7EC' }}
+                                    />
+                                    <YAxis 
+                                        tick={{ fill: '#667085', fontSize: 10 }}
+                                        axisLine={{ stroke: '#E4E7EC' }}
+                                        tickFormatter={(value) => `₦${value / 1000}k`}
+                                    />
+                                    <Tooltip 
+                                        formatter={(value: any) => [`₦${value.toLocaleString()}`, 'Amount']}
+                                        contentStyle={{ borderRadius: '8px', border: '1px solid #E4E7EC', fontSize: '12px' }}
+                                    />
+                                    <Line 
+                                        type="monotone" 
+                                        dataKey="value" 
+                                        stroke="#2F80ED" 
+                                        strokeWidth={2}
+                                        dot={false}
+                                    />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="flex items-center justify-center h-full text-gray-500">
+                                {chartData.length === 0 ? t('no_invoices_found') : t('loading')}
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="w-full h-[200px] lg:h-[225px] relative" style={{ minWidth: '300px', minHeight: '200px' }}>
+                        <div className="absolute inset-0 bg-white/95 backdrop-blur-sm rounded-lg flex flex-col items-center justify-center z-10 p-4">
+                            <div className="text-center max-w-xs">
+                                <div className="mb-3">
+                                    <svg className="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                </div>
+                                <p className="text-xs text-[#667085] mb-3">{getFeatureUpgradeMessage('advancedAnalytics')}</p>
+                                <Link 
+                                    href="/dashboard/pricing"
+                                    className="inline-block px-4 py-2 bg-[#2F80ED] text-white rounded-lg text-xs font-medium hover:bg-[#2563EB] transition-colors"
+                                >
+                                    Upgrade to Premium
+                                </Link>
+                            </div>
                         </div>
-                    ) : isClient && chartData.length > 0 ? (
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#E8E9ED" />
-                                <XAxis 
-                                    dataKey="month" 
-                                    tick={{ fill: '#333436', fontSize: 10 }}
-                                    axisLine={{ stroke: '#E4E7EC' }}
-                                />
-                                <YAxis 
-                                    tick={{ fill: '#667085', fontSize: 10 }}
-                                    axisLine={{ stroke: '#E4E7EC' }}
-                                    tickFormatter={(value) => `₦${value / 1000}k`}
-                                />
-                                <Tooltip 
-                                    formatter={(value: any) => [`₦${value.toLocaleString()}`, 'Amount']}
-                                    contentStyle={{ borderRadius: '8px', border: '1px solid #E4E7EC', fontSize: '12px' }}
-                                />
-                                <Line 
-                                    type="monotone" 
-                                    dataKey="value" 
-                                    stroke="#2F80ED" 
-                                    strokeWidth={2}
-                                    dot={false}
-                                />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    ) : (
-                        <div className="flex items-center justify-center h-full text-gray-500">
-                            {chartData.length === 0 ? t('no_invoices_found') : t('loading')}
+                        <div className="opacity-20 pointer-events-none h-full">
+                            <div className="h-full bg-gray-100 rounded flex items-center justify-center">
+                                <div className="text-gray-400">{t('loading')}</div>
+                            </div>
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
 
             {/* Charts Section - Desktop Only (Side by Side) */}
@@ -438,7 +470,9 @@ const DashboardContent = () => {
                             <ChevronDown size={16} />
                         </button>
                     </div>
-                    <div className="w-full h-[280px]" style={{ minWidth: '400px', minHeight: '280px' }}>
+                    {/* <div className="w-full h-[200px]" style={{ minWidth: '400px', minHeight: '225px' }}> */}
+                    <div className="w-full h-[200px] lg:h-[350px]" style={{ minWidth: '300px', minHeight: '250px' }}>
+    
                         {loading.trends ? (
                             <div className="animate-pulse h-full bg-gray-100 rounded flex items-center justify-center">
                                 <div className="text-gray-400">{t('loading')}</div>
@@ -479,7 +513,7 @@ const DashboardContent = () => {
                 </div>
 
                 {/* Status Distribution - Desktop */}
-                <div className="w-[392px] bg-white p-4 rounded-xl border border-[#E4E7EC]">
+                <div className="w-[392px] bg-white p-4 rounded-xl border border-[#E4E7EC] flex flex-col">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-[#101828]">{t('status')}</h3>
                         <button className="flex items-center gap-2 text-sm text-[#667085]">
@@ -487,7 +521,7 @@ const DashboardContent = () => {
                             <ChevronDown size={16} />
                         </button>
                     </div>
-                    <div className="w-full h-[180px] flex items-center justify-center" style={{ minWidth: '300px', minHeight: '180px' }}>
+                    <div className="w-full h-[280px] flex items-center justify-center" style={{ minWidth: '300px', minHeight: '200px' }}>
                         {isClient && statusDistributionData.length > 0 && (
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
@@ -495,8 +529,8 @@ const DashboardContent = () => {
                                         data={statusDistributionData}
                                         cx="50%"
                                         cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={80}
+                                        innerRadius={70}
+                                        outerRadius={100}
                                         paddingAngle={5}
                                         dataKey="value"
                                     >
@@ -536,46 +570,73 @@ const DashboardContent = () => {
                         <ChevronDown size={16} />
                     </button>
                 </div>
-                <div className="w-full h-[180px] flex items-center justify-center" style={{ minWidth: '250px', minHeight: '180px' }}>
-                    {isClient && statusDistributionData.length > 0 && (
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie
-                                    data={statusDistributionData}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={50}
-                                    outerRadius={70}
-                                    paddingAngle={5}
-                                    dataKey="value"
+                {hasAccess('advancedAnalytics') ? (
+                    <>
+                        <div className="w-full h-[180px] flex items-center justify-center" style={{ minWidth: '250px', minHeight: '180px' }}>
+                            {isClient && statusDistributionData.length > 0 && (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={statusDistributionData}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={50}
+                                            outerRadius={70}
+                                            paddingAngle={5}
+                                            dataKey="value"
+                                        >
+                                            {statusDistributionData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                            ))}
+                                        </Pie>
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            )}
+                            {(!isClient || statusDistributionData.length === 0) && (
+                                <div className="flex items-center justify-center h-full text-gray-500">
+                                    {statusDistributionData.length === 0 ? t('no_invoices_found') : t('loading')}
+                                </div>
+                            )}
+                        </div>
+                        <div className="space-y-2 mt-4">
+                            {statusDistributionData.map((item) => (
+                                <div key={item.name} className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
+                                        <span className="text-sm text-[#333436]">{item.name}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm font-medium text-[#101828]">{formatCurrency(item.value)}</span>
+                                        <span className="text-xs text-[#10B981]">{item.percentage}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                ) : (
+                    <div className="w-full h-[180px] relative" style={{ minWidth: '250px', minHeight: '180px' }}>
+                        <div className="absolute inset-0 bg-white/95 backdrop-blur-sm rounded-lg flex flex-col items-center justify-center z-10 p-4">
+                            <div className="text-center max-w-xs">
+                                <div className="mb-3">
+                                    <svg className="w-10 h-10 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                                    </svg>
+                                </div>
+                                <p className="text-[10px] text-[#667085] mb-2">{getFeatureUpgradeMessage('advancedAnalytics')}</p>
+                                <Link 
+                                    href="/dashboard/pricing"
+                                    className="inline-block px-3 py-1.5 bg-[#2F80ED] text-white rounded-lg text-[10px] font-medium hover:bg-[#2563EB] transition-colors"
                                 >
-                                    {statusDistributionData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
-                    )}
-                    {(!isClient || statusDistributionData.length === 0) && (
-                        <div className="flex items-center justify-center h-full text-gray-500">
-                            {statusDistributionData.length === 0 ? t('no_invoices_found') : t('loading')}
-                        </div>
-                    )}
-                </div>
-                <div className="space-y-2 mt-4">
-                    {statusDistributionData.map((item) => (
-                        <div key={item.name} className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                                <span className="text-sm text-[#333436]">{item.name}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-[#101828]">{formatCurrency(item.value)}</span>
-                                <span className="text-xs text-[#10B981]">{item.percentage}</span>
+                                    Upgrade
+                                </Link>
                             </div>
                         </div>
-                    ))}
-                </div>
+                        <div className="opacity-20 pointer-events-none h-full">
+                            <div className="h-full bg-gray-100 rounded"></div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Recent Invoice - Mobile */}
