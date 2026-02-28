@@ -116,7 +116,7 @@ export const downloadInvoiceAsPDF = async (
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       
-      const watermarkText = 'originalinvoice.com';
+      const watermarkText = 'www.originalInvoice.com';
       pdf.saveGraphicsState();
       pdf.setGState(new pdf.GState({ opacity: 0.15 }));
       

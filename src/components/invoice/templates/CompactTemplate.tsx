@@ -89,7 +89,7 @@ const CompactTemplate = ({ data }: CompactTemplateProps) => {
                         letterSpacing: '0.1em'
                     }}
                 >
-                    Original Invoice
+                    www.originalInvoice.com
                 </span>
             </div>
 
