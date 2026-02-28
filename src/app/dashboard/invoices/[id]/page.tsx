@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Download, Send, Edit, MoreHorizontal } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
 import { ApiClient } from "@/lib/api";
 import { InvoiceResponse } from "@/types/invoice";
@@ -372,19 +372,19 @@ const InvoiceViewPage = () => {
                 </div>
             </div>
 
-            <div className="flex justify-between md:justify-start gap-4 mt-6 px-6">
-                <button className="flex items-center gap-2 px-6 py-3 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors">
+            {/* <div className="flex w-full justify-start gap-4 mt-6 px-6"> */}
+                {/* <button className="flex w-full max-w-[200px] items-center gap-2 px-6 py-3 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors">
                     <Download size={16} />
                     {t('save_as_pdf')}
-                </button>
-                <Link
+                </button> */}
+                {/* <Link
                     href={`/dashboard/invoices/edit/${invoice.id}`}
                     className="flex items-center gap-2 px-6 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
                 >
                     <Edit size={16} />
                     {t('edit_invoice_button')}
-                </Link>
-            </div>
+                </Link> */}
+            {/* </div> */}
         </div>
     );
 };

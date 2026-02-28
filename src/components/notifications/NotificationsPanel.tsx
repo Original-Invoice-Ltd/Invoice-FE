@@ -149,26 +149,20 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
 
     const formatTimeAgo = (dateString: string) => {
         const date = new Date(dateString);
-        const now = new Date();
-
-        const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-        if (diffInSeconds <= 0) {
-            return t('just_now');
-        }
-
-        if (diffInSeconds < 60) {
-            return t('just_now');
-        } else if (diffInSeconds < 3600) {
-            const minutes = Math.floor(diffInSeconds / 60);
-            return `${minutes}${t('minutes_ago')}`;
-        } else if (diffInSeconds < 86400) {
-            const hours = Math.floor(diffInSeconds / 3600);
-            return `${hours}${t('hours_ago')}`;
-        } else {
-            const days = Math.floor(diffInSeconds / 86400);
-            return `${days}${t('days_ago')}`;
-        }
+        
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'pm' : 'am';
+        
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        const formattedHours = String(hours);
+        
+        return `${year}/${month}/${day} ${formattedHours}:${minutes}${ampm}`;
     };
 
     const getFilteredNotifications = () => {

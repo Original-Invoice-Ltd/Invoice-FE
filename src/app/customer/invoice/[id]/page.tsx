@@ -376,7 +376,7 @@ export default function EmailInvoicePage() {
                     <button
                         onClick={handleDownloadPDF}
                         disabled={isDownloadingPDF}
-                        className="flex cursor-pointer items-center justify-center gap-2 px-4 md:px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex cursor-pointer items-center justify-center gap-2 px-4 md:px-6 py-3 border bg-white border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isDownloadingPDF ? (
                             <>

@@ -89,7 +89,7 @@ const SimpleTemplate = ({ data }: SimpleTemplateProps) => {
                         letterSpacing: '0.1em'
                     }}
                 >
-                    Original Invoice
+                    www.originalInvoice.com
                 </span>
             </div>
 

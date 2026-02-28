@@ -12,7 +12,7 @@ const PaymentReceivedPage = () => {
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
 
   const handleCreateInvoice = () => {
-    router.push('/dashboard/invoices');
+    router.push('/dashboard/invoices/create');
   };
 
   return (
