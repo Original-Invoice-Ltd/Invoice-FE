@@ -8,11 +8,14 @@ import RecentInvoicesTable from "./RecentInvoicesTable";
 import { KPICardData } from "./types";
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboard } from '@/hooks/useDashboard';
+import { usePlanAccess } from '@/hooks/usePlanAccess';
+import Link from 'next/link';
 
 const ReportsAnalytics = () => {
   const { user, loading: userLoading } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [trendsPeriod, setTrendsPeriod] = useState<'month' | 'year'>('month');
+  const { hasAccess, getFeatureUpgradeMessage } = usePlanAccess();
   
   // Use the same dashboard hook to fetch data
   const { data, loading, error, refreshTrends } = useDashboard('month', 10);
@@ -170,23 +173,81 @@ const ReportsAnalytics = () => {
 
         <KPICards data={kpiCards} />
 
-        <div className="flex flex-col lg:flex-row gap-6 mb-6 w-full">
-          <div className="w-full lg:w-[692px]">
-            <RevenueChart 
-              data={chartData} 
-              isEmpty={chartData.length === 0}
-              period={trendsPeriod}
-              onPeriodChange={handleTrendsPeriodChange}
-              loading={loading.trends}
-            />
+        {hasAccess('advancedAnalytics') ? (
+          <div className="flex flex-col lg:flex-row gap-6 mb-6 w-full">
+            <div className="w-full lg:w-[692px]">
+              <RevenueChart 
+                data={chartData} 
+                isEmpty={chartData.length === 0}
+                period={trendsPeriod}
+                onPeriodChange={handleTrendsPeriodChange}
+                loading={loading.trends}
+              />
+            </div>
+            <div className="w-full lg:w-[392px]">
+              <StatusChart 
+                data={statusDistributionData} 
+                isEmpty={statusDistributionData.length === 0} 
+              />
+            </div>
           </div>
-          <div className="w-full lg:w-[392px]">
-            <StatusChart 
-              data={statusDistributionData} 
-              isEmpty={statusDistributionData.length === 0} 
-            />
+        ) : (
+          <div className="flex flex-col lg:flex-row gap-6 mb-6 w-full">
+            <div className="w-full lg:w-[692px] bg-white p-4 rounded-xl border border-[#E4E7EC] relative">
+              <div className="absolute inset-0 bg-white/95 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center z-10 p-6">
+                <div className="text-center max-w-md">
+                  <div className="mb-4">
+                    <svg className="w-16 h-16 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-[#101828] mb-2">Advanced Analytics</h3>
+                  <p className="text-sm text-[#667085] mb-4">{getFeatureUpgradeMessage('advancedAnalytics')}</p>
+                  <Link 
+                    href="/dashboard/pricing"
+                    className="inline-block px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] transition-colors"
+                  >
+                    Upgrade to Premium
+                  </Link>
+                </div>
+              </div>
+              <div className="opacity-20 pointer-events-none">
+                <RevenueChart 
+                  data={chartData} 
+                  isEmpty={chartData.length === 0}
+                  period={trendsPeriod}
+                  onPeriodChange={handleTrendsPeriodChange}
+                  loading={loading.trends}
+                />
+              </div>
+            </div>
+            <div className="w-full lg:w-[392px] bg-white p-4 rounded-xl border border-[#E4E7EC] relative">
+              <div className="absolute inset-0 bg-white/95 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center z-10 p-6">
+                <div className="text-center max-w-md">
+                  <div className="mb-4">
+                    <svg className="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                    </svg>
+                  </div>
+                  <p className="text-xs text-[#667085] mb-3">Premium Feature</p>
+                  <Link 
+                    href="/dashboard/pricing"
+                    className="inline-block px-4 py-2 bg-[#2F80ED] text-white rounded-lg text-xs font-medium hover:bg-[#2563EB] transition-colors"
+                  >
+                    Upgrade
+                  </Link>
+                </div>
+              </div>
+              <div className="opacity-20 pointer-events-none">
+                <StatusChart 
+                  data={statusDistributionData} 
+                  isEmpty={statusDistributionData.length === 0} 
+                />
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
         <RecentInvoicesTable
           invoices={recentInvoicesData}

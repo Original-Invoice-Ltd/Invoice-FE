@@ -6,6 +6,7 @@ import UploadReceiptModal from "./UploadReceiptModal";
 import { downloadInvoiceAsPDF } from "@/lib/pdfUtils";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
+import { useSubscription } from "@/hooks/useSubscription";
 
 interface InvoiceItem {
   id: number;
@@ -72,6 +73,9 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
   const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
   const invoiceRef = useRef<HTMLDivElement>(null);
   const { toast, showSuccess, showError, hideToast } = useToast();
+  const { subscription } = useSubscription();
+  
+  const isFreePlan = !subscription || subscription.plan === 'FREE';
 
   const handleBack = () => {
     if (onBack) {
@@ -96,7 +100,7 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
 
     setIsDownloadingPDF(true);
     try {
-      await downloadInvoiceAsPDF(invoiceRef.current, 'customer-invoice');
+      await downloadInvoiceAsPDF(invoiceRef.current, 'customer-invoice', isFreePlan);
       showSuccess('Invoice PDF downloaded successfully!');
     } catch (error) {
       console.error('Failed to download PDF:', error);
@@ -149,15 +153,24 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
       {/* Invoice Content */}
       <div className="max-w-4xl mx-auto p-4 md:p-8">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-12 relative overflow-hidden" ref={invoiceRef}>
-          {/* Watermark */}
-          <div
-            className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5"
-            style={{ transform: "rotate(-45deg)" }}
-          >
-            <div className="text-6xl font-bold text-gray-400">
-              www.originalinvoice.com
+          {/* Watermark - More visible for free plan users */}
+          {isFreePlan && (
+            <div
+              className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
+              style={{ transform: "rotate(-45deg)" }}
+            >
+              <div 
+                className="text-gray-300 font-bold select-none"
+                style={{
+                  fontSize: '4rem',
+                  opacity: 0.15,
+                  letterSpacing: '0.1em',
+                }}
+              >
+                originalinvoice.com
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Status Badge */}
           <div className="flex justify-end mb-4">

@@ -40,15 +40,25 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // Handle numeric fields with comma formatting
+    if (name === 'rate' || name === 'amount') {
+      const numericValue = value.replace(/,/g, '');
+      setFormData(prev => ({
+        ...prev,
+        [name]: numericValue
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
 
     // Auto-calculate amount when quantity or rate changes
     if (name === 'quantity' || name === 'rate') {
       const quantity = name === 'quantity' ? parseFloat(value) || 0 : parseFloat(formData.quantity) || 0;
-      const rate = name === 'rate' ? parseFloat(value) || 0 : parseFloat(formData.rate) || 0;
+      const rate = name === 'rate' ? parseFloat(value.replace(/,/g, '')) || 0 : parseFloat(formData.rate) || 0;
       const calculatedAmount = quantity * rate;
       
       setFormData(prev => ({
@@ -185,15 +195,13 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
                 {t('rate_label')} *
               </label>
               <input
-                type="number"
+                type="text"
                 name="rate"
-                value={formData.rate}
+                value={formData.rate ? parseFloat(formData.rate).toLocaleString('en-US') : ''}
                 onChange={handleInputChange}
                 required
-                min="0"
-                step="0.01"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="0.00"
+                placeholder="0"
               />
             </div>
 
@@ -202,15 +210,13 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
                 {t('amount_label')} *
               </label>
               <input
-                type="number"
+                type="text"
                 name="amount"
-                value={formData.amount}
+                value={formData.amount ? parseFloat(formData.amount).toLocaleString('en-US') : ''}
                 onChange={handleInputChange}
                 required
-                min="0"
-                step="0.01"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="0.00"
+                placeholder="0"
               />
             </div>
           </div>

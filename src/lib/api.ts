@@ -888,7 +888,7 @@ export class ApiClient {
     }
   }
   static isValidPhone = (phone: string) => {
-    return /^\+[1-9]\d{7,14}$/.test(phone);
+    return /^\+\d{7,15}$/.test(phone);
   };
 
   static isValidEmail(email: string): boolean {

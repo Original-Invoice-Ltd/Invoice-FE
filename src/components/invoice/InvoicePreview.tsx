@@ -10,6 +10,7 @@ import { downloadInvoiceAsPDF } from "@/lib/pdfUtils";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
 import dynamic from 'next/dynamic';
+import { useSubscription } from "@/hooks/useSubscription";
 
 interface InvoiceItem {
     id: number;
@@ -86,6 +87,9 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
     const invoiceRef = useRef<HTMLDivElement>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const { toast, showSuccess, showError, hideToast } = useToast();
+    const { subscription } = useSubscription();
+    
+    const isFreePlan = !subscription || subscription.plan === 'FREE';
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -103,14 +107,19 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
         setErrorMessage(null);
         
         try {
-            if (!ApiClient.isValidPhone(phoneNumber)) {
+            let normalizedPhone = phoneNumber.trim();
+            if (normalizedPhone.startsWith('0')) {
+                normalizedPhone = '+234' + normalizedPhone.substring(1);
+            }
+            
+            if (!ApiClient.isValidPhone(normalizedPhone)) {
                 setErrorMessage('Invalid phone number format. Use +234********** format');
                 setIsSubmitting(false);
                 return;
             }
 
             if (onSendWhatsApp) {
-                const result = await onSendWhatsApp(phoneNumber, message);
+                const result = await onSendWhatsApp(normalizedPhone, message);
                 if (result.success) {
                     setSubmitSuccess(true);
                     setShowWhatsAppModal(false);
@@ -182,7 +191,8 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
         try {
             await downloadInvoiceAsPDF(
                 invoiceRef.current, 
-                data.billTo.invoiceNumber || data.billTo.title
+                data.billTo.invoiceNumber || data.billTo.title,
+                isFreePlan
             );
             showSuccess('Invoice PDF downloaded successfully!');
         } catch (error) {
@@ -259,6 +269,25 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                 </div>
 
                 <div className="bg-white mb-4 rounded-lg shadow-sm relative overflow-hidden " ref={invoiceRef}>
+                    {isFreePlan && (
+                        <div 
+                            className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
+                            style={{
+                                transform: 'rotate(-45deg)',
+                            }}
+                        >
+                            <div 
+                                className="text-gray-300 font-bold select-none"
+                                style={{
+                                    fontSize: '4rem',
+                                    opacity: 0.15,
+                                    letterSpacing: '0.1em',
+                                }}
+                            >
+                                originalinvoice.com
+                            </div>
+                        </div>
+                    )}
 
                     {data.template === 'simple' && <SimpleTemplate data={data} />}
                     {data.template === 'standard' && <StandardTemplate data={data} />}
@@ -718,7 +747,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                             </button>
                             <button
                                 onClick={handleSendWhatsappInvoice}
-                                disabled={isSubmitting || !ApiClient.isValidPhone(phoneNumber)}
+                                disabled={isSubmitting || !ApiClient.isValidPhone(phoneNumber.trim().startsWith('0') ? '+234' + phoneNumber.trim().substring(1) : phoneNumber.trim())}
                                 className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isSubmitting ? 'Sending...' : 'Send Invoice'}
