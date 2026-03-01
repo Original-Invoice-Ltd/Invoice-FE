@@ -610,6 +610,18 @@ const BusinessProfilePage = () => {
               )}
             </div>
 
+            {/* View Business Profiles Button */}
+            <button
+              type="button"
+              onClick={() => setViewMode('list')}
+              className="px-4 py-2.5 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors flex items-center gap-2"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 4H14M2 8H14M2 12H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="text-sm font-medium">{t("view_all_profiles") || "View Business Profiles"}</span>
+            </button>
+
             {/* Add Business Profile Button */}
             <button
               type="button"
