@@ -1421,20 +1421,26 @@ const CreateInvoicePage = () => {
                                                         </td>
                                                         <td className="py-4 px-4 border-r border-[#E4E7EC]">
                                                             <input
-                                                                type="number"
-                                                                value={item.rate}
-                                                                onChange={(e) => updateItem(item.id, 'rate', parseFloat(e.target.value) || 0)}
+                                                                type="text"
+                                                                value={item.rate.toLocaleString('en-US')}
+                                                                onChange={(e) => {
+                                                                    const value = e.target.value.replace(/,/g, '');
+                                                                    updateItem(item.id, 'rate', parseFloat(value) || 0);
+                                                                }}
                                                                 className="w-full text-[14px] text-[#101828] focus:outline-none bg-transparent"
-                                                                min="0"
+                                                                placeholder="0"
                                                             />
                                                         </td>
                                                         <td className="py-4 px-4 border-r border-[#E4E7EC]">
                                                             <input
-                                                                type="number"
-                                                                value={item.amount}
-                                                                onChange={(e) => updateItem(item.id, 'amount', parseFloat(e.target.value) || 0)}
+                                                                type="text"
+                                                                value={item.amount.toLocaleString('en-US')}
+                                                                onChange={(e) => {
+                                                                    const value = e.target.value.replace(/,/g, '');
+                                                                    updateItem(item.id, 'amount', parseFloat(value) || 0);
+                                                                }}
                                                                 className="w-full text-[14px] font-semibold text-[#101828] focus:outline-none bg-transparent"
-                                                                min="0"
+                                                                placeholder="0"
                                                             />
                                                         </td>
                                                         <td className="py-4 px-4">
@@ -1746,7 +1752,7 @@ const CreateInvoicePage = () => {
                                 <div className="space-y-3">
                                     <div className="flex justify-between">
                                         <h3 className=" text-[16px] font-medium">Subtotal</h3>
-                                        <span className=" text-[18px] font-semibold">₦{calculateSubtotal().toFixed(2)}</span>
+                                        <span className=" text-[18px] font-semibold">₦{calculateSubtotal().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <div className="flex items-center gap-2">
@@ -1772,19 +1778,19 @@ const CreateInvoicePage = () => {
                                                 </svg>
                                             </div>
                                         </div>
-                                        <span className=" text-[18px] font-semibold">₦{calculateTax().toFixed(2)}</span>
+                                        <span className=" text-[18px] font-semibold">₦{calculateTax().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className={`text-[#667085] text-[18px] ${!hasAccess('taxCompliance') ? 'opacity-50' : ''}`}>
                                             WHT (5%)
                                         </span>
                                         <span className={`text-[18px] font-semibold ${!hasAccess('taxCompliance') ? 'opacity-50' : ''}`}>
-                                            ₦{hasAccess('taxCompliance') ? calculateWht().toFixed(2) : '0.00'}
+                                            ₦{hasAccess('taxCompliance') ? calculateWht().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
                                         </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-[18px] text-[#667085]">Total Due</span>
-                                        <span className=" text-[18px] font-semibold">₦{calculateTotal().toFixed(2)}</span>
+                                        <span className=" text-[18px] font-semibold">₦{calculateTotal().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
                                 </div>
                             </div>
