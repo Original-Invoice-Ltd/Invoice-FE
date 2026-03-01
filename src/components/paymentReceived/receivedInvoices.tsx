@@ -216,7 +216,7 @@ const ReceivedInvoices = () => {
                           day: "2-digit",
                         })}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 relative">
                         <div className="relative">
                           <button
                             onClick={() =>
@@ -230,11 +230,11 @@ const ReceivedInvoices = () => {
                           </button>
 
                           {openDropdown === invoice.id && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                            <div className="fixed bottom-full mb-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-[9999] transform -translate-x-full" style={{ right: '2rem' }}>
                               <button
                                 onClick={() => {
                                   setOpenDropdown(null);
-                                  router.push(`/customer/invoice/${invoice.id}`);
+                                  router.push(`/dashboard/invoices/${invoice.id}`);
                                 }}
                                 className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                               >
@@ -330,11 +330,11 @@ const ReceivedInvoices = () => {
                       </svg>
                     </button>
                     {openDropdown === invoice.id && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                      <div className="fixed bottom-full mb-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-[9999] transform -translate-x-full" style={{ right: '1rem' }}>
                         <button
                           onClick={() => {
                             setOpenDropdown(null);
-                            router.push(`/customer/invoice/${invoice.id}`);
+                            router.push(`/dashboard/invoices/${invoice.id}`);
                           }}
                           className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                         >

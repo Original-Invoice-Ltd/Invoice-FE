@@ -20,6 +20,27 @@ const ReportsAnalytics = () => {
   // Use the same dashboard hook to fetch data
   const { data, loading, error, refreshTrends } = useDashboard('month', 10);
 
+  // Format currency with abbreviations for large numbers
+  const formatCurrency = (amount: number) => {
+    const absAmount = Math.abs(amount);
+    
+    if (absAmount >= 1_000_000_000) {
+      // Billions
+      const billions = amount / 1_000_000_000;
+      return `₦${billions.toFixed(billions >= 10 ? 0 : 1)}B`;
+    } else if (absAmount >= 1_000_000) {
+      // Millions
+      const millions = amount / 1_000_000;
+      return `₦${millions.toFixed(millions >= 10 ? 0 : 1)}M`;
+    } else if (absAmount >= 1_000) {
+      // Thousands
+      const thousands = amount / 1_000;
+      return `₦${thousands.toFixed(thousands >= 10 ? 0 : 1)}K`;
+    }
+    
+    return `₦${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  };
+
   const handleTrendsPeriodChange = async () => {
     const newPeriod = trendsPeriod === 'month' ? 'year' : 'month';
     setTrendsPeriod(newPeriod);
@@ -29,20 +50,20 @@ const ReportsAnalytics = () => {
   const kpiCards: KPICardData[] = [
     {
       title: "Total Invoiced",
-      value: loading.stats ? "Loading..." : (data.stats ? `₦${data.stats.totalInvoicesSent.amount.toLocaleString()}` : "₦0"),
+      value: loading.stats ? "Loading..." : (data.stats ? formatCurrency(data.stats.totalInvoicesSent.amount) : "₦0"),
     },
     {
       title: "Payments Received", 
-      value: loading.stats ? "Loading..." : (data.stats ? `₦${data.stats.paidInvoices.amount.toLocaleString()}` : "₦0"),
+      value: loading.stats ? "Loading..." : (data.stats ? formatCurrency(data.stats.paidInvoices.amount) : "₦0"),
     },
     {
       title: "Outstanding Amount",
-      value: loading.stats ? "Loading..." : (data.stats ? `₦${data.stats.pendingInvoices.amount.toLocaleString()}` : "₦0"),
+      value: loading.stats ? "Loading..." : (data.stats ? formatCurrency(data.stats.pendingInvoices.amount) : "₦0"),
       badge: { text: "Pending", color: "yellow" },
     },
     {
       title: "Overdue Amount",
-      value: loading.stats ? "Loading..." : (data.stats ? `₦${data.stats.overdueInvoices.amount.toLocaleString()}` : "₦0"),
+      value: loading.stats ? "Loading..." : (data.stats ? formatCurrency(data.stats.overdueInvoices.amount) : "₦0"),
       badge: { text: "Overdue", color: "red" },
     },
   ];
