@@ -478,6 +478,11 @@ const resources = {
             profile_deleted: "Profile deleted successfully",
             upgrade_to_premium_for_business_profiles: "Upgrade to Premium to add business profiles",
             upgrade_plan: "Upgrade Plan",
+            view_all_profiles: "View All Profiles",
+            back_to_form: "Back to Form",
+            all_business_profiles: "All Business Profiles",
+            delete_business_profile: "Delete Business Profile",
+            delete_profile_confirmation: "Are you sure you want to delete this business profile? This action cannot be undone.",
 
             // Billing
             current_plan: "Current Plan",
@@ -1196,6 +1201,11 @@ const resources = {
             profile_deleted: "A ti pa àkọsílẹ̀ rẹ́ ní àṣeyọrí",
             upgrade_to_premium_for_business_profiles: "Gbé sókè sí Premium láti fi àwọn àkọsílẹ̀ iléeṣẹ́ kún un",
             upgrade_plan: "Gbé Ètò Sókè",
+            view_all_profiles: "Wo Gbogbo Àkọsílẹ̀",
+            back_to_form: "Padà Sí Fọ́ọ̀mù",
+            all_business_profiles: "Gbogbo Àkọsílẹ̀ Iléeṣẹ́",
+            delete_business_profile: "Pa Àkọsílẹ̀ Iléeṣẹ́ Rẹ́",
+            delete_profile_confirmation: "Ṣé o dá ọ lójú pé o fẹ́ pa àkọsílẹ̀ iléeṣẹ́ yìí rẹ́? A kò lè dá iṣẹ́ yìí padà.",
 
             // Billing
             current_plan: "Ètò Lọ́wọ́lọ́wọ́",
@@ -1911,6 +1921,11 @@ const resources = {
             profile_deleted: "E hichapụla profaịlụ nke ọma",
             upgrade_to_premium_for_business_profiles: "Kwalite na Premium iji tinye profaịlụ azụmahịa",
             upgrade_plan: "Kwalite Atụmatụ",
+            view_all_profiles: "Lee Profaịlụ Niile",
+            back_to_form: "Laghachi na Fọọm",
+            all_business_profiles: "Profaịlụ Azụmahịa Niile",
+            delete_business_profile: "Hichapụ Profaịlụ Azụmahịa",
+            delete_profile_confirmation: "Ị ji n'aka na ịchọrọ ihichapụ profaịlụ azụmahịa a? Enweghị ike ịlaghachi omume a.",
 
             // Billing
             current_plan: "Atụmatụ Ugbu a",
@@ -2543,6 +2558,11 @@ const resources = {
             profile_deleted: "An share bayanan cikin nasara",
             upgrade_to_premium_for_business_profiles: "Haɓaka zuwa Premium don ƙara bayanan kasuwanci",
             upgrade_plan: "Haɓaka Tsari",
+            view_all_profiles: "Duba Duk Bayanan",
+            back_to_form: "Koma Zuwa Fom",
+            all_business_profiles: "Duk Bayanan Kasuwanci",
+            delete_business_profile: "Share Bayanan Kasuwanci",
+            delete_profile_confirmation: "Shin kuna tabbatar kuna son share wannan bayanan kasuwanci? Ba za a iya dawo da wannan aikin ba.",
 
             // Billing
             current_plan: "Tsarin Yanzu",
