@@ -516,7 +516,20 @@ const BusinessProfilePage = () => {
           </div>
         )}
 
-        {canAddBusinessProfile && (
+        {/* Back Arrow - Only show in list view */}
+        {viewMode === 'list' && canAddBusinessProfile && (
+          <button
+            onClick={() => setViewMode('form')}
+            className="mb-6 flex items-center gap-2 text-[#667085] hover:text-[#344054] transition-colors"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-sm font-medium">{t("back") || "Back"}</span>
+          </button>
+        )}
+
+        {canAddBusinessProfile && viewMode === 'form' && (
           <div className="flex justify-end gap-3 mb-6">
             {/* Select Business Dropdown */}
             <div className="relative" ref={dropdownRef}>
@@ -538,39 +551,55 @@ const BusinessProfilePage = () => {
                 <div className="absolute right-0 mt-2 w-64 bg-white border border-[#D0D5DD] rounded-lg shadow-lg z-10">
                   <div className="py-1">
                     {businessProfiles.length > 0 ? (
-                      businessProfiles.map((profile) => (
-                        <div
-                          key={profile.id}
-                          className={`flex items-center justify-between px-4 py-2.5 hover:bg-[#F9FAFB] transition-colors ${
-                            selectedProfileId === profile.id ? 'bg-blue-50' : ''
-                          }`}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => handleSelectProfile(profile.id!)}
-                            className="flex-1 text-left"
+                      <>
+                        {businessProfiles.map((profile) => (
+                          <div
+                            key={profile.id}
+                            className={`flex items-center justify-between px-4 py-2.5 hover:bg-[#F9FAFB] transition-colors ${
+                              selectedProfileId === profile.id ? 'bg-blue-50' : ''
+                            }`}
                           >
-                            <div className={`font-medium text-sm ${
-                              selectedProfileId === profile.id ? 'text-[#2F80ED]' : 'text-[#344054]'
-                            }`}>
-                              {profile.businessName || t("unnamed_profile")}
-                            </div>
-                            {profile.emailAddress && (
-                              <div className="text-xs text-[#667085] mt-0.5">{profile.emailAddress}</div>
-                            )}
-                          </button>
-                          {businessProfiles.length > 1 && (
                             <button
                               type="button"
-                              onClick={(e) => handleDeleteProfile(profile.id!, e)}
-                              className="ml-2 p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
-                              title={t("delete_profile") || "Delete profile"}
+                              onClick={() => handleSelectProfile(profile.id!)}
+                              className="flex-1 text-left"
                             >
-                              <X size={16} />
+                              <div className={`font-medium text-sm ${
+                                selectedProfileId === profile.id ? 'text-[#2F80ED]' : 'text-[#344054]'
+                              }`}>
+                                {profile.businessName || t("unnamed_profile")}
+                              </div>
+                              {profile.emailAddress && (
+                                <div className="text-xs text-[#667085] mt-0.5">{profile.emailAddress}</div>
+                              )}
                             </button>
-                          )}
+                            {businessProfiles.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={(e) => handleDeleteProfile(profile.id!, e)}
+                                className="ml-2 p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+                                title={t("delete_profile") || "Delete profile"}
+                              >
+                                <X size={16} />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                        
+                        {/* View All Profiles Link */}
+                        <div className="border-t border-[#E5E7EB] mt-1 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setViewMode('list');
+                              setIsDropdownOpen(false);
+                            }}
+                            className="w-full px-4 py-2.5 text-left text-sm font-medium text-[#2F80ED] hover:bg-[#F9FAFB] transition-colors"
+                          >
+                            {t("view_all_profiles") || "View All Profiles"} →
+                          </button>
                         </div>
-                      ))
+                      </>
                     ) : (
                       <div className="px-4 py-2.5 text-sm text-[#667085]">
                         {t("no_profiles_yet") || "No profiles yet"}
@@ -581,27 +610,15 @@ const BusinessProfilePage = () => {
               )}
             </div>
 
-            {/* View All and Add Business Profile Buttons */}
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setViewMode(viewMode === 'list' ? 'form' : 'list')}
-                className="px-4 py-2.5 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors flex items-center gap-2"
-              >
-                <span className="text-sm font-medium">
-                  {viewMode === 'list' ? (t("back_to_form") || "Back to Form") : (t("view_all_profiles") || "View All Profiles")}
-                </span>
-              </button>
-              
-              <button
-                type="button"
-                onClick={handleAddNewProfile}
-                className="px-4 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors flex items-center gap-2"
-              >
-                <Plus size={16} />
-                <span className="text-sm font-medium">{t("add_business_profile") || "Add Business Profile"}</span>
-              </button>
-            </div>
+            {/* Add Business Profile Button */}
+            <button
+              type="button"
+              onClick={handleAddNewProfile}
+              className="px-4 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors flex items-center gap-2"
+            >
+              <Plus size={16} />
+              <span className="text-sm font-medium">{t("add_business_profile") || "Add Business Profile"}</span>
+            </button>
           </div>
         )}
         

@@ -234,7 +234,7 @@ const ReceivedInvoices = () => {
                               <button
                                 onClick={() => {
                                   setOpenDropdown(null);
-                                  router.push(`/customer/invoice/${invoice.id}`);
+                                  router.push(`/dashboard/invoices/${invoice.id}`);
                                 }}
                                 className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                               >
@@ -334,7 +334,7 @@ const ReceivedInvoices = () => {
                         <button
                           onClick={() => {
                             setOpenDropdown(null);
-                            router.push(`/customer/invoice/${invoice.id}`);
+                            router.push(`/dashboard/invoices/${invoice.id}`);
                           }}
                           className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                         >
