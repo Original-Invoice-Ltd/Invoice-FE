@@ -1723,7 +1723,10 @@ const CreateInvoicePage = () => {
                             </div>
 
                             {/* Color Selection */}
-                            <div className="bg-white rounded-lg px-4">
+                            <div 
+                                className="bg-white rounded-lg px-4 border-2 transition-colors"
+                                style={{ borderColor: color }}
+                            >
                                 <h3 className="font-medium text-[16px] mb-2">Select Color</h3>
                                 <ColorPicker
                                     initialColor={color}
