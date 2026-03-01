@@ -279,12 +279,12 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                             <div 
                                 className="text-gray-300 font-bold select-none"
                                 style={{
-                                    fontSize: '4rem',
+                                    fontSize: '3rem',
                                     opacity: 0.15,
                                     letterSpacing: '0.1em',
                                 }}
                             >
-                                originalinvoice.com
+                                www.originalinvoice.com
                             </div>
                         </div>
                     )}
@@ -308,7 +308,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                                         letterSpacing: '0.1em'
                                     }}
                                 >
-                                    Original Invoice
+                                    www.originalinvoice.com
                                 </span>
                             </div>
 
