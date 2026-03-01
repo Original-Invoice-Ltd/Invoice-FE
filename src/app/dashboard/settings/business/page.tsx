@@ -35,6 +35,9 @@ const BusinessProfilePage = () => {
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isAddingNew, setIsAddingNew] = useState(false);
+  const [viewMode, setViewMode] = useState<'form' | 'list'>('form');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [profileToDelete, setProfileToDelete] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     businessName: "",
@@ -392,6 +395,7 @@ const BusinessProfilePage = () => {
   const handleAddNewProfile = () => {
     setIsAddingNew(true);
     setSelectedProfileId(null);
+    setViewMode('form');
     setFormData({
       businessName: "",
       businessFullName: "",
@@ -443,15 +447,29 @@ const BusinessProfilePage = () => {
       return;
     }
 
-    const updatedProfiles = businessProfiles.filter(p => p.id !== profileId);
+    setProfileToDelete(profileId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteProfile = () => {
+    if (!profileToDelete) return;
+
+    const updatedProfiles = businessProfiles.filter(p => p.id !== profileToDelete);
     setBusinessProfiles(updatedProfiles);
     
     // If deleted profile was selected, select the first remaining profile
-    if (selectedProfileId === profileId) {
+    if (selectedProfileId === profileToDelete) {
       handleSelectProfile(updatedProfiles[0].id!);
     }
     
     showSuccess(t("profile_deleted") || "Profile deleted successfully");
+    setShowDeleteModal(false);
+    setProfileToDelete(null);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setProfileToDelete(null);
   };
 
   if (isLoadingData) {
@@ -563,19 +581,105 @@ const BusinessProfilePage = () => {
               )}
             </div>
 
-            {/* Add Business Profile Button */}
-            <button
-              type="button"
-              onClick={handleAddNewProfile}
-              className="px-4 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors flex items-center gap-2"
-            >
-              <Plus size={16} />
-              <span className="text-sm font-medium">{t("add_business_profile") || "Add Business Profile"}</span>
-            </button>
+            {/* View All and Add Business Profile Buttons */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setViewMode(viewMode === 'list' ? 'form' : 'list')}
+                className="px-4 py-2.5 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors flex items-center gap-2"
+              >
+                <span className="text-sm font-medium">
+                  {viewMode === 'list' ? (t("back_to_form") || "Back to Form") : (t("view_all_profiles") || "View All Profiles")}
+                </span>
+              </button>
+              
+              <button
+                type="button"
+                onClick={handleAddNewProfile}
+                className="px-4 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors flex items-center gap-2"
+              >
+                <Plus size={16} />
+                <span className="text-sm font-medium">{t("add_business_profile") || "Add Business Profile"}</span>
+              </button>
+            </div>
           </div>
         )}
         
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {viewMode === 'list' && canAddBusinessProfile ? (
+          /* List View */
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-[#101828] mb-4">
+              {t("all_business_profiles") || "All Business Profiles"}
+            </h2>
+            
+            {businessProfiles.length === 0 ? (
+              <div className="text-center py-12 bg-[#F9FAFB] rounded-lg">
+                <p className="text-[#667085]">{t("no_profiles_yet") || "No profiles yet"}</p>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {businessProfiles.map((profile) => (
+                  <div
+                    key={profile.id}
+                    className="p-6 border border-[#E5E7EB] rounded-lg hover:border-[#2F80ED] transition-colors"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-[#101828] mb-2">
+                          {profile.businessName}
+                        </h3>
+                        <div className="space-y-1 text-sm text-[#667085]">
+                          {profile.businessFullName && (
+                            <p><span className="font-medium">Full Name:</span> {profile.businessFullName}</p>
+                          )}
+                          {profile.emailAddress && (
+                            <p><span className="font-medium">Email:</span> {profile.emailAddress}</p>
+                          )}
+                          {profile.phoneNumber && (
+                            <p><span className="font-medium">Phone:</span> {profile.phoneNumber}</p>
+                          )}
+                          {profile.registeredBusinessAddress && (
+                            <p><span className="font-medium">Address:</span> {profile.registeredBusinessAddress}</p>
+                          )}
+                          {profile.businessType && (
+                            <p><span className="font-medium">Type:</span> {profile.businessType}</p>
+                          )}
+                          {profile.country && (
+                            <p><span className="font-medium">Country:</span> {profile.country}</p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-2 ml-4">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleSelectProfile(profile.id!);
+                            setViewMode('form');
+                          }}
+                          className="px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors text-sm font-medium"
+                        >
+                          {t("edit") || "Edit"}
+                        </button>
+                        {businessProfiles.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={(e) => handleDeleteProfile(profile.id!, e)}
+                            className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium"
+                          >
+                            {t("delete") || "Delete"}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Form View */
+          <form onSubmit={handleSubmit} className="space-y-6">
           {/* Form Title */}
           {canAddBusinessProfile && (
             <div className="pb-4 border-b border-[#E5E7EB]">
@@ -831,7 +935,47 @@ const BusinessProfilePage = () => {
             </button>
           </div>
         </form>
+        )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-[#101828] mb-2">
+                  {t("delete_business_profile") || "Delete Business Profile"}
+                </h3>
+                <p className="text-sm text-[#667085] mb-6">
+                  {t("delete_profile_confirmation") || "Are you sure you want to delete this business profile? This action cannot be undone."}
+                </p>
+                <div className="flex gap-3 justify-end">
+                  <button
+                    type="button"
+                    onClick={cancelDelete}
+                    className="px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors text-sm font-medium"
+                  >
+                    {t("cancel") || "Cancel"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmDeleteProfile}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                  >
+                    {t("delete") || "Delete"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
