@@ -460,7 +460,24 @@ const resources = {
             canada: "Canada",
             loading_business_profile: "Loading business profile...",
             business_profile_updated: "Business profile updated successfully",
+            business_profile_created: "Business profile created successfully",
             profile_saved_logo_failed: "Profile saved, but logo upload failed",
+            
+            // Business Profile Management (Multiple Profiles)
+            add_business_profile: "Add Business Profile",
+            select_business: "Select Business",
+            new_business_profile: "New Business Profile",
+            add_new_business_profile: "Add New Business Profile",
+            edit_business_profile: "Edit Business Profile",
+            editing: "Editing",
+            new: "New",
+            unnamed_profile: "Unnamed Profile",
+            no_profiles_yet: "No profiles yet",
+            delete_profile: "Delete profile",
+            cannot_delete_last_profile: "Cannot delete the last profile",
+            profile_deleted: "Profile deleted successfully",
+            upgrade_to_premium_for_business_profiles: "Upgrade to Premium to add business profiles",
+            upgrade_plan: "Upgrade Plan",
 
             // Billing
             current_plan: "Current Plan",
@@ -1161,7 +1178,24 @@ const resources = {
             canada: "Kánádà",
             loading_business_profile: "À n gbé àkọsílẹ̀ iléeṣẹ́ jáde...",
             business_profile_updated: "A ti mú àkọsílẹ̀ iléeṣẹ́ ṣe àtúnṣe ní àṣeyọrí",
+            business_profile_created: "A ti dá àkọsílẹ̀ iléeṣẹ́ ní àṣeyọrí",
             profile_saved_logo_failed: "A ti fipamọ́ àkọsílẹ̀, ṣùgbọ́n gbígbé àmì wọlé kò yọrí",
+            
+            // Business Profile Management (Multiple Profiles)
+            add_business_profile: "Fi Àkọsílẹ̀ Iléeṣẹ́ Kún un",
+            select_business: "Yan Iléeṣẹ́",
+            new_business_profile: "Àkọsílẹ̀ Iléeṣẹ́ Tuntun",
+            add_new_business_profile: "Fi Àkọsílẹ̀ Iléeṣẹ́ Tuntun Kún un",
+            edit_business_profile: "Tún Àkọsílẹ̀ Iléeṣẹ́ Ṣe",
+            editing: "À n ṣàtúnṣe",
+            new: "Tuntun",
+            unnamed_profile: "Àkọsílẹ̀ Tí Kò Lórúkọ",
+            no_profiles_yet: "Kò sí àkọsílẹ̀ kankan",
+            delete_profile: "Pa àkọsílẹ̀ rẹ́",
+            cannot_delete_last_profile: "A kò lè pa àkọsílẹ̀ tó kẹ́yìn rẹ́",
+            profile_deleted: "A ti pa àkọsílẹ̀ rẹ́ ní àṣeyọrí",
+            upgrade_to_premium_for_business_profiles: "Gbé sókè sí Premium láti fi àwọn àkọsílẹ̀ iléeṣẹ́ kún un",
+            upgrade_plan: "Gbé Ètò Sókè",
 
             // Billing
             current_plan: "Ètò Lọ́wọ́lọ́wọ́",
@@ -1859,7 +1893,24 @@ const resources = {
             canada: "Canada",
             loading_business_profile: "Profaịlụ azụmahịa na-abata...",
             business_profile_updated: "E melitela profaịlụ azụmahịa nke ọma",
+            business_profile_created: "E mepụtala profaịlụ azụmahịa nke ọma",
             profile_saved_logo_failed: "E chekwara profaịlụ, mana ibulite logo adaghị",
+            
+            // Business Profile Management (Multiple Profiles)
+            add_business_profile: "Tinye Profaịlụ Azụmahịa",
+            select_business: "Họrọ Azụmahịa",
+            new_business_profile: "Profaịlụ Azụmahịa Ọhụrụ",
+            add_new_business_profile: "Tinye Profaịlụ Azụmahịa Ọhụrụ",
+            edit_business_profile: "Dezie Profaịlụ Azụmahịa",
+            editing: "Na-edezi",
+            new: "Ọhụrụ",
+            unnamed_profile: "Profaịlụ Enweghị Aha",
+            no_profiles_yet: "Enwebeghị profaịlụ ọ bụla",
+            delete_profile: "Hichapụ profaịlụ",
+            cannot_delete_last_profile: "Enweghị ike ihichapụ profaịlụ ikpeazụ",
+            profile_deleted: "E hichapụla profaịlụ nke ọma",
+            upgrade_to_premium_for_business_profiles: "Kwalite na Premium iji tinye profaịlụ azụmahịa",
+            upgrade_plan: "Kwalite Atụmatụ",
 
             // Billing
             current_plan: "Atụmatụ Ugbu a",
@@ -2474,7 +2525,24 @@ const resources = {
             canada: "Kanada",
             loading_business_profile: "Ana loda bayanan kasuwanci...",
             business_profile_updated: "An sabunta bayanan kasuwanci cikin nasara",
+            business_profile_created: "An ƙirƙiri bayanan kasuwanci cikin nasara",
             profile_saved_logo_failed: "An adana bayanan amma loda alamar ya kasa",
+            
+            // Business Profile Management (Multiple Profiles)
+            add_business_profile: "Ƙara Bayanan Kasuwanci",
+            select_business: "Zaɓi Kasuwanci",
+            new_business_profile: "Sabon Bayanan Kasuwanci",
+            add_new_business_profile: "Ƙara Sabon Bayanan Kasuwanci",
+            edit_business_profile: "Gyara Bayanan Kasuwanci",
+            editing: "Ana gyarawa",
+            new: "Sabon",
+            unnamed_profile: "Bayanan Ba Tare Da Suna Ba",
+            no_profiles_yet: "Babu bayanan har yanzu",
+            delete_profile: "Share bayanan",
+            cannot_delete_last_profile: "Ba za a iya share bayanan na ƙarshe ba",
+            profile_deleted: "An share bayanan cikin nasara",
+            upgrade_to_premium_for_business_profiles: "Haɓaka zuwa Premium don ƙara bayanan kasuwanci",
+            upgrade_plan: "Haɓaka Tsari",
 
             // Billing
             current_plan: "Tsarin Yanzu",

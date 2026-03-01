@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Upload, X } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Upload, X, Plus, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { ApiClient } from "@/lib/api";
 import { useToast } from "@/hooks/useToast";
@@ -12,6 +12,7 @@ import { usePlanAccess } from "@/hooks/usePlanAccess";
 import Link from "next/link";
 
 interface BusinessProfileDto {
+  id?: string;
   businessName?: string;
   businessFullName?: string;
   registeredBusinessAddress?: string;
@@ -28,6 +29,12 @@ const BusinessProfilePage = () => {
   const { toast, showSuccess, showError, hideToast } = useToast();
   const { t } = useTranslation();
   const { hasAccess, getFeatureUpgradeMessage } = usePlanAccess();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const [businessProfiles, setBusinessProfiles] = useState<BusinessProfileDto[]>([]);
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isAddingNew, setIsAddingNew] = useState(false);
 
   const [formData, setFormData] = useState({
     businessName: "",
@@ -73,9 +80,88 @@ const BusinessProfilePage = () => {
     loadBusinessProfile();
   }, []);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const loadBusinessProfile = async () => {
     try {
       setIsLoadingData(true);
+      
+      // Mock data for demonstration - Premium users will see multiple profiles
+      if (canAddBusinessProfile) {
+        const mockProfiles: BusinessProfileDto[] = [
+          {
+            id: 'profile-1',
+            businessName: 'Tech Solutions Ltd',
+            businessFullName: 'Tech Solutions Limited',
+            registeredBusinessAddress: '123 Innovation Drive, Lagos',
+            emailAddress: 'contact@techsolutions.com',
+            phoneNumber: '+2348012345678',
+            businessType: 'LIMITED_LIABILITY_COMPANY',
+            country: 'NIGERIA',
+            businessRegistrationNumber: 'RC123456',
+            businessLogoUrl: undefined,
+          },
+          {
+            id: 'profile-2',
+            businessName: 'Creative Agency Inc',
+            businessFullName: 'Creative Agency Incorporated',
+            registeredBusinessAddress: '456 Design Street, Abuja',
+            emailAddress: 'hello@creativeagency.com',
+            phoneNumber: '+2348087654321',
+            businessType: 'COPERATIONS',
+            country: 'NIGERIA',
+            businessRegistrationNumber: 'RC789012',
+            businessLogoUrl: undefined,
+          },
+          {
+            id: 'profile-3',
+            businessName: 'Global Consulting',
+            businessFullName: 'Global Consulting Services',
+            registeredBusinessAddress: '789 Business Avenue, Port Harcourt',
+            emailAddress: 'info@globalconsulting.com',
+            phoneNumber: '+2348098765432',
+            businessType: 'PARTNERSHIP',
+            country: 'NIGERIA',
+            businessRegistrationNumber: 'RC345678',
+            businessLogoUrl: undefined,
+          },
+        ];
+        
+        setBusinessProfiles(mockProfiles);
+        setSelectedProfileId(mockProfiles[0].id);
+        
+        const firstProfile = mockProfiles[0];
+        setFormData({
+          businessName: firstProfile.businessName || "",
+          businessFullName: firstProfile.businessFullName || "",
+          registeredBusinessAddress: firstProfile.registeredBusinessAddress || "",
+          emailAddress: firstProfile.emailAddress || "",
+          phoneNumber: firstProfile.phoneNumber || "",
+          businessType: firstProfile.businessType || "",
+          businessRegistrationNumber: firstProfile.businessRegistrationNumber || "",
+          country: firstProfile.country || "",
+        });
+
+        if (firstProfile.businessLogoUrl) {
+          setExistingLogoUrl(firstProfile.businessLogoUrl);
+          setLogoPreview(firstProfile.businessLogoUrl);
+        }
+        
+        setIsLoadingData(false);
+        return;
+      }
+      
+      // Original API call for non-premium users
       const response = await ApiClient.getBusinessProfile();
       console.log("Full API response:", response);
 
@@ -85,6 +171,15 @@ const BusinessProfilePage = () => {
         console.log("Business profile data:", data);
 
         if (data) {
+          // For now, treat single profile as array with one item
+          // In future, API should return array of profiles
+          const profile = {
+            id: data.id || 'default',
+            ...data
+          };
+          setBusinessProfiles([profile]);
+          setSelectedProfileId(profile.id);
+          
           setFormData({
             businessName: data.businessName || "",
             businessFullName: data.businessFullName || "",
@@ -100,7 +195,6 @@ const BusinessProfilePage = () => {
             setExistingLogoUrl(data.businessLogoUrl);
             setLogoPreview(data.businessLogoUrl);
           }
-
         }
       }
 
@@ -199,6 +293,48 @@ const BusinessProfilePage = () => {
     }
     
     try {
+      // For Premium users with mock data - simulate saving
+      if (canAddBusinessProfile) {
+        let businessLogoUrl = existingLogoUrl;
+        
+        if (logoFile) {
+          // Simulate logo upload
+          businessLogoUrl = URL.createObjectURL(logoFile);
+        }
+
+        const profileData: BusinessProfileDto = {
+          id: isAddingNew ? `profile-${Date.now()}` : selectedProfileId || undefined,
+          businessName: formData.businessName,
+          businessFullName: formData.businessFullName,
+          registeredBusinessAddress: formData.registeredBusinessAddress,
+          emailAddress: formData.emailAddress,
+          phoneNumber: normalizedPhone,
+          businessType: formData.businessType,
+          country: formData.country,
+          businessRegistrationNumber: formData.businessRegistrationNumber,
+          businessLogoUrl: businessLogoUrl || undefined,
+        };
+
+        if (isAddingNew) {
+          // Add new profile to the list
+          setBusinessProfiles(prev => [...prev, profileData]);
+          setSelectedProfileId(profileData.id!);
+          setIsAddingNew(false);
+          showSuccess(t("business_profile_created") || "Business profile created successfully");
+        } else {
+          // Update existing profile
+          setBusinessProfiles(prev => 
+            prev.map(p => p.id === selectedProfileId ? profileData : p)
+          );
+          showSuccess(t("business_profile_updated"));
+        }
+        
+        setLogoFile(null);
+        setIsLoading(false);
+        return;
+      }
+
+      // Original API call for non-premium users
       let businessLogoUrl = existingLogoUrl;
       let logoUploadFailed = false;
 
@@ -253,6 +389,71 @@ const BusinessProfilePage = () => {
     setLogoFile(null);
   };
 
+  const handleAddNewProfile = () => {
+    setIsAddingNew(true);
+    setSelectedProfileId(null);
+    setFormData({
+      businessName: "",
+      businessFullName: "",
+      registeredBusinessAddress: "",
+      emailAddress: "",
+      phoneNumber: "",
+      businessType: "",
+      businessRegistrationNumber: "",
+      country: "",
+    });
+    setLogoPreview(null);
+    setExistingLogoUrl(null);
+    setLogoFile(null);
+  };
+
+  const handleSelectProfile = (profileId: string) => {
+    const profile = businessProfiles.find(p => p.id === profileId);
+    if (profile) {
+      setSelectedProfileId(profileId);
+      setIsAddingNew(false);
+      setFormData({
+        businessName: profile.businessName || "",
+        businessFullName: profile.businessFullName || "",
+        registeredBusinessAddress: profile.registeredBusinessAddress || "",
+        emailAddress: profile.emailAddress || "",
+        phoneNumber: profile.phoneNumber || "",
+        businessType: profile.businessType || "",
+        businessRegistrationNumber: profile.businessRegistrationNumber || "",
+        country: profile.country || "",
+      });
+      
+      if (profile.businessLogoUrl) {
+        setExistingLogoUrl(profile.businessLogoUrl);
+        setLogoPreview(profile.businessLogoUrl);
+      } else {
+        setExistingLogoUrl(null);
+        setLogoPreview(null);
+      }
+      setLogoFile(null);
+    }
+    setIsDropdownOpen(false);
+  };
+
+  const handleDeleteProfile = (profileId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (businessProfiles.length <= 1) {
+      showError(t("cannot_delete_last_profile") || "Cannot delete the last profile");
+      return;
+    }
+
+    const updatedProfiles = businessProfiles.filter(p => p.id !== profileId);
+    setBusinessProfiles(updatedProfiles);
+    
+    // If deleted profile was selected, select the first remaining profile
+    if (selectedProfileId === profileId) {
+      handleSelectProfile(updatedProfiles[0].id!);
+    }
+    
+    showSuccess(t("profile_deleted") || "Profile deleted successfully");
+  };
+
   if (isLoadingData) {
     return (
       <div className="p-6">
@@ -266,6 +467,13 @@ const BusinessProfilePage = () => {
     );
   }
 
+  const canAddBusinessProfile = hasAccess('multipleCompanyProfiles');
+
+  const selectedProfile = businessProfiles.find(p => p.id === selectedProfileId);
+  const profileDisplayName = isAddingNew 
+    ? t("new_business_profile") || "New Business Profile"
+    : selectedProfile?.businessName || t("select_business") || "Select Business";
+
   return (
     <div className="p-6">
       <Toast
@@ -276,7 +484,122 @@ const BusinessProfilePage = () => {
       />
 
       <div className="max-w-2xl">
+        {!canAddBusinessProfile && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800 mb-2">
+              {t("upgrade_to_premium_for_business_profiles") || "Upgrade to Premium to add business profiles"}
+            </p>
+            <Link 
+              href="/dashboard/pricing"
+              className="text-sm text-[#2F80ED] hover:underline font-medium"
+            >
+              {t("upgrade_plan") || "Upgrade Plan"}
+            </Link>
+          </div>
+        )}
+
+        {canAddBusinessProfile && (
+          <div className="flex justify-end gap-3 mb-6">
+            {/* Select Business Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="px-4 py-2.5 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors flex items-center gap-2"
+              >
+                <span className="text-sm font-medium">{profileDisplayName}</span>
+                {businessProfiles.length > 0 && (
+                  <span className="px-2 py-0.5 bg-[#F2F4F7] text-[#344054] text-xs rounded-full">
+                    {businessProfiles.length}
+                  </span>
+                )}
+                <ChevronDown size={16} className={`transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white border border-[#D0D5DD] rounded-lg shadow-lg z-10">
+                  <div className="py-1">
+                    {businessProfiles.length > 0 ? (
+                      businessProfiles.map((profile) => (
+                        <div
+                          key={profile.id}
+                          className={`flex items-center justify-between px-4 py-2.5 hover:bg-[#F9FAFB] transition-colors ${
+                            selectedProfileId === profile.id ? 'bg-blue-50' : ''
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => handleSelectProfile(profile.id!)}
+                            className="flex-1 text-left"
+                          >
+                            <div className={`font-medium text-sm ${
+                              selectedProfileId === profile.id ? 'text-[#2F80ED]' : 'text-[#344054]'
+                            }`}>
+                              {profile.businessName || t("unnamed_profile")}
+                            </div>
+                            {profile.emailAddress && (
+                              <div className="text-xs text-[#667085] mt-0.5">{profile.emailAddress}</div>
+                            )}
+                          </button>
+                          {businessProfiles.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={(e) => handleDeleteProfile(profile.id!, e)}
+                              className="ml-2 p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+                              title={t("delete_profile") || "Delete profile"}
+                            >
+                              <X size={16} />
+                            </button>
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="px-4 py-2.5 text-sm text-[#667085]">
+                        {t("no_profiles_yet") || "No profiles yet"}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Add Business Profile Button */}
+            <button
+              type="button"
+              onClick={handleAddNewProfile}
+              className="px-4 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors flex items-center gap-2"
+            >
+              <Plus size={16} />
+              <span className="text-sm font-medium">{t("add_business_profile") || "Add Business Profile"}</span>
+            </button>
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Form Title */}
+          {canAddBusinessProfile && (
+            <div className="pb-4 border-b border-[#E5E7EB]">
+              <div className="flex items-center gap-3">
+                <h2 className="text-lg font-semibold text-[#101828]">
+                  {isAddingNew 
+                    ? (t("add_new_business_profile") || "Add New Business Profile")
+                    : (t("edit_business_profile") || "Edit Business Profile")
+                  }
+                </h2>
+                {isAddingNew && (
+                  <span className="px-2.5 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                    {t("new") || "New"}
+                  </span>
+                )}
+              </div>
+              {selectedProfile && !isAddingNew && (
+                <p className="text-sm text-[#667085] mt-1">
+                  {t("editing") || "Editing"}: {selectedProfile.businessName}
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Business Name */}
           <div>
             <label className="block text-sm font-medium text-[#101828] mb-2">
@@ -286,10 +609,10 @@ const BusinessProfilePage = () => {
               type="text"
               name="businessName"
               value={formData.businessName}
-                onChange={handleInputChange}
-                placeholder={t("enter_full_name")}
-
-              className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
+              onChange={handleInputChange}
+              placeholder={t("enter_full_name")}
+              disabled={!canAddBusinessProfile}
+              className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
               required
             />
           </div>
@@ -303,12 +626,12 @@ const BusinessProfilePage = () => {
               </label>
               <input
                 type="text"
-
                 name="registeredBusinessAddress"
                 value={formData.registeredBusinessAddress}
                 onChange={handleInputChange}
                 placeholder={t("enter_business_address")}
-                className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
+                disabled={!canAddBusinessProfile}
+                className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                 required
               />
             </div>
@@ -325,7 +648,8 @@ const BusinessProfilePage = () => {
                   value={formData.emailAddress}
                   onChange={handleInputChange}
                   placeholder={t("enter_email")}
-                  className="w-full px-3 py-2.5 pr-10 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
+                  disabled={!canAddBusinessProfile}
+                  className="w-full px-3 py-2.5 pr-10 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                   required
                 />
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -351,7 +675,8 @@ const BusinessProfilePage = () => {
                 value={formData.phoneNumber}
                 onChange={handleInputChange}
                 placeholder={t("enter_phone")}
-                className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
+                disabled={!canAddBusinessProfile}
+                className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                 required
               />
             </div>
@@ -367,7 +692,8 @@ const BusinessProfilePage = () => {
                 value={formData.businessRegistrationNumber}
                 onChange={handleInputChange}
                 placeholder={t("enter_registration_number")}
-                className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
+                disabled={!canAddBusinessProfile}
+                className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
               />
             </div>
           </div>
@@ -383,7 +709,8 @@ const BusinessProfilePage = () => {
                 name="businessType"
                 value={formData.businessType}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent appearance-none bg-white"
+                disabled={!canAddBusinessProfile}
+                className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent appearance-none bg-white disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                 required
               >
                 <option value="">{t("select_business_type")}</option>
@@ -405,7 +732,8 @@ const BusinessProfilePage = () => {
                 name="country"
                 value={formData.country}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent appearance-none bg-white"
+                disabled={!canAddBusinessProfile}
+                className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent appearance-none bg-white disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                 required
               >
                 <option value="">{t("select_country")}</option>
@@ -489,13 +817,14 @@ const BusinessProfilePage = () => {
             <button
               type="button"
               onClick={handleCancel}
-              className="px-6 py-2.5 border border-[#D0D5DD] text-[#667085] rounded-lg hover:bg-[#F9FAFB] transition-colors"
+              disabled={!canAddBusinessProfile}
+              className="px-6 py-2.5 border border-[#D0D5DD] text-[#667085] rounded-lg hover:bg-[#F9FAFB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {t("cancel")}
             </button>
             <button
               type="submit"
-              disabled={isLoading || !isFormValid()}
+              disabled={isLoading || !isFormValid() || !canAddBusinessProfile}
               className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? t("saving") : t("save_changes")}
