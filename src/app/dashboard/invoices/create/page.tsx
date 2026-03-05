@@ -428,7 +428,7 @@ const CreateInvoicePage = () => {
                 title: "",
                 fullName: billTo.customer,
                 businessName: billTo.customer,
-                email: "",
+                email: clients.find(client => client.id === selectedClientId)?.email || "",
                 phone: "",
                 country: ""
             },
@@ -1354,16 +1354,17 @@ const CreateInvoicePage = () => {
         {/* Add New Client Modal */}
         {showAddClientModal && (
             <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-                <div className="bg-white rounded-2xl p-5 w-[500px] shadow-2xl [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
-                    <div className="flex justify-between items-center mb-1">
-                        <h3 className="text-xl font-semibold text-[#101828]">Add New Client</h3>
-                        <button 
-                            onClick={() => setShowAddClientModal(false)}
-                            className="text-[#667085] hover:text-[#101828]"
-                        >
-                            <X size={20} />
-                        </button>
-                    </div>
+                <div className="bg-white rounded-2xl p-5 w-[500px] shadow-2xl max-h-[90vh] overflow-hidden">
+                    <div className="max-h-[calc(90vh-2.5rem)] overflow-y-auto scrollbar-hide">
+                        <div className="flex justify-between items-center mb-1">
+                            <h3 className="text-xl font-semibold text-[#101828]">Add New Client</h3>
+                            <button 
+                                onClick={() => setShowAddClientModal(false)}
+                                className="text-[#667085] hover:text-[#101828]"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
                     <p className="text-[13px] text-[#667085] mb-3">Save your client's business details to send invoices and track payments easily</p>
                     
                     {clientFormError && (

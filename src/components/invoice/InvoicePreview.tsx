@@ -31,6 +31,7 @@ interface InvoiceData {
         paymentTerms: string;
         invoiceDate: string;
         dueDate: string;
+        email?: string; // Add email field
     };
     items: InvoiceItem[];
     customerNote: string;
@@ -68,7 +69,6 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice }: Invoice
     const [showTelegramModal, setShowTelegramModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [emailTo, setEmailTo] = useState("");
-    const [emailMessage, setEmailMessage] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
     const [message, setMessage] = useState("");
     const sendDropdownRef = useRef<HTMLDivElement>(null);
@@ -106,7 +106,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice }: Invoice
 
     const handleEmailOptionClick = () => {
         setShowSendDropdown(false);
-        setEmailTo(data.billFrom.email || "");
+        setEmailTo(data.billTo.email || "");
         setShowEmailModal(true);
     };
 
@@ -420,7 +420,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice }: Invoice
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg w-full max-w-md mx-4 p-6">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-lg font-semibold text-gray-900">Email Invoice - Invoice</h2>
+                            <h2 className="text-lg font-semibold text-gray-900">Email Invoice</h2>
                             <button
                                 onClick={() => setShowEmailModal(false)}
                                 className="text-gray-400 hover:text-gray-600"
@@ -432,27 +432,14 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice }: Invoice
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    To Request<span className="text-red-500">*</span>
+                                    To<span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="email"
                                     value={emailTo}
                                     onChange={(e) => setEmailTo(e.target.value)}
-                                    placeholder="Jamesoriginalinvoice@gmail.com"
+                                    placeholder="Enter client email"
                                     className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Message
-                                </label>
-                                <textarea
-                                    value={emailMessage}
-                                    onChange={(e) => setEmailMessage(e.target.value)}
-                                    placeholder="Optional message to your client"
-                                    rows={4}
-                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                                 />
                             </div>
                         </div>
