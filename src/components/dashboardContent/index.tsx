@@ -5,140 +5,470 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
+import {
+    useDashboard,
+    // useAutoRefreshDashboard
+} from '@/hooks/useDashboard';
+import { useTranslation } from 'react-i18next';
+import { ApiClient } from '@/lib/api';
+import { usePlanAccess } from '@/hooks/usePlanAccess';
+import { useInvoiceLimit } from '@/contexts/InvoiceLimitContext';
+import InvoiceLimitWarning from '@/components/ui/InvoiceLimitWarning';
 
 const DashboardContent = () => {
-    const { user } = useAuth();
+    const { user, loading: userLoading } = useAuth();
+    const { t } = useTranslation();
     const [isClient, setIsClient] = useState(false);
+    const [trendsPeriod, setTrendsPeriod] = useState<'month' | 'year'>('month');
+    const { hasAccess, getFeatureUpgradeMessage } = usePlanAccess();
+    const { invoicesRemaining, totalInvoices } = useInvoiceLimit();
+    
+    const { data, loading, error, refreshTrends, refreshAll } = useDashboard('month', 5);
+    
+    // Customer invoice stats
+    const [customerStats, setCustomerStats] = useState({
+        totalReceived: 0,
+        paid: 0,
+        pending: 0,
+        overdue: 0,
+    });
+    const [customerStatsLoading, setCustomerStatsLoading] = useState(true);
+    
+
+    const handleTrendsPeriodChange = async () => {
+        const newPeriod = trendsPeriod === 'month' ? 'year' : 'month';
+        setTrendsPeriod(newPeriod);
+        await refreshTrends(newPeriod);
+    };
 
     useEffect(() => {
         setIsClient(true);
-    }, []);
+        
+        // Fetch customer invoice stats
+        const fetchCustomerStats = async () => {
+            if (!user?.email) {
+                setCustomerStatsLoading(false);
+                return;
+            }
+            
+            try {
+                setCustomerStatsLoading(true);
+                const response = await ApiClient.getInvoiceStats(user.email);
+                
+                if (response.status === 200 && response.data) {
+                    setCustomerStats({
+                        totalReceived: response.data.totalReceived || 0,
+                        paid: response.data.paid || 0,
+                        pending: response.data.pending || 0,
+                        overdue: response.data.overdue || 0,
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to fetch customer stats:', err);
+            } finally {
+                setCustomerStatsLoading(false);
+            }
+        };
+        
+        fetchCustomerStats();
+    }, [user?.email]);
 
-    // Get user's first name for welcome message
     const getFirstName = () => {
+        if (userLoading) return t('loading');
         if (!user?.fullName) return 'User';
         return user.fullName.split(' ')[0];
     };
-    // Sample data for charts
-    const paymentTrendsData = [
-        { month: 'Jan', value: 50000 },
-        { month: 'Feb', value: 100000 },
-        { month: 'Mar', value: 150000 },
-        { month: 'Apr', value: 200000 },
-        { month: 'May', value: 250000 },
-        { month: 'Jun', value: 300000 },
-    ];
 
-    const statusDistributionData = [
-        { name: 'Paid', value: 890000, color: '#10B981', percentage: '+55%' },
-        { name: 'Pending', value: 320000, color: '#3B82F6', percentage: '+7%' },
-        { name: 'Overdue', value: 135000, color: '#2F80ED', percentage: '+6%' },
-    ];
+    const getChartData = () => {
+        if (!data.paymentTrends) return [];
+        return data.paymentTrends.map(trend => ({
+            month: trend.periodLabel.split(' ')[0],
+            value: trend.totalAmount
+        }));
+    };
 
-    const recentInvoices = [
-        { date: 'Oct 25, 2025', client: 'Tech Solutions Ltd', invoiceId: 'INV-00123', status: 'Paid', dueDate: 'Nov 25, 2025', amount: '₦450,000', balance: '₦450,000' },
-        { date: 'Oct 23, 2025', client: 'Creative Hub', invoiceId: 'INV-00122', status: 'Pending', dueDate: 'Nov 25, 2025', amount: '₦85,000', balance: '₦85,000' },
-        { date: 'Oct 15, 2025', client: 'Global Services', invoiceId: 'INV-00121', status: 'Paid', dueDate: 'Nov 25, 2025', amount: '₦112,000', balance: '₦112,000' },
-        { date: 'Oct 15, 2025', client: 'Global Services', invoiceId: 'INV-00121', status: 'Overdue', dueDate: 'Nov 25, 2025', amount: '₦112,000', balance: '₦112,000' },
-    ];
+    const getStatusDistributionData = () => {
+        if (!data.stats?.statusDistribution) return [];
+        
+        const { paid, pending, overdue } = data.stats.statusDistribution;
+        return [
+            { 
+                name: t('paid'),
+                value: paid.amount, 
+                color: '#10B981', 
+                percentage: `+${paid.percentage.toFixed(1)}%` 
+            },
+            { 
+                name: t('pending'),
+                value: pending.amount, 
+                color: '#3B82F6', 
+                percentage: `+${pending.percentage.toFixed(1)}%` 
+            },
+            { 
+                name: t('overdue'),
+                value: overdue.amount, 
+                color: '#EF4444', 
+                percentage: `+${overdue.percentage.toFixed(1)}%` 
+            },
+        ];
+    };
+
+    // Format currency with abbreviations for large numbers
+    const formatCurrency = (amount: number) => {
+        const absAmount = Math.abs(amount);
+        
+        if (absAmount >= 1_000_000_000) {
+            // Billions
+            const billions = amount / 1_000_000_000;
+            return `₦${billions.toFixed(billions >= 10 ? 0 : 1)}B`;
+        } else if (absAmount >= 1_000_000) {
+            // Millions
+            const millions = amount / 1_000_000;
+            return `₦${millions.toFixed(millions >= 10 ? 0 : 1)}M`;
+        } else if (absAmount >= 1_000) {
+            // Thousands
+            const thousands = amount / 1_000;
+            return `₦${thousands.toFixed(thousands >= 10 ? 0 : 1)}K`;
+        }
+        
+        return `₦${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    };
+
+    // Format date
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric' 
+        });
+    };
 
     const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'Paid':
+        switch (status.toUpperCase()) {
+            case 'PAID':
                 return 'bg-[#ECFDF5] text-[#10B981]';
-            case 'Pending':
+            case 'PENDING':
                 return 'bg-[#FEF3C7] text-[#F59E0B]';
-            case 'Overdue':
+            case 'OVERDUE':
                 return 'bg-[#FEE2E2] text-[#EF4444]';
             default:
                 return 'bg-gray-100 text-gray-600';
         }
     };
 
+    const isInitialLoading = loading.stats && loading.trends && loading.invoices;
+    
+    if (isInitialLoading) {
+        return (
+            <div className="max-w-7xl mx-auto mb-[200px] p-6 ">
+                <div className="animate-pulse">
+                    <div className="h-8 bg-gray-200 rounded w-1/3 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-6"></div>
+                    
+                    {/* Action buttons skeleton */}
+                    <div className="flex gap-3 mb-6">
+                        <div className="h-12 bg-gray-200 rounded w-24"></div>
+                        <div className="h-12 bg-gray-200 rounded w-32"></div>
+                    </div>
+                    
+                    {/* Stats cards skeleton */}
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+                        {[...Array(4)].map((_, i) => (
+                            <div key={i} className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
+                                <div className="h-4 bg-gray-200 rounded w-2/3 mb-2"></div>
+                                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+                            </div>
+                        ))}
+                    </div>
+                    
+                    {/* Charts skeleton */}
+                    <div className="bg-white p-4 rounded-xl border border-[#E4E7EC] mb-6">
+                        <div className="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
+                        <div className="h-[280px] bg-gray-100 rounded"></div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (error && isInitialLoading) {
+        return (
+            <div className="max-w-7xl mx-auto mb-[200px] p-6">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <h3 className="text-red-800 font-medium mb-2">{t('error_loading_invoices')}</h3>
+                    <p className="text-red-600 text-sm mb-4">{error}</p>
+                    <button 
+                        onClick={refreshAll}
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700"
+                    >
+                        {t('retry')}
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    const chartData = getChartData();
+    const statusDistributionData = getStatusDistributionData();
+
     return (
         <div className="max-w-7xl mx-auto mb-[200px] p-6">
             {/* Welcome Section */}
             <div className="mb-6">
-                <h1 className="text-xl lg:text-2xl font-semibold text-[#101828] mb-1">Welcome, {getFirstName()}</h1>
-                <p className="text-sm text-[#667085]">Here's your business performance at a glance</p>
+                <h1 className="text-xl lg:text-2xl font-semibold text-[#101828] mb-1">
+                    {userLoading ? (
+                        <span className="inline-flex items-center gap-2">
+                            Welcome back, 
+                            <div className="animate-pulse bg-gray-200 h-6 w-16 rounded"></div>
+                        </span>
+                    ) : (
+                        `Welcome back, ${getFirstName()}`
+                    )}
+                </h1>
+                <p className="text-sm text-[#667085]">{t('performance_glance')}</p>
             </div>
 
             {/* Action Buttons */}
             <div className="flex gap-3 mb-6">
                 <Link href="/dashboard/clients" className="flex-1 lg:flex-none lg:px-6 border border-[#2F80ED] text-[#2F80ED] rounded-lg text-sm font-medium hover:bg-[#EFF8FF] h-12 flex items-center justify-center">
-                    Add Client
+                    {t('add_client')}
                 </Link>
                 <Link href="/dashboard/invoices/create" className="flex-1 lg:flex-none lg:px-6 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] h-12 flex items-center justify-center gap-2">
                     <Plus size={18} />
-                    Create Invoice
+                    {t('create_invoice')}
                 </Link>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
-                <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
-                    <p className="text-sm text-[#667085] mb-2">Total Invoice Sent</p>
-                    <h3 className="text-2xl lg:text-3xl font-semibold text-[#101828]">₦900,000</h3>
+            <InvoiceLimitWarning 
+                invoicesRemaining={invoicesRemaining}
+                totalInvoices={totalInvoices}
+            />
+
+            {/* Invoices Sent Stats Cards */}
+            <div className="mb-6">
+                <h2 className="text-lg font-semibold text-[#101828] mb-4">{t('invoices_sent')}</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                    <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
+                    <p className="text-sm text-[#667085] mb-2">{t('sent_invoices')}</p>
+                    {loading.stats ? (
+                        <div className="animate-pulse">
+                            <div className="h-8 bg-gray-200 rounded w-2/3"></div>
+                        </div>
+                    ) : (
+                        <div className="flex items-end justify-between">
+                            <h3 className="text-xl lg:text-2xl font-semibold text-[#101828]">
+                                {data.stats ? formatCurrency(data.stats.totalInvoicesSent.amount) : '₦0'}
+                            </h3>
+                            {data.stats?.totalInvoicesSent.percentageChange && (
+                                <span className={`text-xs px-2 py-1 rounded ${
+                                    data.stats.totalInvoicesSent.percentageChange.startsWith('+') 
+                                        ? 'text-[#10B981] bg-[#ECFDF5]' 
+                                        : 'text-[#EF4444] bg-[#FEE2E2]'
+                                }`}>
+                                    {data.stats.totalInvoicesSent.percentageChange}
+                                </span>
+                            )}
+                        </div>
+                    )}
                 </div>
                 <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
-                    <p className="text-sm text-[#667085] mb-2">Paid Invoices</p>
-                    <div className="flex items-end justify-between">
-                        <h3 className="text-2xl lg:text-3xl font-semibold text-[#101828]">₦890,000</h3>
-                        <span className="text-xs text-[#10B981] bg-[#ECFDF5] px-2 py-1 rounded">+15%</span>
+                    <p className="text-sm text-[#667085] mb-2">{t('payments_received_total')}</p>
+                    {loading.stats ? (
+                        <div className="animate-pulse">
+                            <div className="h-8 bg-gray-200 rounded w-2/3"></div>
+                        </div>
+                    ) : (
+                        <div className="flex items-end justify-between">
+                            <h3 className="text-xl lg:text-2xl font-semibold text-[#101828]">
+                                {data.stats ? formatCurrency(data.stats.paidInvoices.amount) : '₦0'}
+                            </h3>
+                            {data.stats?.paidInvoices.percentageChange && (
+                                <span className={`text-xs px-2 py-1 rounded ${
+                                    data.stats.paidInvoices.percentageChange.startsWith('+') 
+                                        ? 'text-[#10B981] bg-[#ECFDF5]' 
+                                        : 'text-[#EF4444] bg-[#FEE2E2]'
+                                }`}>
+                                    {data.stats.paidInvoices.percentageChange}
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </div>
+                <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
+                    <p className="text-sm text-[#667085] mb-2">{t('pending')}</p>
+                    {loading.stats ? (
+                        <div className="animate-pulse">
+                            <div className="h-8 bg-gray-200 rounded w-2/3"></div>
+                        </div>
+                    ) : (
+                        <div className="flex items-end justify-between">
+                            <h3 className="text-xl lg:text-2xl font-semibold text-[#101828]">
+                                {data.stats ? formatCurrency(data.stats.pendingInvoices.amount) : '₦0'}
+                            </h3>
+                            {data.stats?.pendingInvoices.percentageChange && (
+                                <span className={`text-xs px-2 py-1 rounded ${
+                                    data.stats.pendingInvoices.percentageChange.startsWith('+') 
+                                        ? 'text-[#10B981] bg-[#ECFDF5]' 
+                                        : 'text-[#EF4444] bg-[#FEE2E2]'
+                                }`}>
+                                    {data.stats.pendingInvoices.percentageChange}
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </div>
+                <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
+                    <p className="text-sm text-[#667085] mb-2">{t('overdue')}</p>
+                    {loading.stats ? (
+                        <div className="animate-pulse">
+                            <div className="h-8 bg-gray-200 rounded w-2/3"></div>
+                        </div>
+                    ) : (
+                        <div className="flex items-end justify-between">
+                            <h3 className="text-xl lg:text-2xl font-semibold text-[#101828]">
+                                {data.stats ? formatCurrency(data.stats.overdueInvoices.amount) : '₦0'}
+                            </h3>
+                            {data.stats?.overdueInvoices.percentageChange && (
+                                <span className={`text-xs px-2 py-1 rounded ${
+                                    data.stats.overdueInvoices.percentageChange.startsWith('+') 
+                                        ? 'text-[#EF4444] bg-[#FEE2E2]' 
+                                        : 'text-[#10B981] bg-[#ECFDF5]'
+                                }`}>
+                                    {data.stats.overdueInvoices.percentageChange}
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+            </div>
+
+            {/* Customer Invoice Stats Cards */}
+            <div className="mb-6">
+                <h2 className="text-lg font-semibold text-[#101828] mb-4">{t('received_invoices')}</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                    <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
+                        <div className="text-3xl font-bold text-gray-900 mb-2">
+                            {customerStatsLoading ? (
+                                <div className="animate-pulse bg-gray-300 h-8 w-12 rounded"></div>
+                            ) : (
+                                customerStats.totalReceived
+                            )}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('total_invoice_received')}</div>
                     </div>
-                </div>
-                <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
-                    <p className="text-sm text-[#667085] mb-2">Pending Invoice</p>
-                    <div className="flex items-end justify-between">
-                        <h3 className="text-2xl lg:text-3xl font-semibold text-[#101828]">₦320,000</h3>
-                        <span className="text-xs text-[#EF4444] bg-[#FEE2E2] px-2 py-1 rounded">-3%</span>
+                    <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
+                        <div className="text-3xl font-bold text-gray-900 mb-2">
+                            {customerStatsLoading ? (
+                                <div className="animate-pulse bg-gray-300 h-8 w-12 rounded"></div>
+                            ) : (
+                                customerStats.paid
+                            )}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('paid_invoice')}</div>
                     </div>
-                </div>
-                <div className="bg-white p-6 rounded-xl border border-[#E4E7EC]">
-                    <p className="text-sm text-[#667085] mb-2">Overdue Invoice</p>
-                    <h3 className="text-2xl lg:text-3xl font-semibold text-[#101828]">₦135,000</h3>
+                    <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
+                        <div className="text-3xl font-bold text-gray-900 mb-2">
+                            {customerStatsLoading ? (
+                                <div className="animate-pulse bg-gray-300 h-8 w-12 rounded"></div>
+                            ) : (
+                                customerStats.pending
+                            )}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('pending_invoice')}</div>
+                    </div>
+                    <div className="bg-[#eff8ff] p-6 rounded-lg shadow-sm">
+                        <div className="text-3xl font-bold text-gray-900 mb-2">
+                            {customerStatsLoading ? (
+                                <div className="animate-pulse bg-gray-300 h-8 w-12 rounded"></div>
+                            ) : (
+                                customerStats.overdue
+                            )}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('overdue_invoice')}</div>
+                    </div>
                 </div>
             </div>
 
             {/* Payment Trends - Mobile & Desktop */}
             <div className="bg-white p-4 rounded-xl border border-[#E4E7EC] mb-6">
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-base lg:text-lg font-semibold text-[#101828]">Payment Trends</h3>
-                    <button className="flex items-center gap-2 text-xs lg:text-sm text-[#667085]">
-                        This Month
+                    <h3 className="text-base lg:text-lg font-semibold text-[#101828]">{t('track_payments_title')}</h3>
+                    <button 
+                        onClick={handleTrendsPeriodChange}
+                        disabled={loading.trends}
+                        className="flex items-center gap-2 text-xs lg:text-sm text-[#667085] hover:text-[#2F80ED] disabled:opacity-50"
+                    >
+                        {trendsPeriod === 'month' ? t('monthly') : t('annually')}
                         <ChevronDown size={16} />
                     </button>
                 </div>
-                <div className="w-full h-[200px] lg:h-[280px]" style={{ minWidth: '300px', minHeight: '200px' }}>
-                    {isClient && (
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={paymentTrendsData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#E8E9ED" />
-                                <XAxis 
-                                    dataKey="month" 
-                                    tick={{ fill: '#333436', fontSize: 10 }}
-                                    axisLine={{ stroke: '#E4E7EC' }}
-                                />
-                                <YAxis 
-                                    tick={{ fill: '#667085', fontSize: 10 }}
-                                    axisLine={{ stroke: '#E4E7EC' }}
-                                    tickFormatter={(value) => `₦${value / 1000}k`}
-                                />
-                                <Tooltip 
-                                    formatter={(value: any) => [`₦${value.toLocaleString()}`, 'Amount']}
-                                    contentStyle={{ borderRadius: '8px', border: '1px solid #E4E7EC', fontSize: '12px' }}
-                                />
-                                <Line 
-                                    type="monotone" 
-                                    dataKey="value" 
-                                    stroke="#2F80ED" 
-                                    strokeWidth={2}
-                                    dot={false}
-                                />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    )}
-                </div>
+                {hasAccess('advancedAnalytics') ? (
+                    <div className="w-full h-[200px] lg:h-[225px]" style={{ minWidth: '300px', minHeight: '200px' }}>
+                        {loading.trends ? (
+                            <div className="animate-pulse h-full bg-gray-100 rounded flex items-center justify-center">
+                                <div className="text-gray-400">{t('loading')}</div>
+                            </div>
+                        ) : isClient && chartData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#E8E9ED" />
+                                    <XAxis 
+                                        dataKey="month" 
+                                        tick={{ fill: '#333436', fontSize: 10 }}
+                                        axisLine={{ stroke: '#E4E7EC' }}
+                                    />
+                                    <YAxis 
+                                        tick={{ fill: '#667085', fontSize: 10 }}
+                                        axisLine={{ stroke: '#E4E7EC' }}
+                                        tickFormatter={(value) => `₦${value / 1000}k`}
+                                    />
+                                    <Tooltip 
+                                        formatter={(value: any) => [`₦${value.toLocaleString()}`, 'Amount']}
+                                        contentStyle={{ borderRadius: '8px', border: '1px solid #E4E7EC', fontSize: '12px' }}
+                                    />
+                                    <Line 
+                                        type="monotone" 
+                                        dataKey="value" 
+                                        stroke="#2F80ED" 
+                                        strokeWidth={2}
+                                        dot={false}
+                                    />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="flex items-center justify-center h-full text-gray-500">
+                                {chartData.length === 0 ? t('no_invoices_found') : t('loading')}
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="w-full h-[200px] lg:h-[225px] relative" style={{ minWidth: '300px', minHeight: '200px' }}>
+                        <div className="absolute inset-0 bg-white/95 backdrop-blur-sm rounded-lg flex flex-col items-center justify-center z-10 p-4">
+                            <div className="text-center max-w-xs">
+                                <div className="mb-3">
+                                    <svg className="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                </div>
+                                <p className="text-xs text-[#667085] mb-3">{getFeatureUpgradeMessage('advancedAnalytics')}</p>
+                                <Link 
+                                    href="/dashboard/pricing"
+                                    className="inline-block px-4 py-2 bg-[#2F80ED] text-white rounded-lg text-xs font-medium hover:bg-[#2563EB] transition-colors"
+                                >
+                                    Upgrade to Premium
+                                </Link>
+                            </div>
+                        </div>
+                        <div className="opacity-20 pointer-events-none h-full">
+                            <div className="h-full bg-gray-100 rounded flex items-center justify-center">
+                                <div className="text-gray-400">{t('loading')}</div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Charts Section - Desktop Only (Side by Side) */}
@@ -146,16 +476,26 @@ const DashboardContent = () => {
                 {/* Payment Trends - Desktop */}
                 <div className="flex-1 bg-white p-4 rounded-xl border border-[#E4E7EC]">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-[#101828]">Payment Trends</h3>
-                        <button className="flex items-center gap-2 text-sm text-[#667085]">
-                            This Month
+                        <h3 className="text-lg font-semibold text-[#101828]">{t('track_payments_title')}</h3>
+                        <button 
+                            onClick={handleTrendsPeriodChange}
+                            disabled={loading.trends}
+                            className="flex items-center gap-2 text-sm text-[#667085] hover:text-[#2F80ED] disabled:opacity-50"
+                        >
+                            {trendsPeriod === 'month' ? t('monthly') : t('annually')}
                             <ChevronDown size={16} />
                         </button>
                     </div>
-                    <div className="w-full h-[280px]" style={{ minWidth: '400px', minHeight: '280px' }}>
-                        {isClient && (
+                    {/* <div className="w-full h-[200px]" style={{ minWidth: '400px', minHeight: '225px' }}> */}
+                    <div className="w-full h-[200px] lg:h-[350px]" style={{ minWidth: '300px', minHeight: '250px' }}>
+    
+                        {loading.trends ? (
+                            <div className="animate-pulse h-full bg-gray-100 rounded flex items-center justify-center">
+                                <div className="text-gray-400">{t('loading')}</div>
+                            </div>
+                        ) : isClient && chartData.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={paymentTrendsData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#E8E9ED" />
                                     <XAxis 
                                         dataKey="month" 
@@ -180,29 +520,33 @@ const DashboardContent = () => {
                                     />
                                 </LineChart>
                             </ResponsiveContainer>
+                        ) : (
+                            <div className="flex items-center justify-center h-full text-gray-500">
+                                {chartData.length === 0 ? t('no_invoices_found') : t('loading')}
+                            </div>
                         )}
                     </div>
                 </div>
 
                 {/* Status Distribution - Desktop */}
-                <div className="w-[392px] bg-white p-4 rounded-xl border border-[#E4E7EC]">
+                <div className="w-[392px] bg-white p-4 rounded-xl border border-[#E4E7EC] flex flex-col">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-[#101828]">Status Distribution</h3>
+                        <h3 className="text-lg font-semibold text-[#101828]">{t('status')}</h3>
                         <button className="flex items-center gap-2 text-sm text-[#667085]">
-                            This Month
+                            {t('monthly')}
                             <ChevronDown size={16} />
                         </button>
                     </div>
-                    <div className="w-full h-[180px] flex items-center justify-center" style={{ minWidth: '300px', minHeight: '180px' }}>
-                        {isClient && (
+                    <div className="w-full h-[280px] flex items-center justify-center" style={{ minWidth: '300px', minHeight: '200px' }}>
+                        {isClient && statusDistributionData.length > 0 && (
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
                                         data={statusDistributionData}
                                         cx="50%"
                                         cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={80}
+                                        innerRadius={70}
+                                        outerRadius={100}
                                         paddingAngle={5}
                                         dataKey="value"
                                     >
@@ -213,6 +557,11 @@ const DashboardContent = () => {
                                 </PieChart>
                             </ResponsiveContainer>
                         )}
+                        {(!isClient || statusDistributionData.length === 0) && (
+                            <div className="flex items-center justify-center h-full text-gray-500">
+                                {statusDistributionData.length === 0 ? t('no_invoices_found') : t('loading')}
+                            </div>
+                        )}
                     </div>
                     <div className="space-y-2 mt-4">
                         {statusDistributionData.map((item) => (
@@ -221,7 +570,7 @@ const DashboardContent = () => {
                                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
                                     <span className="text-sm text-[#333436]">{item.name}</span>
                                 </div>
-                                <span className="text-sm font-medium text-[#101828]">₦{item.value.toLocaleString()}</span>
+                                <span className="text-sm font-medium text-[#101828]">{formatCurrency(item.value)}</span>
                             </div>
                         ))}
                     </div>
@@ -231,47 +580,79 @@ const DashboardContent = () => {
             {/* Status Distribution - Mobile Only */}
             <div className="lg:hidden bg-white p-4 rounded-xl border border-[#E4E7EC] mb-6">
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-base font-semibold text-[#101828]">Status Distribution</h3>
+                    <h3 className="text-base font-semibold text-[#101828]">{t('status')}</h3>
                     <button className="flex items-center gap-2 text-xs text-[#667085]">
-                        This Month
+                        {t('monthly')}
                         <ChevronDown size={16} />
                     </button>
                 </div>
-                <div className="w-full h-[180px] flex items-center justify-center" style={{ minWidth: '250px', minHeight: '180px' }}>
-                    {isClient && (
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie
-                                    data={statusDistributionData}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={50}
-                                    outerRadius={70}
-                                    paddingAngle={5}
-                                    dataKey="value"
+                {hasAccess('advancedAnalytics') ? (
+                    <>
+                        <div className="w-full h-[180px] flex items-center justify-center" style={{ minWidth: '250px', minHeight: '180px' }}>
+                            {isClient && statusDistributionData.length > 0 && (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={statusDistributionData}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={50}
+                                            outerRadius={70}
+                                            paddingAngle={5}
+                                            dataKey="value"
+                                        >
+                                            {statusDistributionData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                            ))}
+                                        </Pie>
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            )}
+                            {(!isClient || statusDistributionData.length === 0) && (
+                                <div className="flex items-center justify-center h-full text-gray-500">
+                                    {statusDistributionData.length === 0 ? t('no_invoices_found') : t('loading')}
+                                </div>
+                            )}
+                        </div>
+                        <div className="space-y-2 mt-4">
+                            {statusDistributionData.map((item) => (
+                                <div key={item.name} className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
+                                        <span className="text-sm text-[#333436]">{item.name}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm font-medium text-[#101828]">{formatCurrency(item.value)}</span>
+                                        <span className="text-xs text-[#10B981]">{item.percentage}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                ) : (
+                    <div className="w-full h-[180px] relative" style={{ minWidth: '250px', minHeight: '180px' }}>
+                        <div className="absolute inset-0 bg-white/95 backdrop-blur-sm rounded-lg flex flex-col items-center justify-center z-10 p-4">
+                            <div className="text-center max-w-xs">
+                                <div className="mb-3">
+                                    <svg className="w-10 h-10 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                                    </svg>
+                                </div>
+                                <p className="text-[10px] text-[#667085] mb-2">{getFeatureUpgradeMessage('advancedAnalytics')}</p>
+                                <Link 
+                                    href="/dashboard/pricing"
+                                    className="inline-block px-3 py-1.5 bg-[#2F80ED] text-white rounded-lg text-[10px] font-medium hover:bg-[#2563EB] transition-colors"
                                 >
-                                    {statusDistributionData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
-                    )}
-                </div>
-                <div className="space-y-2 mt-4">
-                    {statusDistributionData.map((item) => (
-                        <div key={item.name} className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                                <span className="text-sm text-[#333436]">{item.name}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-[#101828]">₦{item.value.toLocaleString()}</span>
-                                <span className="text-xs text-[#10B981]">{item.percentage}</span>
+                                    Upgrade
+                                </Link>
                             </div>
                         </div>
-                    ))}
-                </div>
+                        <div className="opacity-20 pointer-events-none h-full">
+                            <div className="h-full bg-gray-100 rounded"></div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Recent Invoice - Mobile */}
@@ -281,37 +662,49 @@ const DashboardContent = () => {
                     <Search size={18} className="text-[#667085]" />
                 </div>
                 <div className="divide-y divide-[#E4E7EC]">
-                    {recentInvoices.slice(0, 3).map((invoice, index) => (
-                        <div key={index} className="p-4">
-                            <div className="flex items-start justify-between mb-2">
-                                <div>
-                                    <p className="text-xs text-[#667085] mb-1">Date</p>
-                                    <p className="text-sm font-medium text-[#101828]">{invoice.date}</p>
+                    {data.recentInvoices && data.recentInvoices.length > 0 ? (
+                        data.recentInvoices.slice(0, 3).map((invoice, index) => (
+                            <div key={invoice.id} className="p-4">
+                                <div className="flex items-start justify-between mb-2">
+                                    <div>
+                                        <p className="text-xs text-[#667085] mb-1">Date</p>
+                                        <p className="text-sm font-medium text-[#101828]">{formatDate(invoice.date)}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-xs text-[#667085] mb-1">{t('client_name')}</p>
+                                        <p className="text-sm font-medium text-[#101828]">{invoice.client}</p>
+                                    </div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-xs text-[#667085] mb-1">Client Name</p>
-                                    <p className="text-sm font-medium text-[#101828]">{invoice.client}</p>
+                                <div className="flex items-center justify-between mt-2">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(invoice.status)}`}>
+                                        {invoice.status}
+                                    </span>
+                                    <span className="text-sm font-medium text-[#101828]">{formatCurrency(invoice.amount)}</span>
                                 </div>
                             </div>
+                        ))
+                    ) : (
+                        <div className="p-4 text-center text-gray-500">
+                            {t('no_recent_invoices_available')}
                         </div>
-                    ))}
+                    )}
                 </div>
                 <div className="p-4">
-                    <button className="w-full h-12 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB]">
-                        View More
-                    </button>
+                    <Link href="/dashboard/invoices" className="w-full h-12 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2563EB] flex items-center justify-center">
+                        {t('view_more')}
+                    </Link>
                 </div>
             </div>
 
             {/* Recent Invoice - Desktop */}
             <div className="hidden lg:block bg-white rounded-xl border border-[#E4E7EC]">
                 <div className="p-4 flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-[#101828]">Recent Invoice</h3>
+                    <h3 className="text-lg font-semibold text-[#101828]">{t('invoices')}</h3>
                     <div className="flex items-center gap-2 bg-[#F9FAFB] px-4 py-2 rounded-lg">
                         <Search size={18} className="text-[#667085]" />
                         <input
                             type="text"
-                            placeholder="Search invoice"
+                            placeholder={t('search_invoices')}
                             className="bg-transparent outline-none text-sm w-32"
                         />
                     </div>
@@ -320,31 +713,39 @@ const DashboardContent = () => {
                     <table className="w-full">
                         <thead className="bg-[#F9FAFB]">
                             <tr>
-                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Date</th>
-                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Client Name</th>
-                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Invoice ID</th>
-                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Status</th>
-                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Due Date</th>
-                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Amount</th>
-                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">Balance Due</th>
+                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('date')}</th>
+                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('client_name')}</th>
+                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('invoice_id')}</th>
+                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('status')}</th>
+                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('due_date')}</th>
+                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('amount')}</th>
+                                <th className="text-left px-6 py-3 text-xs font-medium text-[#667085]">{t('balance_due')}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {recentInvoices.map((invoice, index) => (
-                                <tr key={index} className="border-b border-[#E4E7EC] hover:bg-[#F9FAFB]">
-                                    <td className="px-6 py-4 text-sm text-[#101828]">{invoice.date}</td>
-                                    <td className="px-6 py-4 text-sm text-[#101828]">{invoice.client}</td>
-                                    <td className="px-6 py-4 text-sm text-[#667085]">{invoice.invoiceId}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(invoice.status)}`}>
-                                            {invoice.status}
-                                        </span>
+                            {data.recentInvoices && data.recentInvoices.length > 0 ? (
+                                data.recentInvoices.map((invoice, index) => (
+                                    <tr key={invoice.id} className="border-b border-[#E4E7EC] hover:bg-[#F9FAFB]">
+                                        <td className="px-6 py-4 text-sm text-[#101828]">{formatDate(invoice.date)}</td>
+                                        <td className="px-6 py-4 text-sm text-[#101828]">{invoice.client}</td>
+                                        <td className="px-6 py-4 text-sm text-[#667085]">{invoice.invoiceId}</td>
+                                        <td className="px-6 py-4">
+                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(invoice.status)}`}>
+                                                {invoice.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-[#667085]">{formatDate(invoice.dueDate)}</td>
+                                        <td className="px-6 py-4 text-sm text-[#101828] font-medium">{formatCurrency(invoice.amount)}</td>
+                                        <td className="px-6 py-4 text-sm text-[#101828] font-medium">{formatCurrency(invoice.balance)}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                                        {t('no_invoices_found')}
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-[#667085]">{invoice.dueDate}</td>
-                                    <td className="px-6 py-4 text-sm text-[#101828] font-medium">{invoice.amount}</td>
-                                    <td className="px-6 py-4 text-sm text-[#101828] font-medium">{invoice.balance}</td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>

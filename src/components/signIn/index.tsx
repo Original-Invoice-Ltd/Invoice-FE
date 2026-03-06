@@ -31,6 +31,27 @@ export default function SignIn() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.email || formData.email.trim() === '') {
+      showError('Invalid credentials provided');
+      return;
+    }
+
+    if (!ApiClient.isValidEmail(formData.email)) {
+      showError('Invalid credentials provided');
+      return;
+    }
+
+    if (!formData.password || formData.password.trim() === '') {
+      showError('Invalid credentials provided');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      showError('Invalid credentials provided');
+      return;
+    }
+
     setLoading(true);
 
     try {

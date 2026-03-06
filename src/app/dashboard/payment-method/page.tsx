@@ -5,11 +5,13 @@ import { ArrowLeft, CreditCard, Building2, Check } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { initializeCardSubscription, initializeTransactionWithPlan } from "@/lib/subscription";
+import { useTranslation } from "react-i18next";
 
 const PaymentMethodContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const plan = searchParams.get("plan") as "ESSENTIALS" | "PREMIUM" || "ESSENTIALS";
+  const { t } = useTranslation();
   
   const [selectedMethod, setSelectedMethod] = useState<"card" | "transfer" | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -17,14 +19,14 @@ const PaymentMethodContent = () => {
 
   const planDetails = {
     ESSENTIALS: {
-      name: "Essentials",
+      name: t('essentials'),
       price: "₦2,000",
-      features: ["10 invoices per month", "Basic templates", "Email support"]
+      features: [t('ten_invoices_per_month'), t('basic_invoice_templates_text'), t('email_whatsapp_sharing_text')]
     },
     PREMIUM: {
-      name: "Premium", 
+      name: t('premium'), 
       price: "₦5,000",
-      features: ["Unlimited invoices", "Premium templates", "Priority support", "Advanced analytics"]
+      features: [t('unlimited_invoices_text'), t('premium_templates_text'), t('priority_support'), t('advanced_analytics')]
     }
   };
 
@@ -35,7 +37,7 @@ const PaymentMethodContent = () => {
 
   const handleProceedToPayment = async () => {
     if (!selectedMethod) {
-      setError("Please select a payment method");
+      setError(t('please_select_payment_method'));
       return;
     }
 
@@ -61,11 +63,11 @@ const PaymentMethodContent = () => {
         // Redirect to Paystack payment page
         window.location.href = result.authorizationUrl;
       } else {
-        setError(result.message || "Failed to initialize payment");
+        setError(result.message || t('payment_failed'));
       }
     } catch (error) {
       console.error("Payment initialization error:", error);
-      setError("An error occurred while initializing payment");
+      setError(t('unexpected_error'));
     } finally {
       setIsProcessing(false);
     }
@@ -81,13 +83,13 @@ const PaymentMethodContent = () => {
             className="inline-flex items-center gap-2 text-[#2F80ED] hover:text-[#2563EB] mb-4"
           >
             <ArrowLeft size={20} />
-            Back to Pricing
+            {t('back_to_pricing')}
           </Link>
           <h1 className="text-2xl font-semibold text-[#101828] mb-2">
-            Choose Payment Method
+            {t('choose_payment_method')}
           </h1>
           <p className="text-[#667085]">
-            Select how you'd like to pay for your {planDetails[plan].name} subscription
+            {t('select_payment_method_desc')} {planDetails[plan].name} {t('subscription')}
           </p>
         </div>
 
@@ -96,11 +98,11 @@ const PaymentMethodContent = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-lg font-semibold text-[#101828]">
-                {planDetails[plan].name} Plan
+                {planDetails[plan].name} {t('plan')}
               </h3>
               <p className="text-2xl font-bold text-[#2F80ED]">
                 {planDetails[plan].price}
-                <span className="text-sm font-normal text-[#667085]">/month</span>
+                <span className="text-sm font-normal text-[#667085]">{t('per_month')}</span>
               </p>
             </div>
           </div>
@@ -116,7 +118,7 @@ const PaymentMethodContent = () => {
 
         {/* Payment Methods */}
         <div className="space-y-4 mb-8">
-          <h3 className="text-lg font-semibold text-[#101828]">Payment Methods</h3>
+          <h3 className="text-lg font-semibold text-[#101828]">{t('payment_methods')}</h3>
           
           {/* Card Payment */}
           <div
@@ -138,17 +140,17 @@ const PaymentMethodContent = () => {
               </div>
               <div className="flex-1">
                 <h4 className="text-lg font-semibold text-[#101828] mb-2">
-                  Card Payment (Recommended)
+                  {t('card_payment_recommended')}
                 </h4>
                 <p className="text-[#667085] mb-3">
-                  Pay with your debit or credit card. Automatic monthly billing for hassle-free subscription management.
+                  {t('card_payment_desc')}
                 </p>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">
-                    Automatic Renewal
+                    {t('automatic_renewal')}
                   </span>
                   <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
-                    Instant Activation
+                    {t('instant_activation')}
                   </span>
                 </div>
               </div>
@@ -180,17 +182,17 @@ const PaymentMethodContent = () => {
               </div>
               <div className="flex-1">
                 <h4 className="text-lg font-semibold text-[#101828] mb-2">
-                  Bank Transfer / USSD
+                  {t('bank_transfer_ussd')}
                 </h4>
                 <p className="text-[#667085] mb-3">
-                  Pay directly from your bank account using bank transfer or USSD code. Manual renewal required each month.
+                  {t('bank_transfer_desc')}
                 </p>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded">
-                    Manual Renewal
+                    {t('manual_renewal')}
                   </span>
                   <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded">
-                    Bank Account Required
+                    {t('bank_account_required')}
                   </span>
                 </div>
               </div>
@@ -216,7 +218,7 @@ const PaymentMethodContent = () => {
             href="/dashboard/pricing"
             className="flex-1 px-6 py-3 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-gray-50 transition-colors text-center font-medium"
           >
-            Cancel
+            {t('cancel')}
           </Link>
           <button
             onClick={handleProceedToPayment}
@@ -229,14 +231,14 @@ const PaymentMethodContent = () => {
               }
             `}
           >
-            {isProcessing ? "Processing..." : "Proceed to Payment"}
+            {isProcessing ? t('processing_payment') : t('proceed_to_payment')}
           </button>
         </div>
 
         {/* Security Notice */}
         <div className="mt-8 p-4 bg-gray-100 rounded-lg">
           <p className="text-sm text-[#667085] text-center">
-            🔒 Your payment information is secure and encrypted. We use Paystack for secure payment processing.
+            {t('payment_secure_notice')}
           </p>
         </div>
       </div>
@@ -245,12 +247,14 @@ const PaymentMethodContent = () => {
 };
 
 const PaymentMethodPage = () => {
+  const { t } = useTranslation();
+  
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED] mx-auto mb-4"></div>
-          <p className="text-[#667085]">Loading payment methods...</p>
+          <p className="text-[#667085]">{t('loading_payment_methods')}</p>
         </div>
       </div>
     }>

@@ -1,8 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { ArrowLeft, Upload, Send, FileDown } from "lucide-react";
 import UploadReceiptModal from "./UploadReceiptModal";
+import { downloadInvoiceAsPDF } from "@/lib/pdfUtils";
+import { useToast } from "@/hooks/useToast";
+import Toast from "@/components/ui/Toast";
+import { useSubscription } from "@/hooks/useSubscription";
 
 interface InvoiceItem {
   id: number;
@@ -66,6 +70,12 @@ const mockInvoiceData = {
 
 const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
+  const invoiceRef = useRef<HTMLDivElement>(null);
+  const { toast, showSuccess, showError, hideToast } = useToast();
+  const { subscription } = useSubscription();
+  
+  const isFreePlan = !subscription || subscription.plan === 'FREE';
 
   const handleBack = () => {
     if (onBack) {
@@ -81,12 +91,33 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
     console.log("Send invoice");
   };
 
-  const handleDownloadPDF = () => {
-    console.log("Download PDF");
+  const handleDownloadPDF = async () => {
+    if (!invoiceRef.current) {
+      console.error('Invoice element not found');
+      showError('Unable to generate PDF. Please try again.');
+      return;
+    }
+
+    setIsDownloadingPDF(true);
+    try {
+      await downloadInvoiceAsPDF(invoiceRef.current, 'customer-invoice', isFreePlan);
+      showSuccess('Invoice PDF downloaded successfully!');
+    } catch (error) {
+      console.error('Failed to download PDF:', error);
+      showError('Failed to download PDF. Please try again.');
+    } finally {
+      setIsDownloadingPDF(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
+      <Toast
+        isVisible={toast.isVisible}
+        message={toast.message}
+        type={toast.type}
+        onClose={hideToast}
+      />
       {/* Header - Desktop */}
       <div className="hidden md:flex justify-between items-center p-6 bg-white border-b border-gray-200">
         <button
@@ -121,16 +152,25 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
 
       {/* Invoice Content */}
       <div className="max-w-4xl mx-auto p-4 md:p-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-12 relative overflow-hidden">
-          {/* Watermark */}
-          <div
-            className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5"
-            style={{ transform: "rotate(-45deg)" }}
-          >
-            <div className="text-6xl font-bold text-gray-400">
-              www.originalinvoice.com
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-12 relative overflow-hidden" ref={invoiceRef}>
+          {/* Watermark - More visible for free plan users */}
+          {isFreePlan && (
+            <div
+              className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
+              style={{ transform: "rotate(-45deg)" }}
+            >
+              <div 
+                className="text-gray-300 font-bold select-none"
+                style={{
+                  fontSize: '4rem',
+                  opacity: 0.15,
+                  letterSpacing: '0.1em',
+                }}
+              >
+                originalinvoice.com
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Status Badge */}
           <div className="flex justify-end mb-4">
@@ -335,10 +375,15 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
           </button>
           <button
             onClick={handleDownloadPDF}
-            className="w-full flex items-center justify-center gap-2 border-2 border-blue-600 text-blue-600 py-3 rounded-lg hover:bg-blue-50"
+            disabled={isDownloadingPDF}
+            className="w-full flex items-center justify-center gap-2 border-2 border-blue-600 text-blue-600 py-3 rounded-lg hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <FileDown className="w-5 h-5" />
-            Download PDF
+            {isDownloadingPDF ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+            ) : (
+              <FileDown className="w-5 h-5" />
+            )}
+            {isDownloadingPDF ? 'Downloading...' : 'Download PDF'}
           </button>
         </div>
 
@@ -346,10 +391,15 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
         <div className="hidden md:flex justify-end gap-4 mt-6 mb-8">
           <button
             onClick={handleDownloadPDF}
-            className="flex items-center gap-2 border-2 border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50"
+            disabled={isDownloadingPDF}
+            className="flex items-center gap-2 border-2 border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <FileDown className="w-5 h-5" />
-            Download PDF
+            {isDownloadingPDF ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+            ) : (
+              <FileDown className="w-5 h-5" />
+            )}
+            {isDownloadingPDF ? 'Downloading...' : 'Download PDF'}
           </button>
           <button
             onClick={handleSend}
@@ -365,10 +415,7 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
       <UploadReceiptModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
-<<<<<<< HEAD
         invoiceId={mockInvoiceData.invoiceId.replace('#', '')}
-=======
->>>>>>> 1586db6e7eef37b433fbf1dff6b1db7e827cec22
       />
     </div>
   );

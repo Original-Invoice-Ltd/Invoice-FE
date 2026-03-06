@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { ApiClient } from '@/lib/api';
 import { Product } from '@/lib/productCache';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface AddProductModalProps {
   product: Product | null;
@@ -12,6 +13,7 @@ interface AddProductModalProps {
 }
 
 export default function AddProductModal({ product, onClose, onSave }: AddProductModalProps) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     itemName: '',
     category: 'PRODUCT',
@@ -38,15 +40,25 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // Handle numeric fields with comma formatting
+    if (name === 'rate' || name === 'amount') {
+      const numericValue = value.replace(/,/g, '');
+      setFormData(prev => ({
+        ...prev,
+        [name]: numericValue
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
 
     // Auto-calculate amount when quantity or rate changes
     if (name === 'quantity' || name === 'rate') {
       const quantity = name === 'quantity' ? parseFloat(value) || 0 : parseFloat(formData.quantity) || 0;
-      const rate = name === 'rate' ? parseFloat(value) || 0 : parseFloat(formData.rate) || 0;
+      const rate = name === 'rate' ? parseFloat(value.replace(/,/g, '')) || 0 : parseFloat(formData.rate) || 0;
       const calculatedAmount = quantity * rate;
       
       setFormData(prev => ({
@@ -80,10 +92,10 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
         const savedProduct: Product = response.data;
         onSave(savedProduct);
       } else {
-        setError(response.error || 'Failed to save product');
+        setError(response.error || t('failed_to_save_product'));
       }
     } catch (err) {
-      setError('An unexpected error occurred');
+      setError(t('unexpected_error'));
       console.error('Error saving product:', err);
     } finally {
       setLoading(false);
@@ -91,11 +103,11 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
   };
 
   return (
-    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-6">
           <h2 className="text-xl font-semibold">
-            {product ? 'Edit Product' : 'Add New Product'}
+            {product ? t('edit_product') : t('add_new_product')}
           </h2>
           <button
             onClick={onClose}
@@ -115,7 +127,7 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Product Name *
+                {t('product_name')} *
               </label>
               <input
                 type="text"
@@ -124,13 +136,13 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
                 onChange={handleInputChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter product name"
+                placeholder={t('enter_product_name')}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category *
+                {t('category_label')} *
               </label>
               <select
                 name="category"
@@ -139,15 +151,15 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="PRODUCT">Product</option>
-                <option value="SERVICE">Service</option>
+                <option value="PRODUCT">{t('product_option')}</option>
+                <option value="SERVICE">{t('service_option')}</option>
               </select>
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description *
+              {t('description_label')} *
             </label>
             <textarea
               name="description"
@@ -156,14 +168,14 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
               required
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter product description"
+              placeholder={t('enter_product_description')}
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Quantity *
+                {t('quantity_label')} *
               </label>
               <input
                 type="number"
@@ -180,35 +192,31 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Rate ($) *
+                {t('rate_label')} *
               </label>
               <input
-                type="number"
+                type="text"
                 name="rate"
-                value={formData.rate}
+                value={formData.rate ? parseFloat(formData.rate).toLocaleString('en-US') : ''}
                 onChange={handleInputChange}
                 required
-                min="0"
-                step="0.01"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="0.00"
+                placeholder="0"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Amount ($) *
+                {t('amount_label')} *
               </label>
               <input
-                type="number"
+                type="text"
                 name="amount"
-                value={formData.amount}
+                value={formData.amount ? parseFloat(formData.amount).toLocaleString('en-US') : ''}
                 onChange={handleInputChange}
                 required
-                min="0"
-                step="0.01"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="0.00"
+                placeholder="0"
               />
             </div>
           </div>
@@ -219,14 +227,14 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
               onClick={onClose}
               className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
             >
-              Cancel
+              {t('cancel')}
             </button>
             <button
               type="submit"
               disabled={loading}
               className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-2 rounded-lg font-medium transition-colors"
             >
-              {loading ? 'Saving...' : (product ? 'Update Product' : 'Add Product')}
+              {loading ? t('saving') : (product ? t('update_product') : t('add_product_button'))}
             </button>
           </div>
         </form>

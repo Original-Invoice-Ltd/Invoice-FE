@@ -199,10 +199,8 @@ export const formatPlanPrice = (plan: "ESSENTIALS" | "PREMIUM"): string => {
   return `₦${price.toLocaleString()}`;
 };
 
-/**
- * Helper function to get plan features
- */
-export const getPlanFeatures = (plan: "ESSENTIALS" | "PREMIUM"): string[] => {
+
+export const getPlanFeatures = (plan: "ESSENTIALS" | "PREMIUM") => {
   return PLAN_DETAILS[plan].features;
 };
 

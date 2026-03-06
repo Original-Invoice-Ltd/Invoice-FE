@@ -9,6 +9,8 @@ export interface InvoiceItem {
   quantity: number;
   rate: number;
   amount: number;
+  tax?: number;            
+  taxIds?: string[];       
 }
 
 export interface BillFrom {
@@ -71,37 +73,7 @@ export interface CreateInvoiceData {
   paymentDetails: PaymentDetails;
 }
 
-/**
- * Builds FormData for invoice creation API call (multipart/form-data)
- * Maps UI form data to backend CreateInvoiceRequest structure
- * 
- * Backend field mapping (from Swagger UI):
- * - fullName: String
- * - email: String
- * - address: String (optional)
- * - phone: String
- * - businessName: String
- * - title: String
- * - invoiceNumber: String
- * - logo: MultipartFile (binary, optional)
- * - signature: MultipartFile (binary, optional)
- * - invoiceDate: LocalDate (string format: YYYY-MM-DD)
- * - clientId: UUID (string)
- * - dueDate: LocalDate (string format: YYYY-MM-DD)
- * - currency: String
- * - invoiceColor: String
- * - paymentTerms: String
- * - accountNumber: String
- * - accountName: String
- * - bank: String
- * - language: String
- * - subtotal: Double (number)
- * - totalDue: Double (number)
- * - note: String (optional)
- * - termsAndConditions: String (optional)
- * - itemIds: Array of Long (optional)
- * - items: Array of InvoiceItemRequest
- */
+
 export function buildInvoiceFormData(data: CreateInvoiceData): FormData {
   const formData = new FormData();
 

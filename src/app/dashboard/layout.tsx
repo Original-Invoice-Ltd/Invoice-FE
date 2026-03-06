@@ -6,6 +6,8 @@ import DashboardHeader from "@/components/dashboardHeader/DashboardHeader";
 import { InvoiceLimitProvider } from "@/contexts/InvoiceLimitContext";
 import InvoiceLimitNotification from "@/components/notifications/InvoiceLimitNotification";
 import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification";
+import { useUserProfile } from "@/hooks/useUserProfile";
+
 
 export default function DashboardLayout({
     children,
@@ -14,9 +16,9 @@ export default function DashboardLayout({
 }) {
     return (
         <InvoiceLimitProvider>
-            <DashboardLayoutContent>
-                {children}
-            </DashboardLayoutContent>
+                <DashboardLayoutContent>
+                    {children}
+                </DashboardLayoutContent>
         </InvoiceLimitProvider>
     );
 }
@@ -29,6 +31,10 @@ function DashboardLayoutContent({
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const { notification, hideNotification, handleUpgrade } = useInvoiceLimitNotification();
+    
+    // Ensure user profile is loaded immediately when dashboard loads
+    useUserProfile();
+
 
     return (
         <div className="flex h-screen overflow-hidden bg-[#F9FAFB]">
@@ -47,14 +53,10 @@ function DashboardLayoutContent({
                     onNotificationsChange={setNotificationsOpen}
                 />
                 
-                {/* Page Content - with consistent padding matching header */}
                 <main className="flex-1 overflow-auto scrollbar-hide">
-                    <div className="px-1 lg:px-2 py-6">
-                        {children}
-                    </div>
+                    {children}
                 </main>
             </div>
-
             {/* Invoice Limit Notification */}
             <InvoiceLimitNotification
                 isVisible={notification.isVisible}
@@ -63,6 +65,7 @@ function DashboardLayoutContent({
                 invoicesRemaining={notification.invoicesRemaining}
                 onUpgrade={handleUpgrade}
             />
+
         </div>
     );
 }

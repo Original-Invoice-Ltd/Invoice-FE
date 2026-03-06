@@ -1,12 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Camera, X } from "lucide-react";
+import { Camera } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/useToast";
+import Toast from "@/components/ui/Toast";
+import { ApiClient } from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 const PersonalProfilePage = () => {
-  const { user, updateUserProfile, uploadProfilePhoto } = useAuth();
+  const { user, refreshUser, updateUserProfile, uploadProfilePhoto } = useAuth();
+  const { toast, showSuccess, showError, hideToast } = useToast();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -20,17 +26,21 @@ const PersonalProfilePage = () => {
 
   // Initialize form data with user information
   useEffect(() => {
+
     if (user) {
+      console.log(user)
       const nameParts = user.fullName?.split(' ') || ['', ''];
       setFormData({
         firstName: nameParts[0] || '',
         lastName: nameParts.slice(1).join(' ') || '',
         emailAddress: user.email || '',
-        phoneNumber: user.phoneNumber || '',
+        phoneNumber: user.phone || '',
       });
       setProfileImage(user.imageUrl || null);
+    } else {
+      refreshUser();
     }
-  }, [user]);
+  }, [refreshUser, user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -60,28 +70,45 @@ const PersonalProfilePage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    try {
-      // Update profile information
-      const fullName = `${formData.firstName} ${formData.lastName}`.trim();
-      const success = await updateUserProfile(fullName, formData.phoneNumber);
+    
+    // Normalize phone number: if starts with 0, convert to +234
+    let normalizedPhone = formData.phoneNumber.trim();
+    if (normalizedPhone.length > 0) {
+      if (normalizedPhone.startsWith('0')) {
+        normalizedPhone = '+234' + normalizedPhone.substring(1);
+      }
       
+      if (!ApiClient.isValidPhone(normalizedPhone)) {
+        setIsLoading(false);
+        showError("Phone number must be in international format. Example: +234***********");
+        return;
+      }
+    }
+    
+    try {
+      const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim();
+      const success = await updateUserProfile(fullName, normalizedPhone);
       if (!success) {
         throw new Error("Failed to update profile");
       }
 
-      // Upload profile image if changed
       if (imageFile) {
         const imageSuccess = await uploadProfilePhoto(imageFile);
         if (!imageSuccess) {
-          console.warn("Profile updated but image upload failed");
+          showSuccess(t("profile_updated_successfully"));
         }
       }
+      refreshUser();
+       setFormData({
+        firstName: user?.fullName.split(" ")[0] || '',
+        lastName: user?.fullName.split(" ")[1] || '',
+        emailAddress: user?.email || '',
+        phoneNumber: user?.phone || '',
+      });
+      showSuccess(t("profile_updated_successfully"));
 
-      alert("Profile updated successfully!");
     } catch (error) {
-      console.error("Error updating profile:", error);
-      alert("Failed to update profile. Please try again.");
+      showError(t("failed_update_profile"));
     } finally {
       setIsLoading(false);
     }
@@ -91,11 +118,18 @@ const PersonalProfilePage = () => {
     if (formData.firstName || formData.lastName) {
       return `${formData.firstName.charAt(0)}${formData.lastName.charAt(0)}`.toUpperCase();
     }
-    return user?.fullName?.split(' ').map(n => n.charAt(0)).join('').toUpperCase() || 'U';
+    return user?.fullName?.split(' ').map(n => n.charAt(0)).join('').toUpperCase() || 'G';
   };
 
   return (
     <div className="p-6">
+
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+      />
       <div className="max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Profile Picture */}
@@ -116,7 +150,6 @@ const PersonalProfilePage = () => {
                   {getInitials()}
                 </div>
               )}
-              
               <button
                 type="button"
                 onClick={() => document.getElementById('profile-image-upload')?.click()}
@@ -124,7 +157,7 @@ const PersonalProfilePage = () => {
               >
                 <Camera size={14} />
               </button>
-              
+
               <input
                 type="file"
                 id="profile-image-upload"
@@ -133,14 +166,13 @@ const PersonalProfilePage = () => {
                 className="hidden"
               />
             </div>
-            
             {imageFile && (
               <button
                 type="button"
                 onClick={removeImage}
                 className="text-sm text-red-600 hover:text-red-700"
               >
-                Remove new image
+                {t("remove_new_image")}
               </button>
             )}
           </div>
@@ -148,14 +180,14 @@ const PersonalProfilePage = () => {
           {/* First Name */}
           <div>
             <label className="block text-sm font-medium text-[#101828] mb-2">
-              First Name
+              {t("first_name")}
             </label>
             <input
               type="text"
               name="firstName"
               value={formData.firstName}
               onChange={handleInputChange}
-              placeholder="Chiamaka"
+              placeholder={t("enter_first_name")}
               className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
             />
           </div>
@@ -165,14 +197,14 @@ const PersonalProfilePage = () => {
             {/* Last Name */}
             <div>
               <label className="block text-sm font-medium text-[#101828] mb-2">
-                Last Name
+                {t("last_name")}
               </label>
               <input
                 type="text"
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleInputChange}
-                placeholder="Okeke"
+                placeholder={t("enter_last_name")}
                 className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
               />
             </div>
@@ -180,7 +212,7 @@ const PersonalProfilePage = () => {
             {/* Email Address */}
             <div>
               <label className="block text-sm font-medium text-[#101828] mb-2">
-                Email Address
+                {t("email_address")}
               </label>
               <div className="relative">
                 <input
@@ -195,6 +227,7 @@ const PersonalProfilePage = () => {
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                     <path d="M18.3333 5.00001C18.3333 4.08334 17.5833 3.33334 16.6667 3.33334H3.33333C2.41667 3.33334 1.66667 4.08334 1.66667 5.00001M18.3333 5.00001V15C18.3333 15.9167 17.5833 16.6667 16.6667 16.6667H3.33333C2.41667 16.6667 1.66667 15.9167 1.66667 15V5.00001M18.3333 5.00001L10 10.8333L1.66667 5.00001" stroke="#667085" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round"/>
+
                   </svg>
                 </div>
               </div>
@@ -204,14 +237,14 @@ const PersonalProfilePage = () => {
           {/* Phone Number */}
           <div>
             <label className="block text-sm font-medium text-[#101828] mb-2">
-              Phone Number
+              {t("phone_number")}
             </label>
             <input
               type="tel"
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleInputChange}
-              placeholder="Enter phone number"
+              placeholder={t("enter_phone")}
               className="w-full px-3 py-2.5 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
             />
           </div>
@@ -223,7 +256,7 @@ const PersonalProfilePage = () => {
               disabled={isLoading}
               className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Saving Changes..." : "Save Changes"}
+              {isLoading ? t("saving_changes") : t("save_changes")}
             </button>
           </div>
         </form>

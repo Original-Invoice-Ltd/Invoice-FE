@@ -50,7 +50,6 @@ export default function SignUp() {
     setLoading(true);
 
     try {
-      // Register user with backend
       const response = await ApiClient.register({
         email: formData.email,
         password: formData.password,
@@ -59,7 +58,6 @@ export default function SignUp() {
       });
 
       if (response.status === 201) {
-        // Show success message and move to OTP verification screen
         showSuccess('Registration successful! Please check your email for verification code.');
         setCurrentScreen('otp');
       } else {
@@ -99,11 +97,28 @@ export default function SignUp() {
       const response = await ApiClient.verifyOTP(formData.email, otp);
 
       if (response.status === 200) {
-        // Show success message and redirect to dashboard
-        showSuccess('Email verified successfully! Welcome to your dashboard.');
-        setTimeout(() => {
-          router.push('/dashboard/overview');
-        }, 1500);
+        // OTP verified successfully, now log the user in
+        const loginResponse = await ApiClient.login(formData.email, formData.password);
+
+        if (loginResponse.status === 200) {
+          const returnTo = sessionStorage.getItem('returnTo');
+          showSuccess('Email verified successfully.');
+          setTimeout(() => {
+            if (returnTo) {
+              sessionStorage.removeItem('returnTo');
+              router.push(returnTo);
+            } else {
+              router.push('/dashboard/overview');
+            }
+          }, 1500);
+        } else {
+          const errorMessage = loginResponse.error || 'Verification successful but login failed. Please sign in manually.';
+          showError(errorMessage);
+          setTimeout(() => {
+            router.push('/signIn');
+          }, 2000);
+          return false;
+        }
       } else {
         const errorMessage = response.error || 'Invalid OTP. Please try again.';
         showError(errorMessage);

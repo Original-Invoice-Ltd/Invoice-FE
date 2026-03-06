@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { Edit, Download, Mail, Send, ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { formatCurrency } from '@/lib/currencyFormatter';
 
 interface InvoiceItem {
   id: number;
@@ -79,27 +81,24 @@ const defaultInvoiceData: InvoiceData = {
 };
 
 export default function CompactInvoiceTemplate({ data = defaultInvoiceData }: { data?: InvoiceData }) {
+  const { t } = useTranslation();
+  
   return (
     <div className="min-h-screen bg-white py-4 px-4 sm:py-6 sm:px-6 lg:px-8 relative">
-      {/* Watermark */}
       <div className="fixed inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-        <div 
-          className="text-blue-100 text-4xl sm:text-6xl font-bold opacity-10 transform rotate-[-45deg] select-none"
-          style={{ fontSize: 'clamp(2rem, 8vw, 4rem)' }}
-        >
-          www.originalinvoice.com
-        </div>
+        {/* Watermark removed - only shown for free plan users in actual invoices */}
       </div>
 
       {/* Content Container */}
       <div className="max-w-4xl mx-auto relative z-10">
-        {/* Top Section: Logo and Action Buttons */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
           {/* Logo */}
-          <div className="text-3xl sm:text-4xl font-bold text-gray-900">Logo</div>
+          {data.billFrom?.name && (
+            <div className="text-3xl sm:text-4xl font-bold text-gray-900">{data.billFrom.name}</div>
+          )}
 
           {/* Action Buttons */}
-          <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
+          <div className={`flex gap-2 sm:gap-3 w-full sm:w-auto ${!data.billFrom?.name ? 'sm:ml-auto' : ''}`}>
             <button className="flex-1 sm:flex-none px-3 py-2 sm:px-4 sm:py-2 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-blue-600">
               <Edit className="w-4 h-4" />
               <span className="text-sm">Edit</span>
@@ -143,7 +142,7 @@ export default function CompactInvoiceTemplate({ data = defaultInvoiceData }: { 
             <p className="text-sm text-gray-600 mb-1">{data.invoiceNumber}</p>
             <p className="text-xs sm:text-sm text-gray-600 mb-1">Balance Due</p>
             <p className="text-xl sm:text-2xl font-bold text-gray-900">
-              NGN{data.balanceDue.toLocaleString('en-NG', { minimumFractionDigits: 2 })}
+              ₦{data.balanceDue.toLocaleString('en-NG', { minimumFractionDigits: 2 })}
             </p>
           </div>
         </div>
@@ -166,16 +165,15 @@ export default function CompactInvoiceTemplate({ data = defaultInvoiceData }: { 
           </div>
         </div>
 
-        {/* Items Table */}
         <div className="mb-6 overflow-x-auto">
-          <table className="w-full border-collapse">
+          <table className="w-full min-w-[600px] border-collapse">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-2 text-xs sm:text-sm font-semibold text-gray-600 w-8 sm:w-12">#</th>
-                <th className="text-left py-3 px-2 text-xs sm:text-sm font-semibold text-gray-600">Item Detail</th>
-                <th className="text-right py-3 px-2 text-xs sm:text-sm font-semibold text-gray-600 w-16 sm:w-20">Qty</th>
-                <th className="text-right py-3 px-2 text-xs sm:text-sm font-semibold text-gray-600 w-20 sm:w-24">Rate</th>
-                <th className="text-right py-3 px-2 text-xs sm:text-sm font-semibold text-gray-600 w-24 sm:w-32">Amount</th>
+                <th className="text-left text-nowrap py-3 px-2 text-xs sm:text-sm font-semibold text-gray-600 w-8 sm:w-12">#</th>
+                <th className="text-left text-nowrap py-3 px-2 text-xs sm:text-sm font-semibold text-gray-600">Item Detail</th>
+                <th className="text-right text-nowrap py-3 px-2 text-xs sm:text-sm font-semibold text-gray-600 w-16 sm:w-20">Qty</th>
+                <th className="text-right text-nowrap py-3 px-2 text-xs sm:text-sm font-semibold text-gray-600 w-20 sm:w-24">Rate</th>
+                <th className="text-right text-nowrap py-3 px-2 text-xs sm:text-sm font-semibold text-gray-600 w-24 sm:w-32">Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -194,7 +192,6 @@ export default function CompactInvoiceTemplate({ data = defaultInvoiceData }: { 
           </table>
         </div>
 
-        {/* Totals Summary - Right Aligned */}
         <div className="flex justify-end mb-6">
           <div className="w-full sm:w-80 space-y-2">
             <div className="flex justify-between text-sm py-2">

@@ -2,6 +2,7 @@
 
 import { X, CheckCircle } from "lucide-react";
 import { ModalType } from "./types";
+import { useTranslation } from "react-i18next";
 
 interface ModalsProps {
   modalType: ModalType;
@@ -10,9 +11,10 @@ interface ModalsProps {
 }
 
 const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
+  const { t } = useTranslation();
+  
   if (!modalType) return null;
 
-  // Prevent body scroll when modal is open
   if (typeof document !== 'undefined') {
     document.body.style.overflow = 'hidden';
   }
@@ -38,10 +40,10 @@ const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
               </button>
             </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-3">
-              Mark as paid?
+              {t('mark_as_paid_question')}
             </h2>
             <p className="text-sm text-gray-600 mb-6">
-              Record this invoice as paid to keep your payment history accurate.
+              {t('record_invoice_paid')}
             </p>
             <div style={{ width: '352px', height: '42px', display: 'flex', justifyContent: 'space-between', margin: '0 auto' }}>
               <button
@@ -62,7 +64,7 @@ const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
                 }}
                 className="hover:bg-blue-50 transition-colors"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 onClick={onConfirm}
@@ -81,7 +83,7 @@ const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
                 }}
                 className="hover:bg-blue-700 transition-colors"
               >
-                Mark as Paid
+                {t('mark_as_paid_button')}
               </button>
             </div>
           </div>
@@ -99,10 +101,10 @@ const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
               </button>
             </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-3">
-              Revert payment status?
+              {t('revert_payment_status')}
             </h2>
             <p className="text-sm text-gray-600 mb-6">
-              This invoice will be marked as unpaid again. The client's payment record will be removed.
+              {t('invoice_marked_unpaid')}
             </p>
             <div style={{ width: '352px', height: '42px', display: 'flex', justifyContent: 'space-between', margin: '0 auto' }}>
               <button
@@ -123,7 +125,7 @@ const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
                 }}
                 className="hover:bg-blue-50 transition-colors"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 onClick={onConfirm}
@@ -142,7 +144,7 @@ const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
                 }}
                 className="hover:bg-blue-700 transition-colors"
               >
-                Mark as Unpaid
+                {t('mark_unpaid')}
               </button>
             </div>
           </div>
@@ -168,10 +170,10 @@ const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
               </div>
             </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Payment marked as paid.
+              {t('payment_marked_paid')}
             </h2>
             <p className="text-sm text-gray-600 mb-6">
-              The invoice has been updated.
+              {t('invoice_updated')}
             </p>
             <div style={{ width: '352px', height: '42px', display: 'flex', justifyContent: 'space-between', margin: '0 auto' }}>
               <button
@@ -192,7 +194,7 @@ const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
                 }}
                 className="hover:bg-blue-50 transition-colors"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 onClick={handleClose}
@@ -211,7 +213,7 @@ const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
                 }}
                 className="hover:bg-blue-700 transition-colors"
               >
-                Back to Home
+                {t('back_to_home')}
               </button>
             </div>
           </div>
@@ -237,10 +239,10 @@ const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
               </div>
             </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Payment status reverted.
+              {t('payment_status_reverted')}
             </h2>
             <p className="text-sm text-gray-600 mb-6">
-              The invoice is now unpaid.
+              {t('invoice_now_unpaid')}
             </p>
             <div style={{ width: '352px', height: '42px', display: 'flex', justifyContent: 'space-between', margin: '0 auto' }}>
               <button
@@ -261,7 +263,7 @@ const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
                 }}
                 className="hover:bg-blue-50 transition-colors"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 onClick={handleClose}
@@ -280,7 +282,7 @@ const Modals = ({ modalType, onClose, onConfirm }: ModalsProps) => {
                 }}
                 className="hover:bg-blue-700 transition-colors"
               >
-                Back to Home
+                {t('back_to_home')}
               </button>
             </div>
           </div>
