@@ -182,7 +182,7 @@ const InvoicesPage = () => {
 
     const getStatusColor = (status: string | null | undefined) => {
         if (!status) {
-            return 'bg-gray-100 text-gray-800'; // Default for null/undefined status
+            return 'bg-gray-100 text-gray-800'; 
         }
         switch (status.toLowerCase()) {
             case 'paid':
