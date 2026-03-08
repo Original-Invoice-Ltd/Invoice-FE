@@ -108,10 +108,10 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
       phoneNumber: true,
       terms: true
     });
-    if (!captchaToken) {
-      setErrors(prev => ({ ...prev, captcha: 'Please complete the CAPTCHA' }));
-      return;
-    }
+    // if (!captchaToken) {
+    //   setErrors(prev => ({ ...prev, captcha: 'Please complete the CAPTCHA' }));
+    //   return;
+    // }
 
     // Only submit if all validations pass
     if (emailValid && passwordValid && fullNameValid && phoneValid && formData.agreeToTerms) {
@@ -321,15 +321,15 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
         )}
       </div>
 
-      <ReCAPTCHA
+      {/* <ReCAPTCHA
         onExpired={() => setCaptchaToken(null)}
         sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
         onChange={(captcha) => setCaptchaToken(captcha)}
-      />
+      /> */}
       <button
         type="submit"
         onClick={handleFormSubmit}
-        disabled={loading || !captchaToken || !formData.email.trim() || !formData.password.trim() || !formData.fullName.trim() || !formData.phoneNumber.trim() || !formData.agreeToTerms}
+        disabled={loading || !formData.email.trim() || !formData.password.trim() || !formData.fullName.trim() || !formData.phoneNumber.trim() || !formData.agreeToTerms}
         className="w-full h-[38px] rounded-lg bg-[#2F80ED] text-white text-[16px] 
           font-medium font-['Inter_Tight'] hover:bg-[#2670d4] transition-colors
           disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
