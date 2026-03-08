@@ -85,10 +85,6 @@ const BusinessProfilePage = () => {
     try {
       setIsLoadingData(true);
       
-  const loadBusinessProfile = async () => {
-    try {
-      setIsLoadingData(true);
-      
       // Try to fetch all business profiles first
       const allProfilesResponse = await ApiClient.getAllBusinessProfiles();
       
