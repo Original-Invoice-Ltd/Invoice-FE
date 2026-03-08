@@ -122,15 +122,16 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
       </div>
 
 
-      <ReCAPTCHA
+      {/* CAPTCHA disabled */}
+      {/* <ReCAPTCHA
         onExpired={() => setCaptchaToken(null)}
         sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
         onChange={(captcha) => setCaptchaToken(captcha)}
-      />
+      /> */}
       <button
         type="submit"
         onClick={onSubmit}
-        disabled={loading || !captchaToken || !formData.email.trim() || !formData.password.trim()}
+        disabled={loading || !formData.email.trim() || !formData.password.trim()}
         className="w-full h-[38px] rounded-lg bg-[#2F80ED] text-white text-[16px] 
           font-medium font-['Inter_Tight'] hover:bg-[#2670d4] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
