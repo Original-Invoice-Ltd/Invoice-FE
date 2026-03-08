@@ -123,11 +123,11 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
 
 
       {/* CAPTCHA disabled */}
-      {/* <ReCAPTCHA
+      <ReCAPTCHA
         onExpired={() => setCaptchaToken(null)}
         sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
         onChange={(captcha) => setCaptchaToken(captcha)}
-      /> */}
+      />
       <button
         type="submit"
         onClick={onSubmit}

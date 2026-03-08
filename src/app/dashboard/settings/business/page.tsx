@@ -95,7 +95,7 @@ const BusinessProfilePage = () => {
         
         // Select the default profile or the first one
         const defaultProfile = profiles.find(p => p.isDefault) || profiles[0];
-        setSelectedProfileId(defaultProfile.id);
+        setSelectedProfileId(defaultProfile.id || null);
         
         setFormData({
           businessName: defaultProfile.businessName || "",
@@ -249,18 +249,6 @@ const BusinessProfilePage = () => {
       }
     }
     
-    try {
-      // For Premium users with mock data - simulate saving
-      if (canAddBusinessProfile) {
-        let businessLogoUrl = existingLogoUrl;
-        
-        if (logoFile) {
-          // Simulate logo upload
-          businessLogoUrl = URL.createObjectURL(logoFile);
-        }
-
-        const profileData: BusinessProfileDto = {
-          id: isAddingNew ? `profile-${Date.now()}` : selectedProfileId || undefined,
     try {
       // Upload logo first if there's a new file and we have a profile ID
       let businessLogoUrl = existingLogoUrl;
