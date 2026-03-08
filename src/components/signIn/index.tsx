@@ -57,11 +57,12 @@ export default function SignIn() {
     setLoading(true);
 
     try {
-      if (!captchaToken) {
-          showError('Please complete the CAPTCHA');
-          return;
-        }
-      const response = await ApiClient.login(formData.email, formData.password, captchaToken!);
+      // CAPTCHA validation disabled
+      // if (!captchaToken) {
+      //   showError('Please complete the CAPTCHA');
+      //   return;
+      // }
+      const response = await ApiClient.login(formData.email, formData.password, null);
 
       if (response.status === 200) {
         // Show success message and redirect to dashboard
