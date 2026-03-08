@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import MailIcon from "./mailIcon";
 import PasswordIcon from "./passwordIcon";
@@ -11,7 +11,7 @@ import AppleIcon from "./appleIcon";
 import Logo from './Logo';
 import PhoneCollectionModal from '@/components/auth/PhoneCollectionModal';
 import { Validator } from '@/lib/validation';
-
+import ReCAPTCHA from "react-google-recaptcha";
 interface SignUpFormProps {
   formData: {
     email: string;
@@ -20,15 +20,17 @@ interface SignUpFormProps {
     phoneNumber: string;
     agreeToTerms: boolean;
   };
+  captchaToken: string | null;
+  setCaptchaToken: Dispatch<SetStateAction<string | null>>;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
   loading?: boolean;
 }
 
-export default function SignUpForm({ formData, onInputChange, onSubmit, loading = false }: SignUpFormProps) {
+export default function SignUpForm({ formData, onInputChange, onSubmit, loading = false, captchaToken ,setCaptchaToken }: SignUpFormProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{[key: string]: string}>({});
-  const [touched, setTouched] = useState<{[key: string]: boolean}>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<'google' | 'apple' | null>(null);
   const [oauthLoading, setOauthLoading] = useState(false);
@@ -74,7 +76,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
   const handleInputChangeWithValidation = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     onInputChange(e);
-    
+
     // Only validate if field has been touched
     if (touched[name]) {
       validateField(name, value);
@@ -83,13 +85,13 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate all fields
     const emailValid = validateField('email', formData.email);
     const passwordValid = validateField('password', formData.password);
     const fullNameValid = validateField('fullName', formData.fullName);
     const phoneValid = validateField('phoneNumber', formData.phoneNumber);
-    
+
     // Check terms agreement
     if (!formData.agreeToTerms) {
       setErrors(prev => ({ ...prev, terms: 'You must agree to the Terms and Conditions' }));
@@ -106,6 +108,10 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
       phoneNumber: true,
       terms: true
     });
+    if (!captchaToken) {
+      setErrors(prev => ({ ...prev, captcha: 'Please complete the CAPTCHA' }));
+      return;
+    }
 
     // Only submit if all validations pass
     if (emailValid && passwordValid && fullNameValid && phoneValid && formData.agreeToTerms) {
@@ -115,27 +121,27 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
 
   const handleOAuthClick = (provider: 'google' | 'apple') => {
     // Only allow Google OAuth if phone number is entered
-          // if (provider === 'google' && !formData.phoneNumber.trim()) {
-          //   return;
-          // }
-    
-    setSelectedProvider(      provider);
+    // if (provider === 'google' && !formData.phoneNumber.trim()) {
+    //   return;
+    // }
+
+    setSelectedProvider(provider);
     setShowPhoneModal(true);
   };
 
   const handlePhoneSubmit = (phoneNumber: string) => {
     if (!selectedProvider) return;
-    
+
     setOauthLoading(true);
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
-    
+
     // Create a unique state parameter to track this OAuth flow
     const state = btoa(JSON.stringify({
       phoneNumber: phoneNumber || '',
       timestamp: Date.now(),
       isSignIn: false // Mark this as sign-up flow
     }));
-    
+
     // Redirect to OAuth provider with state parameter
     const oauthUrl = `${apiBaseUrl}/oauth/${selectedProvider}/login?state=${encodeURIComponent(state)}`;
     window.location.href = oauthUrl;
@@ -156,15 +162,15 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
     <div className=" w-full  max-w-[470px] mx-auto flex flex-col mt-16 gap-2">
       {/* Logo - Centered with spacing (mobile only) */}
       <div className="flex justify-center mb-4 md:hidden">
-        <Logo/>
+        <Logo />
       </div>
-      
+
       {/* Header */}
       <div className="text-center mb-1">
         <h2 className="text-[24px] font-medium text-[#000000] font-['Inter_Tight'] mb-1">
           Sign Up
         </h2>
-    
+
         <p className="text-[16px] text-[#666666] font-['Inter_Tight']">
           Sign in with your email or social accounts
         </p>
@@ -224,8 +230,8 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
           >
             {showPassword ? (
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 5C5.63636 5 2 12 2 12C2 12 5.63636 19 12 19C18.3636 19 22 12 22 12C22 12 18.3636 5 12 5Z" stroke="#666666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#666666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M12 5C5.63636 5 2 12 2 12C2 12 5.63636 19 12 19C18.3636 19 22 12 22 12C22 12 18.3636 5 12 5Z" stroke="#666666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#666666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             ) : (
               <PasswordIcon width={19} height={16} />
@@ -315,11 +321,15 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
         )}
       </div>
 
-      {/* Sign Up Button */}
+      <ReCAPTCHA
+        onExpired={() => setCaptchaToken(null)}
+        sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+        onChange={(captcha) => setCaptchaToken(captcha)}
+      />
       <button
         type="submit"
         onClick={handleFormSubmit}
-        disabled={loading}
+        disabled={loading || !captchaToken || !formData.email.trim() || !formData.password.trim() || !formData.fullName.trim() || !formData.phoneNumber.trim() || !formData.agreeToTerms}
         className="w-full h-[38px] rounded-lg bg-[#2F80ED] text-white text-[16px] 
           font-medium font-['Inter_Tight'] hover:bg-[#2670d4] transition-colors
           disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
@@ -343,7 +353,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
 
       {/* Social Login Buttons */}
       <div className="flex flex-col sm:flex-row gap-4">
-        <button 
+        <button
           onClick={() => handleOAuthClick('google')}
           type="button"
           // disabled={!formData.phoneNumber.trim()}
@@ -360,8 +370,8 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
             Continue with Google
           </span>
         </button>
-        
-        <button 
+
+        <button
           onClick={() => handleOAuthClick('apple')}
           type="button"
           className="w-full sm:flex-1 h-[48px] rounded-lg border border-[#E5E5E5] bg-white 
@@ -376,7 +386,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
       {/* Sign In Link */}
       <div className="text-center text-[14px] font-['Inter_Tight']">
         <span className="text-[#666666]">Have an account? </span>
-        <span 
+        <span
           onClick={handleSignInClick}
           className="text-[#2F80ED] font-medium cursor-pointer hover:underline"
         >
