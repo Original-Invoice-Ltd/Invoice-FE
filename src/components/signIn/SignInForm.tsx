@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import MailIcon from '../signUp/mailIcon';
 import PasswordIcon from '../signUp/passwordIcon';
 import GoogleIcon from '../signUp/googleIcon';
 import AppleIcon from '../signUp/appleIcon';
 import Logo from '../signUp/Logo';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 interface SignInFormProps {
   formData: {
@@ -17,9 +18,11 @@ interface SignInFormProps {
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
   loading?: boolean;
+  captchaToken: string | null;
+  setCaptchaToken: Dispatch<SetStateAction<string | null>>;
 }
 
-export default function SignInForm({ formData, onInputChange, onSubmit, loading = false }: SignInFormProps) {
+export default function SignInForm({ formData, onInputChange, onSubmit, loading = false,  captchaToken ,setCaptchaToken }: SignInFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
@@ -31,9 +34,9 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
     <div className="w-full  max-w-[470px] mx-auto flex flex-col gap-2">
       {/* Logo - Centered with spacing (mobile only) */}
       <div className="flex justify-center mb-4 md:hidden">
-        <Logo/>
+        <Logo />
       </div>
-      
+
       {/* Header */}
       <div className="text-center">
         <h2 className="text-[24px] font-medium text-[#000000] font-['Inter_Tight']">
@@ -91,8 +94,8 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
           >
             {showPassword ? (
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 5C5.63636 5 2 12 2 12C2 12 5.63636 19 12 19C18.3636 19 22 12 22 12C22 12 18.3636 5 12 5Z" stroke="#666666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#666666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M12 5C5.63636 5 2 12 2 12C2 12 5.63636 19 12 19C18.3636 19 22 12 22 12C22 12 18.3636 5 12 5Z" stroke="#666666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#666666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             ) : (
               <PasswordIcon width={19} height={16} />
@@ -118,11 +121,16 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
         </a>
       </div>
 
-      {/* Sign In Button */}
+
+      <ReCAPTCHA
+        onExpired={() => setCaptchaToken(null)}
+        sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+        onChange={(captcha) => setCaptchaToken(captcha)}
+      />
       <button
         type="submit"
         onClick={onSubmit}
-        disabled={loading}
+        disabled={loading || !captchaToken || !formData.email.trim() || !formData.password.trim()}
         className="w-full h-[38px] rounded-lg bg-[#2F80ED] text-white text-[16px] 
           font-medium font-['Inter_Tight'] hover:bg-[#2670d4] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
@@ -138,7 +146,7 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
 
       {/* Social Login Buttons */}
       <div className="flex flex-col sm:flex-row gap-4">
-        <button 
+        <button
           onClick={() => {
             const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
             window.location.href = `${apiBaseUrl}/oauth/google/login`;
@@ -151,8 +159,8 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
             Continue with Google
           </span>
         </button>
-        
-        <button 
+
+        <button
           onClick={() => {
             const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
             window.location.href = `${apiBaseUrl}/oauth/apple/login`;
@@ -167,10 +175,10 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
         </button>
       </div>
 
-      {/* Sign Up Link */}
+
       <div className="text-center text-[14px] font-['Inter_Tight']">
-        <span className="text-[#666666]">Don't have account? </span>
-        <span 
+        <span className="text-[#666666]">Don&apos;t have account? </span>
+        <span
           onClick={handleSignUpClick}
           className="text-[#2F80ED] font-medium cursor-pointer hover:underline"
         >

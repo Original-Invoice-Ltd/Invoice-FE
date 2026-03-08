@@ -169,12 +169,14 @@ export class ApiClient {
   }
 
   // Authentication APIs
-  static async login(email: string, password: string) {
+  static async login(email: string, password: string, token: string) {
     try {
-      const response = await axiosInstance.post("/api/auth/login", {
-        email,
-        password,
-      });
+      const response = await axiosInstance.post("/api/auth/login",
+        { email, password },
+        { headers: 
+          { "X-Captcha-Token": token }
+        }
+      );
 
       return {
         status: response.status,
@@ -196,8 +198,12 @@ export class ApiClient {
     phoneNumber?: string;
     businessName?: string;
     businessCategory?: string;
-  }) {
-    return this.request("POST", "/api/users/register", data);
+  }, captcha: string ) {
+    return  await axiosInstance.post("/api/users/register", data, {
+      headers: {
+        "X-Captcha-Token": captcha,
+      },
+    })
   }
 
   static async logout() {
