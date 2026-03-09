@@ -3,20 +3,24 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Settings, LogOut } from "lucide-react";
+import { Settings, LogOut, ArrowLeftRight } from "lucide-react";
 import siderLogo from './../../../public/assets/header logo.svg';
+import { AuthService } from '@/lib/auth';
+import { useTranslation } from 'react-i18next';
 
 interface DashboardSideBarProps {
     isOpen?: boolean;
     onClose?: () => void;
+    notificationsOpen?: boolean;
 }
 
-const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => {
+const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }: DashboardSideBarProps) => {
     const pathname = usePathname();
+    const { t } = useTranslation();
     
     const menuItems = [
         { 
-            label: "Dashboard", 
+            label: t('dashboard'),
             href: "/dashboard/overview",
             icon: (isActive: boolean) => (
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -25,7 +29,7 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
             )
         },
         { 
-            label: "Clients Management", 
+            label: t('clients_management'),
             href: "/dashboard/clients",
             icon: (isActive: boolean) => (
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -36,7 +40,7 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
             )
         },
         { 
-            label: "Invoices", 
+            label: t('invoices'),
             href: "/dashboard/invoices",
             icon: (isActive: boolean) => (
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -45,7 +49,7 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
             )
         },
         { 
-            label: "Products", 
+            label: t('products'),
             href: "/dashboard/products",
             icon: (isActive: boolean) => (
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -57,7 +61,7 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
             )
         },
         { 
-            label: "Payment Received", 
+            label: t('payments'),
             href: "/dashboard/payment",
             icon: (isActive: boolean) => (
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -65,8 +69,9 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
                 </svg>
             )
         },
+
         { 
-            label: "Reports", 
+            label: t('reports'),
             href: "/dashboard/reports",
             icon: (isActive: boolean) => (
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -76,7 +81,7 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
                     <path d="M17.4167 12.8333H14.6667C13.6541 12.8333 12.8333 13.6541 12.8333 14.6667V17.4167C12.8333 18.4292 13.6541 19.25 14.6667 19.25H17.4167C18.4292 19.25 19.25 18.4292 19.25 17.4167V14.6667C19.25 13.6541 18.4292 12.8333 17.4167 12.8333Z" stroke={isActive ? "white" : "#333436"} strokeWidth="1.5"/>
                 </svg>
             )
-        },
+        }
     ];
     
     const isActive = (href: string) => {
@@ -87,9 +92,13 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
     };
 
     const bottomItems = [
-        { icon: Settings, label: "Account Settings", href: "/dashboard/settings" },
-        { icon: LogOut, label: "Logout", href: "/logout" },
+        { icon: Settings, label: t('account_settings'), href: "/dashboard/settings/account", isLogout: false },
+        { icon: LogOut, label: t('logout'), href: "#", isLogout: true },
     ];
+
+    const handleLogout = async () => {
+        await AuthService.logout();
+    };
 
     return (
         <>
@@ -105,10 +114,10 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
             <div className={`
                 fixed lg:relative inset-y-0 left-0 z-50
                 h-screen w-[268px] 
-                bg-white border-r border-[#E4E7EC] 
+                ${notificationsOpen ? 'bg-white/70 backdrop-blur-sm' : 'bg-white'} border-r border-[#E4E7EC] 
                 flex flex-col justify-between
                 px-[16px] pt-[24px] pb-[32px]
-                transition-transform duration-300 ease-in-out
+                transition-all duration-300 ease-in-out
                 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
             `}>
                 <div className="flex flex-col gap-[32px]">
@@ -130,7 +139,7 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
                                         transition-colors duration-200
                                         ${active
                                             ? 'bg-[#2F80ED] text-white'
-                                            : 'text-[#667085] hover:bg-[#F9FAFB]'
+                                            : 'text-[#667085] hover:bg-gray-100'
                                         }
                                     `}
                                     onClick={onClose}
@@ -147,13 +156,29 @@ const DashboardSideBar = ({ isOpen = true, onClose }: DashboardSideBarProps) => 
                 <div className="flex flex-col gap-[8px]">
                     {bottomItems.map((item) => {
                         const Icon = item.icon;
+                        
+                        if (item.isLogout) {
+                            return (
+                                <button
+                                    key={item.label}
+                                    onClick={handleLogout}
+                                    className="flex items-center gap-[12px] px-[12px] 
+                                    py-[10px] rounded-[8px] text-[#667085] 
+                                    hover:bg-gray-100 transition-colors duration-200 w-full text-left"
+                                >
+                                    <Icon size={20} />
+                                    <span className="text-[14px] font-medium">{item.label}</span>
+                                </button>
+                            );
+                        }
+                        
                         return (
                             <Link
                                 key={item.label}
                                 href={item.href}
                                 className="flex items-center gap-[12px] px-[12px] 
                                 py-[10px] rounded-[8px] text-[#667085] 
-                                hover:bg-[#F9FAFB] transition-colors duration-200"
+                                hover:bg-gray-100 transition-colors duration-200"
                                 onClick={onClose}
                             >
                                 <Icon size={20} />

@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { Inter_Tight } from "next/font/google";
 import "./globals.css";
-
-const interTight = Inter_Tight({
-    subsets: ["latin"],
-    variable: "--font-inter-tight",
-});
+import ActivityTracker from "@/components/ActivityTracker";
+import { AuthProvider } from "@/contexts/AuthContext";
+import i18n from "@/lib/i18ns";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 export const metadata: Metadata = {
     title: "Original Invoice",
@@ -16,15 +14,28 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-                                       children,
-                                   }: {
+    children,
+}: {
     children: React.ReactNode;
 }) {
     return (
         <html lang="en">
-        <body className={`${interTight.className} antialiased`}>
-        {children}
-        </body>
-        </html>
+            <head>
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+                <link
+                    href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;800;900&display=swap"
+                    rel="stylesheet"
+                />
+            </head>
+            <body className="antialiased">
+                <AuthProvider>
+                    <LanguageProvider>
+                        <ActivityTracker />
+                        {children}
+                    </LanguageProvider>
+                </AuthProvider>
+            </body>
+        </html >
     );
 }

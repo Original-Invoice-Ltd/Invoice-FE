@@ -1,0 +1,244 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { ApiClient } from '@/lib/api';
+import { Product } from '@/lib/productCache';
+import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
+interface AddProductModalProps {
+  product: Product | null;
+  onClose: () => void;
+  onSave: (product: Product) => void;
+}
+
+export default function AddProductModal({ product, onClose, onSave }: AddProductModalProps) {
+  const { t } = useTranslation();
+  const [formData, setFormData] = useState({
+    itemName: '',
+    category: 'PRODUCT',
+    description: '',
+    quantity: '1',
+    rate: '',
+    amount: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (product) {
+      setFormData({
+        itemName: product.itemName || '',
+        category: product.category || 'PRODUCT',
+        description: product.description || '',
+        quantity: product.quantity?.toString() || '1',
+        rate: product.rate?.toString() || '',
+        amount: product.amount?.toString() || ''
+      });
+    }
+  }, [product]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    
+    // Handle numeric fields with comma formatting
+    if (name === 'rate' || name === 'amount') {
+      const numericValue = value.replace(/,/g, '');
+      setFormData(prev => ({
+        ...prev,
+        [name]: numericValue
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+
+    // Auto-calculate amount when quantity or rate changes
+    if (name === 'quantity' || name === 'rate') {
+      const quantity = name === 'quantity' ? parseFloat(value) || 0 : parseFloat(formData.quantity) || 0;
+      const rate = name === 'rate' ? parseFloat(value.replace(/,/g, '')) || 0 : parseFloat(formData.rate) || 0;
+      const calculatedAmount = quantity * rate;
+      
+      setFormData(prev => ({
+        ...prev,
+        amount: calculatedAmount > 0 ? calculatedAmount.toString() : ''
+      }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const productData = {
+        itemName: formData.itemName.trim(),
+        category: formData.category,
+        description: formData.description.trim() || undefined,
+        quantity: formData.quantity ? parseInt(formData.quantity) : undefined,
+        rate: formData.rate ? parseFloat(formData.rate) : undefined,
+        amount: formData.amount ? parseFloat(formData.amount) : undefined
+      };
+
+      const response = product 
+        ? await ApiClient.updateProduct(product.id, productData)
+        : await ApiClient.addProduct(productData);
+
+      if (response.status === 200 || response.status === 201) {
+        // Use the product data returned from the server
+        const savedProduct: Product = response.data;
+        onSave(savedProduct);
+      } else {
+        setError(response.error || t('failed_to_save_product'));
+      }
+    } catch (err) {
+      setError(t('unexpected_error'));
+      console.error('Error saving product:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center p-6">
+          <h2 className="text-xl font-semibold">
+            {product ? t('edit_product') : t('add_new_product')}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t('product_name')} *
+              </label>
+              <input
+                type="text"
+                name="itemName"
+                value={formData.itemName}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder={t('enter_product_name')}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t('category_label')} *
+              </label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="PRODUCT">{t('product_option')}</option>
+                <option value="SERVICE">{t('service_option')}</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t('description_label')} *
+            </label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              required
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder={t('enter_product_description')}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t('quantity_label')} *
+              </label>
+              <input
+                type="number"
+                name="quantity"
+                value={formData.quantity}
+                onChange={handleInputChange}
+                required
+                min="1"
+                step="1"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="1"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t('rate_label')} *
+              </label>
+              <input
+                type="text"
+                name="rate"
+                value={formData.rate ? parseFloat(formData.rate).toLocaleString('en-US') : ''}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="0"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t('amount_label')} *
+              </label>
+              <input
+                type="text"
+                name="amount"
+                value={formData.amount ? parseFloat(formData.amount).toLocaleString('en-US') : ''}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="0"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
+            >
+              {t('cancel')}
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+            >
+              {loading ? t('saving') : (product ? t('update_product') : t('add_product_button'))}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

@@ -1,35 +1,127 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Search, Menu, Bell, ChevronDown } from "lucide-react";
+import { Menu, Bell, ChevronDown, LogOut, Settings } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { AuthService } from '@/lib/auth';
+import NotificationsPanel from '@/components/notifications/NotificationsPanel';
+import { ApiClient } from '@/lib/api';
+import { subscribeToPusherChannel, disconnectPusher } from '@/lib/pusher';
+import Toast from '@/components/ui/Toast';
+import { useToast } from '@/hooks/useToast';
+import { useTranslation } from 'react-i18next';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface DashboardHeaderProps {
     onMenuClick?: () => void;
+    onNotificationsChange?: (isOpen: boolean) => void;
 }
 
-const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
-    const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
-    const [selectedLanguage, setSelectedLanguage] = useState("EN");
-    const dropdownRef = useRef<HTMLDivElement>(null);
+const languages = [
+    { code: "EN", nameKey: "english_default" },
+    { code: "HA", nameKey: "hausa" },
+    { code: "IG", nameKey: "igbo" },
+    { code: "YO", nameKey: "yoruba" },
+];
 
-    const languages = [
-        { code: "EN", name: "English (Default)" },
-        { code: "HA", name: "Hausa" },
-        { code: "IG", name: "Igbo" },
-        { code: "YO", name: "Yorùbá" },
-    ];
+const DashboardHeader = ({ onMenuClick, onNotificationsChange }: DashboardHeaderProps) => {
+    const { user, loading: userLoading } = useAuth();
+    const { selectedLanguage, updateLanguage } = useLanguage();
+    const router = useRouter();
+    const { t } = useTranslation();
+    const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+    const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const languageDropdownRef = useRef<HTMLDivElement>(null);
+    const profileDropdownRef = useRef<HTMLDivElement>(null);
+    const { toast, showError, hideToast } = useToast();
+    const { subscription, loading: subscriptionLoading } = useSubscription();
+
+    const getUpgradeButtonText = () => {      
+        if (subscriptionLoading) {
+            return t('upgrade_now');
+        }
+        if (!subscription) {
+            return t('upgrade_now');
+        }
+        
+        const plan = subscription.plan;
+        if (plan === 'PREMIUM') {
+            return t('premium_plan');
+        }
+        return t('upgrade_now');
+    };
+
+    const getProfileImage = () => {
+        if (user?.imageUrl) return user.imageUrl;
+        return "";
+    };
+
+    useEffect(() => {
+        const fetchUnreadCount = async () => {
+            if (!user?.id) return;
+            
+            try {
+                const response = await ApiClient.getUnreadCount();
+                if (response.status === 200) {
+                    setUnreadCount(Number(response.data) || 0);
+                }
+            } catch (error) {
+                console.error('Error fetching unread count:', error);
+            }
+        };
+
+        fetchUnreadCount();
+    }, [user?.id]);
+
+    // Set up Pusher real-time notifications
+    useEffect(() => {
+        if (!user?.id) return;
+
+        const unsubscribe = subscribeToPusherChannel(
+            `user-${user.id}`,
+            'notification',
+            (data: any) => {
+                // Increment unread count
+                setUnreadCount(prev => prev + 1);
+                
+                // You could also show a toast notification here
+                // toast.success(data.title);
+            }
+        );
+
+        return () => {
+            unsubscribe();
+            disconnectPusher();
+        };
+    }, [user?.id]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+            if (languageDropdownRef.current && !languageDropdownRef.current.contains(event.target as Node)) {
                 setShowLanguageDropdown(false);
+            }
+            if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+                setShowProfileDropdown(false);
             }
         };
 
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    const handleLogout = async () => {
+        await AuthService.logout();
+    };
+
+    const handleProfileSettings = () => {
+        setShowProfileDropdown(false);
+        router.push('/dashboard/settings/account');
+    };
 
     return (
         <header className="h-[78px] bg-white border-b border-[#E4E7EC] flex items-center justify-between gap-4 px-4 lg:px-8 py-4">
@@ -62,7 +154,7 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
                     </div>
                     <input
                         type="text"
-                        placeholder="Search"
+                        placeholder={t('search')}
                         className="w-full h-full border border-[#D0D5DD] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                         style={{ paddingLeft: '44px', paddingRight: '80px', paddingTop: '8px', paddingBottom: '8px' }}
                     />
@@ -81,7 +173,7 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
             <div className="flex items-center">
                 <div className="flex items-center" style={{ gap: '16px' }}>
                     {/* Language Selector */}
-                    <div className="relative" ref={dropdownRef}>
+                    <div className="relative" ref={languageDropdownRef}>
                         <button
                             onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
                             className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-[#344054] hover:bg-gray-50 rounded-lg"
@@ -96,8 +188,17 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
                                     {languages.map((lang) => (
                                         <button
                                             key={lang.code}
-                                            onClick={() => {
-                                                setSelectedLanguage(lang.code);
+                                            onClick={async () => {
+                                                if (!user) {
+                                                    showError("Unable to complete this request");
+                                                    setShowLanguageDropdown(false);
+                                                    return;
+                                                }
+                                                
+                                                const success = await updateLanguage(lang.code);
+                                                if (!success) {
+                                                    showError("Failed to update language preference. Please try again.");
+                                                }
                                                 setShowLanguageDropdown(false);
                                             }}
                                             className={`w-full px-4 py-2.5 text-left text-xs hover:bg-[#F9FAFB] transition-colors ${
@@ -105,7 +206,7 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
                                             }`}
                                         >
                                             <div className="font-medium text-[#101828]">
-                                                {lang.code} {lang.name.includes('Default') ? 'English (Default)' : lang.name}
+                                                {lang.code} {t(lang.nameKey)}
                                             </div>
                                         </button>
                                     ))}
@@ -115,20 +216,79 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
                     </div>
 
                     {/* Notification Bell */}
-                    <button className="relative flex items-center justify-center rounded-lg hover:bg-gray-50 border border-[#E4E7EC]" style={{ width: '32px', height: '32px' }}>
+                    <button 
+                        onClick={() => {
+                            setShowNotifications(true);
+                            onNotificationsChange?.(true);
+                        }}
+                        className="relative flex items-center justify-center rounded-lg hover:bg-gray-50 border border-[#E4E7EC]" 
+                        style={{ width: '32px', height: '32px' }}
+                    >
                         <Bell size={20} className="text-[#667085]" />
-                        <span className="absolute top-1 right-1 w-2 h-2 bg-[#F04438] rounded-full"></span>
+                        {unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#F04438] text-white text-xs rounded-full flex items-center justify-center font-medium">
+                                {unreadCount > 99 ? '99+' : unreadCount}
+                            </span>
+                        )}
                     </button>
 
-                    {/* Profile Picture */}
-                    <div className="rounded-full bg-gray-200 overflow-hidden" style={{ width: '32px', height: '32px' }}>
-                        <Image
-                            src="/assets/sunny1.png"
-                            alt="Profile"
-                            width={32}
-                            height={32}
-                            className="w-full h-full object-cover"
-                        />
+                    {/* Profile Picture with Dropdown */}
+                    <div className="relative" ref={profileDropdownRef}>
+                        <button
+                            onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                            className="rounded-full bg-gray-200 overflow-hidden hover:ring-2 hover:ring-[#2F80ED] hover:ring-offset-2 transition-all"
+                            style={{ width: '32px', height: '32px' }}
+                        >
+                            {userLoading ? (
+                                <div className="w-full h-full animate-pulse bg-gray-300"></div>
+                            ) : getProfileImage().length > 0 ? (
+                                <Image
+                                    src={getProfileImage()}
+                                    alt="Profile"
+                                    width={32}
+                                    height={32}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full text-[1rem] font-bold bg-primary flex justify-center items-center">
+                                    <p>{user?.fullName?.charAt(0) || 'U'}</p>
+                                </div>
+                            )}
+                        </button>
+
+                        {showProfileDropdown && (
+                            <div className="absolute right-0 mt-2 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-50 overflow-hidden" style={{ width: '200px' }}>
+                                <div className="py-1">
+                                    {user && !userLoading ? (
+                                        <div className="px-4 py-2.5 border-b border-[#E4E7EC]">
+                                            <div className="text-xs font-medium text-[#101828]">{user.fullName}</div>
+                                            <div className="text-xs text-[#667085]">{user.email}</div>
+                                        </div>
+                                    ) : userLoading ? (
+                                        <div className="px-4 py-2.5 border-b border-[#E4E7EC]">
+                                            <div className="animate-pulse">
+                                                <div className="h-3 bg-gray-200 rounded w-3/4 mb-1"></div>
+                                                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                                            </div>
+                                        </div>
+                                    ) : null}
+                                    <button
+                                        onClick={handleProfileSettings}
+                                        className="w-full px-4 py-2.5 text-left text-xs hover:bg-[#F9FAFB] transition-colors flex items-center gap-3"
+                                    >
+                                        <Settings size={16} className="text-[#667085]" />
+                                        <span className="font-medium text-[#101828]">{t('account_settings')}</span>
+                                    </button>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="w-full px-4 py-2.5 text-left text-xs hover:bg-[#F9FAFB] transition-colors flex items-center gap-3 text-red-600"
+                                    >
+                                        <LogOut size={16} className="text-red-600" />
+                                        <span className="font-medium">{t('logout')}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Hamburger Menu - Mobile Only */}
@@ -141,10 +301,31 @@ const DashboardHeader = ({ onMenuClick }: DashboardHeaderProps) => {
                 </div>
 
                 {/* Upgrade Now Button - Desktop Only */}
-                <button className="hidden lg:flex text-[#2F80ED] text-sm font-medium hover:bg-[#EBF5FF] transition-colors flex-shrink-0 border border-[#2F80ED] rounded-lg items-center justify-center" style={{ width: '131px', height: '46px', marginLeft: '20px' }}>
-                    Upgrade Now
+                <button 
+                    onClick={() => router.push("/dashboard/pricing")}
+                    className="hidden lg:flex text-[#2F80ED] text-sm font-medium hover:bg-[#EBF5FF] transition-colors flex-shrink-0 border border-[#2F80ED] rounded-lg items-center justify-center" 
+                    style={{ width: '131px', height: '46px', marginLeft: '20px' }}
+                >
+                    {getUpgradeButtonText()}
                 </button>
             </div>
+
+            {/* Toast Notification */}
+            <Toast
+                isVisible={toast.isVisible}
+                message={toast.message}
+                type={toast.type}
+                onClose={hideToast}
+            />
+
+            <NotificationsPanel 
+                isOpen={showNotifications} 
+                onClose={() => {
+                    setShowNotifications(false);
+                    onNotificationsChange?.(false);
+                }}
+                onUnreadCountChange={setUnreadCount}
+            />
         </header>
     );
 };
