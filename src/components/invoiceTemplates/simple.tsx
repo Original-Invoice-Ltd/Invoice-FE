@@ -86,12 +86,7 @@ export default function SimpleInvoiceTemplate({ data = defaultInvoiceData }: { d
   return (
     <div className="min-h-screen bg-white py-4 px-4 sm:py-6 sm:px-6 lg:px-8 relative">
       <div className="fixed inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-        <div 
-          className="text-blue-100 text-4xl sm:text-6xl font-bold opacity-10 transform rotate-[-45deg] select-none"
-          style={{ fontSize: 'clamp(2rem, 8vw, 4rem)' }}
-        >
-          www.originalinvoice.com
-        </div>
+        {/* Watermark removed - only shown for free plan users in actual invoices */}
       </div>
 
       {/* Content Container */}
@@ -109,7 +104,7 @@ export default function SimpleInvoiceTemplate({ data = defaultInvoiceData }: { d
           </div>
 
           {/* Right: Action Buttons */}
-          <div className="flex gap-2 sm:gap-3 w-full sm:w-auto order-first sm:order-last">
+          <div className="flex gap-2 sm:gap-3 w-full sm:w-auto order-first sm:order-last ml-auto">
             <button className="flex-1 sm:flex-none px-3 py-2 sm:px-4 sm:py-2 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-blue-600">
               <Edit className="w-4 h-4" />
               <span className="text-sm">Edit</span>
@@ -126,9 +121,11 @@ export default function SimpleInvoiceTemplate({ data = defaultInvoiceData }: { d
         </div>
 
         {/* Logo - Right Side on Desktop */}
-        <div className="flex justify-end mb-6 sm:mb-8">
-          <div className="text-3xl sm:text-4xl font-bold text-gray-900">Logo</div>
-        </div>
+        {data.billFrom?.name && (
+          <div className="flex justify-end mb-6 sm:mb-8">
+            <div className="text-3xl sm:text-4xl font-bold text-gray-900">{data.billFrom.name}</div>
+          </div>
+        )}
 
         {/* Date & Terms Block - Right Aligned */}
         <div className="flex justify-end mb-6 sm:mb-8">

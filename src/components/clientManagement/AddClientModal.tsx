@@ -30,15 +30,16 @@ const AddClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto">
-                <button 
-                    onClick={onClose}
-                    className="absolute top-4 right-4 text-[#667085] hover:text-[#101828]"
-                    disabled={isLoading}
-                >
-                    <X size={20} />
-                </button>
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl w-full max-w-2xl p-6 relative max-h-[90vh] overflow-hidden">
+                <div className="max-h-[calc(90vh-3rem)] overflow-y-auto scrollbar-hide">
+                    <button 
+                        onClick={onClose}
+                        className="absolute top-4 right-4 text-[#667085] hover:text-[#101828] z-10"
+                        disabled={isLoading}
+                    >
+                        <X size={20} />
+                    </button>
                 
                 <h2 className="text-xl font-semibold text-[#101828] mb-2">
                     {isEdit ? 'Edit Client' : 'Add New Client'}

@@ -78,7 +78,6 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
     const [showTelegramModal, setShowTelegramModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [emailTo, setEmailTo] = useState("");
-    const [emailMessage, setEmailMessage] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
     const [message, setMessage] = useState("");
     const [showValidationTooltip, setShowValidationTooltip] = useState(false);
@@ -289,40 +288,41 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                         </div>
                     )}
 
-                    {data.template === 'simple' && <SimpleTemplate data={data} />}
-                    {data.template === 'standard' && <StandardTemplate data={data} />}
-                    {data.template === 'compact' && <CompactTemplate data={data} />}
+                    {data.template === 'simple' && <SimpleTemplate data={data} isFreePlan={isFreePlan} />}
+                    {data.template === 'standard' && <StandardTemplate data={data} isFreePlan={isFreePlan} />}
+                    {data.template === 'compact' && <CompactTemplate data={data} isFreePlan={isFreePlan} />}
                     {data.template === 'default' && (
                         <div className="px-4 sm:px-8 lg:px-12 py-4 relative">
-                            <div
-                                className="absolute left-4 sm:left-8 top-2/3 -translate-y-2/3 pointer-events-none select-none z-0"
-                                style={{
-                                    transform: 'translateY(-50%) rotate(-22deg)',
-                                    transformOrigin: 'center',
-                                }}
-                            >
-                                <span
-                                    className="text-blue-200 font-bold whitespace-nowrap text-[1.5rem] sm:text-[2rem] md:text-[4rem]"
+                            {/* Watermark - Only for Free Plan */}
+                            {isFreePlan && (
+                                <div
+                                    className="absolute left-4 sm:left-8 top-2/3 -translate-y-2/3 pointer-events-none select-none z-0"
                                     style={{
-                                        opacity: 0.3,
-                                        letterSpacing: '0.1em'
+                                        transform: 'translateY(-50%) rotate(-22deg)',
+                                        transformOrigin: 'center',
                                     }}
                                 >
-                                    www.originalinvoice.com
-                                </span>
-                            </div>
+                                    <span
+                                        className="text-blue-200 font-bold whitespace-nowrap text-[1.5rem] sm:text-[2rem] md:text-[4rem]"
+                                        style={{
+                                            opacity: 0.3,
+                                            letterSpacing: '0.1em'
+                                        }}
+                                    >
+                                        www.originalinvoice.com
+                                    </span>
+                                </div>
+                            )}
 
                             <div className="relative z-10">
                                 {/* Invoice Header */}
                                 <div className="flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-0 mb-8 sm:mb-12">
-                                    <div className="flex items-center mt-4 sm:mt-8 justify-center">
-                                        {data.logo ? (
+                                    {data.logo && (
+                                        <div className="flex items-center mt-4 sm:mt-8 justify-center">
                                             <img src={data.logo} alt="Logo" className="w-12 h-12 sm:w-16 sm:h-16 object-contain" />
-                                        ) : (
-                                            <span className="text-2xl sm:text-3xl lg:text-4xl font-medium text-black">Logo</span>
-                                        )}
-                                    </div>
-                                    <div className="text-left sm:text-right w-full sm:w-auto">
+                                        </div>
+                                    )}
+                                    <div className={`text-left sm:text-right w-full sm:w-auto ${!data.logo ? 'sm:ml-auto' : ''}`}>
                                         <h1 className="text-xl sm:text-2xl lg:text-[28px] text-gray-900 mb-2">INVOICE</h1>
                                         <p className="text-sm sm:text-base text-gray-600 mb-1">#{data.billTo.invoiceNumber || 'INV-002'}</p>
                                         <p className="text-xs sm:text-sm text-gray-500 mb-2">Balance Due</p>
@@ -553,7 +553,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg w-full max-w-md mx-4 p-6">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-lg font-semibold text-gray-900">Email Invoice - Invoice</h2>
+                            <h2 className="text-lg font-semibold text-gray-900">Email Invoice</h2>
                             <button
                                 onClick={() => setShowEmailModal(false)}
                                 className="text-gray-400 hover:text-gray-600"
@@ -565,27 +565,14 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    To Request<span className="text-red-500">*</span>
+                                    To<span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="email"
                                     value={emailTo}
                                     onChange={(e) => setEmailTo(e.target.value)}
-                                    placeholder="Jamesoriginalinvoice@gmail.com"
+                                    placeholder="Enter client email"
                                     className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Message
-                                </label>
-                                <textarea
-                                    value={emailMessage}
-                                    onChange={(e) => setEmailMessage(e.target.value)}
-                                    placeholder="Optional message to your client"
-                                    rows={4}
-                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                                 />
                             </div>
                         </div>
