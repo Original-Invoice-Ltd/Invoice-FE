@@ -4,7 +4,7 @@ export default function Logo() {
       <img
         src="/assets/header logo.svg"
         alt="Original Invoice Logo"
-        className="h-[48px] w-auto object-contain"
+        className="h-[48px] md:h-[35px] w-auto object-contain"
       />
     </div>
   );

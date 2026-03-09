@@ -122,78 +122,28 @@ const CreateInvoicePage = () => {
     const loadBusinessProfiles = async () => {
         if (businessProfilesLoaded || isLoadingBusinessProfiles) return;
         
+        // Only load business profiles for Premium users
+        if (!hasAccess('multipleCompanyProfiles')) {
+            setBusinessProfilesLoaded(true);
+            return;
+        }
+        
         try {
             setIsLoadingBusinessProfiles(true);
             
-            // Mock data for testing - always load for Premium users
-            const mockProfiles = [
-                {
-                    id: 'profile-1',
-                    businessName: 'Tech Solutions Ltd',
-                    businessFullName: 'Tech Solutions Limited',
-                    registeredBusinessAddress: '123 Innovation Drive, Lagos',
-                    emailAddress: 'contact@techsolutions.com',
-                    phoneNumber: '+2348012345678',
-                },
-                {
-                    id: 'profile-2',
-                    businessName: 'Creative Agency Inc',
-                    businessFullName: 'Creative Agency Incorporated',
-                    registeredBusinessAddress: '456 Design Street, Abuja',
-                    emailAddress: 'hello@creativeagency.com',
-                    phoneNumber: '+2348087654321',
-                },
-                {
-                    id: 'profile-3',
-                    businessName: 'Global Consulting',
-                    businessFullName: 'Global Consulting Services',
-                    registeredBusinessAddress: '789 Business Avenue, Port Harcourt',
-                    emailAddress: 'info@globalconsulting.com',
-                    phoneNumber: '+2348098765432',
-                },
-            ];
-            
-            if (hasAccess('multipleCompanyProfiles')) {
-                // Premium users get mock profiles for testing
-                setBusinessProfiles(mockProfiles);
+            // Premium users: fetch active business profiles from API
+            const response = await ApiClient.getActiveBusinessProfiles();
+            if (response.status === 200 && response.data && response.data.length > 0) {
+                setBusinessProfiles(response.data);
                 setBusinessProfilesLoaded(true);
             } else {
-                // For non-premium users, try to load single profile from API
-                // If API fails, still provide mock data for testing
-                try {
-                    const response = await ApiClient.getBusinessProfile();
-                    if (response.status === 200 && response.data?.data) {
-                        const profile = {
-                            id: 'default',
-                            ...response.data.data
-                        };
-                        setBusinessProfiles([profile]);
-                        setBusinessProfilesLoaded(true);
-                    } else {
-                        // Fallback to mock data for testing
-                        setBusinessProfiles([mockProfiles[0]]);
-                        setBusinessProfilesLoaded(true);
-                    }
-                } catch (apiError) {
-                    // If API fails, use mock data for testing
-                    console.log('API failed, using mock data for testing');
-                    setBusinessProfiles([mockProfiles[0]]);
-                    setBusinessProfilesLoaded(true);
-                }
+                console.error('Failed to load business profiles:', response.error);
+                setBusinessProfiles([]);
+                setBusinessProfilesLoaded(true);
             }
         } catch (error) {
             console.error('Error loading business profiles:', error);
-            // Even on error, provide mock data for testing
-            setBusinessProfiles([
-                {
-                    id: 'profile-1',
-                    businessName: 'Tech Solutions Ltd',
-                    businessFullName: 'Tech Solutions Limited',
-                    registeredBusinessAddress: '123 Innovation Drive, Lagos',
-                    emailAddress: 'contact@techsolutions.com',
-                    phoneNumber: '+2348012345678',
-                }
-            ]);
+            setBusinessProfiles([]);
             setBusinessProfilesLoaded(true);
         } finally {
             setIsLoadingBusinessProfiles(false);

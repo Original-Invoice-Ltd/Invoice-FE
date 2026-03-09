@@ -5,6 +5,7 @@ import {
   PaymentTrend,
   RecentInvoice,
   InvoiceResponse,
+  BusinessProfileDto,
 } from "@/types/invoice";
 import {
   DraftInvoiceResponse,
@@ -169,12 +170,14 @@ export class ApiClient {
   }
 
   // Authentication APIs
-  static async login(email: string, password: string) {
+  static async login(email: string, password: string, token: string) {
     try {
-      const response = await axiosInstance.post("/api/auth/login", {
-        email,
-        password,
-      });
+      const response = await axiosInstance.post("/api/auth/login",
+        { email, password },
+        { headers: 
+          { "X-Captcha-Token": token }
+        }
+      );
 
       return {
         status: response.status,
@@ -196,8 +199,12 @@ export class ApiClient {
     phoneNumber?: string;
     businessName?: string;
     businessCategory?: string;
-  }) {
-    return this.request("POST", "/api/users/register", data);
+  }, captcha: string ) {
+    return  await axiosInstance.post("/api/users/register", data, {
+      headers: {
+        "X-Captcha-Token": captcha,
+      },
+    })
   }
 
   static async logout() {
@@ -756,32 +763,152 @@ export class ApiClient {
       withCredentials : true
     });
   }
-
-  static async updateBusinessProfile(businessProfileData: {
-    businessName?: string;
-    businessFullName?: string;
-    registeredBusinessAddress?: string;
-    emailAddress?: string;
-    phoneNumber?: string;
-    businessType?: string;
-    country?: string;
-    businessRegistrationNumber?: string;
-    businessLogoUrl?: string;
-  }) {
-    return this.request(
-      "PATCH",
-      "/api/settings/businessProfile",
-      businessProfileData,
-    );
+  // Business Profile Management
+  static async getAllBusinessProfiles(): Promise<ApiResponse<BusinessProfileDto[]>> {
+    const response = await this.get("/api/business-profiles");
+    
+    // Handle the nested response structure: { success, message, data, count }
+    if (response.status === 200 && response.data) {
+      const apiData = response.data as any;
+      // If data is nested inside another data property
+      if (apiData.data && Array.isArray(apiData.data)) {
+        return {
+          status: response.status,
+          data: apiData.data as BusinessProfileDto[],
+          error: response.error
+        };
+      }
+    }
+    
+    return response as ApiResponse<BusinessProfileDto[]>;
   }
 
-  static async uploadBusinessLogo(logoFile: File): Promise<ApiResponse<any>> {
+  static async createBusinessProfile(businessProfileData: {
+    businessName: string;
+    businessFullName?: string;
+    registeredBusinessAddress: string;
+    emailAddress: string;
+    phoneNumber: string;
+    businessType: string;
+    country: string;
+    businessRegistrationNumber?: string;
+    invoicePrefix?: string;
+  }): Promise<ApiResponse<any>> {
+    const response = await this.post("/api/business-profiles", businessProfileData);
+    
+    // Handle the nested response structure for created profile
+    if (response.status === 201 && response.data) {
+      const apiData = response.data as any;
+      if (apiData.data) {
+        return {
+          status: response.status,
+          data: apiData.data,
+          error: response.error
+        };
+      }
+    }
+    
+    return response;
+  }
+
+  static async deleteBusinessProfile(profileId: string): Promise<ApiResponse<any>> {
+    return this.delete(`/api/business-profiles/${profileId}`);
+  }
+
+  static async getActiveBusinessProfiles(): Promise<ApiResponse<BusinessProfileDto[]>> {
+    const response = await this.get("/api/business-profiles/active");
+    
+    if (response.status === 200 && response.data) {
+      const apiData = response.data as any;
+      if (apiData.data && Array.isArray(apiData.data)) {
+        return {
+          status: response.status,
+          data: apiData.data as BusinessProfileDto[],
+          error: response.error
+        };
+      }
+    }
+    
+    return response as ApiResponse<BusinessProfileDto[]>;
+  }
+
+  // Get clients by business profile
+  static async getClientsByBusinessProfile(businessProfileId: string): Promise<ApiResponse<any[]>> {
+    const response = await this.get(`/api/clients/business-profile/${businessProfileId}`);
+    
+    if (response.status === 200 && response.data) {
+      const apiData = response.data as any;
+      if (apiData.data && Array.isArray(apiData.data)) {
+        return {
+          status: response.status,
+          data: apiData.data,
+          error: response.error
+        };
+      }
+    }
+    
+    return response as ApiResponse<any[]>;
+  }
+
+  // Get products by business profile
+  static async getProductsByBusinessProfile(businessProfileId: string): Promise<ApiResponse<any[]>> {
+    const response = await this.get(`/api/products/business-profile/${businessProfileId}`);
+    
+    if (response.status === 200 && response.data) {
+      const apiData = response.data as any;
+      if (apiData.data && Array.isArray(apiData.data)) {
+        return {
+          status: response.status,
+          data: apiData.data,
+          error: response.error
+        };
+      }
+    }
+    
+    return response as ApiResponse<any[]>;
+  }
+
+
+  static async updateBusinessProfile(
+    profileId: string,
+    businessProfileData: {
+      businessName?: string;
+      businessFullName?: string;
+      registeredBusinessAddress?: string;
+      emailAddress?: string;
+      phoneNumber?: string;
+      businessType?: string;
+      country?: string;
+      businessRegistrationNumber?: string;
+      businessLogoUrl?: string;
+      invoicePrefix?: string;
+      isActive?: boolean;
+    }
+  ): Promise<ApiResponse<any>> {
+    const response = await this.put(`/api/business-profiles/${profileId}`, businessProfileData);
+    
+    // Handle the nested response structure
+    if (response.status === 200 && response.data) {
+      const apiData = response.data as any;
+      if (apiData.data) {
+        return {
+          status: response.status,
+          data: apiData.data,
+          error: response.error
+        };
+      }
+    }
+    
+    return response;
+  }
+
+  static async uploadBusinessLogo(profileId: string, logoFile: File): Promise<ApiResponse<any>> {
     try {
       const formData = new FormData();
-      formData.append("logoFile", logoFile);
+      formData.append("logo", logoFile);
 
       const response = await axiosInstance.post(
-        "/api/settings/uploadLogo",
+        `/api/business-profiles/${profileId}/upload-logo`,
         formData,
         {
           headers: {

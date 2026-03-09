@@ -6,24 +6,10 @@ import Image from "next/image";
 import { ApiClient } from "@/lib/api";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
-import { ApiResponse } from "@/types/invoice";
+import { ApiResponse, BusinessProfileDto } from "@/types/invoice";
 import { useTranslation } from "react-i18next";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 import Link from "next/link";
-
-interface BusinessProfileDto {
-  id?: string;
-  businessName?: string;
-  businessFullName?: string;
-  registeredBusinessAddress?: string;
-  emailAddress?: string;
-  phoneNumber?: string;
-  businessType?: string;
-  country?: string;
-  businessRegistrationNumber?: string;
-  businessLogoUrl?: string;
-}
-
 
 const BusinessProfilePage = () => {
   const { toast, showSuccess, showError, hideToast } = useToast();
@@ -48,7 +34,7 @@ const BusinessProfilePage = () => {
     businessType: "",
     businessRegistrationNumber: "",
     country: "",
-
+    invoicePrefix: "",
   });
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -99,72 +85,40 @@ const BusinessProfilePage = () => {
     try {
       setIsLoadingData(true);
       
-      // Mock data for demonstration - Premium users will see multiple profiles
-      if (canAddBusinessProfile) {
-        const mockProfiles: BusinessProfileDto[] = [
-          {
-            id: 'profile-1',
-            businessName: 'Tech Solutions Ltd',
-            businessFullName: 'Tech Solutions Limited',
-            registeredBusinessAddress: '123 Innovation Drive, Lagos',
-            emailAddress: 'contact@techsolutions.com',
-            phoneNumber: '+2348012345678',
-            businessType: 'LIMITED_LIABILITY_COMPANY',
-            country: 'NIGERIA',
-            businessRegistrationNumber: 'RC123456',
-            businessLogoUrl: undefined,
-          },
-          {
-            id: 'profile-2',
-            businessName: 'Creative Agency Inc',
-            businessFullName: 'Creative Agency Incorporated',
-            registeredBusinessAddress: '456 Design Street, Abuja',
-            emailAddress: 'hello@creativeagency.com',
-            phoneNumber: '+2348087654321',
-            businessType: 'COPERATIONS',
-            country: 'NIGERIA',
-            businessRegistrationNumber: 'RC789012',
-            businessLogoUrl: undefined,
-          },
-          {
-            id: 'profile-3',
-            businessName: 'Global Consulting',
-            businessFullName: 'Global Consulting Services',
-            registeredBusinessAddress: '789 Business Avenue, Port Harcourt',
-            emailAddress: 'info@globalconsulting.com',
-            phoneNumber: '+2348098765432',
-            businessType: 'PARTNERSHIP',
-            country: 'NIGERIA',
-            businessRegistrationNumber: 'RC345678',
-            businessLogoUrl: undefined,
-          },
-        ];
+      // Try to fetch all business profiles first
+      const allProfilesResponse = await ApiClient.getAllBusinessProfiles();
+      
+      if (allProfilesResponse.status === 200 && allProfilesResponse.data && allProfilesResponse.data.length > 0) {
+        // User has multiple profiles
+        const profiles = allProfilesResponse.data;
+        setBusinessProfiles(profiles);
         
-        setBusinessProfiles(mockProfiles);
-        setSelectedProfileId(mockProfiles[0].id);
+        // Select the default profile or the first one
+        const defaultProfile = profiles.find(p => p.isDefault) || profiles[0];
+        setSelectedProfileId(defaultProfile.id || null);
         
-        const firstProfile = mockProfiles[0];
         setFormData({
-          businessName: firstProfile.businessName || "",
-          businessFullName: firstProfile.businessFullName || "",
-          registeredBusinessAddress: firstProfile.registeredBusinessAddress || "",
-          emailAddress: firstProfile.emailAddress || "",
-          phoneNumber: firstProfile.phoneNumber || "",
-          businessType: firstProfile.businessType || "",
-          businessRegistrationNumber: firstProfile.businessRegistrationNumber || "",
-          country: firstProfile.country || "",
+          businessName: defaultProfile.businessName || "",
+          businessFullName: defaultProfile.businessFullName || "",
+          registeredBusinessAddress: defaultProfile.registeredBusinessAddress || "",
+          emailAddress: defaultProfile.emailAddress || "",
+          phoneNumber: defaultProfile.phoneNumber || "",
+          businessType: defaultProfile.businessType || "",
+          businessRegistrationNumber: defaultProfile.businessRegistrationNumber || "",
+          country: defaultProfile.country || "",
+          invoicePrefix: defaultProfile.invoicePrefix || "",
         });
 
-        if (firstProfile.businessLogoUrl) {
-          setExistingLogoUrl(firstProfile.businessLogoUrl);
-          setLogoPreview(firstProfile.businessLogoUrl);
+        if (defaultProfile.businessLogoUrl) {
+          setExistingLogoUrl(defaultProfile.businessLogoUrl);
+          setLogoPreview(defaultProfile.businessLogoUrl);
         }
         
         setIsLoadingData(false);
         return;
       }
       
-      // Original API call for non-premium users
+      // Fallback to single profile API if getAllBusinessProfiles returns empty or fails
       const response = await ApiClient.getBusinessProfile();
       console.log("Full API response:", response);
 
@@ -174,8 +128,7 @@ const BusinessProfilePage = () => {
         console.log("Business profile data:", data);
 
         if (data) {
-          // For now, treat single profile as array with one item
-          // In future, API should return array of profiles
+          // Treat single profile as array with one item
           const profile = {
             id: data.id || 'default',
             ...data
@@ -192,6 +145,7 @@ const BusinessProfilePage = () => {
             businessType: data.businessType || "",
             businessRegistrationNumber: data.businessRegistrationNumber || "",
             country: data.country || "",
+            invoicePrefix: data.invoicePrefix || "",
           });
 
           if (data.businessLogoUrl) {
@@ -259,14 +213,14 @@ const BusinessProfilePage = () => {
     );
   };
 
-  const uploadLogo = async (file: File): Promise<string | null> => {
+  const uploadLogo = async (profileId: string, file: File): Promise<string | null> => {
     try {
-      const response = await ApiClient.uploadBusinessLogo(file);
+      const response = await ApiClient.uploadBusinessLogo(profileId, file);
       console.log("Logo upload response:", response);
 
       if (response.status === 200 && response.data) {
         // Try both possible response structures
-        const logoUrl = response.data.uploadedLogoUrl || response.data.data?.uploadedLogoUrl;
+        const logoUrl = response.data.businessLogoUrl || response.data.data?.businessLogoUrl;
         if (logoUrl) {
           return logoUrl;
         }
@@ -296,54 +250,13 @@ const BusinessProfilePage = () => {
     }
     
     try {
-      // For Premium users with mock data - simulate saving
-      if (canAddBusinessProfile) {
-        let businessLogoUrl = existingLogoUrl;
-        
-        if (logoFile) {
-          // Simulate logo upload
-          businessLogoUrl = URL.createObjectURL(logoFile);
-        }
-
-        const profileData: BusinessProfileDto = {
-          id: isAddingNew ? `profile-${Date.now()}` : selectedProfileId || undefined,
-          businessName: formData.businessName,
-          businessFullName: formData.businessFullName,
-          registeredBusinessAddress: formData.registeredBusinessAddress,
-          emailAddress: formData.emailAddress,
-          phoneNumber: normalizedPhone,
-          businessType: formData.businessType,
-          country: formData.country,
-          businessRegistrationNumber: formData.businessRegistrationNumber,
-          businessLogoUrl: businessLogoUrl || undefined,
-        };
-
-        if (isAddingNew) {
-          // Add new profile to the list
-          setBusinessProfiles(prev => [...prev, profileData]);
-          setSelectedProfileId(profileData.id!);
-          setIsAddingNew(false);
-          showSuccess(t("business_profile_created") || "Business profile created successfully");
-        } else {
-          // Update existing profile
-          setBusinessProfiles(prev => 
-            prev.map(p => p.id === selectedProfileId ? profileData : p)
-          );
-          showSuccess(t("business_profile_updated"));
-        }
-        
-        setLogoFile(null);
-        setIsLoading(false);
-        return;
-      }
-
-      // Original API call for non-premium users
+      // Upload logo first if there's a new file and we have a profile ID
       let businessLogoUrl = existingLogoUrl;
       let logoUploadFailed = false;
 
-      if (logoFile) {
+      if (logoFile && selectedProfileId && !isAddingNew) {
         try {
-          businessLogoUrl = await uploadLogo(logoFile);
+          businessLogoUrl = await uploadLogo(selectedProfileId, logoFile);
         } catch (error) {
           console.error("Logo upload failed:", error);
           logoUploadFailed = true;
@@ -351,8 +264,8 @@ const BusinessProfilePage = () => {
         }
       }
 
-      // Prepare business profile data (map UI fields to backend DTO)
-      const businessProfileData: BusinessProfileDto = {
+      // Prepare business profile data
+      const businessProfileData = {
         businessName: formData.businessName,
         businessFullName: formData.businessFullName,
         registeredBusinessAddress: formData.registeredBusinessAddress,
@@ -362,23 +275,61 @@ const BusinessProfilePage = () => {
         country: formData.country,
         businessRegistrationNumber: formData.businessRegistrationNumber,
         businessLogoUrl: businessLogoUrl || undefined,
+        invoicePrefix: formData.invoicePrefix,
       };
 
-      // Update business profile
-      const response = await ApiClient.updateBusinessProfile(businessProfileData);
+      if (isAddingNew) {
+        // Create new business profile via API
+        const createResponse = await ApiClient.createBusinessProfile(businessProfileData);
+        
+        if (createResponse.status === 201 && createResponse.data) {
+          // If we have a logo file and the profile was created, upload the logo
+          if (logoFile && createResponse.data.id) {
+            try {
+              const newLogoUrl = await uploadLogo(createResponse.data.id, logoFile);
+              // Optionally update the profile with the logo URL
+              if (newLogoUrl) {
+                await ApiClient.updateBusinessProfile(createResponse.data.id, {
+                  businessLogoUrl: newLogoUrl
+                });
+              }
+            } catch (error) {
+              console.error("Logo upload failed for new profile:", error);
+              logoUploadFailed = true;
+            }
+          }
+          
+          // Reload all profiles to get the updated list
+          await loadBusinessProfile();
+          setIsAddingNew(false);
+          
+          if (logoUploadFailed) {
+            showSuccess(t("profile_saved_logo_failed"));
+          } else {
+            showSuccess(t("business_profile_created") || "Business profile created successfully");
+          }
+        } else {
+          showError(createResponse.error || t("failed_create_business_profile"));
+        }
+      } else if (selectedProfileId) {
+        // Update existing business profile
+        const response = await ApiClient.updateBusinessProfile(selectedProfileId, businessProfileData);
 
-      if (response.status !== 200) {
-        showError(t("failed_update_business_profile"));
-        return;
+        if (response.status !== 200) {
+          showError(t("failed_update_business_profile"));
+          return;
+        }
+
+        await loadBusinessProfile();
+        
+        if (logoUploadFailed) {
+          showSuccess(t("profile_saved_logo_failed"));
+        } else {
+          showSuccess(t("business_profile_updated"));
+        }
       }
-
-      await loadBusinessProfile();
+      
       setLogoFile(null);
-      if (logoUploadFailed) {
-        showSuccess(t("profile_saved_logo_failed"));
-      } else {
-        showSuccess(t("business_profile_updated"));
-      }
     } catch (error) {
       showError(t("unexpected_error_occurred"));
     } finally {
@@ -387,7 +338,6 @@ const BusinessProfilePage = () => {
   };
 
   const handleCancel = () => {
-
     loadBusinessProfile();
     setLogoFile(null);
   };
@@ -405,6 +355,7 @@ const BusinessProfilePage = () => {
       businessType: "",
       businessRegistrationNumber: "",
       country: "",
+      invoicePrefix: "",
     });
     setLogoPreview(null);
     setExistingLogoUrl(null);
@@ -425,6 +376,7 @@ const BusinessProfilePage = () => {
         businessType: profile.businessType || "",
         businessRegistrationNumber: profile.businessRegistrationNumber || "",
         country: profile.country || "",
+        invoicePrefix: profile.invoicePrefix || "",
       });
       
       if (profile.businessLogoUrl) {
@@ -451,20 +403,27 @@ const BusinessProfilePage = () => {
     setShowDeleteModal(true);
   };
 
-  const confirmDeleteProfile = () => {
+  const confirmDeleteProfile = async () => {
     if (!profileToDelete) return;
 
-    const updatedProfiles = businessProfiles.filter(p => p.id !== profileToDelete);
-    setBusinessProfiles(updatedProfiles);
-    
-    // If deleted profile was selected, select the first remaining profile
-    if (selectedProfileId === profileToDelete) {
-      handleSelectProfile(updatedProfiles[0].id!);
+    try {
+      // Call API to delete the profile
+      const response = await ApiClient.deleteBusinessProfile(profileToDelete);
+      
+      if (response.status === 200) {
+        // Reload profiles from API
+        await loadBusinessProfile();
+        showSuccess(t("profile_deleted") || "Profile deleted successfully");
+      } else {
+        showError(response.error || t("failed_delete_profile") || "Failed to delete profile");
+      }
+    } catch (error) {
+      console.error("Error deleting profile:", error);
+      showError(t("unexpected_error_occurred"));
+    } finally {
+      setShowDeleteModal(false);
+      setProfileToDelete(null);
     }
-    
-    showSuccess(t("profile_deleted") || "Profile deleted successfully");
-    setShowDeleteModal(false);
-    setProfileToDelete(null);
   };
 
   const cancelDelete = () => {
@@ -619,7 +578,7 @@ const BusinessProfilePage = () => {
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2 4H14M2 8H14M2 12H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span className="text-sm font-medium">{t("view_all_profiles") || "View Business Profiles"}</span>
+              <span className="text-sm font-medium">{t("view_all_profiles") || "View All Profiles"}</span>
             </button>
 
             {/* Add Business Profile Button */}

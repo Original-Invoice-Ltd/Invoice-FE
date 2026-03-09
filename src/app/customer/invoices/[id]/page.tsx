@@ -11,36 +11,9 @@ const InvoiceDetailPage = () => {
     const params = useParams();
     const router = useRouter();
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-    const [invoice, setInvoice] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [selectedDescription, setSelectedDescription] = useState<string | null>(null);
-    
-    const invoiceId = params.id as string;
 
-    useEffect(() => {
-        if (invoiceId) {
-            fetchInvoice(invoiceId);
-        }
-    }, [invoiceId]);
-
-    const fetchInvoice = async (id: string) => {
-        try {
-            setLoading(true);
-            const response = await ApiClient.getInvoiceById(id);
-            
-            if (response.status === 200 && response.data) {
-                setInvoice(response.data);
-            } else {
-                setError(response.error || response.message || 'Failed to load invoice');
-            }
-        } catch (err) {
-            console.error("Error fetching invoice:", err);
-            setError('An unexpected error occurred');
-        } finally {
-            setLoading(false);
-        }
-    };
+    const invoiceId = parseInt(params.id as string);
+    const invoice = getInvoiceById(invoiceId);
 
     const handleUploadReceipt = (file: File) => {
         console.log('Uploaded file:', file);
@@ -102,37 +75,37 @@ const InvoiceDetailPage = () => {
                         onClick={() => router.back()}
                         className="flex items-center gap-2 text-[#2F80ED] hover:text-blue-600 transition-colors"
                     >
-                        <svg 
-                            className="w-5 h-5" 
-                            fill="none" 
-                            stroke="currentColor" 
+                        <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                         >
-                            <path 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round" 
-                                strokeWidth={2} 
-                                d="M10 19l-7-7m0 0l7-7m-7 7h18" 
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18"
                             />
                         </svg>
                     </button>
 
                     {/* Upload Receipt Button - always show */}
-                    <button 
+                    <button
                         onClick={() => setIsUploadModalOpen(true)}
                         className="flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors font-medium text-sm md:text-base"
                     >
-                        <svg 
-                            className="w-4 h-4" 
-                            fill="none" 
-                            stroke="currentColor" 
+                        <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                         >
-                            <path 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round" 
-                                strokeWidth={2} 
-                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                             />
                         </svg>
                         <span>Upload Receipt</span>
@@ -141,18 +114,36 @@ const InvoiceDetailPage = () => {
 
                 {/* Invoice Content */}
                 <div className="bg-white rounded-lg shadow-sm relative overflow-hidden">
-                    {/* Removed status watermarks */}
-                    
-                    <div className="px-4 md:px-8 py-4 md:py-8 relative z-20">
-                        {/* Logo and Status Badge - Top Section */}
-                        <div className="flex flex-col sm:flex-row justify-between items-start mb-8 gap-4">
-                            {invoice.logoUrl && (
-                                <div className="flex items-center">
-                                    <img 
-                                        src={invoice.logoUrl} 
-                                        alt="Company Logo" 
-                                        className="h-12 sm:h-16 w-auto object-contain"
-                                    />
+                    {/* Watermark for unpaid invoices */}
+                    {invoice.status.toLowerCase() !== 'paid' && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                            <div
+                                className="text-orange-100 font-bold select-none"
+                                style={{
+                                    fontSize: 'clamp(60px, 15vw, 120px)',
+                                    transform: 'rotate(-45deg)',
+                                    opacity: 0.1,
+                                    letterSpacing: '8px'
+                                }}
+                            >
+                                {invoice.status.toUpperCase()}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="px-4 md:px-12 py-4 relative z-20">
+                        {/* Invoice Header */}
+                        <div className="flex flex-col sm:flex-row justify-between items-start mb-8 md:mb-12 gap-4">
+                            <div className="flex items-center mt-4 md:mt-8">
+                                <span className="text-2xl md:text-4xl font-medium text-black">Logo</span>
+                            </div>
+                            <div className="text-left sm:text-right w-full sm:w-auto">
+                                <h1 className="text-xl md:text-[28px] text-gray-900 mb-2">INVOICE</h1>
+                                <p className="text-gray-600 mb-1">#{invoice.invoiceId}</p>
+                                <div className="mb-2">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(invoice.status)}`}>
+                                        {invoice.status}
+                                    </span>
                                 </div>
                             )}
                             <div className={`${!invoice.logoUrl ? 'sm:ml-auto' : ''}`}>
@@ -389,7 +380,11 @@ const InvoiceDetailPage = () => {
                                 </svg>
                                 Download PDF
                             </button>
-                            <button className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors text-sm md:text-base">
+                            <button
+                                onClick={async () => {
+                                    
+                                }}
+                                className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors text-sm md:text-base">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                                 </svg>

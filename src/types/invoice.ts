@@ -189,3 +189,22 @@ export interface ReceivedInvoiceResponse {
   accountName: string;
   bank: string;
 }
+
+// Business Profile Types
+export interface BusinessProfileDto {
+  id?: string;
+  businessName?: string;
+  businessFullName?: string;
+  registeredBusinessAddress?: string;
+  emailAddress?: string;
+  phoneNumber?: string;
+  businessType?: string;
+  country?: string;
+  businessRegistrationNumber?: string;
+  businessLogoUrl?: string | null;
+  isDefault?: boolean;
+  isActive?: boolean;
+  invoicePrefix?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
