@@ -5,11 +5,12 @@ import { useState, useRef, useEffect } from 'react';
 interface FAQItemProps {
   question: string;
   answer: string;
+  isExpanded: boolean;
+  onToggle: () => void;
   isLast?: boolean;
 }
 
-export default function FAQItem({ question, answer, isLast = false }: FAQItemProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+export default function FAQItem({ question, answer, isExpanded, onToggle, isLast = false }: FAQItemProps) {
   const [height, setHeight] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -19,15 +20,11 @@ export default function FAQItem({ question, answer, isLast = false }: FAQItemPro
     }
   }, [isExpanded]);
 
-  const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
-  };
-
   return (
     <div className={`${isExpanded ? 'bg-white rounded-[12px]' : 'bg-[#eff8ff]'} p-[20px] lg:p-[24px] border-b border-white transition-colors duration-300`}>
       <div 
         className="flex items-center justify-between cursor-pointer gap-[12px]"
-        onClick={toggleExpanded}
+        onClick={onToggle}
       >
         <h3 className="text-[16px] lg:text-[18px] font-medium text-[#000]">{question}</h3>
         <svg 

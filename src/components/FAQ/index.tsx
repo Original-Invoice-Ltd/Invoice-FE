@@ -1,6 +1,38 @@
+'use client';
+
+import { useState } from 'react';
 import FAQItem from "@/components/FAQ/FAQItem";
 
-const FAQ = ()=>{
+const FAQ = () => {
+    const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+
+    const faqData = [
+        {
+            question: "Can I customize my invoices?",
+            answer: "Yes. You can upload your logo, edit your business details, choose a template layout, and even send invoices in multiple languages (English, Hausa, Igbo, Yoruba)."
+        },
+        {
+            question: "Can I track all my payments and outstanding invoices?",
+            answer: "Absolutely! Our payment tracking system gives you real-time visibility into all your invoices. You can see which invoices are paid, pending, overdue, or in draft status. The dashboard provides clear indicators and allows you to quickly mark payments as received, send reminders, and generate reports on your cash flow."
+        },
+        {
+            question: "Is it mobile-friendly?",
+            answer: "Yes, Original Invoice is fully responsive and works seamlessly on all devices including smartphones and tablets. You can create, send, and manage invoices on the go. The mobile interface is optimized for touch interactions while maintaining all the functionality of the desktop version."
+        },
+        {
+            question: "Do you support multiple languages?",
+            answer: "Yes! We support multiple Nigerian languages including English, Hausa, Igbo, and Yoruba. You can create and send invoices in your client's preferred language, making communication clearer and more professional. This feature is especially useful for businesses serving diverse communities across Nigeria."
+        },
+        {
+            question: "Do I need accounting knowledge to use the platform?",
+            answer: "Not at all! Original Invoice is designed to be user-friendly for everyone, regardless of accounting background. The platform automatically handles tax calculations (VAT, WHT), provides guided workflows, and includes helpful tooltips. However, we do recommend consulting with an accountant for complex business scenarios."
+        }
+    ];
+
+    const handleToggle = (index: number) => {
+        setExpandedIndex(expandedIndex === index ? null : index);
+    };
+
     return (
         <>
             {/* FAQ Section */}
@@ -19,30 +51,16 @@ const FAQ = ()=>{
                     </div>
 
                     <div className="max-w-[800px] mx-auto">
-                        <FAQItem
-                            question="Can I customize my invoices?"
-                            answer="Yes. You can upload your logo, edit your business details, choose a template layout, and even send invoices in multiple languages (English, Hausa, Igbo, Yoruba)."
-                        />
-
-                        <FAQItem
-                            question="Can I track all my payments and outstanding invoices?"
-                            answer="Absolutely! Our payment tracking system gives you real-time visibility into all your invoices. You can see which invoices are paid, pending, overdue, or in draft status. The dashboard provides clear indicators and allows you to quickly mark payments as received, send reminders, and generate reports on your cash flow."
-                        />
-
-                        <FAQItem
-                            question="Is it mobile-friendly?"
-                            answer="Yes, Original Invoice is fully responsive and works seamlessly on all devices including smartphones and tablets. You can create, send, and manage invoices on the go. The mobile interface is optimized for touch interactions while maintaining all the functionality of the desktop version."
-                        />
-
-                        <FAQItem
-                            question="Do you support multiple languages?"
-                            answer="Yes! We support multiple Nigerian languages including English, Hausa, Igbo, and Yoruba. You can create and send invoices in your client's preferred language, making communication clearer and more professional. This feature is especially useful for businesses serving diverse communities across Nigeria."
-                        />
-
-                        <FAQItem
-                            question="Do I need accounting knowledge to use the platform?"
-                            answer="Not at all! Original Invoice is designed to be user-friendly for everyone, regardless of accounting background. The platform automatically handles tax calculations (VAT, WHT), provides guided workflows, and includes helpful tooltips. However, we do recommend consulting with an accountant for complex business scenarios."
-                        />
+                        {faqData.map((faq, index) => (
+                            <FAQItem
+                                key={index}
+                                question={faq.question}
+                                answer={faq.answer}
+                                isExpanded={expandedIndex === index}
+                                onToggle={() => handleToggle(index)}
+                                isLast={index === faqData.length - 1}
+                            />
+                        ))}
                     </div>
                 </div>
             </div>
