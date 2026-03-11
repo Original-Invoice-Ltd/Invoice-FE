@@ -25,10 +25,22 @@ export default function Footer() {
             <div>
               <h3 className="text-white text-[14px] font-semibold mb-[16px]">Product</h3>
               <ul className="space-y-[8px]">
-                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Features</a></li>
-                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Pricing</a></li>
+                <li>
+                  <Link href="/#features-section" className="text-white text-[14px] font-normal hover:text-gray-200">
+                    Features
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/pricing" className="text-white text-[14px] font-normal hover:text-gray-200">
+                    Pricing
+                  </Link>
+                </li>
                 <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Templates</a></li>
-                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">About Us</a></li>
+                <li>
+                  <Link href="/aboutUs" className="text-white text-[14px] font-normal hover:text-gray-200">
+                    About Us
+                  </Link>
+                </li>
               </ul>
             </div>
 
@@ -45,8 +57,16 @@ export default function Footer() {
             <div className="col-span-2 lg:col-span-1">
               <h3 className="text-white text-[14px] font-semibold mb-[16px]">Company</h3>
               <ul className="space-y-[8px]">
-                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">About Us</a></li>
-                <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Contact Us</a></li>
+                <li>
+                  <Link href="/aboutUs" className="text-white text-[14px] font-normal hover:text-gray-200">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="text-white text-[14px] font-normal hover:text-gray-200">
+                    Contact Us
+                  </Link>
+                </li>
                 <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Help Center</a></li>
                 <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Partners</a></li>
               </ul>

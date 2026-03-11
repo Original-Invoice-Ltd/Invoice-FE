@@ -13,8 +13,37 @@ import { initializeTransactionWithPlan } from "@/lib/subscription";
 const PricingContent = ()=>{
     const [currentCard, setCurrentCard] = useState(0);
     const [isLoading, setIsLoading] = useState<string | null>(null); // Track which button is loading
+    const [touchStart, setTouchStart] = useState<number | null>(null);
+    const [touchEnd, setTouchEnd] = useState<number | null>(null);
     const router = useRouter();
     const searchParams = useSearchParams();
+
+    // Minimum swipe distance (in px)
+    const minSwipeDistance = 50;
+
+    const onTouchStart = (e: React.TouchEvent) => {
+        setTouchEnd(null); // otherwise the swipe is fired even with usual touch events
+        setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const onTouchMove = (e: React.TouchEvent) => {
+        setTouchEnd(e.targetTouches[0].clientX);
+    };
+
+    const onTouchEnd = () => {
+        if (!touchStart || !touchEnd) return;
+        
+        const distance = touchStart - touchEnd;
+        const isLeftSwipe = distance > minSwipeDistance;
+        const isRightSwipe = distance < -minSwipeDistance;
+
+        if (isLeftSwipe && currentCard < 2) {
+            setCurrentCard(currentCard + 1);
+        }
+        if (isRightSwipe && currentCard > 0) {
+            setCurrentCard(currentCard - 1);
+        }
+    };
 
     // Check for plan parameter in URL and auto-trigger subscription
     useEffect(() => {
@@ -150,6 +179,9 @@ const PricingContent = ()=>{
                                 <div 
                                     className="flex transition-transform duration-300 ease-in-out"
                                     style={{ transform: `translateX(-${currentCard * 100}%)` }}
+                                    onTouchStart={onTouchStart}
+                                    onTouchMove={onTouchMove}
+                                    onTouchEnd={onTouchEnd}
                                 >
                                     {/* Free Trial Card */}
                                     <div className="w-full flex-shrink-0 flex justify-center px-4">
