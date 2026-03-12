@@ -659,6 +659,7 @@ export class ApiClient {
 
   static async initializeTransactionWithPlan(data: {
     plan: string;
+    duration?: 'monthly' | 'yearly';
     channels?: string[];
     callbackUrl?: string;
   }) {
