@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -18,7 +18,7 @@ export interface CurrentSubscription {
   invoicesUsed: number;
 }
 
-const DashboardPricingPage = () => {
+const DashboardPricingPageContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useTranslation();
@@ -407,6 +407,21 @@ const DashboardPricingPage = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const DashboardPricingPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED] mx-auto mb-4"></div>
+          <p className="text-[#667085]">Loading...</p>
+        </div>
+      </div>
+    }>
+      <DashboardPricingPageContent />
+    </Suspense>
   );
 };
 
