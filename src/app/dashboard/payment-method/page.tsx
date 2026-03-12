@@ -11,21 +11,38 @@ const PaymentMethodContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const plan = searchParams.get("plan") as "ESSENTIALS" | "PREMIUM" || "ESSENTIALS";
+  const billingCycle = searchParams.get("billingCycle") as "monthly" | "yearly" || "yearly";
   const { t } = useTranslation();
   
   const [selectedMethod, setSelectedMethod] = useState<"card" | "transfer" | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Plan pricing configuration - Monthly prices first, yearly with 10% discount
+  const planPricing = {
+    ESSENTIALS: {
+      monthly: 24000,
+      yearly: Math.round(24000 * 12 * 0.9) // 10% discount on yearly
+    },
+    PREMIUM: {
+      monthly: 120000,
+      yearly: Math.round(120000 * 12 * 0.9) // 10% discount on yearly
+    }
+  };
+
+  const formatPrice = (amount: number) => {
+    return `₦${amount.toLocaleString()}`;
+  };
+
   const planDetails = {
     ESSENTIALS: {
       name: t('essentials'),
-      price: "₦2,000",
+      price: formatPrice(planPricing.ESSENTIALS[billingCycle]),
       features: [t('ten_invoices_per_month'), t('basic_invoice_templates_text'), t('email_whatsapp_sharing_text')]
     },
     PREMIUM: {
       name: t('premium'), 
-      price: "₦5,000",
+      price: formatPrice(planPricing.PREMIUM[billingCycle]),
       features: [t('unlimited_invoices_text'), t('premium_templates_text'), t('priority_support'), t('advanced_analytics')]
     }
   };
@@ -51,9 +68,10 @@ const PaymentMethodContent = () => {
         // Initialize card-based recurring subscription
         result = await initializeCardSubscription(plan);
       } else {
-        // Initialize transaction with bank transfer option
+        // Initialize transaction with bank transfer option and selected billing cycle
         result = await initializeTransactionWithPlan(
           plan, 
+          billingCycle,
           ["bank_transfer", "ussd"], 
           `${window.location.origin}/dashboard/subscription/success`
         );
@@ -102,7 +120,9 @@ const PaymentMethodContent = () => {
               </h3>
               <p className="text-2xl font-bold text-[#2F80ED]">
                 {planDetails[plan].price}
-                <span className="text-sm font-normal text-[#667085]">{t('per_month')}</span>
+                <span className="text-sm font-normal text-[#667085]">
+                  /{billingCycle === 'monthly' ? t('per_month') || 'per month' : t('per_year') || 'per year'}
+                </span>
               </p>
             </div>
           </div>
