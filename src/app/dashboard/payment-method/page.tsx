@@ -18,15 +18,15 @@ const PaymentMethodContent = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Plan pricing configuration
+  // Plan pricing configuration - Monthly prices first, yearly with 10% discount
   const planPricing = {
     ESSENTIALS: {
       monthly: 24000,
-      yearly: 240000
+      yearly: Math.round(24000 * 12 * 0.9) // 10% discount on yearly
     },
     PREMIUM: {
       monthly: 120000,
-      yearly: 1200000
+      yearly: Math.round(120000 * 12 * 0.9) // 10% discount on yearly
     }
   };
 

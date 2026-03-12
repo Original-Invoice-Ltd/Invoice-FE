@@ -10,17 +10,17 @@ const BillingPage = () => {
   const { t } = useTranslation();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
  
-  // Plan pricing configuration
+  // Plan pricing configuration - Monthly prices first, yearly with 10% discount
   const planPricing = {
     essentials: {
       monthly: 24000,
-      yearly: 240000
+      yearly: Math.round(24000 * 12 * 0.9) // 10% discount on yearly
     },
     premium: {
       monthly: 120000,
-      yearly: 1200000
+      yearly: Math.round(120000 * 12 * 0.9) // 10% discount on yearly
     }
   };
 
@@ -31,7 +31,7 @@ const BillingPage = () => {
   const getYearlyDiscount = (monthly: number, yearly: number) => {
     const monthlyTotal = monthly * 12;
     const savings = monthlyTotal - yearly;
-    const percentage = Math.round((savings / monthlyTotal) * 100);
+    const percentage = 10; // Fixed 10% discount
     return { savings, percentage };
   };
 

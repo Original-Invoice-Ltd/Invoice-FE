@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -23,23 +23,27 @@ const DashboardPricingPage = () => {
   const searchParams = useSearchParams();
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState<string | null>(null);
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>(() => {
-    // Get billing cycle from URL params, default to yearly
-    const urlBillingCycle = searchParams?.get('billingCycle') as 'monthly' | 'yearly';
-    return urlBillingCycle || 'yearly';
-  });
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const { toast, showError, hideToast } = useToast();
   const { subscription: currentSubscription, loading: loadingSubscription } = useSubscription();
 
-  // Plan pricing configuration
+  // Update billing cycle from URL params after component mounts
+  useEffect(() => {
+    const urlBillingCycle = searchParams?.get('billingCycle') as 'monthly' | 'yearly';
+    if (urlBillingCycle && (urlBillingCycle === 'monthly' || urlBillingCycle === 'yearly')) {
+      setBillingCycle(urlBillingCycle);
+    }
+  }, [searchParams]);
+
+  // Plan pricing configuration - Monthly prices first, yearly with 10% discount
   const planPricing = {
     essentials: {
       monthly: 24000,
-      yearly: 240000
+      yearly: Math.round(24000 * 12 * 0.9) // 10% discount on yearly
     },
     premium: {
       monthly: 120000,
-      yearly: 1200000
+      yearly: Math.round(120000 * 12 * 0.9) // 10% discount on yearly
     }
   };
 
@@ -50,7 +54,7 @@ const DashboardPricingPage = () => {
   const getYearlyDiscount = (monthly: number, yearly: number) => {
     const monthlyTotal = monthly * 12;
     const savings = monthlyTotal - yearly;
-    const percentage = Math.round((savings / monthlyTotal) * 100);
+    const percentage = 10; // Fixed 10% discount
     return { savings, percentage };
   };
 
