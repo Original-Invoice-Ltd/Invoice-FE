@@ -23,7 +23,8 @@
     "react-dom": "19.2.0",
     "react-google-recaptcha": "^3.1.0",
     "react-i18next": "^16.5.4",
-    "recharts": "^3.5.1"
+    "recharts": "^3.5.1",
+    "world-countries": "^5.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
