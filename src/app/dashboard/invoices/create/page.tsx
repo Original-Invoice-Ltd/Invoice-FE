@@ -20,9 +20,11 @@ import InvoiceLimitWarning from "@/components/ui/InvoiceLimitWarning";
 import { useDraft } from "@/hooks/useDraft";
 import { useTranslation } from "react-i18next";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const CreateInvoicePage = () => {
     const { t } = useTranslation();
+    const { subscription } = useSubscription();
     const {
         canCreateInvoice,
         invoicesRemaining,
@@ -91,6 +93,7 @@ const CreateInvoicePage = () => {
     const [businessProfiles, setBusinessProfiles] = useState<any[]>([]);
     const [isLoadingBusinessProfiles, setIsLoadingBusinessProfiles] = useState(false);
     const [businessProfilesLoaded, setBusinessProfilesLoaded] = useState(false);
+    const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | null>(null);
 
     const [showBankDropdown, setShowBankDropdown] = useState(false);
     const [bankSearchQuery, setBankSearchQuery] = useState("");
@@ -166,6 +169,7 @@ const CreateInvoicePage = () => {
             phoneNumber: profile.phoneNumber || '',
             address: profile.registeredBusinessAddress || ''
         });
+        setSelectedBusinessProfileId(profile.id); // Store the selected business profile ID
         setShowBusinessProfileDropdown(false);
     };
 
@@ -219,7 +223,6 @@ const CreateInvoicePage = () => {
     const handleSaveNewClient = async () => {
         setClientFormError(null);
         if (!newClientForm.customerType || !newClientForm.title || !newClientForm.fullName ||
-
             !newClientForm.businessName || !newClientForm.email || !newClientForm.phone) {
             setClientFormError('Please fill in all required fields');
             return;
@@ -227,7 +230,39 @@ const CreateInvoicePage = () => {
 
         try {
             setIsSavingClient(true);
-            const response = await ApiClient.addClient(newClientForm);
+            let response;
+
+            // Check if user is premium (ESSENTIALS or PREMIUM plan)
+            const isPremium = subscription && (subscription.plan === 'PREMIUM' || subscription.plan === 'ESSENTIALS');
+
+            if (isPremium && selectedBusinessProfileId) {
+                // Use the selected business profile ID from the BillFrom section
+                response = await ApiClient.post(
+                    `/api/client/business-profile/${selectedBusinessProfileId}`,
+                    newClientForm
+                );
+            } else if (isPremium && !selectedBusinessProfileId) {
+                // Premium user but no business profile selected - fetch default
+                const profilesResponse = await ApiClient.getAllBusinessProfiles();
+                
+                if (profilesResponse.status === 200 && profilesResponse.data && profilesResponse.data.length > 0) {
+                    // Find default profile or use first one
+                    const defaultProfile = profilesResponse.data.find((p: any) => p.isDefault) || profilesResponse.data[0];
+                    const businessProfileId = defaultProfile.id;
+                    
+                    // Use business profile endpoint for premium users
+                    response = await ApiClient.post(
+                        `/api/client/business-profile/${businessProfileId}`,
+                        newClientForm
+                    );
+                } else {
+                    // No business profile found, fall back to standard endpoint
+                    response = await ApiClient.addClient(newClientForm);
+                }
+            } else {
+                // Use standard endpoint for non-premium users
+                response = await ApiClient.addClient(newClientForm);
+            }
 
             if (response.status === 201) {
                 // Close modal and reset form
