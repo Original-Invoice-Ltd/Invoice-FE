@@ -529,6 +529,8 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                                     onMouseEnter={() => setShowWhatsAppTooltip(true)}
                                     onMouseLeave={() => setShowWhatsAppTooltip(false)}
                                 >
+
+                                
                                     <button
                                         disabled
                                         className="w-full flex items-center gap-3 px-4 py-3 opacity-50 cursor-not-allowed transition-colors"
