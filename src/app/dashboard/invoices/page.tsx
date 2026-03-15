@@ -139,7 +139,11 @@ const InvoicesPage = () => {
     const filteredInvoices = invoices.filter(invoice =>
         (invoice.billTo?.fullName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         (invoice.invoiceNumber || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (invoice.billTo?.businessName || '').toLowerCase().includes(searchQuery.toLowerCase())
+        (invoice.billTo?.businessName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (invoice.billFrom?.businessName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (invoice.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (invoice.status || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (invoice.note || '').toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const sortedInvoices = [...filteredInvoices].sort((a, b) => {
