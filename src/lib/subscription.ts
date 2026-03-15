@@ -140,12 +140,14 @@ export const initializeCardSubscription = async (plan: "ESSENTIALS" | "PREMIUM")
  */
 export const initializeTransactionWithPlan = async (
   plan: "ESSENTIALS" | "PREMIUM", 
+  duration: 'monthly' | 'yearly' = 'monthly',
   channels?: string[], 
   callbackUrl?: string
 ): Promise<PaystackInitializeResponse> => {
   try {
     const response = await ApiClient.initializeTransactionWithPlan({
       plan,
+      duration,
       channels,
       callbackUrl
     });

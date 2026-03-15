@@ -27,7 +27,7 @@ export default function SocialLoginButtons() {
     if (!selectedProvider) return;
     
     setOauthLoading(true);
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+    const apiBaseUrl = '/api/proxy';
     
     // Create a unique state parameter to track this OAuth flow
     const state = btoa(JSON.stringify({
@@ -45,7 +45,7 @@ export default function SocialLoginButtons() {
     if (!selectedProvider) return;
     
     setOauthLoading(true);
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+    const apiBaseUrl = '/api/proxy';
     
     // Go directly to OAuth without phone number
     const oauthUrl = `${apiBaseUrl}/oauth/${selectedProvider}/login`;

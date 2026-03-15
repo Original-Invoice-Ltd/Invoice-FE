@@ -12,7 +12,7 @@ export default function GoogleSignInButton({ disabled = false }: GoogleSignInBut
   const handleGoogleSignIn = () => {
     setLoading(true);
     // Redirect to backend Google OAuth endpoint
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+    const apiBaseUrl = '/api/proxy';
     window.location.href = `${apiBaseUrl}/oauth/google/login`;
   };
 

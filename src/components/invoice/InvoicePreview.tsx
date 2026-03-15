@@ -68,7 +68,7 @@ interface InvoicePreviewProps {
     hasDraft?: boolean;
 }
 
-const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWhatsApp, validationMessage}: InvoicePreviewProps) => {
+const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWhatsApp, validationMessage }: InvoicePreviewProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -78,7 +78,6 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
     const [showTelegramModal, setShowTelegramModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [emailTo, setEmailTo] = useState("");
-    const [emailMessage, setEmailMessage] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
     const [message, setMessage] = useState("");
     const [showValidationTooltip, setShowValidationTooltip] = useState(false);
@@ -90,7 +89,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const { toast, showSuccess, showError, hideToast } = useToast();
     const { subscription } = useSubscription();
-    
+
     const isFreePlan = !subscription || subscription.plan === 'FREE';
 
     useEffect(() => {
@@ -107,13 +106,13 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
         setIsSubmitting(true);
         setSubmitError(null);
         setErrorMessage(null);
-        
+
         try {
             let normalizedPhone = phoneNumber.trim();
             if (normalizedPhone.startsWith('0')) {
                 normalizedPhone = '+234' + normalizedPhone.substring(1);
             }
-            
+
             if (!ApiClient.isValidPhone(normalizedPhone)) {
                 setErrorMessage('Invalid phone number format. Use +234********** format');
                 setIsSubmitting(false);
@@ -192,7 +191,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
         setIsDownloadingPDF(true);
         try {
             await downloadInvoiceAsPDF(
-                invoiceRef.current, 
+                invoiceRef.current,
                 data.billTo.invoiceNumber || data.billTo.title,
                 isFreePlan
             );
@@ -249,7 +248,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                         </svg>
                         Edit
                     </button>
-                    <button 
+                    <button
                         onClick={handleDownloadPDF}
                         disabled={isDownloadingPDF}
                         className="flex items-center justify-center w-12 h-12 border border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-blue-50 transition-colors bg-white disabled:opacity-50 disabled:cursor-not-allowed"
@@ -272,13 +271,13 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
 
                 <div className="bg-white mb-4 rounded-lg shadow-sm relative overflow-hidden " ref={invoiceRef}>
                     {isFreePlan && (
-                        <div 
+                        <div
                             className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
                             style={{
                                 transform: 'rotate(-45deg)',
                             }}
                         >
-                            <div 
+                            <div
                                 className="text-gray-300 font-bold select-none"
                                 style={{
                                     fontSize: '3rem',
@@ -291,40 +290,41 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                         </div>
                     )}
 
-                    {data.template === 'simple' && <SimpleTemplate data={data} />}
-                    {data.template === 'standard' && <StandardTemplate data={data} />}
-                    {data.template === 'compact' && <CompactTemplate data={data} />}
+                    {data.template === 'simple' && <SimpleTemplate data={data} isFreePlan={isFreePlan} />}
+                    {data.template === 'standard' && <StandardTemplate data={data} isFreePlan={isFreePlan} />}
+                    {data.template === 'compact' && <CompactTemplate data={data} isFreePlan={isFreePlan} />}
                     {data.template === 'default' && (
                         <div className="px-4 sm:px-8 lg:px-12 py-4 relative">
-                            <div
-                                className="absolute left-4 sm:left-8 top-2/3 -translate-y-2/3 pointer-events-none select-none z-0"
-                                style={{
-                                    transform: 'translateY(-50%) rotate(-22deg)',
-                                    transformOrigin: 'center',
-                                }}
-                            >
-                                <span
-                                    className="text-blue-200 font-bold whitespace-nowrap text-[1.5rem] sm:text-[2rem] md:text-[4rem]"
+                            {/* Watermark - Only for Free Plan */}
+                            {isFreePlan && (
+                                <div
+                                    className="absolute left-4 sm:left-8 top-2/3 -translate-y-2/3 pointer-events-none select-none z-0"
                                     style={{
-                                        opacity: 0.3,
-                                        letterSpacing: '0.1em'
+                                        transform: 'translateY(-50%) rotate(-22deg)',
+                                        transformOrigin: 'center',
                                     }}
                                 >
-                                    www.originalinvoice.com
-                                </span>
-                            </div>
+                                    <span
+                                        className="text-blue-200 font-bold whitespace-nowrap text-[1.5rem] sm:text-[2rem] md:text-[4rem]"
+                                        style={{
+                                            opacity: 0.3,
+                                            letterSpacing: '0.1em'
+                                        }}
+                                    >
+                                        www.originalinvoice.com
+                                    </span>
+                                </div>
+                            )}
 
                             <div className="relative z-10">
                                 {/* Invoice Header */}
                                 <div className="flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-0 mb-8 sm:mb-12">
-                                    <div className="flex items-center mt-4 sm:mt-8 justify-center">
-                                        {data.logo ? (
+                                    {data.logo && (
+                                        <div className="flex items-center mt-4 sm:mt-8 justify-center">
                                             <img src={data.logo} alt="Logo" className="w-12 h-12 sm:w-16 sm:h-16 object-contain" />
-                                        ) : (
-                                            <span className="text-2xl sm:text-3xl lg:text-4xl font-medium text-black">Logo</span>
-                                        )}
-                                    </div>
-                                    <div className="text-left sm:text-right w-full sm:w-auto">
+                                        </div>
+                                    )}
+                                    <div className={`text-left sm:text-right w-full sm:w-auto ${!data.logo ? 'sm:ml-auto' : ''}`}>
                                         <h1 className="text-xl sm:text-2xl lg:text-[28px] text-gray-900 mb-2">INVOICE</h1>
                                         <p className="text-sm sm:text-base text-gray-600 mb-1">#{data.billTo.invoiceNumber || 'INV-002'}</p>
                                         <p className="text-xs sm:text-sm text-gray-500 mb-2">Balance Due</p>
@@ -524,52 +524,34 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                                 </button>
 
                                 {/* WhatsApp Option */}
-                                <div 
-                                    className="relative"
-                                    onMouseEnter={() => setShowWhatsAppTooltip(true)}
-                                    onMouseLeave={() => setShowWhatsAppTooltip(false)}
+                                <button
+                                    disabled
+                                    // onClick={handleWhatsAppOptionClick}
+                                    className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 cursor-not-allowed opacity-60"
                                 >
-
-                                
-                                    <button
-                                        disabled
-                                        className="w-full flex items-center gap-3 px-4 py-3 opacity-50 cursor-not-allowed transition-colors"
-                                    >
+                                    <div className="flex items-center gap-3">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M17.472 14.382C17.22 14.256 15.996 13.656 15.768 13.572C15.54 13.488 15.372 13.446 15.204 13.698C15.036 13.95 14.562 14.508 14.418 14.676C14.274 14.844 14.13 14.868 13.878 14.742C13.626 14.616 12.834 14.352 11.892 13.512C11.16 12.858 10.668 12.048 10.524 11.796C10.38 11.544 10.506 11.406 10.632 11.28C10.746 11.166 10.884 10.98 11.01 10.836C11.136 10.692 11.178 10.59 11.262 10.422C11.346 10.254 11.304 10.11 11.238 9.984C11.172 9.858 10.674 8.634 10.47 8.13C10.272 7.638 10.068 7.704 9.918 7.698C9.774 7.692 9.606 7.692 9.438 7.692C9.27 7.692 8.994 7.758 8.766 8.01C8.538 8.262 7.896 8.862 7.896 10.086C7.896 11.31 8.79 12.492 8.916 12.66C9.042 12.828 10.668 15.348 13.194 16.404C13.794 16.662 14.262 16.818 14.628 16.932C15.228 17.124 15.774 17.094 16.206 17.028C16.686 16.956 17.682 16.428 17.886 15.846C18.09 15.264 18.09 14.76 18.024 14.658C17.958 14.556 17.79 14.49 17.538 14.364L17.472 14.382ZM12.006 21.6C10.326 21.6 8.694 21.15 7.266 20.304L6.936 20.106L3.006 21.138L4.056 17.304L3.834 16.962C2.904 15.486 2.412 13.776 2.412 12.006C2.412 6.708 6.708 2.412 12.006 2.412C14.568 2.412 16.974 3.408 18.786 5.22C20.598 7.032 21.6 9.438 21.6 12.006C21.6 17.304 17.304 21.6 12.006 21.6ZM20.52 3.486C18.246 1.212 15.222 0 12.006 0C5.442 0 0.012 5.43 0.012 11.994C0.012 14.106 0.564 16.164 1.614 17.976L0 24L6.168 22.416C7.914 23.376 9.888 23.886 11.898 23.886H11.904C18.462 23.886 24 18.456 24 11.892C24 8.676 22.788 5.652 20.52 3.486Z" fill="#1D1D1D" />
                                         </svg>
                                         <span className="text-gray-900 font-medium">WhatsApp</span>
-                                    </button>
-                                    {showWhatsAppTooltip && (
-                                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg whitespace-nowrap z-50">
-                                            Coming Soon
-                                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
-                                        </div>
-                                    )}
-                                </div>
+                                    </div>
+                                    <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Coming Soon</span>
 
-                                {/* Telegram Option */}
-                                <div 
-                                    className="relative"
-                                    onMouseEnter={() => setShowTelegramTooltip(true)}
-                                    onMouseLeave={() => setShowTelegramTooltip(false)}
+                                </button>
+
+                                {/* Telegram Option - Disabled */}
+                                <button
+                                    disabled
+                                    className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 cursor-not-allowed opacity-60"
                                 >
-                                    <button
-                                        disabled
-                                        className="w-full flex items-center gap-3 px-4 py-3 opacity-50 cursor-not-allowed transition-colors"
-                                    >
+                                    <div className="flex items-center gap-3">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M12 0C5.376 0 0 5.376 0 12C0 18.624 5.376 24 12 24C18.624 24 24 18.624 24 12C24 5.376 18.624 0 12 0ZM17.568 8.16C17.388 10.056 16.608 14.664 16.212 16.788C16.044 17.688 15.708 17.988 15.396 18.024C14.7 18.084 14.172 17.568 13.5 17.124C12.444 16.428 11.844 15.996 10.824 15.324C9.636 14.544 10.404 14.112 11.088 13.404C11.268 13.224 14.34 10.428 14.4 10.176C14.4084 10.1327 14.4058 10.088 14.3925 10.0459C14.3792 10.0038 14.3557 9.96579 14.324 9.936C14.244 9.876 14.136 9.9 14.052 9.912C13.932 9.936 12.252 11.04 8.988 13.224C8.508 13.548 8.076 13.704 7.692 13.692C7.26 13.68 6.444 13.452 5.832 13.26C5.076 13.02 4.488 12.9 4.536 12.48C4.56 12.264 4.86 12.048 5.424 11.82C8.928 10.296 11.268 9.3 12.444 8.832C15.78 7.44 16.464 7.2 16.92 7.2C17.016 7.2 17.244 7.224 17.388 7.344C17.508 7.44 17.544 7.572 17.556 7.668C17.544 7.74 17.58 7.956 17.568 8.16Z" fill="#1D1D1D" />
+                                            <path d="M12 0C5.376 0 0 5.376 0 12C0 18.624 5.376 24 12 24C18.624 24 24 18.624 24 12C24 5.376 18.624 0 12 0ZM17.568 8.16C17.388 10.056 16.608 14.664 16.212 16.788C16.044 17.688 15.708 17.988 15.396 18.024C14.7 18.084 14.172 17.568 13.5 17.124C12.444 16.428 11.844 15.996 10.824 15.324C9.636 14.544 10.404 14.112 11.088 13.404C11.268 13.224 14.34 10.428 14.4 10.176C14.4084 10.1327 14.4058 10.088 14.3925 10.0459C14.3792 10.0038 14.3557 9.96579 14.324 9.936C14.244 9.876 14.136 9.9 14.052 9.912C13.932 9.936 12.252 11.04 8.988 13.224C8.508 13.548 8.076 13.704 7.692 13.692C7.26 13.68 6.444 13.452 5.832 13.26C5.076 13.02 4.488 12.9 4.536 12.48C4.56 12.264 4.86 12.048 5.424 11.82C8.928 10.296 11.268 9.3 12.444 8.832C15.78 7.44 16.464 7.2 16.92 7.2C17.016 7.2 17.244 7.224 17.388 7.344C17.508 7.44 17.544 7.572 17.556 7.668C17.544 7.74 17.58 7.956 17.568 8.16Z" fill="#9CA3AF" />
                                         </svg>
-                                        <span className="text-gray-900 font-medium">Telegram</span>
-                                    </button>
-                                    {showTelegramTooltip && (
-                                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg whitespace-nowrap z-50">
-                                            Coming Soon
-                                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
-                                        </div>
-                                    )}
-                                </div>
+                                        <span className="text-gray-500 font-medium">Telegram</span>
+                                    </div>
+                                    <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Coming Soon</span>
+                                </button>
                             </div>
                         )}
                     </div>
@@ -581,7 +563,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg w-full max-w-md mx-4 p-6">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-lg font-semibold text-gray-900">Email Invoice - Invoice</h2>
+                            <h2 className="text-lg font-semibold text-gray-900">Email Invoice</h2>
                             <button
                                 onClick={() => setShowEmailModal(false)}
                                 className="text-gray-400 hover:text-gray-600"
@@ -593,7 +575,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    To Request<span className="text-red-500">*</span>
+                                    To<span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="email"
@@ -601,19 +583,6 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                                     onChange={(e) => setEmailTo(e.target.value)}
                                     placeholder="Enter client email"
                                     className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Message
-                                </label>
-                                <textarea
-                                    value={emailMessage}
-                                    onChange={(e) => setEmailMessage(e.target.value)}
-                                    placeholder="Optional message to your client"
-                                    rows={4}
-                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                                 />
                             </div>
                         </div>

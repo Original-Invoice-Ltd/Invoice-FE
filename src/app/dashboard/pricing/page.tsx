@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Check, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { initializeTransactionWithPlan } from "@/lib/subscription";
@@ -18,19 +18,53 @@ export interface CurrentSubscription {
   invoicesUsed: number;
 }
 
-const DashboardPricingPage = () => {
+const DashboardPricingPageContent = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const { toast, showError, hideToast } = useToast();
   const { subscription: currentSubscription, loading: loadingSubscription } = useSubscription();
+
+  // Update billing cycle from URL params after component mounts
+  useEffect(() => {
+    const urlBillingCycle = searchParams?.get('billingCycle') as 'monthly' | 'yearly';
+    if (urlBillingCycle && (urlBillingCycle === 'monthly' || urlBillingCycle === 'yearly')) {
+      setBillingCycle(urlBillingCycle);
+    }
+  }, [searchParams]);
+
+  // Plan pricing configuration - Monthly prices first, yearly with 10% discount
+  const planPricing = {
+    essentials: {
+      monthly: 24000,
+      yearly: Math.round(24000 * 12 * 0.9) // 10% discount on yearly
+    },
+    premium: {
+      monthly: 120000,
+      yearly: Math.round(120000 * 12 * 0.9) // 10% discount on yearly
+    }
+  };
+
+  const formatPrice = (amount: number) => {
+    return `₦${amount.toLocaleString()}`;
+  };
+
+  const getYearlyDiscount = (monthly: number, yearly: number) => {
+    const monthlyTotal = monthly * 12;
+    const savings = monthlyTotal - yearly;
+    const percentage = 10; // Fixed 10% discount
+    return { savings, percentage };
+  };
 
   const handleSubscribe = async (plan: "ESSENTIALS" | "PREMIUM") => {
     try {
       setIsLoading(plan);
-      // Initialize transaction with plan
+      // Initialize transaction with plan and selected billing cycle
       const result = await initializeTransactionWithPlan(
         plan,
+        billingCycle,
         ["card", "bank_transfer"],
         `${window.location.origin}/dashboard/subscription/success`
       );
@@ -89,13 +123,87 @@ const DashboardPricingPage = () => {
                 onClose={hideToast}
               />
       {/* Header */}
-      <div className="mb-8 flex items-center gap-4">
-        <Link href="/dashboard/overview" className="p-2 text-[#2F80ED] hover:bg-[#EFF8FF] rounded-lg transition-colors">
-          <ArrowLeft size={24} />
-        </Link>
-        <div>
-          <h1 className="text-[24px] font-semibold text-[#101828]">{t("subscription_plans")}</h1>
-          <p className="text-[#667085]">{t("choose_plan_fits")}</p>
+      <div className="mb-8">
+        {/* Desktop Layout */}
+        <div className="hidden md:flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/dashboard/overview" className="p-2 text-[#2F80ED] hover:bg-[#EFF8FF] rounded-lg transition-colors">
+              <ArrowLeft size={24} />
+            </Link>
+            <div>
+              <h1 className="text-[24px] font-semibold text-[#101828]">{t("subscription_plans")}</h1>
+              <p className="text-[#667085]">{t("choose_plan_fits")}</p>
+            </div>
+          </div>
+          
+          {/* Billing Cycle Toggle - Right Side */}
+          <div className="flex items-center bg-[#F9FAFB] rounded-lg p-1 border border-[#E4E7EC]">
+            <button
+              onClick={() => setBillingCycle('monthly')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                billingCycle === 'monthly'
+                  ? 'bg-white text-[#2F80ED] shadow-sm border border-[#E4E7EC]'
+                  : 'text-[#667085] hover:text-[#344054]'
+              }`}
+            >
+              {t("monthly") || "Monthly"}
+            </button>
+            <button
+              onClick={() => setBillingCycle('yearly')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 relative ${
+                billingCycle === 'yearly'
+                  ? 'bg-white text-[#2F80ED] shadow-sm border border-[#E4E7EC]'
+                  : 'text-[#667085] hover:text-[#344054]'
+              }`}
+            >
+              {t("yearly") || "Yearly"}
+              <span className="absolute -top-2 -right-1 bg-[#10B981] text-white text-xs px-1.5 py-0.5 rounded-full">
+                {getYearlyDiscount(planPricing.essentials.monthly, planPricing.essentials.yearly).percentage}% {t("off") || "off"}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Layout */}
+        <div className="md:hidden">
+          <div className="flex items-center gap-4 mb-4">
+            <Link href="/dashboard/overview" className="p-2 text-[#2F80ED] hover:bg-[#EFF8FF] rounded-lg transition-colors">
+              <ArrowLeft size={24} />
+            </Link>
+            <div>
+              <h1 className="text-[20px] font-semibold text-[#101828]">{t("subscription_plans")}</h1>
+              <p className="text-[#667085] text-sm">{t("choose_plan_fits")}</p>
+            </div>
+          </div>
+          
+          {/* Billing Cycle Toggle - Centered on Mobile */}
+          <div className="flex justify-center">
+            <div className="flex items-center bg-[#F9FAFB] rounded-lg p-1 border border-[#E4E7EC]">
+              <button
+                onClick={() => setBillingCycle('monthly')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  billingCycle === 'monthly'
+                    ? 'bg-white text-[#2F80ED] shadow-sm border border-[#E4E7EC]'
+                    : 'text-[#667085] hover:text-[#344054]'
+                }`}
+              >
+                {t("monthly") || "Monthly"}
+              </button>
+              <button
+                onClick={() => setBillingCycle('yearly')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 relative ${
+                  billingCycle === 'yearly'
+                    ? 'bg-white text-[#2F80ED] shadow-sm border border-[#E4E7EC]'
+                    : 'text-[#667085] hover:text-[#344054]'
+                }`}
+              >
+                {t("yearly") || "Yearly"}
+                <span className="absolute -top-2 -right-1 bg-[#10B981] text-white text-xs px-1.5 py-0.5 rounded-full">
+                  {getYearlyDiscount(planPricing.essentials.monthly, planPricing.essentials.yearly).percentage}% {t("off") || "off"}
+                </span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -183,8 +291,17 @@ const DashboardPricingPage = () => {
             
             <div className="text-center mb-6">
               <h3 className="text-[24px] font-semibold text-[#101828] mb-2">{t("essentials")}</h3>
-              <div className="text-[36px] font-bold text-[#101828] mb-1">₦24,000</div>
-              <p className="text-[#667085]">{t("per_year_text")}</p>
+              <div className="text-[36px] font-bold text-[#101828] mb-1">
+                {formatPrice(planPricing.essentials[billingCycle])}
+              </div>
+              <p className="text-[#667085]">
+                {billingCycle === 'monthly' ? (t("per_month") || "per month") : (t("per_year_text") || "per year")}
+              </p>
+              {billingCycle === 'yearly' && (
+                <p className="text-xs text-[#10B981] mt-1">
+                  {t("save") || "Save"} {formatPrice(getYearlyDiscount(planPricing.essentials.monthly, planPricing.essentials.yearly).savings)} {t("annually") || "annually"}
+                </p>
+              )}
             </div>
 
             <ul className="space-y-3 mb-8">
@@ -235,8 +352,17 @@ const DashboardPricingPage = () => {
             
             <div className="text-center mb-6">
               <h3 className="text-[24px] font-semibold text-[#101828] mb-2">{t("premium")}</h3>
-              <div className="text-[36px] font-bold text-[#101828] mb-1">₦120,000</div>
-              <p className="text-[#667085]">{t("per_year_text")}</p>
+              <div className="text-[36px] font-bold text-[#101828] mb-1">
+                {formatPrice(planPricing.premium[billingCycle])}
+              </div>
+              <p className="text-[#667085]">
+                {billingCycle === 'monthly' ? (t("per_month") || "per month") : (t("per_year_text") || "per year")}
+              </p>
+              {billingCycle === 'yearly' && (
+                <p className="text-xs text-[#10B981] mt-1">
+                  {t("save") || "Save"} {formatPrice(getYearlyDiscount(planPricing.premium.monthly, planPricing.premium.yearly).savings)} {t("annually") || "annually"}
+                </p>
+              )}
             </div>
 
             <ul className="space-y-3 mb-8">
@@ -281,6 +407,21 @@ const DashboardPricingPage = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const DashboardPricingPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED] mx-auto mb-4"></div>
+          <p className="text-[#667085]">Loading...</p>
+        </div>
+      </div>
+    }>
+      <DashboardPricingPageContent />
+    </Suspense>
   );
 };
 

@@ -86,22 +86,19 @@ export default function CompactInvoiceTemplate({ data = defaultInvoiceData }: { 
   return (
     <div className="min-h-screen bg-white py-4 px-4 sm:py-6 sm:px-6 lg:px-8 relative">
       <div className="fixed inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-        <div 
-          className="text-blue-100 text-4xl sm:text-6xl font-bold opacity-10 transform rotate-[-45deg] select-none"
-          style={{ fontSize: 'clamp(2rem, 8vw, 4rem)' }}
-        >
-          www.originalinvoice.com
-        </div>
+        {/* Watermark removed - only shown for free plan users in actual invoices */}
       </div>
 
       {/* Content Container */}
       <div className="max-w-4xl mx-auto relative z-10">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
           {/* Logo */}
-          <div className="text-3xl sm:text-4xl font-bold text-gray-900">Logo</div>
+          {data.billFrom?.name && (
+            <div className="text-3xl sm:text-4xl font-bold text-gray-900">{data.billFrom.name}</div>
+          )}
 
           {/* Action Buttons */}
-          <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
+          <div className={`flex gap-2 sm:gap-3 w-full sm:w-auto ${!data.billFrom?.name ? 'sm:ml-auto' : ''}`}>
             <button className="flex-1 sm:flex-none px-3 py-2 sm:px-4 sm:py-2 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-blue-600">
               <Edit className="w-4 h-4" />
               <span className="text-sm">Edit</span>

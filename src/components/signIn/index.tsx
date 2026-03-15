@@ -62,7 +62,7 @@ export default function SignIn() {
       //   showError('Please complete the CAPTCHA');
       //   return;
       // }
-      const response = await ApiClient.login(formData.email, formData.password, null);
+      const response = await ApiClient.login(formData.email, formData.password);
 
       if (response.status === 200) {
         // Show success message and redirect to dashboard
