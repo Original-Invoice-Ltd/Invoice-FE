@@ -99,8 +99,26 @@ const CreateInvoicePage = () => {
     const [bankSearchQuery, setBankSearchQuery] = useState("");
 
     const nigerianBanks = [
-        { category: "Fintechs", banks: ["OPay", "PalmPay", "Moniepoint", "Kuda Bank", "Carbon", "Fairmoney"] },
-        { category: "Commercial Banks", banks: ["Access Bank", "Zenith Bank", "GTBank", "First Bank", "UBA", "Fidelity Bank", "Union Bank", "Stanbic IBTC", "Sterling Bank", "Ecobank", "FCMB", "Wema Bank", "Polaris Bank", "Keystone Bank", "Unity Bank"] }
+        { 
+            category: "Commercial Banks (Tier 1)", 
+            banks: ["Access Bank", "Zenith Bank", "GTBank", "First Bank", "UBA"] 
+        },
+        { 
+            category: "Commercial Banks (Tier 2 & Others)", 
+            banks: ["Fidelity Bank", "Union Bank", "Sterling Bank", "Stanbic IBTC", "Wema Bank", "Polaris Bank", "Keystone Bank", "Heritage Bank", "Jaiz Bank", "SunTrust Bank", "Titan Trust Bank", "Providus Bank", "Premium Trust Bank", "Globus Bank", "Parallex Bank", "Ecobank", "FCMB", "Unity Bank"] 
+        },
+        { 
+            category: "Digital / Microfinance Banks", 
+            banks: ["Kuda Bank", "OPay", "PalmPay", "Moniepoint", "VFD Microfinance Bank", "ALAT by Wema", "Carbon", "Eyowo", "Rubies Bank", "Sparkle Microfinance Bank", "Raven Bank", "Fairmoney"] 
+        },
+        { 
+            category: "Merchant / Specialized Banks", 
+            banks: ["FSDH Merchant Bank", "Coronation Merchant Bank", "FBNQuest Merchant Bank", "Nova Merchant Bank", "Rand Merchant Bank"] 
+        },
+        { 
+            category: "Development Finance Institutions", 
+            banks: ["Bank of Agriculture", "Bank of Industry", "Development Bank of Nigeria", "Federal Mortgage Bank of Nigeria", "Nigerian Export-Import Bank"] 
+        }
     ];
 
     const loadProducts = async () => {
