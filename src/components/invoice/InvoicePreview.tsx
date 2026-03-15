@@ -599,7 +599,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                                     type="email"
                                     value={emailTo}
                                     onChange={(e) => setEmailTo(e.target.value)}
-                                    placeholder="Jamesoriginalinvoice@gmail.com"
+                                    placeholder="Enter client email"
                                     className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>

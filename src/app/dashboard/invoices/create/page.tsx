@@ -276,6 +276,8 @@ const CreateInvoicePage = () => {
                     email: "",
                     country: ""
                 });
+                // Show success toast
+                showSuccess('Client added successfully');
                 // Refresh clients list
                 setClientsLoaded(false);
                 await loadClients();
@@ -305,7 +307,8 @@ const CreateInvoicePage = () => {
         invoiceNumber: "",
         paymentTerms: "",
         invoiceDate: "",
-        dueDate: ""
+        dueDate: "",
+        email: ""
     });
 
     const [customerNote, setCustomerNote] = useState("");
@@ -377,6 +380,8 @@ const CreateInvoicePage = () => {
         };
         setItems([...items, newItem]);
         setShowAddProductModal(false);
+        // Show success toast
+        showSuccess('Product added successfully');
     };
 
     const removeRow = (id: number) => {
@@ -506,8 +511,8 @@ const CreateInvoicePage = () => {
         } else if (paymentDetails.accountName.trim() === "") {
             errors.payment = "Account name is required";
             newFieldErrors.paymentAccountName = "Account name is required";
-        } else if (!/^\d+$/.test(paymentDetails.accountNumber)) {
-            errors.payment = "Invalid Account Number provided";
+        } else if (!/^\d{10}$/.test(paymentDetails.accountNumber)) {
+            errors.payment = "Invalid account number";
             newFieldErrors.paymentAccountNumber = "Invalid account number";
         }
 
@@ -567,6 +572,9 @@ const CreateInvoicePage = () => {
         }
         if (paymentDetails.accountNumber.trim() === "") {
             return "Account number is required";
+        }
+        if (!/^\d{10}$/.test(paymentDetails.accountNumber)) {
+            return "Invalid account number";
         }
 
         return null;
@@ -632,7 +640,15 @@ const CreateInvoicePage = () => {
     useEffect(() => {
         if (!isLoadingDraft && loadedDraftData) {
             setBillFrom(loadedDraftData.billFrom);
-            setBillTo(loadedDraftData.billTo);
+            setBillTo({
+                customer: loadedDraftData.billTo.customer || "",
+                title: loadedDraftData.billTo.title || "",
+                invoiceNumber: loadedDraftData.billTo.invoiceNumber || "",
+                paymentTerms: loadedDraftData.billTo.paymentTerms || "",
+                invoiceDate: loadedDraftData.billTo.invoiceDate || "",
+                dueDate: loadedDraftData.billTo.dueDate || "",
+                email: (loadedDraftData.billTo as any).email || ""
+            });
 
             if (loadedDraftData.selectedClientId) {
                 setSelectedClientId(loadedDraftData.selectedClientId);
@@ -1406,7 +1422,12 @@ const CreateInvoicePage = () => {
                                                                 <div
                                                                     key={client.id}
                                                                     onClick={() => {
-                                                                        setBillTo({ ...billTo, customer: client.fullName });
+                                                                        const selectedClient = clients.find(c => c.id === client.id);
+                                                                        setBillTo({ 
+                                                                            ...billTo, 
+                                                                            customer: client.fullName,
+                                                                            email: selectedClient?.email || ""
+                                                                        });
                                                                         setSelectedClientId(client.id);
                                                                         setShowClientDropdown(false);
                                                                     }}
