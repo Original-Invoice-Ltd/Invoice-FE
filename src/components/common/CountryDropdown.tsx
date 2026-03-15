@@ -13,7 +13,6 @@ interface CountryDropdownProps {
   required?: boolean;
 }
 
-// Transform world-countries data to our format
 const COUNTRIES = countries.map(country => ({
   code: country.cca2,
   name: country.name.common
