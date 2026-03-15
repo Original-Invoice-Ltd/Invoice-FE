@@ -12,7 +12,7 @@ export default function AppleSignInButton({ disabled = false }: AppleSignInButto
   const handleAppleSignIn = () => {
     setLoading(true);
     // Redirect to backend Apple OAuth endpoint
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+    const apiBaseUrl = '/api/proxy';
     window.location.href = `${apiBaseUrl}/oauth/apple/login`;
   };
 
