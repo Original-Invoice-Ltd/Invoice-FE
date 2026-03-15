@@ -70,6 +70,7 @@ export interface InvoiceSenderResponse {
   email: string;
   phone: string;
   address?: string;
+  businessName?: string;
 }
 
 export interface ClientResponse {

@@ -99,8 +99,26 @@ const CreateInvoicePage = () => {
     const [bankSearchQuery, setBankSearchQuery] = useState("");
 
     const nigerianBanks = [
-        { category: "Fintechs", banks: ["OPay", "PalmPay", "Moniepoint", "Kuda Bank", "Carbon", "Fairmoney"] },
-        { category: "Commercial Banks", banks: ["Access Bank", "Zenith Bank", "GTBank", "First Bank", "UBA", "Fidelity Bank", "Union Bank", "Stanbic IBTC", "Sterling Bank", "Ecobank", "FCMB", "Wema Bank", "Polaris Bank", "Keystone Bank", "Unity Bank"] }
+        { 
+            category: "Commercial Banks (Tier 1)", 
+            banks: ["Access Bank", "Zenith Bank", "GTBank", "First Bank", "UBA"] 
+        },
+        { 
+            category: "Commercial Banks (Tier 2 & Others)", 
+            banks: ["Fidelity Bank", "Union Bank", "Sterling Bank", "Stanbic IBTC", "Wema Bank", "Polaris Bank", "Keystone Bank", "Heritage Bank", "Jaiz Bank", "SunTrust Bank", "Titan Trust Bank", "Providus Bank", "Premium Trust Bank", "Globus Bank", "Parallex Bank", "Ecobank", "FCMB", "Unity Bank"] 
+        },
+        { 
+            category: "Digital / Microfinance Banks", 
+            banks: ["Kuda Bank", "OPay", "PalmPay", "Moniepoint", "VFD Microfinance Bank", "ALAT by Wema", "Carbon", "Eyowo", "Rubies Bank", "Sparkle Microfinance Bank", "Raven Bank", "Fairmoney"] 
+        },
+        { 
+            category: "Merchant / Specialized Banks", 
+            banks: ["FSDH Merchant Bank", "Coronation Merchant Bank", "FBNQuest Merchant Bank", "Nova Merchant Bank", "Rand Merchant Bank"] 
+        },
+        { 
+            category: "Development Finance Institutions", 
+            banks: ["Bank of Agriculture", "Bank of Industry", "Development Bank of Nigeria", "Federal Mortgage Bank of Nigeria", "Nigerian Export-Import Bank"] 
+        }
     ];
 
     const loadProducts = async () => {
@@ -276,6 +294,8 @@ const CreateInvoicePage = () => {
                     email: "",
                     country: ""
                 });
+                // Show success toast
+                showSuccess('Client added successfully');
                 // Refresh clients list
                 setClientsLoaded(false);
                 await loadClients();
@@ -305,7 +325,8 @@ const CreateInvoicePage = () => {
         invoiceNumber: "",
         paymentTerms: "",
         invoiceDate: "",
-        dueDate: ""
+        dueDate: "",
+        email: ""
     });
 
     const [customerNote, setCustomerNote] = useState("");
@@ -377,6 +398,8 @@ const CreateInvoicePage = () => {
         };
         setItems([...items, newItem]);
         setShowAddProductModal(false);
+        // Show success toast
+        showSuccess('Product added successfully');
     };
 
     const removeRow = (id: number) => {
@@ -506,8 +529,8 @@ const CreateInvoicePage = () => {
         } else if (paymentDetails.accountName.trim() === "") {
             errors.payment = "Account name is required";
             newFieldErrors.paymentAccountName = "Account name is required";
-        } else if (!/^\d+$/.test(paymentDetails.accountNumber)) {
-            errors.payment = "Invalid Account Number provided";
+        } else if (!/^\d{10}$/.test(paymentDetails.accountNumber)) {
+            errors.payment = "Invalid account number";
             newFieldErrors.paymentAccountNumber = "Invalid account number";
         }
 
@@ -567,6 +590,9 @@ const CreateInvoicePage = () => {
         }
         if (paymentDetails.accountNumber.trim() === "") {
             return "Account number is required";
+        }
+        if (!/^\d{10}$/.test(paymentDetails.accountNumber)) {
+            return "Invalid account number";
         }
 
         return null;
@@ -632,7 +658,15 @@ const CreateInvoicePage = () => {
     useEffect(() => {
         if (!isLoadingDraft && loadedDraftData) {
             setBillFrom(loadedDraftData.billFrom);
-            setBillTo(loadedDraftData.billTo);
+            setBillTo({
+                customer: loadedDraftData.billTo.customer || "",
+                title: loadedDraftData.billTo.title || "",
+                invoiceNumber: loadedDraftData.billTo.invoiceNumber || "",
+                paymentTerms: loadedDraftData.billTo.paymentTerms || "",
+                invoiceDate: loadedDraftData.billTo.invoiceDate || "",
+                dueDate: loadedDraftData.billTo.dueDate || "",
+                email: (loadedDraftData.billTo as any).email || ""
+            });
 
             if (loadedDraftData.selectedClientId) {
                 setSelectedClientId(loadedDraftData.selectedClientId);
@@ -1406,7 +1440,12 @@ const CreateInvoicePage = () => {
                                                                 <div
                                                                     key={client.id}
                                                                     onClick={() => {
-                                                                        setBillTo({ ...billTo, customer: client.fullName });
+                                                                        const selectedClient = clients.find(c => c.id === client.id);
+                                                                        setBillTo({ 
+                                                                            ...billTo, 
+                                                                            customer: client.fullName,
+                                                                            email: selectedClient?.email || ""
+                                                                        });
                                                                         setSelectedClientId(client.id);
                                                                         setShowClientDropdown(false);
                                                                     }}
