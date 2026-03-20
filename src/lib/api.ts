@@ -18,6 +18,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 // Temporary bypass flag for testing - set to true to skip 401 redirects
 const BYPASS_AUTH_REDIRECT = true;
 
+
 // Configure axios defaults
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
