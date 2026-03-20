@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession, createSession, destroySession } from '@/lib/session';
 
-const BACKEND_URL = process.env.API_BASE_URL || 'http://localhost:8089';
+const BACKEND_URL = process.env.API_BASE_URL;
 
 export async function POST(request: NextRequest) {
   try {
