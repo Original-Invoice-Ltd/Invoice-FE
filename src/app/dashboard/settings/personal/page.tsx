@@ -26,21 +26,42 @@ const PersonalProfilePage = () => {
 
   // Initialize form data with user information
   useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user?.email) {
+        try {
+          const response = await ApiClient.getUserProfile(user.email);
+          if (response.status === 200 && response.data) {
+            const userData = response.data;
+            const nameParts = userData.fullName?.split(' ') || ['', ''];
+            setFormData({
+              firstName: nameParts[0] || '',
+              lastName: nameParts.slice(1).join(' ') || '',
+              emailAddress: userData.email || '',
+              phoneNumber: userData.phone || '',
+            });
+            setProfileImage(userData.imageUrl || null);
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+          // Fallback to user context data
+          if (user) {
+            const nameParts = user.fullName?.split(' ') || ['', ''];
+            setFormData({
+              firstName: nameParts[0] || '',
+              lastName: nameParts.slice(1).join(' ') || '',
+              emailAddress: user.email || '',
+              phoneNumber: user.phone || '',
+            });
+            setProfileImage(user.imageUrl || null);
+          }
+        }
+      } else {
+        refreshUser();
+      }
+    };
 
-    if (user) {
-      console.log(user)
-      const nameParts = user.fullName?.split(' ') || ['', ''];
-      setFormData({
-        firstName: nameParts[0] || '',
-        lastName: nameParts.slice(1).join(' ') || '',
-        emailAddress: user.email || '',
-        phoneNumber: user.phone || '',
-      });
-      setProfileImage(user.imageUrl || null);
-    } else {
-      refreshUser();
-    }
-  }, [refreshUser, user]);
+    fetchUserProfile();
+  }, [refreshUser, user?.email]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -220,7 +241,7 @@ const PersonalProfilePage = () => {
                   name="emailAddress"
                   value={formData.emailAddress}
                   onChange={handleInputChange}
-                  placeholder="chiamakaokeke2005@gmail.com"
+                  placeholder="example@gmail.com"
                   className="w-full px-3 py-2.5 pr-10 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent bg-[#F9FAFB]"
                   disabled // Email should not be editable
                 />
