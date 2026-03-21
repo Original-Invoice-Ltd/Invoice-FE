@@ -15,7 +15,11 @@ import {
 
 const API_BASE_URL = '';
 
-// Configure axios defaults for authenticated calls (goes through proxy)
+// Temporary bypass flag for testing - set to true to skip 401 redirects
+const BYPASS_AUTH_REDIRECT = true;
+
+
+// Configure axios defaults
 const axiosInstance = axios.create({
   baseURL: '/api/proxy',
   withCredentials: true,

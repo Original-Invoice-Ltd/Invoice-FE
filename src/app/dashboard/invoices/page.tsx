@@ -6,7 +6,7 @@ import { Plus, Search, MoreHorizontal, Eye, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 import { ApiClient } from "@/lib/api";
-import { InvoiceResponse } from "@/types/invoice";
+import { InvoiceResponse } from "@/lib/invoiceTypes";
 import DeleteConfirmationModal from "@/components/common/DeleteConfirmationModal";
 import Toast from '@/components/ui/Toast';
 import { useToast } from "@/hooks/useToast";;
