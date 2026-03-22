@@ -112,24 +112,24 @@ const AdminProfilePage = () => {
     };
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             <div>
-                <h1 className="text-2xl font-semibold text-gray-900">Profile Settings</h1>
-                <p className="text-gray-600 mt-1">Manage your admin account settings</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Profile Settings</h1>
+                <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage your admin account settings</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 <div className="lg:col-span-1">
-                    <div className="bg-white border border-[#E4E7EC] rounded-xl p-6 sticky top-6">
+                    <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6 sticky top-6">
                         <div className="flex flex-col items-center text-center">
-                            <div className="w-20 h-20 bg-gradient-to-br from-[#2F80ED] to-[#2868C7] rounded-full flex items-center justify-center mb-4">
-                                <span className="text-2xl font-bold text-white">
+                            <div className="w-16 sm:w-20 h-16 sm:h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mb-4">
+                                <span className="text-xl sm:text-2xl font-bold text-white">
                                     {profile.fullName.charAt(0)}
                                 </span>
                             </div>
-                            <h2 className="text-lg font-bold text-gray-900">{profile.fullName}</h2>
-                            <p className="text-sm text-gray-600 mt-1">{profile.email}</p>
-                            <div className="mt-4 flex items-center justify-center gap-2">
+                            <h2 className="text-base sm:text-lg font-bold text-gray-900">{profile.fullName}</h2>
+                            <p className="text-xs sm:text-sm text-gray-600 mt-1 break-all">{profile.email}</p>
+                            <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
                                 <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
                                     {profile.role}
                                 </span>
@@ -144,7 +144,7 @@ const AdminProfilePage = () => {
                                 <p className="text-xs text-gray-600 uppercase font-semibold">
                                     Account Created
                                 </p>
-                                <p className="text-sm font-medium text-gray-900 mt-1">
+                                <p className="text-xs sm:text-sm font-medium text-gray-900 mt-1">
                                     December 1, 2023
                                 </p>
                             </div>
@@ -152,7 +152,7 @@ const AdminProfilePage = () => {
                                 <p className="text-xs text-gray-600 uppercase font-semibold">
                                     Last Login
                                 </p>
-                                <p className="text-sm font-medium text-gray-900 mt-1">
+                                <p className="text-xs sm:text-sm font-medium text-gray-900 mt-1">
                                     March 21, 2024 - 09:15 AM
                                 </p>
                             </div>
@@ -160,24 +160,24 @@ const AdminProfilePage = () => {
                     </div>
                 </div>
 
-                <div className="lg:col-span-2 space-y-6">
-                    <form onSubmit={handleSaveProfile} className="bg-white border border-[#E4E7EC] rounded-xl p-6">
-                        <h2 className="text-lg font-bold text-gray-900 mb-6">Personal Information</h2>
+                <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+                    <form onSubmit={handleSaveProfile} className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
+                        <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Personal Information</h2>
 
                         {profileSaved && (
-                            <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex gap-3">
+                            <div className="mb-4 sm:mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex gap-3">
                                 <div className="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                                     <span className="text-white text-sm">✓</span>
                                 </div>
-                                <p className="text-green-700 font-medium">
+                                <p className="text-green-700 font-medium text-sm sm:text-base">
                                     Profile updated successfully
                                 </p>
                             </div>
                         )}
 
-                        <div className="space-y-4">
+                        <div className="space-y-3 sm:space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                                     Full Name
                                 </label>
                                 <div className="relative">
@@ -187,13 +187,13 @@ const AdminProfilePage = () => {
                                         name="fullName"
                                         value={profile.fullName}
                                         onChange={handleProfileChange}
-                                        className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                        className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                                     Email Address
                                 </label>
                                 <div className="relative">
@@ -203,7 +203,7 @@ const AdminProfilePage = () => {
                                         name="email"
                                         value={profile.email}
                                         onChange={handleProfileChange}
-                                        className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                        className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                                     />
                                 </div>
                                 <p className="text-xs text-gray-500 mt-1">
@@ -212,7 +212,7 @@ const AdminProfilePage = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                                     Phone Number
                                 </label>
                                 <input
@@ -220,41 +220,41 @@ const AdminProfilePage = () => {
                                     name="phone"
                                     value={profile.phone}
                                     onChange={handleProfileChange}
-                                    className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                    className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-3 sm:gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                                         Role
                                     </label>
                                     <input
                                         type="text"
                                         value={profile.role}
                                         disabled
-                                        className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg bg-gray-50 text-gray-600"
+                                        className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg bg-gray-50 text-gray-600 text-sm"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                                         Status
                                     </label>
                                     <input
                                         type="text"
                                         value={profile.status}
                                         disabled
-                                        className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg bg-gray-50 text-gray-600"
+                                        className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg bg-gray-50 text-gray-600 text-sm"
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        <div className="mt-6 flex justify-end">
+                        <div className="mt-4 sm:mt-6 flex justify-end">
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="px-6 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] disabled:opacity-50 flex items-center gap-2"
+                                className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2 text-sm sm:text-base"
                             >
                                 <Save size={18} />
                                 Save Changes
@@ -262,33 +262,33 @@ const AdminProfilePage = () => {
                         </div>
                     </form>
 
-                    <form onSubmit={handleChangePassword} className="bg-white border border-[#E4E7EC] rounded-xl p-6">
-                        <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <form onSubmit={handleChangePassword} className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
+                        <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
                             <Lock size={20} />
                             Change Password
                         </h2>
 
                         {passwordError && (
-                            <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3">
+                            <div className="mb-4 sm:mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3">
                                 <AlertCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
-                                <p className="text-red-700 font-medium">{passwordError}</p>
+                                <p className="text-red-700 font-medium text-sm sm:text-base">{passwordError}</p>
                             </div>
                         )}
 
                         {passwordSaved && (
-                            <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex gap-3">
+                            <div className="mb-4 sm:mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex gap-3">
                                 <div className="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                                     <span className="text-white text-sm">✓</span>
                                 </div>
-                                <p className="text-green-700 font-medium">
+                                <p className="text-green-700 font-medium text-sm sm:text-base">
                                     Password changed successfully
                                 </p>
                             </div>
                         )}
 
-                        <div className="space-y-4">
+                        <div className="space-y-3 sm:space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                                     Current Password
                                 </label>
                                 <div className="relative">
@@ -298,7 +298,7 @@ const AdminProfilePage = () => {
                                         name="currentPassword"
                                         value={passwords.currentPassword}
                                         onChange={handlePasswordChange}
-                                        className="w-full pl-10 pr-10 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                        className="w-full pl-10 pr-10 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                                     />
                                     <button
                                         type="button"
@@ -320,7 +320,7 @@ const AdminProfilePage = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                                     New Password
                                 </label>
                                 <div className="relative">
@@ -330,7 +330,7 @@ const AdminProfilePage = () => {
                                         name="newPassword"
                                         value={passwords.newPassword}
                                         onChange={handlePasswordChange}
-                                        className="w-full pl-10 pr-10 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                        className="w-full pl-10 pr-10 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                                     />
                                     <button
                                         type="button"
@@ -355,7 +355,7 @@ const AdminProfilePage = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                                     Confirm New Password
                                 </label>
                                 <div className="relative">
@@ -365,7 +365,7 @@ const AdminProfilePage = () => {
                                         name="confirmPassword"
                                         value={passwords.confirmPassword}
                                         onChange={handlePasswordChange}
-                                        className="w-full pl-10 pr-10 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                                        className="w-full pl-10 pr-10 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                                     />
                                     <button
                                         type="button"
@@ -387,11 +387,11 @@ const AdminProfilePage = () => {
                             </div>
                         </div>
 
-                        <div className="mt-6 flex justify-end">
+                        <div className="mt-4 sm:mt-6 flex justify-end">
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="px-6 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] disabled:opacity-50 flex items-center gap-2"
+                                className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2 text-sm sm:text-base"
                             >
                                 <Lock size={18} />
                                 Update Password

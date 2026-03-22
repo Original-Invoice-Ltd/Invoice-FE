@@ -41,13 +41,13 @@ const AdminSystemConfigPage = () => {
     };
 
     return (
-        <div className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-gray-900">System Configuration</h1>
-                    <p className="text-gray-600 mt-1">Platform-wide settings and business rules</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">System Configuration</h1>
+                    <p className="text-gray-600 mt-1 text-sm sm:text-base">Platform-wide settings and business rules</p>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg text-sm font-semibold">
+                <div className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap">
                     Super Admin Only
                 </div>
             </div>
@@ -55,10 +55,10 @@ const AdminSystemConfigPage = () => {
             <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex gap-3">
                 <AlertCircle size={20} className="text-yellow-600 flex-shrink-0 mt-0.5" />
                 <div>
-                    <p className="font-semibold text-yellow-900">
+                    <p className="font-semibold text-yellow-900 text-sm sm:text-base">
                         Changes to system configuration affect all users
                     </p>
-                    <p className="text-sm text-yellow-700">Please review carefully before saving</p>
+                    <p className="text-xs sm:text-sm text-yellow-700">Please review carefully before saving</p>
                 </div>
             </div>
 
@@ -67,95 +67,95 @@ const AdminSystemConfigPage = () => {
                     <div className="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                         <span className="text-white text-sm">✓</span>
                     </div>
-                    <p className="text-green-700 font-medium">Configuration saved successfully</p>
+                    <p className="text-green-700 font-medium text-sm sm:text-base">Configuration saved successfully</p>
                 </div>
             )}
 
-            <div className="bg-white border border-[#E4E7EC] rounded-xl p-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Subscription Plan Limits</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
+                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Subscription Plan Limits</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     <div className="p-4 border border-[#E4E7EC] rounded-lg">
-                        <h3 className="font-semibold text-gray-900 mb-4">Free Plan</h3>
+                        <h3 className="font-semibold text-gray-900 mb-4 text-sm sm:text-base">Free Plan</h3>
                         <div className="space-y-3">
                             <div>
-                                <label className="block text-sm text-gray-600 mb-1">Max Invoices</label>
-                                <input type="number" name="freeMaxInvoices" value={config.freeMaxInvoices} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Invoices</label>
+                                <input type="number" name="freeMaxInvoices" value={config.freeMaxInvoices} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                             </div>
                             <div>
-                                <label className="block text-sm text-gray-600 mb-1">Max Logos</label>
-                                <input type="number" name="freeMaxLogos" value={config.freeMaxLogos} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Logos</label>
+                                <input type="number" name="freeMaxLogos" value={config.freeMaxLogos} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                             </div>
                         </div>
                     </div>
 
                     <div className="p-4 border border-[#E4E7EC] rounded-lg">
-                        <h3 className="font-semibold text-gray-900 mb-4">Essentials Plan</h3>
+                        <h3 className="font-semibold text-gray-900 mb-4 text-sm sm:text-base">Essentials Plan</h3>
                         <div className="space-y-3">
                             <div>
-                                <label className="block text-sm text-gray-600 mb-1">Max Invoices</label>
-                                <input type="number" name="essentialsMaxInvoices" value={config.essentialsMaxInvoices} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Invoices</label>
+                                <input type="number" name="essentialsMaxInvoices" value={config.essentialsMaxInvoices} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                             </div>
                             <div>
-                                <label className="block text-sm text-gray-600 mb-1">Max Logos</label>
-                                <input type="number" name="essentialsMaxLogos" value={config.essentialsMaxLogos} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Logos</label>
+                                <input type="number" name="essentialsMaxLogos" value={config.essentialsMaxLogos} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                             </div>
                         </div>
                     </div>
 
                     <div className="p-4 border border-[#E4E7EC] rounded-lg">
-                        <h3 className="font-semibold text-gray-900 mb-4">Premium Plan</h3>
+                        <h3 className="font-semibold text-gray-900 mb-4 text-sm sm:text-base">Premium Plan</h3>
                         <div className="space-y-3">
                             <div>
-                                <label className="block text-sm text-gray-600 mb-1">Max Invoices</label>
-                                <input type="number" name="premiumMaxInvoices" value={config.premiumMaxInvoices} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Invoices</label>
+                                <input type="number" name="premiumMaxInvoices" value={config.premiumMaxInvoices} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                             </div>
                             <div>
-                                <label className="block text-sm text-gray-600 mb-1">Max Logos</label>
-                                <input type="number" name="premiumMaxLogos" value={config.premiumMaxLogos} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Logos</label>
+                                <input type="number" name="premiumMaxLogos" value={config.premiumMaxLogos} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white border border-[#E4E7EC] rounded-xl p-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Subscription Pricing</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
+                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Subscription Pricing</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Essentials Plan (Monthly)
                         </label>
                         <div className="flex items-center gap-2">
                             <span className="text-lg font-semibold text-gray-900">$</span>
-                            <input type="number" name="essentialPrice" value={config.essentialPrice} onChange={handleChange} className="flex-1 px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                            <input type="number" name="essentialPrice" value={config.essentialPrice} onChange={handleChange} className="flex-1 px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                         </div>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Premium Plan (Monthly)
                         </label>
                         <div className="flex items-center gap-2">
                             <span className="text-lg font-semibold text-gray-900">$</span>
-                            <input type="number" name="premiumPrice" value={config.premiumPrice} onChange={handleChange} className="flex-1 px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                            <input type="number" name="premiumPrice" value={config.premiumPrice} onChange={handleChange} className="flex-1 px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white border border-[#E4E7EC] rounded-xl p-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Invoice Generation Rules</h2>
+            <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
+                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Invoice Generation Rules</h2>
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Invoice Number Prefix
                         </label>
-                        <input type="text" name="invoicePrefix" value={config.invoicePrefix} onChange={handleChange} placeholder="e.g., INV" className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                        <input type="text" name="invoicePrefix" value={config.invoicePrefix} onChange={handleChange} placeholder="e.g., INV" className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Number Format
                         </label>
-                        <select name="invoiceNumberFormat" value={config.invoiceNumberFormat} onChange={handleChange} className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
+                        <select name="invoiceNumberFormat" value={config.invoiceNumberFormat} onChange={handleChange} className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                             <option value="sequential">Sequential (INV-001, INV-002)</option>
                             <option value="date">Date-based (INV-20240315-001)</option>
                             <option value="random">Random (INV-A7K9M2)</option>
@@ -163,36 +163,36 @@ const AdminSystemConfigPage = () => {
                     </div>
                     <div className="flex items-center gap-2">
                         <input type="checkbox" name="invoiceAutoIncrement" checked={config.invoiceAutoIncrement} onChange={handleChange} className="w-4 h-4 rounded border-gray-300" />
-                        <label className="text-sm font-medium text-gray-900">
+                        <label className="text-xs sm:text-sm font-medium text-gray-900">
                             Auto-increment invoice numbers
                         </label>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white border border-[#E4E7EC] rounded-xl p-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Payment Gateway (Paystack)</h2>
+            <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
+                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Payment Gateway (Paystack)</h2>
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Mode
                         </label>
-                        <select name="paystackMode" value={config.paystackMode} onChange={handleChange} className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
+                        <select name="paystackMode" value={config.paystackMode} onChange={handleChange} className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                             <option value="test">Test Mode</option>
                             <option value="live">Live Mode</option>
                         </select>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Public API Key
                         </label>
-                        <input type="password" name="paystackApiKey" value={config.paystackApiKey} onChange={handleChange} placeholder="pk_test_..." className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                        <input type="password" name="paystackApiKey" value={config.paystackApiKey} onChange={handleChange} placeholder="pk_test_..." className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Secret API Key
                         </label>
-                        <input type="password" name="paystackSecretKey" value={config.paystackSecretKey} onChange={handleChange} placeholder="sk_test_..." className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                        <input type="password" name="paystackSecretKey" value={config.paystackSecretKey} onChange={handleChange} placeholder="sk_test_..." className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                     </div>
                 </div>
             </div>
@@ -200,7 +200,7 @@ const AdminSystemConfigPage = () => {
             <div className="flex justify-end">
                 <button
                     onClick={handleSave}
-                    className="px-6 py-3 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] flex items-center gap-2"
+                    className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
                     <Save size={20} />
                     Save Configuration

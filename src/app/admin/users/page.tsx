@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Filter, MoreVertical } from "lucide-react";
+import { Search, Filter, Eye, ChevronDown } from "lucide-react";
 import UserDetailModal from "@/components/admin/modals/UserDetailModal";
 import UserActionModal from "@/components/admin/modals/UserActionModal";
 
@@ -49,7 +49,7 @@ const AdminUsersPage = () => {
     const getRoleColor = (role: string) => {
         switch (role) {
             case "SUPER_ADMIN": return "bg-purple-100 text-purple-700";
-            case "ADMIN": return "bg-[#E8F2FE] text-[#2F80ED]";
+            case "ADMIN": return "bg-blue-100 text-blue-700";
             default: return "bg-gray-100 text-gray-700";
         }
     };
@@ -70,50 +70,50 @@ const AdminUsersPage = () => {
     };
 
     return (
-        <div className="p-6 space-y-6">
-            <div className="flex justify-between items-center">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-gray-900">User Management</h1>
-                    <p className="text-gray-600 mt-1">Manage platform users and permissions</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">User Management</h1>
+                    <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage platform users and permissions</p>
                 </div>
-                <button className="px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7]">
+                <button className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">
                     Export Users
                 </button>
             </div>
 
-            <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 space-y-4">
-                <div className="flex gap-4 flex-col sm:flex-row">
+            <div className="bg-white border border-[#E4E7EC] rounded-xl p-3 sm:p-4 space-y-3 sm:space-y-4">
+                <div className="flex gap-2 sm:gap-4 flex-col sm:flex-row">
                     <div className="flex-1 relative">
-                        <Search size={20} className=" absolute left-3 top-3 text-gray-400" />
+                        <Search size={20} className="absolute left-3 top-3 text-gray-400" />
                         <input
                             type="text"
-                            placeholder="Search by email, name, or ID..."
+                            placeholder="Search by email, name..."
                             value={searchTerm}
                             onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                            className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                            className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                         />
                     </div>
-                    <button className="px-4 py-2 border border-[#E4E7EC] rounded-lg font-medium hover:bg-gray-50 flex items-center gap-2">
+                    <button className="px-4 py-2 border border-[#E4E7EC] rounded-lg font-medium hover:bg-gray-50 flex items-center gap-2 whitespace-nowrap">
                         <Filter size={20} />
-                        More Filters
+                        <span className="hidden sm:inline">More Filters</span>
                     </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }} className="px-4 py-2 border border-[#E4E7EC] rounded-lg text-sm">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                    <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }} className="px-3 sm:px-4 py-2 border border-[#E4E7EC] rounded-lg text-xs sm:text-sm">
                         <option value="all">All Status</option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
 
-                    <select value={roleFilter} onChange={(e) => { setRoleFilter(e.target.value); setCurrentPage(1); }} className="px-4 py-2 border border-[#E4E7EC] rounded-lg text-sm">
+                    <select value={roleFilter} onChange={(e) => { setRoleFilter(e.target.value); setCurrentPage(1); }} className="px-3 sm:px-4 py-2 border border-[#E4E7EC] rounded-lg text-xs sm:text-sm">
                         <option value="all">All Roles</option>
                         <option value="USER">User</option>
                         <option value="ADMIN">Admin</option>
                         <option value="SUPER_ADMIN">Super Admin</option>
                     </select>
 
-                    <select value={planFilter} onChange={(e) => { setPlanFilter(e.target.value); setCurrentPage(1); }} className="px-4 py-2 border border-[#E4E7EC] rounded-lg text-sm">
+                    <select value={planFilter} onChange={(e) => { setPlanFilter(e.target.value); setCurrentPage(1); }} className="px-3 sm:px-4 py-2 border border-[#E4E7EC] rounded-lg text-xs sm:text-sm">
                         <option value="all">All Plans</option>
                         <option value="FREE">Free</option>
                         <option value="ESSENTIALS">Essentials</option>
@@ -122,62 +122,60 @@ const AdminUsersPage = () => {
                 </div>
             </div>
 
-            <div className="bg-white border border-[#E4E7EC] rounded-xl">
+            <div className="bg-white border border-[#E4E7EC] rounded-xl overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full">
+                    <table className="w-full text-sm">
                         <thead className="bg-gray-50 border-b border-[#E4E7EC]">
                             <tr>
-                                <th className="px-6 py-3 text-left text-[14px] font-semibold text-gray-700">User</th>
-                                <th className="px-6 py-3 text-left text-[14px] font-semibold text-gray-700">Status</th>
-                                <th className="px-6 py-3 text-left text-[14px] font-semibold text-gray-700">Role</th>
-                                <th className="px-6 py-3 text-left text-[14px] font-semibold text-gray-700">Plan</th>
-                                <th className="px-6 py-3 text-left text-[14px] font-semibold text-gray-700">Invoices</th>
-                                <th className="px-6 py-3 text-left text-[14px] font-semibold text-gray-700">Registered</th>
-                                <th className="px-6 py-3 text-left text-[14px] font-semibold text-gray-700">Actions</th>
+                                <th className="px-3 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">User</th>
+                                <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
+                                <th className="hidden md:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
+                                <th className="hidden lg:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">Plan</th>
+                                <th className="hidden lg:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">Invoices</th>
+                                <th className="px-3 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#E4E7EC]">
                             {paginatedUsers.map((user) => (
                                 <tr key={user.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4">
+                                    <td className="px-3 sm:px-6 py-4">
                                         <div>
-                                            <p className="font-medium text-gray-900">{user.fullName}</p>
-                                            <p className="text-sm text-gray-500">{user.email}</p>
+                                            <p className="font-medium text-gray-900 text-sm sm:text-base">{user.fullName}</p>
+                                            <p className="text-xs sm:text-sm text-gray-500">{user.email}</p>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="hidden sm:table-cell px-6 py-4">
                                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(user.status)}`}>
                                             {user.status}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="hidden md:table-cell px-6 py-4">
                                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getRoleColor(user.role)}`}>
                                             {user.role}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-gray-900">{user.plan}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-900">{user.invoiceCount}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">{user.registeredDate}</td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center justify-center relative">
-                                            <div className="group">
+                                    <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-900">{user.plan}</td>
+                                    <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-900">{user.invoiceCount}</td>
+                                    <td className="px-3 sm:px-6 py-4">
+                                        <div className="flex items-center gap-2">
+                                            <button onClick={() => handleViewUser(user)} className="p-2 hover:bg-gray-100 rounded-lg" title="View details">
+                                                <Eye size={18} className="text-gray-600" />
+                                            </button>
+                                            <div className="relative group">
                                                 <button className="p-2 hover:bg-gray-100 rounded-lg">
-                                                    <MoreVertical size={18} className="text-gray-600" />
+                                                    <ChevronDown size={18} className="text-gray-600" />
                                                 </button>
-                                                <div className="hidden group-hover:block fixed w-48 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-[9999]" style={{ transform: 'translate(-180px, -100%)' }}>
-                                                    <button onClick={() => handleViewUser(user)} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-lg">
-                                                        View Details
-                                                    </button>
-                                                    <button onClick={() => handleAction(user, "role")} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                <div className="hidden group-hover:block absolute right-0 mt-1 w-40 sm:w-48 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-10">
+                                                    <button onClick={() => handleAction(user, "role")} className="w-full text-left px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100">
                                                         Change Role
                                                     </button>
-                                                    <button onClick={() => handleAction(user, "reset")} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    <button onClick={() => handleAction(user, "reset")} className="w-full text-left px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100">
                                                         Reset Password
                                                     </button>
-                                                    <button onClick={() => handleAction(user, "deactivate")} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    <button onClick={() => handleAction(user, "deactivate")} className="w-full text-left px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100">
                                                         {user.status === "active" ? "Deactivate" : "Activate"}
                                                     </button>
-                                                    <button onClick={() => handleAction(user, "delete")} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-lg">
+                                                    <button onClick={() => handleAction(user, "delete")} className="w-full text-left px-4 py-2 text-xs sm:text-sm text-red-600 hover:bg-gray-100">
                                                         Delete Account
                                                     </button>
                                                 </div>
@@ -190,15 +188,15 @@ const AdminUsersPage = () => {
                     </table>
                 </div>
 
-                <div className="px-6 py-4 border-t border-[#E4E7EC] flex items-center justify-between">
-                    <p className="text-sm text-gray-600">
+                <div className="px-3 sm:px-6 py-4 border-t border-[#E4E7EC] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <p className="text-xs sm:text-sm text-gray-600">
                         Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredUsers.length)} of {filteredUsers.length} users
                     </p>
-                    <div className="flex gap-2">
-                        <button onClick={() => setCurrentPage(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className="px-4 py-2 border border-[#E4E7EC] rounded-lg disabled:opacity-50">
+                    <div className="flex gap-2 w-full sm:w-auto">
+                        <button onClick={() => setCurrentPage(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className="flex-1 sm:flex-none px-4 py-2 border border-[#E4E7EC] rounded-lg disabled:opacity-50 text-sm">
                             Previous
                         </button>
-                        <button onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} className="px-4 py-2 border border-[#E4E7EC] rounded-lg disabled:opacity-50">
+                        <button onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} className="flex-1 sm:flex-none px-4 py-2 border border-[#E4E7EC] rounded-lg disabled:opacity-50 text-sm">
                             Next
                         </button>
                     </div>
