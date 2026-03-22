@@ -15,6 +15,15 @@ interface Notification {
     relatedEntityId?: string;
     relatedEntityType?: string;
     createdAt: string;
+    invoiceData?: {
+        invoiceNumber?: string;
+        status?: string;
+        clientName?: string;
+        amount?: number;
+        currency?: string;
+        creationDate?: string;
+        dueDate?: string;
+    };
     metadata?: {
         fileName?: string;
         fileSize?: string;
@@ -219,10 +228,27 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
         // Filter by search term
         if (searchTerm.trim()) {
             const search = searchTerm.toLowerCase();
-            filtered = filtered.filter(n => 
-                n.title.toLowerCase().includes(search) || 
-                n.message.toLowerCase().includes(search)
-            );
+            filtered = filtered.filter(n => {
+                // Search in title and message
+                const matchesBasic = n.title.toLowerCase().includes(search) || 
+                                   n.message.toLowerCase().includes(search);
+                
+                // Search in invoice data if available
+                if (n.invoiceData) {
+                    const matchesInvoiceNumber = n.invoiceData.invoiceNumber?.toLowerCase().includes(search);
+                    const matchesStatus = n.invoiceData.status?.toLowerCase().includes(search);
+                    const matchesClientName = n.invoiceData.clientName?.toLowerCase().includes(search);
+                    const matchesAmount = n.invoiceData.amount?.toString().includes(search);
+                    const matchesCurrency = n.invoiceData.currency?.toLowerCase().includes(search);
+                    const matchesDate = n.invoiceData.creationDate?.includes(search) || 
+                                       n.invoiceData.dueDate?.includes(search);
+                    
+                    return matchesBasic || matchesInvoiceNumber || matchesStatus || 
+                           matchesClientName || matchesAmount || matchesCurrency || matchesDate;
+                }
+                
+                return matchesBasic;
+            });
         }
 
         return filtered;
