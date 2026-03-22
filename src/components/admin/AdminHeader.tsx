@@ -29,7 +29,7 @@ const AdminHeader = ({ onMenuClick, isSuperAdmin = false }: AdminHeaderProps) =>
 
                 <div className="relative">
                     <button onClick={() => setShowUserMenu(!showUserMenu)} className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg">
-                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                        <div className="w-8 h-8 bg-[#2F80ED] rounded-full flex items-center justify-center">
                             <User size={18} className="text-white" />
                         </div>
                         <span className="text-sm font-medium text-gray-900 hidden sm:block">

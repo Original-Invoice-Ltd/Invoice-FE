@@ -46,7 +46,7 @@ const AdminSubscriptionsPage = () => {
     const getPlanColor = (plan: string) => {
         switch (plan) {
             case "PREMIUM": return "bg-purple-100 text-purple-700";
-            case "ESSENTIALS": return "bg-blue-100 text-blue-700";
+            case "ESSENTIALS": return "bg-[#E8F2FE] text-[#2F80ED]";
             default: return "bg-gray-100 text-gray-700";
         }
     };
@@ -61,6 +61,14 @@ const AdminSubscriptionsPage = () => {
 
     const isExpiringoon = (daysUntilExpiry: number) => daysUntilExpiry <= 7 && daysUntilExpiry > 0;
 
+    const formatDaysLeft = (days: number): string => {
+        if (days >= 365) {
+            const years = Math.floor(days / 365);
+            return `${years}yr`;
+        }
+        return `${days}d`;
+    };
+
     const handleAction = (subscription: Subscription, type: typeof actionType) => {
         setSelectedSubscription(subscription);
         setActionType(type);
@@ -71,7 +79,7 @@ const AdminSubscriptionsPage = () => {
         <div className="p-6 space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Subscription Management</h1>
+                    <h1 className="text-2xl font-semibold text-gray-900">Subscription Management</h1>
                     <p className="text-gray-600 mt-1">View and manage user subscriptions</p>
                 </div>
             </div>
@@ -95,7 +103,7 @@ const AdminSubscriptionsPage = () => {
                             placeholder="Search by email or name..."
                             value={searchTerm}
                             onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                            className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                         />
                     </div>
                 </div>
@@ -130,13 +138,13 @@ const AdminSubscriptionsPage = () => {
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b border-[#E4E7EC]">
                             <tr>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">User</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Plan</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Start Date</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Expiry Date</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Days Left</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Actions</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">User</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Plan</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Status</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Start Date</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Expiry Date</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Days Left</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#E4E7EC]">
@@ -164,19 +172,14 @@ const AdminSubscriptionsPage = () => {
                                         <div className={`text-sm font-semibold ${
                                             isExpiringoon(sub.daysUntilExpiry) ? "text-red-600" : "text-gray-900"
                                         }`}>
-                                            {sub.daysUntilExpiry} days
-                                            {isExpiringoon(sub.daysUntilExpiry) && (
-                                                <span className="ml-2 px-2 py-1 bg-red-100 text-red-700 rounded text-xs">
-                                                    Expiring Soon
-                                                </span>
-                                            )}
+                                            {formatDaysLeft(sub.daysUntilExpiry)}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-2">
                                             <button
                                                 onClick={() => handleAction(sub, "upgrade")}
-                                                className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                                                className="px-3 py-1 text-sm bg-[#E8F2FE] text-[#2F80ED] rounded hover:bg-[#D4E7FC]"
                                             >
                                                 Upgrade
                                             </button>

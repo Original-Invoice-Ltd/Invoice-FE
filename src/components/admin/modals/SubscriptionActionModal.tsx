@@ -70,16 +70,16 @@ const SubscriptionActionModal = ({ subscription, actionType, onClose }: Subscrip
     const content = getActionContent() as any;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-lg max-w-md w-full mx-4">
-                <div className="flex items-center justify-between p-6 border-b border-[#E4E7EC]">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
+            <div className="bg-white rounded-xl shadow-lg max-w-md w-full mx-4 max-h-[98vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between p-6 border-b border-[#E4E7EC] flex-shrink-0">
                     <h2 className="text-xl font-bold text-gray-900">{content.title}</h2>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
                         <X size={24} />
                     </button>
                 </div>
 
-                <div className="p-6 space-y-4">
+                <div className="p-6 space-y-4 overflow-y-auto flex-1">
                     <p className="text-gray-600">{content.description}</p>
 
                     <div className="bg-gray-50 p-4 rounded-lg">
@@ -96,7 +96,7 @@ const SubscriptionActionModal = ({ subscription, actionType, onClose }: Subscrip
                             <select
                                 value={selectedPlan}
                                 onChange={(e) => setSelectedPlan(e.target.value as any)}
-                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                             >
                                 <option value="FREE">Free</option>
                                 <option value="ESSENTIALS">Essentials - $29/month</option>
@@ -115,7 +115,7 @@ const SubscriptionActionModal = ({ subscription, actionType, onClose }: Subscrip
                                 value={extendDays}
                                 onChange={(e) => setExtendDays(parseInt(e.target.value))}
                                 min="1"
-                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                             />
                             <p className="text-sm text-gray-500 mt-2">
                                 New expiry: {new Date(new Date(subscription.expiryDate).getTime() + extendDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
@@ -133,13 +133,13 @@ const SubscriptionActionModal = ({ subscription, actionType, onClose }: Subscrip
                                 onChange={(e) => setReason(e.target.value)}
                                 placeholder="Enter reason..."
                                 rows={3}
-                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                             />
                         </div>
                     )}
                 </div>
 
-                <div className="p-6 border-t border-[#E4E7EC] flex gap-3">
+                <div className="p-6 border-t border-[#E4E7EC] flex gap-3 flex-shrink-0">
                     <button onClick={onClose} className="flex-1 px-4 py-2 border border-[#E4E7EC] rounded-lg font-medium hover:bg-gray-50">
                         Cancel
                     </button>
@@ -149,7 +149,7 @@ const SubscriptionActionModal = ({ subscription, actionType, onClose }: Subscrip
                         className={`flex-1 px-4 py-2 rounded-lg font-medium text-white ${
                             content.isDangerous
                                 ? "bg-red-600 hover:bg-red-700"
-                                : "bg-blue-600 hover:bg-blue-700"
+                                : "bg-[#2F80ED] hover:bg-[#2868C7]"
                         } disabled:opacity-50`}
                     >
                         {loading ? "Processing..." : content.title}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search, Plus, Eye, Edit2, Trash2, ChevronDown, Clock } from "lucide-react";
 import AdminFormModal from "@/components/admin/modals/AdminFormModal";
+import DeleteConfirmModal from "@/components/admin/modals/DeleteConfirmModal";
 
 interface Admin {
     id: string;
@@ -31,8 +32,9 @@ const AdminManagementPage = () => {
     const [showFormModal, setShowFormModal] = useState(false);
     const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null);
     const [activeTab, setActiveTab] = useState<"admins" | "audit">("admins");
-
-    const mockAdmins: Admin[] = [
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deletingAdminId, setDeletingAdminId] = useState<string | null>(null);
+    const [admins, setAdmins] = useState<Admin[]>([
         {
             id: "1",
             email: "admin@example.com",
@@ -60,7 +62,7 @@ const AdminManagementPage = () => {
             lastLogin: "2024-02-28 16:45",
             createdDate: "2024-01-10",
         },
-    ];
+    ]);
 
     const mockAuditLogs: AuditLog[] = [
         {
@@ -106,7 +108,7 @@ const AdminManagementPage = () => {
     ];
 
     const itemsPerPage = 10;
-    const filteredAdmins = mockAdmins.filter(admin => {
+    const filteredAdmins = admins.filter(admin => {
         const matchesSearch = admin.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
                             admin.fullName.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesRole = roleFilter === "all" || admin.role === roleFilter;
@@ -119,7 +121,7 @@ const AdminManagementPage = () => {
     const paginatedAdmins = filteredAdmins.slice(startIndex, startIndex + itemsPerPage);
 
     const getRoleColor = (role: string) => {
-        return role === "SUPER_ADMIN" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700";
+        return role === "SUPER_ADMIN" ? "bg-purple-100 text-purple-700" : "bg-[#E8F2FE] text-[#2F80ED]";
     };
 
     const getStatusColor = (status: string) => {
@@ -140,16 +142,28 @@ const AdminManagementPage = () => {
         console.log("Admin form submitted:", data);
     };
 
+    const handleDeleteAdmin = (id: string) => {
+        setDeletingAdminId(id);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDeleteAdmin = () => {
+        if (deletingAdminId) {
+            setAdmins(admins.filter(a => a.id !== deletingAdminId));
+            setDeletingAdminId(null);
+        }
+    };
+
     return (
         <div className="p-6 space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Admin Management</h1>
+                    <h1 className="text-2xl font-semibold text-gray-900">Admin Management</h1>
                     <p className="text-gray-600 mt-1">Manage admin users and view audit logs</p>
                 </div>
                 <button
                     onClick={handleAddAdmin}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2"
+                    className="px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] flex items-center gap-2"
                 >
                     <Plus size={20} />
                     Add Admin
@@ -161,7 +175,7 @@ const AdminManagementPage = () => {
                     onClick={() => setActiveTab("admins")}
                     className={`px-4 py-3 font-medium border-b-2 transition-colors ${
                         activeTab === "admins"
-                            ? "border-blue-600 text-blue-600"
+                            ? "border-[#2F80ED] text-[#2F80ED]"
                             : "border-transparent text-gray-600 hover:text-gray-900"
                     }`}
                 >
@@ -171,7 +185,7 @@ const AdminManagementPage = () => {
                     onClick={() => setActiveTab("audit")}
                     className={`px-4 py-3 font-medium border-b-2 transition-colors ${
                         activeTab === "audit"
-                            ? "border-blue-600 text-blue-600"
+                            ? "border-[#2F80ED] text-[#2F80ED]"
                             : "border-transparent text-gray-600 hover:text-gray-900"
                     }`}
                 >
@@ -193,7 +207,7 @@ const AdminManagementPage = () => {
                                         setSearchTerm(e.target.value);
                                         setCurrentPage(1);
                                     }}
-                                    className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                 />
                             </div>
                         </div>
@@ -205,7 +219,7 @@ const AdminManagementPage = () => {
                                     setRoleFilter(e.target.value);
                                     setCurrentPage(1);
                                 }}
-                                className="px-4 py-2 border border-[#E4E7EC] rounded-lg text-sm"
+                                className="px-4 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                             >
                                 <option value="all">All Roles</option>
                                 <option value="ADMIN">Admin</option>
@@ -218,7 +232,7 @@ const AdminManagementPage = () => {
                                     setStatusFilter(e.target.value);
                                     setCurrentPage(1);
                                 }}
-                                className="px-4 py-2 border border-[#E4E7EC] rounded-lg text-sm"
+                                className="px-4 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                             >
                                 <option value="all">All Status</option>
                                 <option value="active">Active</option>
@@ -296,7 +310,11 @@ const AdminManagementPage = () => {
                                                     >
                                                         <Edit2 size={18} className="text-gray-600" />
                                                     </button>
-                                                    <button className="p-2 hover:bg-gray-100 rounded-lg" title="Delete admin">
+                                                    <button
+                                                        onClick={() => handleDeleteAdmin(admin.id)}
+                                                        className="p-2 hover:bg-gray-100 rounded-lg"
+                                                        title="Delete admin"
+                                                    >
                                                         <Trash2 size={18} className="text-red-600" />
                                                     </button>
                                                 </div>
@@ -366,7 +384,9 @@ const AdminManagementPage = () => {
                                             <p className="font-medium text-gray-900">{log.admin}</p>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+                                            <span
+                                                className={`px-3 py-1 bg-[#E8F2FE] text-[#2F80ED] rounded-full text-xs font-semibold`}
+                                            >
                                                 {log.action}
                                             </span>
                                         </td>
@@ -397,6 +417,18 @@ const AdminManagementPage = () => {
                     onSubmit={handleFormSubmit}
                 />
             )}
+
+            <DeleteConfirmModal
+                isOpen={showDeleteModal}
+                onClose={() => {
+                    setShowDeleteModal(false);
+                    setDeletingAdminId(null);
+                }}
+                onConfirm={confirmDeleteAdmin}
+                title="Delete Admin"
+                message="Are you sure you want to delete admin"
+                itemName={admins.find(a => a.id === deletingAdminId)?.fullName}
+            />
         </div>
     );
 };

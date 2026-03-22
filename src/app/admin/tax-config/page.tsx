@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, Edit2, Trash2 } from "lucide-react";
 import TaxFormModal from "@/components/admin/modals/TaxFormModal";
+import DeleteConfirmModal from "@/components/admin/modals/DeleteConfirmModal";
 
 interface TaxType {
     id: string;
@@ -24,6 +25,8 @@ const AdminTaxConfigPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [editingTax, setEditingTax] = useState<TaxType | null>(null);
     const [defaultTaxes, setDefaultTaxes] = useState<string[]>(["1"]);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deletingTaxId, setDeletingTaxId] = useState<string | null>(null);
 
     const handleAddTax = () => {
         setEditingTax(null);
@@ -36,8 +39,14 @@ const AdminTaxConfigPage = () => {
     };
 
     const handleDeleteTax = (id: string) => {
-        if (confirm("Are you sure you want to delete this tax type?")) {
-            setTaxTypes(taxTypes.filter(t => t.id !== id));
+        setDeletingTaxId(id);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDeleteTax = () => {
+        if (deletingTaxId) {
+            setTaxTypes(taxTypes.filter(t => t.id !== deletingTaxId));
+            setDeletingTaxId(null);
         }
     };
 
@@ -60,12 +69,12 @@ const AdminTaxConfigPage = () => {
         <div className="p-6 space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Tax Configuration</h1>
+                    <h1 className="text-2xl font-semibold text-gray-900">Tax Configuration</h1>
                     <p className="text-gray-600 mt-1">Manage tax types and rates</p>
                 </div>
                 <button
                     onClick={handleAddTax}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2"
+                    className="px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] flex items-center gap-2"
                 >
                     <Plus size={20} />
                     Add Tax Type
@@ -77,14 +86,14 @@ const AdminTaxConfigPage = () => {
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b border-[#E4E7EC]">
                             <tr>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Name</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Category</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Base Rate</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Individual</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Business</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Default</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Actions</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Name</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Category</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Base Rate</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Individual</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Business</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Status</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Default</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#E4E7EC]">
@@ -97,7 +106,7 @@ const AdminTaxConfigPage = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+                                        <span className="px-3 py-1 bg-[#E8F2FE] text-[#2F80ED] rounded-full text-xs font-semibold">
                                             {tax.category}
                                         </span>
                                     </td>
@@ -151,7 +160,7 @@ const AdminTaxConfigPage = () => {
                         <label className="block text-sm font-medium text-gray-900 mb-2">
                             Default Tax for Individual Customers
                         </label>
-                        <select className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
                             <option>Select a tax type</option>
                             {taxTypes.map(tax => (
                                 <option key={tax.id} value={tax.id}>{tax.name}</option>
@@ -162,7 +171,7 @@ const AdminTaxConfigPage = () => {
                         <label className="block text-sm font-medium text-gray-900 mb-2">
                             Default Tax for Business Customers
                         </label>
-                        <select className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
                             <option>Select a tax type</option>
                             {taxTypes.map(tax => (
                                 <option key={tax.id} value={tax.id}>{tax.name}</option>
@@ -173,16 +182,20 @@ const AdminTaxConfigPage = () => {
                         <label className="block text-sm font-medium text-gray-900 mb-2">
                             Tax Calculation Method
                         </label>
-                        <select className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
                             <option value="inclusive">Inclusive (Tax included in price)</option>
                             <option value="exclusive">Exclusive (Tax added to price)</option>
                         </select>
                     </div>
-                    <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">
-                        Save Tax Rules
-                    </button>
+                    
                 </div>
+                
             </div>
+            <div className="flex justify-end ">
+                        <button className="px-6 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7]">
+                            Save Tax Rules
+                        </button>
+                    </div>
 
             {showModal && (
                 <TaxFormModal
@@ -191,6 +204,18 @@ const AdminTaxConfigPage = () => {
                     onSave={handleSaveTax}
                 />
             )}
+
+            <DeleteConfirmModal
+                isOpen={showDeleteModal}
+                onClose={() => {
+                    setShowDeleteModal(false);
+                    setDeletingTaxId(null);
+                }}
+                onConfirm={confirmDeleteTax}
+                title="Delete Tax Type"
+                message="Are you sure you want to delete"
+                itemName={taxTypes.find(t => t.id === deletingTaxId)?.name}
+            />
         </div>
     );
 };

@@ -75,9 +75,9 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-lg max-w-md w-full mx-4">
-                <div className="flex items-center justify-between p-6 border-b border-[#E4E7EC]">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
+            <div className="bg-white rounded-xl shadow-lg max-w-md w-full mx-4 max-h-[98vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between p-6 border-b border-[#E4E7EC] flex-shrink-0">
                     <h2 className="text-xl font-bold text-gray-900">
                         {admin ? "Edit Admin" : "Add New Admin"}
                     </h2>
@@ -86,7 +86,8 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+                    <div className="p-6 space-y-4 overflow-y-auto flex-1">
                     <div>
                         <label className="block text-sm font-medium text-gray-900 mb-2">
                             Full Name
@@ -102,7 +103,7 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                                 className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
                                     errors.fullName
                                         ? "border-red-500 focus:ring-red-500"
-                                        : "border-[#E4E7EC] focus:ring-blue-500"
+                                        : "border-[#E4E7EC] focus:ring-[#2F80ED]"
                                 }`}
                             />
                         </div>
@@ -126,7 +127,7 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                                 className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
                                     errors.email
                                         ? "border-red-500 focus:ring-red-500"
-                                        : "border-[#E4E7EC] focus:ring-blue-500"
+                                        : "border-[#E4E7EC] focus:ring-[#2F80ED]"
                                 }`}
                             />
                         </div>
@@ -143,7 +144,7 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                             name="role"
                             value={formData.role}
                             onChange={handleChange}
-                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                         >
                             <option value="ADMIN">Admin</option>
                             <option value="SUPER_ADMIN">Super Admin</option>
@@ -158,7 +159,7 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                             name="status"
                             value={formData.status}
                             onChange={handleChange}
-                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                         >
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
@@ -166,14 +167,15 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                     </div>
 
                     {!admin && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                            <p className="text-sm text-blue-700">
+                        <div className="bg-[#E8F2FE] border border-[#B8D9FF] rounded-lg p-3">
+                            <p className="text-sm text-[#2F80ED]">
                                 A temporary password will be sent to the email address provided.
                             </p>
                         </div>
                     )}
+                    </div>
 
-                    <div className="flex gap-3 pt-4">
+                    <div className="flex gap-3 pt-4 p-6 border-t border-[#E4E7EC] flex-shrink-0">
                         <button
                             type="button"
                             onClick={onClose}
@@ -184,7 +186,7 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+                            className="flex-1 px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] disabled:opacity-50"
                         >
                             {loading ? "Saving..." : admin ? "Update Admin" : "Add Admin"}
                         </button>
