@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Filter, Download, MoreVertical } from "lucide-react";
+import { Search, Filter, MoreVertical } from "lucide-react";
 import UserDetailModal from "@/components/admin/modals/UserDetailModal";
 import UserActionModal from "@/components/admin/modals/UserActionModal";
 
@@ -122,7 +122,7 @@ const AdminUsersPage = () => {
                 </div>
             </div>
 
-            <div className="bg-white border border-[#E4E7EC] rounded-xl overflow-hidden">
+            <div className="bg-white border border-[#E4E7EC] rounded-xl">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b border-[#E4E7EC]">
@@ -159,12 +159,12 @@ const AdminUsersPage = () => {
                                     <td className="px-6 py-4 text-sm text-gray-900">{user.invoiceCount}</td>
                                     <td className="px-6 py-4 text-sm text-gray-500">{user.registeredDate}</td>
                                     <td className="px-6 py-4">
-                                        <div className="flex items-center justify-center">
-                                            <div className="relative group">
+                                        <div className="flex items-center justify-center relative">
+                                            <div className="group">
                                                 <button className="p-2 hover:bg-gray-100 rounded-lg">
                                                     <MoreVertical size={18} className="text-gray-600" />
                                                 </button>
-                                                <div className="hidden group-hover:block absolute right-0 bottom-full mb-1 w-48 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-[9999]">
+                                                <div className="hidden group-hover:block fixed w-48 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-[9999]" style={{ transform: 'translate(-180px, -100%)' }}>
                                                     <button onClick={() => handleViewUser(user)} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-lg">
                                                         View Details
                                                     </button>
