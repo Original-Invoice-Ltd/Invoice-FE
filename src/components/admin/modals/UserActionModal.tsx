@@ -74,16 +74,16 @@ const UserActionModal = ({ user, actionType, onClose }: UserActionModalProps) =>
     const content = getActionContent() as any;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-lg max-w-md w-full mx-4">
-                <div className="flex items-center justify-between p-6 border-b border-[#E4E7EC]">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
+            <div className="bg-white rounded-xl shadow-lg max-w-md w-full mx-4 max-h-[98vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between p-6 border-b border-[#E4E7EC] flex-shrink-0">
                     <h2 className="text-xl font-bold text-gray-900">{content.title}</h2>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
                         <X size={24} />
                     </button>
                 </div>
 
-                <div className="p-6 space-y-4">
+                <div className="p-6 space-y-4 overflow-y-auto flex-1">
                     {content.isDangerous && (
                         <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
                             <AlertCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
@@ -101,7 +101,7 @@ const UserActionModal = ({ user, actionType, onClose }: UserActionModalProps) =>
                             <select
                                 value={selectedRole}
                                 onChange={(e) => setSelectedRole(e.target.value as any)}
-                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                             >
                                 <option value="USER">User</option>
                                 <option value="ADMIN">Admin</option>
@@ -118,13 +118,13 @@ const UserActionModal = ({ user, actionType, onClose }: UserActionModalProps) =>
                             <input
                                 type="text"
                                 placeholder="Confirm email"
-                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                             />
                         </div>
                     )}
                 </div>
 
-                <div className="p-6 border-t border-[#E4E7EC] flex gap-3">
+                <div className="p-6 border-t border-[#E4E7EC] flex gap-3 flex-shrink-0">
                     <button onClick={onClose} className="flex-1 px-4 py-2 border border-[#E4E7EC] rounded-lg font-medium hover:bg-gray-50">
                         Cancel
                     </button>
@@ -134,7 +134,7 @@ const UserActionModal = ({ user, actionType, onClose }: UserActionModalProps) =>
                         className={`flex-1 px-4 py-2 rounded-lg font-medium text-white ${
                             content.isDangerous
                                 ? "bg-red-600 hover:bg-red-700"
-                                : "bg-blue-600 hover:bg-blue-700"
+                                : "bg-[#2F80ED] hover:bg-[#2868C7]"
                         } disabled:opacity-50`}
                     >
                         {loading ? "Processing..." : content.buttonText}

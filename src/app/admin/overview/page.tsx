@@ -8,7 +8,7 @@ const AdminOverviewPage = () => {
     const [dateRange, setDateRange] = useState("monthly");
 
     const kpiCards = [
-        { title: "Total Platform Revenue", value: "$125,430", subtext: "Current Month: $45,230", change: "+12.5%", icon: CreditCard, color: "bg-blue-100" },
+        { title: "Total Platform Revenue", value: "$125,430", subtext: "Current Month: $45,230", change: "+12.5%", icon: CreditCard, color: "bg-[#E8F2FE]" },
         { title: "Active Subscriptions", value: "1,234", subtext: "Premium: 456 | Essentials: 778", change: "+8.2%", icon: Users, color: "bg-green-100" },
         { title: "Monthly Recurring Revenue", value: "$45,230", subtext: "From paid subscriptions", change: "+5.3%", icon: TrendingUp, color: "bg-purple-100" },
         { title: "Total Invoices Created", value: "8,945", subtext: "This month", change: "+15.2%", icon: FileText, color: "bg-orange-100" }
@@ -39,7 +39,7 @@ const AdminOverviewPage = () => {
         <div className="p-6 space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+                    <h1 className="text-2xl font-semibold text-gray-900">Admin Dashboard</h1>
                     <p className="text-gray-600 mt-1">Platform overview and key metrics</p>
                 </div>
                 <select value={dateRange} onChange={(e) => setDateRange(e.target.value)} className="px-4 py-2 border border-[#E4E7EC] rounded-lg text-sm font-medium">
@@ -54,14 +54,14 @@ const AdminOverviewPage = () => {
                 {kpiCards.map((card, idx) => {
                     const Icon = card.icon;
                     return (
-                        <div key={idx} className="bg-white border border-[#E4E7EC] rounded-xl p-6">
+                        <div key={idx} className="bg-white border border-[#E4E7EC] rounded-xl p-5">
                             <div className="flex items-start justify-between">
                                 <div>
-                                    <p className="text-sm text-gray-600 font-medium">{card.title}</p>
+                                    <p className="text-[14px] text-gray-600 font-medium">{card.title}</p>
                                     <p className="text-2xl font-bold text-gray-900 mt-2">{card.value}</p>
                                     <p className="text-xs text-gray-500 mt-1">{card.subtext}</p>
                                 </div>
-                                <div className={`${card.color} p-3 rounded-lg`}>
+                                <div >
                                     <Icon size={24} className="text-gray-700" />
                                 </div>
                             </div>

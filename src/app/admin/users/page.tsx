@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Filter, Download, ChevronDown, Eye, Edit2, Trash2 } from "lucide-react";
+import { Search, Filter, Download, MoreVertical } from "lucide-react";
 import UserDetailModal from "@/components/admin/modals/UserDetailModal";
 import UserActionModal from "@/components/admin/modals/UserActionModal";
 
@@ -49,7 +49,7 @@ const AdminUsersPage = () => {
     const getRoleColor = (role: string) => {
         switch (role) {
             case "SUPER_ADMIN": return "bg-purple-100 text-purple-700";
-            case "ADMIN": return "bg-blue-100 text-blue-700";
+            case "ADMIN": return "bg-[#E8F2FE] text-[#2F80ED]";
             default: return "bg-gray-100 text-gray-700";
         }
     };
@@ -73,10 +73,10 @@ const AdminUsersPage = () => {
         <div className="p-6 space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
+                    <h1 className="text-2xl font-semibold text-gray-900">User Management</h1>
                     <p className="text-gray-600 mt-1">Manage platform users and permissions</p>
                 </div>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">
+                <button className="px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7]">
                     Export Users
                 </button>
             </div>
@@ -84,13 +84,13 @@ const AdminUsersPage = () => {
             <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 space-y-4">
                 <div className="flex gap-4 flex-col sm:flex-row">
                     <div className="flex-1 relative">
-                        <Search size={20} className="absolute left-3 top-3 text-gray-400" />
+                        <Search size={20} className=" absolute left-3 top-3 text-gray-400" />
                         <input
                             type="text"
                             placeholder="Search by email, name, or ID..."
                             value={searchTerm}
                             onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                            className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                         />
                     </div>
                     <button className="px-4 py-2 border border-[#E4E7EC] rounded-lg font-medium hover:bg-gray-50 flex items-center gap-2">
@@ -127,13 +127,13 @@ const AdminUsersPage = () => {
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b border-[#E4E7EC]">
                             <tr>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">User</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Plan</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Invoices</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Registered</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Actions</th>
+                                <th className="px-6 py-3 text-left text-[14px] font-semibold text-gray-700">User</th>
+                                <th className="px-6 py-3 text-left text-[14px] font-semibold text-gray-700">Status</th>
+                                <th className="px-6 py-3 text-left text-[14px] font-semibold text-gray-700">Role</th>
+                                <th className="px-6 py-3 text-left text-[14px] font-semibold text-gray-700">Plan</th>
+                                <th className="px-6 py-3 text-left text-[14px] font-semibold text-gray-700">Invoices</th>
+                                <th className="px-6 py-3 text-left text-[14px] font-semibold text-gray-700">Registered</th>
+                                <th className="px-6 py-3 text-left text-[14px] font-semibold text-gray-700">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#E4E7EC]">
@@ -159,15 +159,15 @@ const AdminUsersPage = () => {
                                     <td className="px-6 py-4 text-sm text-gray-900">{user.invoiceCount}</td>
                                     <td className="px-6 py-4 text-sm text-gray-500">{user.registeredDate}</td>
                                     <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2">
-                                            <button onClick={() => handleViewUser(user)} className="p-2 hover:bg-gray-100 rounded-lg" title="View details">
-                                                <Eye size={18} className="text-gray-600" />
-                                            </button>
+                                        <div className="flex items-center justify-center">
                                             <div className="relative group">
                                                 <button className="p-2 hover:bg-gray-100 rounded-lg">
-                                                    <ChevronDown size={18} className="text-gray-600" />
+                                                    <MoreVertical size={18} className="text-gray-600" />
                                                 </button>
-                                                <div className="hidden group-hover:block absolute right-0 mt-1 w-48 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-10">
+                                                <div className="hidden group-hover:block absolute right-0 bottom-full mb-1 w-48 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-[9999]">
+                                                    <button onClick={() => handleViewUser(user)} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-lg">
+                                                        View Details
+                                                    </button>
                                                     <button onClick={() => handleAction(user, "role")} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                                         Change Role
                                                     </button>
@@ -177,7 +177,7 @@ const AdminUsersPage = () => {
                                                     <button onClick={() => handleAction(user, "deactivate")} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                                         {user.status === "active" ? "Deactivate" : "Activate"}
                                                     </button>
-                                                    <button onClick={() => handleAction(user, "delete")} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                                    <button onClick={() => handleAction(user, "delete")} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-lg">
                                                         Delete Account
                                                     </button>
                                                 </div>
