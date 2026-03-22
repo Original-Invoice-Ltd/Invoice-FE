@@ -2,7 +2,7 @@
  * OAuth utility functions for handling Google and Apple Sign-In
  */
 
-const API_BASE_URL = '/api/proxy';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
 
 export class OAuthClient {
   /**

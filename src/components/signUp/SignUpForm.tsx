@@ -133,7 +133,7 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
     if (!selectedProvider) return;
 
     setOauthLoading(true);
-    const apiBaseUrl = '/api/proxy';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
 
     // Create a unique state parameter to track this OAuth flow
     const state = btoa(JSON.stringify({

@@ -149,7 +149,7 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
       <div className="flex flex-col sm:flex-row gap-4">
         <button
           onClick={() => {
-            const apiBaseUrl = '/api/proxy';
+            const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
             window.location.href = `${apiBaseUrl}/oauth/google/login`;
           }}
           disabled={loading}
@@ -163,7 +163,7 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
 
         <button
           onClick={() => {
-            const apiBaseUrl = '/api/proxy';
+            const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
             window.location.href = `${apiBaseUrl}/oauth/apple/login`;
           }}
           disabled={loading}

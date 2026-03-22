@@ -147,7 +147,7 @@ export const initializeTransactionWithPlan = async (
   try {
     const response = await ApiClient.initializeTransactionWithPlan({
       plan,
-      duration,
+      billingCycle: duration,
       channels,
       callbackUrl
     });

@@ -13,23 +13,10 @@ import {
   SendDraftErrorResponse,
 } from "@/types/draft";
 
-const API_BASE_URL = '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
 
-// Temporary bypass flag for testing - set to true to skip 401 redirects
-const BYPASS_AUTH_REDIRECT = true;
-
-
-// Configure axios defaults
+// Configure axios instance for direct backend communication
 const axiosInstance = axios.create({
-  baseURL: '/api/proxy',
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Configure axios for auth endpoints (direct calls, no proxy)
-const authAxios = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
@@ -177,7 +164,7 @@ export class ApiClient {
   // Authentication APIs
   static async login(email: string, password: string) {
     try {
-      const response = await authAxios.post("/api/auth/login",
+      const response = await axiosInstance.post("/api/auth/login",
         { email, password }
         // { headers: 
         //   { "X-Captcha-Token": token }
@@ -194,7 +181,7 @@ export class ApiClient {
   }
 
   static async forgotPassword(email: string) {
-    return await authAxios.post("/api/auth/forgot-password", { email });
+    return await axiosInstance.post("/api/auth/forgot-password", { email });
   }
 
   static async register(data: {
@@ -205,35 +192,35 @@ export class ApiClient {
     businessName?: string;
     businessCategory?: string;
   } ) {
-    return  await authAxios.post("/api/users/register", data)
+    return  await axiosInstance.post("/api/users/register", data)
   }
 
   static async logout() {
-    return await authAxios.post("/api/auth/logout");
+    return await axiosInstance.post("/api/auth/logout");
   }
 
   static async refreshToken() {
-    return await authAxios.post("/api/auth/refresh");
+    return await axiosInstance.post("/api/auth/refresh");
   }
 
   static async verifyEmail(token: string) {
-    return await authAxios.get("/api/auth/verify", { params: { token } });
+    return await axiosInstance.get("/api/auth/verify", { params: { token } });
   }
 
   static async verifyOTP(email: string, otp: string) {
-    return await authAxios.post("/api/auth/verify-otp", { email, otp });
+    return await axiosInstance.post("/api/auth/verify-otp", { email, otp });
   }
 
   static async resendOTP(email: string) {
-    return await authAxios.post("/api/auth/resend-otp", { email });
+    return await axiosInstance.post("/api/auth/resend-otp", { email });
   }
 
   static async sendVerificationOTP(email: string) {
-    return await authAxios.post("/api/auth/send-verification-otp", { email });
+    return await axiosInstance.post("/api/auth/send-verification-otp", { email });
   }
 
   static async verifyPasswordResetOTP(email: string, otp: string) {
-    return await authAxios.post("/api/auth/verify-password-reset-otp", {
+    return await axiosInstance.post("/api/auth/verify-password-reset-otp", {
       email,
       otp,
     });
@@ -244,7 +231,7 @@ export class ApiClient {
     otp: string,
     newPassword: string,
   ) {
-    return await authAxios.post("/api/auth/reset-password-with-otp", {
+    return await axiosInstance.post("/api/auth/reset-password-with-otp", {
       email,
       otp,
       newPassword,
@@ -478,7 +465,7 @@ export class ApiClient {
   static async getPublicInvoiceByUuid(uuid: string): Promise<ApiResponse<any>> {
     try {
       const response = await axios.get(
-        `/api/invoices/public/${uuid}`,
+        `${API_BASE_URL}/api/invoices/public/${uuid}`,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -660,7 +647,7 @@ export class ApiClient {
 
   static async initializeTransactionWithPlan(data: {
     plan: string;
-    duration?: 'monthly' | 'yearly';
+    billingCycle?: 'monthly' | 'yearly';
     channels?: string[];
     callbackUrl?: string;
   }) {
@@ -697,7 +684,7 @@ export class ApiClient {
       formData.append("evidence", receiptFile);
       // Use the public endpoint - no authentication required
       const response = await axios.post(
-        `/api/invoices/${invoiceId}/upload-evidence`,
+        `${API_BASE_URL}/api/invoices/${invoiceId}/upload-evidence`,
         formData,
         {
           headers: {

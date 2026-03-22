@@ -84,7 +84,8 @@ class ActivityTracker {
 
   private async refreshToken(): Promise<boolean> {
     try {
-      const response = await fetch('/api/auth/refresh', {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+      const response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
         method: 'POST',
         credentials: 'include',
         headers: {
