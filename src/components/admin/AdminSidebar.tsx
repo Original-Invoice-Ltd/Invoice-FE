@@ -35,6 +35,7 @@ const AdminSidebar = ({ isOpen = true, onClose, isSuperAdmin = true }: AdminSide
         await AuthService.logout();
     };
 
+
     return (
         <div className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white border-r border-[#E4E7EC] transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
             <div className="flex flex-col h-full">
