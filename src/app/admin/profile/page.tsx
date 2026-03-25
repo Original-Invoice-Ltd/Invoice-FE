@@ -2,119 +2,72 @@
 
 import { useState } from "react";
 import { Save, Lock, Mail, User, Eye, EyeOff, AlertCircle } from "lucide-react";
-
-interface ProfileData {
-    fullName: string;
-    email: string;
-    phone: string;
-    role: string;
-    status: string;
-}
-
-interface PasswordData {
-    currentPassword: string;
-    newPassword: string;
-    confirmPassword: string;
-}
+import { useAuth } from "@/contexts/AuthContext";
+import { AdminApi } from "@/lib/adminApi";
 
 const AdminProfilePage = () => {
-    const [profile, setProfile] = useState<ProfileData>({
-        fullName: "Super Admin",
-        email: "superadmin@example.com",
-        phone: "+1 (555) 123-4567",
-        role: "SUPER_ADMIN",
-        status: "active",
-    });
+    const { user, refreshUser } = useAuth();
 
-    const [passwords, setPasswords] = useState<PasswordData>({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-    });
-
-    const [showPasswords, setShowPasswords] = useState({
-        current: false,
-        new: false,
-        confirm: false,
-    });
-
+    const [fullName, setFullName] = useState(user?.fullName || "");
+    const [phone, setPhone] = useState(user?.phone || "");
+    const [passwords, setPasswords] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    const [showPasswords, setShowPasswords] = useState({ current: false, new: false, confirm: false });
     const [profileSaved, setProfileSaved] = useState(false);
     const [passwordSaved, setPasswordSaved] = useState(false);
+    const [profileError, setProfileError] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setProfile(prev => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
-    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setPasswords(prev => ({
-            ...prev,
-            [name]: value,
-        }));
-        setPasswordError("");
-    };
-
     const handleSaveProfile = async (e: React.FormEvent) => {
         e.preventDefault();
+        setProfileError("");
         setLoading(true);
-        try {
-            await new Promise(resolve => setTimeout(resolve, 500));
+        const res = await AdminApi.updateAdminProfile({ fullName, phone });
+        if (res.status === 200) {
+            await refreshUser();
             setProfileSaved(true);
             setTimeout(() => setProfileSaved(false), 3000);
-        } finally {
-            setLoading(false);
+        } else {
+            setProfileError(res.error || "Failed to update profile.");
         }
+        setLoading(false);
     };
 
     const handleChangePassword = async (e: React.FormEvent) => {
         e.preventDefault();
         setPasswordError("");
 
-        if (!passwords.currentPassword) {
-            setPasswordError("Current password is required");
-            return;
-        }
-
-        if (!passwords.newPassword) {
-            setPasswordError("New password is required");
-            return;
-        }
-
-        if (passwords.newPassword.length < 8) {
-            setPasswordError("New password must be at least 8 characters");
-            return;
-        }
-
-        if (passwords.newPassword !== passwords.confirmPassword) {
-            setPasswordError("Passwords do not match");
-            return;
-        }
+        if (!passwords.currentPassword) return setPasswordError("Current password is required");
+        if (!passwords.newPassword) return setPasswordError("New password is required");
+        if (passwords.newPassword.length < 8) return setPasswordError("New password must be at least 8 characters");
+        if (passwords.newPassword !== passwords.confirmPassword) return setPasswordError("Passwords do not match");
 
         setLoading(true);
-        try {
-            await new Promise(resolve => setTimeout(resolve, 500));
+        const res = await AdminApi.changeAdminPassword({
+            currentPassword: passwords.currentPassword,
+            newPassword: passwords.newPassword,
+        });
+        if (res.status === 200) {
             setPasswordSaved(true);
-            setPasswords({
-                currentPassword: "",
-                newPassword: "",
-                confirmPassword: "",
-            });
+            setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
             setTimeout(() => setPasswordSaved(false), 3000);
-        } finally {
-            setLoading(false);
+        } else {
+            setPasswordError(res.error || "Failed to change password.");
         }
+        setLoading(false);
     };
+
+    const togglePassword = (field: "current" | "new" | "confirm") => {
+        setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }));
+    };
+
+    const role = user?.roles?.includes("SUPER_ADMIN") ? "SUPER_ADMIN" : "ADMIN";
+    const createdAt = user?.createdAt ? new Date(user.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" }) : "—";
 
     return (
         <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Profile Settings</h1>
+                <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Profile Settings</h1>
                 <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage your admin account settings</p>
             </div>
 
@@ -122,39 +75,22 @@ const AdminProfilePage = () => {
                 <div className="lg:col-span-1">
                     <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6 sticky top-6">
                         <div className="flex flex-col items-center text-center">
-                            <div className="w-16 sm:w-20 h-16 sm:h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mb-4">
+                            <div className="w-16 sm:w-20 h-16 sm:h-20 bg-gradient-to-br from-[#2F80ED] to-blue-600 rounded-full flex items-center justify-center mb-4">
                                 <span className="text-xl sm:text-2xl font-bold text-white">
-                                    {profile.fullName.charAt(0)}
+                                    {(user?.fullName || "A").charAt(0).toUpperCase()}
                                 </span>
                             </div>
-                            <h2 className="text-base sm:text-lg font-bold text-gray-900">{profile.fullName}</h2>
-                            <p className="text-xs sm:text-sm text-gray-600 mt-1 break-all">{profile.email}</p>
+                            <h2 className="text-base sm:text-lg font-bold text-gray-900">{user?.fullName}</h2>
+                            <p className="text-xs sm:text-sm text-gray-600 mt-1 break-all">{user?.email}</p>
                             <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
-                                <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
-                                    {profile.role}
-                                </span>
-                                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                                    {profile.status}
-                                </span>
+                                <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">{role}</span>
+                                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">active</span>
                             </div>
                         </div>
-
                         <div className="mt-6 pt-6 border-t border-[#E4E7EC] space-y-3">
                             <div>
-                                <p className="text-xs text-gray-600 uppercase font-semibold">
-                                    Account Created
-                                </p>
-                                <p className="text-xs sm:text-sm font-medium text-gray-900 mt-1">
-                                    December 1, 2023
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-xs text-gray-600 uppercase font-semibold">
-                                    Last Login
-                                </p>
-                                <p className="text-xs sm:text-sm font-medium text-gray-900 mt-1">
-                                    March 21, 2024 - 09:15 AM
-                                </p>
+                                <p className="text-xs text-gray-600 uppercase font-semibold">Account Created</p>
+                                <p className="text-xs sm:text-sm font-medium text-gray-900 mt-1">{createdAt}</p>
                             </div>
                         </div>
                     </div>
@@ -165,97 +101,45 @@ const AdminProfilePage = () => {
                         <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Personal Information</h2>
 
                         {profileSaved && (
-                            <div className="mb-4 sm:mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex gap-3">
-                                <div className="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <span className="text-white text-sm">✓</span>
-                                </div>
-                                <p className="text-green-700 font-medium text-sm sm:text-base">
-                                    Profile updated successfully
-                                </p>
+                            <div className="mb-4 bg-green-50 border border-green-200 rounded-lg p-3">
+                                <p className="text-sm text-green-700 font-medium">Profile updated successfully</p>
+                            </div>
+                        )}
+                        {profileError && (
+                            <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3 flex gap-2">
+                                <AlertCircle size={18} className="text-red-600 flex-shrink-0 mt-0.5" />
+                                <p className="text-sm text-red-700">{profileError}</p>
                             </div>
                         )}
 
-                        <div className="space-y-3 sm:space-y-4">
+                        <div className="space-y-4">
                             <div>
-                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                                    Full Name
-                                </label>
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">Full Name</label>
                                 <div className="relative">
                                     <User size={18} className="absolute left-3 top-3 text-gray-400" />
-                                    <input
-                                        type="text"
-                                        name="fullName"
-                                        value={profile.fullName}
-                                        onChange={handleProfileChange}
-                                        className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                    />
+                                    <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm" />
                                 </div>
                             </div>
-
                             <div>
-                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                                    Email Address
-                                </label>
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">Email Address</label>
                                 <div className="relative">
                                     <Mail size={18} className="absolute left-3 top-3 text-gray-400" />
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={profile.email}
-                                        onChange={handleProfileChange}
-                                        className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                    />
+                                    <input type="email" value={user?.email || ""} disabled className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg bg-gray-50 text-gray-500 text-sm" />
                                 </div>
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Email cannot be changed. Contact super admin if needed.
-                                </p>
+                                <p className="text-xs text-gray-500 mt-1">Email cannot be changed.</p>
                             </div>
-
                             <div>
-                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                                    Phone Number
-                                </label>
-                                <input
-                                    type="tel"
-                                    name="phone"
-                                    value={profile.phone}
-                                    onChange={handleProfileChange}
-                                    className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                />
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">Phone Number</label>
+                                <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm" />
                             </div>
-
-                            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                                <div>
-                                    <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                                        Role
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={profile.role}
-                                        disabled
-                                        className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg bg-gray-50 text-gray-600 text-sm"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                                        Status
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={profile.status}
-                                        disabled
-                                        className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg bg-gray-50 text-gray-600 text-sm"
-                                    />
-                                </div>
+                            <div>
+                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">Role</label>
+                                <input type="text" value={role} disabled className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg bg-gray-50 text-gray-600 text-sm" />
                             </div>
                         </div>
 
                         <div className="mt-4 sm:mt-6 flex justify-end">
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2 text-sm sm:text-base"
-                            >
+                            <button type="submit" disabled={loading} className="w-full sm:w-auto px-6 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] disabled:opacity-50 flex items-center justify-center gap-2 text-sm">
                                 <Save size={18} />
                                 Save Changes
                             </button>
@@ -269,130 +153,44 @@ const AdminProfilePage = () => {
                         </h2>
 
                         {passwordError && (
-                            <div className="mb-4 sm:mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3">
-                                <AlertCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
-                                <p className="text-red-700 font-medium text-sm sm:text-base">{passwordError}</p>
+                            <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3 flex gap-2">
+                                <AlertCircle size={18} className="text-red-600 flex-shrink-0 mt-0.5" />
+                                <p className="text-sm text-red-700">{passwordError}</p>
                             </div>
                         )}
-
                         {passwordSaved && (
-                            <div className="mb-4 sm:mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex gap-3">
-                                <div className="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <span className="text-white text-sm">✓</span>
-                                </div>
-                                <p className="text-green-700 font-medium text-sm sm:text-base">
-                                    Password changed successfully
-                                </p>
+                            <div className="mb-4 bg-green-50 border border-green-200 rounded-lg p-3">
+                                <p className="text-sm text-green-700 font-medium">Password changed successfully</p>
                             </div>
                         )}
 
-                        <div className="space-y-3 sm:space-y-4">
-                            <div>
-                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                                    Current Password
-                                </label>
-                                <div className="relative">
-                                    <Lock size={18} className="absolute left-3 top-3 text-gray-400" />
-                                    <input
-                                        type={showPasswords.current ? "text" : "password"}
-                                        name="currentPassword"
-                                        value={passwords.currentPassword}
-                                        onChange={handlePasswordChange}
-                                        className="w-full pl-10 pr-10 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setShowPasswords(prev => ({
-                                                ...prev,
-                                                current: !prev.current,
-                                            }))
-                                        }
-                                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                                    >
-                                        {showPasswords.current ? (
-                                            <EyeOff size={18} />
-                                        ) : (
-                                            <Eye size={18} />
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                                    New Password
-                                </label>
-                                <div className="relative">
-                                    <Lock size={18} className="absolute left-3 top-3 text-gray-400" />
-                                    <input
-                                        type={showPasswords.new ? "text" : "password"}
-                                        name="newPassword"
-                                        value={passwords.newPassword}
-                                        onChange={handlePasswordChange}
-                                        className="w-full pl-10 pr-10 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setShowPasswords(prev => ({
-                                                ...prev,
-                                                new: !prev.new,
-                                            }))
-                                        }
-                                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                                    >
-                                        {showPasswords.new ? (
-                                            <EyeOff size={18} />
-                                        ) : (
-                                            <Eye size={18} />
-                                        )}
-                                    </button>
-                                </div>
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Must be at least 8 characters long
-                                </p>
-                            </div>
-
-                            <div>
-                                <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                                    Confirm New Password
-                                </label>
-                                <div className="relative">
-                                    <Lock size={18} className="absolute left-3 top-3 text-gray-400" />
-                                    <input
-                                        type={showPasswords.confirm ? "text" : "password"}
-                                        name="confirmPassword"
-                                        value={passwords.confirmPassword}
-                                        onChange={handlePasswordChange}
-                                        className="w-full pl-10 pr-10 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setShowPasswords(prev => ({
-                                                ...prev,
-                                                confirm: !prev.confirm,
-                                            }))
-                                        }
-                                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                                    >
-                                        {showPasswords.confirm ? (
-                                            <EyeOff size={18} />
-                                        ) : (
-                                            <Eye size={18} />
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
+                        <div className="space-y-4">
+                            {(["currentPassword", "newPassword", "confirmPassword"] as const).map((field) => {
+                                const labels = { currentPassword: "Current Password", newPassword: "New Password", confirmPassword: "Confirm New Password" };
+                                const showKey = field === "currentPassword" ? "current" : field === "newPassword" ? "new" : "confirm";
+                                return (
+                                    <div key={field}>
+                                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">{labels[field]}</label>
+                                        <div className="relative">
+                                            <Lock size={18} className="absolute left-3 top-3 text-gray-400" />
+                                            <input
+                                                type={showPasswords[showKey as keyof typeof showPasswords] ? "text" : "password"}
+                                                value={passwords[field]}
+                                                onChange={(e) => setPasswords(prev => ({ ...prev, [field]: e.target.value }))}
+                                                className="w-full pl-10 pr-10 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm"
+                                            />
+                                            <button type="button" onClick={() => togglePassword(showKey as "current" | "new" | "confirm")} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
+                                                {showPasswords[showKey as keyof typeof showPasswords] ? <EyeOff size={18} /> : <Eye size={18} />}
+                                            </button>
+                                        </div>
+                                        {field === "newPassword" && <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters long</p>}
+                                    </div>
+                                );
+                            })}
                         </div>
 
                         <div className="mt-4 sm:mt-6 flex justify-end">
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2 text-sm sm:text-base"
-                            >
+                            <button type="submit" disabled={loading} className="w-full sm:w-auto px-6 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] disabled:opacity-50 flex items-center justify-center gap-2 text-sm">
                                 <Lock size={18} />
                                 Update Password
                             </button>

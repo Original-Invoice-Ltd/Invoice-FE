@@ -2,19 +2,14 @@
 
 import { X, Mail, Lock, User } from "lucide-react";
 import { useState } from "react";
+import { AdminManagementUser } from "@/lib/adminApi";
 
-interface Admin {
-    id?: string;
-    email: string;
-    fullName: string;
-    role: "ADMIN" | "SUPER_ADMIN";
-    status: "active" | "inactive";
-}
+type Admin = Pick<AdminManagementUser, "id" | "email" | "fullName" | "role" | "status">;
 
 interface AdminFormModalProps {
     admin?: Admin;
     onClose: () => void;
-    onSubmit: (data: Admin) => void;
+    onSubmit: (data: Admin) => void | Promise<void>;
 }
 
 const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
