@@ -1,30 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function AdminLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const { user, loading } = useAuth();
+    const router = useRouter();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    const isSuperAdmin = user?.roles?.includes("SUPER_ADMIN") ?? false;
+    const isAdmin = user?.roles?.includes("ADMIN") || isSuperAdmin;
+
+    useEffect(() => {
+        if (!loading && (!user || !isAdmin)) {
+            router.push("/dashboard");
+        }
+    }, [user, loading, isAdmin, router]);
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen bg-[#F9FAFB]">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
+
+    if (!user || !isAdmin) {
+        return null;
+    }
 
     return (
         <div className="flex h-screen overflow-hidden bg-[#F9FAFB]">
-            <AdminSidebar 
-                isOpen={sidebarOpen} 
+            <AdminSidebar
+                isOpen={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
-                isSuperAdmin={true}
+                isSuperAdmin={isSuperAdmin}
             />
-            
+
             <div className="flex-1 flex flex-col overflow-hidden">
-                <AdminHeader 
+                <AdminHeader
                     onMenuClick={() => setSidebarOpen(!sidebarOpen)}
-                    isSuperAdmin={true}
+                    isSuperAdmin={isSuperAdmin}
                 />
-                
+
                 <main className="flex-1 overflow-auto scrollbar-hide">
                     {children}
                 </main>

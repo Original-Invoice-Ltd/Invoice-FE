@@ -1,50 +1,80 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Filter, Download, ChevronDown, Eye, Edit2, Trash2 } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Search, Filter, Eye, ChevronDown, Download } from "lucide-react";
 import UserDetailModal from "@/components/admin/modals/UserDetailModal";
 import UserActionModal from "@/components/admin/modals/UserActionModal";
-
-interface User {
-    id: string;
-    email: string;
-    fullName: string;
-    status: "active" | "inactive";
-    role: "USER" | "ADMIN" | "SUPER_ADMIN";
-    plan: "FREE" | "ESSENTIALS" | "PREMIUM";
-    invoiceCount: number;
-    registeredDate: string;
-}
+import { AdminApi, AdminUser } from "@/lib/adminApi";
 
 const AdminUsersPage = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [roleFilter, setRoleFilter] = useState("all");
     const [planFilter, setPlanFilter] = useState("all");
-    const [currentPage, setCurrentPage] = useState(1);
-    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalElements, setTotalElements] = useState(0);
+    const [users, setUsers] = useState<AdminUser[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [showActionModal, setShowActionModal] = useState(false);
     const [actionType, setActionType] = useState<"deactivate" | "role" | "reset" | "delete">("deactivate");
 
-    const mockUsers: User[] = [
-        { id: "1", email: "john@example.com", fullName: "John Doe", status: "active", role: "USER", plan: "PREMIUM", invoiceCount: 45, registeredDate: "2024-01-15" },
-        { id: "2", email: "jane@example.com", fullName: "Jane Smith", status: "active", role: "USER", plan: "ESSENTIALS", invoiceCount: 12, registeredDate: "2024-02-20" },
-        { id: "3", email: "admin@example.com", fullName: "Admin User", status: "active", role: "ADMIN", plan: "PREMIUM", invoiceCount: 0, registeredDate: "2023-12-01" },
-    ];
+    const PAGE_SIZE = 10;
 
-    const itemsPerPage = 10;
-    const filteredUsers = mockUsers.filter(user => {
-        const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) || user.fullName.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = statusFilter === "all" || user.status === statusFilter;
-        const matchesRole = roleFilter === "all" || user.role === roleFilter;
-        const matchesPlan = planFilter === "all" || user.plan === planFilter;
-        return matchesSearch && matchesStatus && matchesRole && matchesPlan;
-    });
+    const fetchUsers = useCallback(async () => {
+        setLoading(true);
+        const res = await AdminApi.getUsers({
+            page: currentPage,
+            size: PAGE_SIZE,
+            search: searchTerm || undefined,
+            status: statusFilter !== "all" ? statusFilter : undefined,
+            role: roleFilter !== "all" ? roleFilter : undefined,
+            plan: planFilter !== "all" ? planFilter : undefined,
+        });
+        if (res.data) {
+            setUsers(res.data.content);
+            setTotalPages(res.data.totalPages);
+            setTotalElements(res.data.totalElements);
+        }
+        setLoading(false);
+    }, [currentPage, searchTerm, statusFilter, roleFilter, planFilter]);
 
-    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
+    useEffect(() => {
+        const debounce = setTimeout(fetchUsers, 300);
+        return () => clearTimeout(debounce);
+    }, [fetchUsers]);
+
+    const handleFilterChange = (setter: (v: string) => void) => (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setter(e.target.value);
+        setCurrentPage(0);
+    };
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+        setCurrentPage(0);
+    };
+
+    const handleViewUser = (user: AdminUser) => {
+        setSelectedUser(user);
+        setShowDetailModal(true);
+    };
+
+    const handleAction = (user: AdminUser, type: typeof actionType) => {
+        setSelectedUser(user);
+        setActionType(type);
+        setShowActionModal(true);
+    };
+
+    const handleActionComplete = () => {
+        setShowActionModal(false);
+        fetchUsers();
+    };
+
+    const handleExport = async () => {
+        await AdminApi.exportUsers();
+    };
 
     const getRoleColor = (role: string) => {
         switch (role) {
@@ -54,66 +84,54 @@ const AdminUsersPage = () => {
         }
     };
 
-    const getStatusColor = (status: string) => {
-        return status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700";
-    };
+    const getStatusColor = (status: string) =>
+        status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700";
 
-    const handleViewUser = (user: User) => {
-        setSelectedUser(user);
-        setShowDetailModal(true);
-    };
-
-    const handleAction = (user: User, type: typeof actionType) => {
-        setSelectedUser(user);
-        setActionType(type);
-        setShowActionModal(true);
-    };
+    const startIndex = currentPage * PAGE_SIZE;
 
     return (
-        <div className="p-6 space-y-6">
-            <div className="flex justify-between items-center">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-                    <p className="text-gray-600 mt-1">Manage platform users and permissions</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">User Management</h1>
+                    <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage platform users and permissions</p>
                 </div>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">
+                <button onClick={handleExport} className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center justify-center gap-2">
+                    <Download size={18} />
                     Export Users
                 </button>
             </div>
 
-            <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 space-y-4">
-                <div className="flex gap-4 flex-col sm:flex-row">
+            <div className="bg-white border border-[#E4E7EC] rounded-xl p-3 sm:p-4 space-y-3">
+                <div className="flex gap-2 sm:gap-4 flex-col sm:flex-row">
                     <div className="flex-1 relative">
                         <Search size={20} className="absolute left-3 top-3 text-gray-400" />
                         <input
                             type="text"
-                            placeholder="Search by email, name, or ID..."
+                            placeholder="Search by email or name..."
                             value={searchTerm}
-                            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                            className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            onChange={handleSearchChange}
+                            className="w-full pl-10 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                         />
                     </div>
-                    <button className="px-4 py-2 border border-[#E4E7EC] rounded-lg font-medium hover:bg-gray-50 flex items-center gap-2">
-                        <Filter size={20} />
-                        More Filters
+                    <button className="px-4 py-2 border border-[#E4E7EC] rounded-lg font-medium hover:bg-gray-50 flex items-center gap-2 whitespace-nowrap text-sm">
+                        <Filter size={18} />
+                        <span className="hidden sm:inline">Filters</span>
                     </button>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }} className="px-4 py-2 border border-[#E4E7EC] rounded-lg text-sm">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                    <select value={statusFilter} onChange={handleFilterChange(setStatusFilter)} className="px-3 py-2 border border-[#E4E7EC] rounded-lg text-xs sm:text-sm">
                         <option value="all">All Status</option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
-
-                    <select value={roleFilter} onChange={(e) => { setRoleFilter(e.target.value); setCurrentPage(1); }} className="px-4 py-2 border border-[#E4E7EC] rounded-lg text-sm">
+                    <select value={roleFilter} onChange={handleFilterChange(setRoleFilter)} className="px-3 py-2 border border-[#E4E7EC] rounded-lg text-xs sm:text-sm">
                         <option value="all">All Roles</option>
                         <option value="USER">User</option>
                         <option value="ADMIN">Admin</option>
                         <option value="SUPER_ADMIN">Super Admin</option>
                     </select>
-
-                    <select value={planFilter} onChange={(e) => { setPlanFilter(e.target.value); setCurrentPage(1); }} className="px-4 py-2 border border-[#E4E7EC] rounded-lg text-sm">
+                    <select value={planFilter} onChange={handleFilterChange(setPlanFilter)} className="px-3 py-2 border border-[#E4E7EC] rounded-lg text-xs sm:text-sm col-span-2 sm:col-span-1">
                         <option value="all">All Plans</option>
                         <option value="FREE">Free</option>
                         <option value="ESSENTIALS">Essentials</option>
@@ -124,62 +142,64 @@ const AdminUsersPage = () => {
 
             <div className="bg-white border border-[#E4E7EC] rounded-xl overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full">
+                    <table className="w-full text-sm">
                         <thead className="bg-gray-50 border-b border-[#E4E7EC]">
                             <tr>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">User</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Plan</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Invoices</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Registered</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Actions</th>
+                                <th className="px-3 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">User</th>
+                                <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
+                                <th className="hidden md:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">Role</th>
+                                <th className="hidden lg:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">Plan</th>
+                                <th className="hidden lg:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">Invoices</th>
+                                <th className="hidden lg:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">Registered</th>
+                                <th className="px-3 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#E4E7EC]">
-                            {paginatedUsers.map((user) => (
+                            {loading ? (
+                                [...Array(5)].map((_, i) => (
+                                    <tr key={i}>
+                                        <td colSpan={7} className="px-6 py-4">
+                                            <div className="h-4 bg-gray-100 rounded animate-pulse w-full"></div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : users.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500 text-sm">
+                                        No users found
+                                    </td>
+                                </tr>
+                            ) : users.map((user) => (
                                 <tr key={user.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4">
-                                        <div>
-                                            <p className="font-medium text-gray-900">{user.fullName}</p>
-                                            <p className="text-sm text-gray-500">{user.email}</p>
-                                        </div>
+                                    <td className="px-3 sm:px-6 py-4">
+                                        <p className="font-medium text-gray-900 text-sm">{user.fullName}</p>
+                                        <p className="text-xs text-gray-500">{user.email}</p>
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(user.status)}`}>
-                                            {user.status}
-                                        </span>
+                                    <td className="hidden sm:table-cell px-6 py-4">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(user.status)}`}>{user.status}</span>
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getRoleColor(user.role)}`}>
-                                            {user.role}
-                                        </span>
+                                    <td className="hidden md:table-cell px-6 py-4">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getRoleColor(user.role)}`}>{user.role}</span>
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-gray-900">{user.plan}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-900">{user.invoiceCount}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">{user.registeredDate}</td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2">
-                                            <button onClick={() => handleViewUser(user)} className="p-2 hover:bg-gray-100 rounded-lg" title="View details">
-                                                <Eye size={18} className="text-gray-600" />
+                                    <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-900">{user.plan}</td>
+                                    <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-900">{user.invoiceCount}</td>
+                                    <td className="hidden lg:table-cell px-6 py-4 text-xs text-gray-500">{user.registeredDate}</td>
+                                    <td className="px-3 sm:px-6 py-4">
+                                        <div className="flex items-center gap-1">
+                                            <button onClick={() => handleViewUser(user)} className="p-2 hover:bg-gray-100 rounded-lg" title="View">
+                                                <Eye size={16} className="text-gray-600" />
                                             </button>
                                             <div className="relative group">
                                                 <button className="p-2 hover:bg-gray-100 rounded-lg">
-                                                    <ChevronDown size={18} className="text-gray-600" />
+                                                    <ChevronDown size={16} className="text-gray-600" />
                                                 </button>
-                                                <div className="hidden group-hover:block absolute right-0 mt-1 w-48 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-10">
-                                                    <button onClick={() => handleAction(user, "role")} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                        Change Role
-                                                    </button>
-                                                    <button onClick={() => handleAction(user, "reset")} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                        Reset Password
-                                                    </button>
-                                                    <button onClick={() => handleAction(user, "deactivate")} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                <div className="hidden group-hover:block absolute right-0 mt-1 w-44 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-10">
+                                                    <button onClick={() => handleAction(user, "role")} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">Change Role</button>
+                                                    <button onClick={() => handleAction(user, "reset")} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">Reset Password</button>
+                                                    <button onClick={() => handleAction(user, "deactivate")} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">
                                                         {user.status === "active" ? "Deactivate" : "Activate"}
                                                     </button>
-                                                    <button onClick={() => handleAction(user, "delete")} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                                                        Delete Account
-                                                    </button>
+                                                    <button onClick={() => handleAction(user, "delete")} className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-gray-50">Delete Account</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -189,18 +209,13 @@ const AdminUsersPage = () => {
                         </tbody>
                     </table>
                 </div>
-
-                <div className="px-6 py-4 border-t border-[#E4E7EC] flex items-center justify-between">
-                    <p className="text-sm text-gray-600">
-                        Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredUsers.length)} of {filteredUsers.length} users
+                <div className="px-3 sm:px-6 py-4 border-t border-[#E4E7EC] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <p className="text-xs sm:text-sm text-gray-600">
+                        Showing {totalElements === 0 ? 0 : startIndex + 1}–{Math.min(startIndex + PAGE_SIZE, totalElements)} of {totalElements} users
                     </p>
-                    <div className="flex gap-2">
-                        <button onClick={() => setCurrentPage(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className="px-4 py-2 border border-[#E4E7EC] rounded-lg disabled:opacity-50">
-                            Previous
-                        </button>
-                        <button onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} className="px-4 py-2 border border-[#E4E7EC] rounded-lg disabled:opacity-50">
-                            Next
-                        </button>
+                    <div className="flex gap-2 w-full sm:w-auto">
+                        <button onClick={() => setCurrentPage(p => Math.max(0, p - 1))} disabled={currentPage === 0} className="flex-1 sm:flex-none px-4 py-2 border border-[#E4E7EC] rounded-lg disabled:opacity-50 text-sm">Previous</button>
+                        <button onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))} disabled={currentPage >= totalPages - 1} className="flex-1 sm:flex-none px-4 py-2 border border-[#E4E7EC] rounded-lg disabled:opacity-50 text-sm">Next</button>
                     </div>
                 </div>
             </div>
@@ -208,9 +223,8 @@ const AdminUsersPage = () => {
             {showDetailModal && selectedUser && (
                 <UserDetailModal user={selectedUser} onClose={() => setShowDetailModal(false)} />
             )}
-
             {showActionModal && selectedUser && (
-                <UserActionModal user={selectedUser} actionType={actionType} onClose={() => setShowActionModal(false)} />
+                <UserActionModal user={selectedUser} actionType={actionType} onClose={handleActionComplete} />
             )}
         </div>
     );

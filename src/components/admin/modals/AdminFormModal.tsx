@@ -2,19 +2,14 @@
 
 import { X, Mail, Lock, User } from "lucide-react";
 import { useState } from "react";
+import { AdminManagementUser } from "@/lib/adminApi";
 
-interface Admin {
-    id?: string;
-    email: string;
-    fullName: string;
-    role: "ADMIN" | "SUPER_ADMIN";
-    status: "active" | "inactive";
-}
+type Admin = Pick<AdminManagementUser, "id" | "email" | "fullName" | "role" | "status">;
 
 interface AdminFormModalProps {
     admin?: Admin;
     onClose: () => void;
-    onSubmit: (data: Admin) => void;
+    onSubmit: (data: Admin) => void | Promise<void>;
 }
 
 const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
@@ -75,10 +70,10 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-lg max-w-md w-full mx-4">
-                <div className="flex items-center justify-between p-6 border-b border-[#E4E7EC]">
-                    <h2 className="text-xl font-bold text-gray-900">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between p-4 sm:p-6 border-b border-[#E4E7EC]">
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-900">
                         {admin ? "Edit Admin" : "Add New Admin"}
                     </h2>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
@@ -86,9 +81,9 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Full Name
                         </label>
                         <div className="relative">
@@ -99,7 +94,7 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                                 value={formData.fullName}
                                 onChange={handleChange}
                                 placeholder="Enter full name"
-                                className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                                className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 text-sm ${
                                     errors.fullName
                                         ? "border-red-500 focus:ring-red-500"
                                         : "border-[#E4E7EC] focus:ring-blue-500"
@@ -107,12 +102,12 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                             />
                         </div>
                         {errors.fullName && (
-                            <p className="text-sm text-red-600 mt-1">{errors.fullName}</p>
+                            <p className="text-xs text-red-600 mt-1">{errors.fullName}</p>
                         )}
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Email Address
                         </label>
                         <div className="relative">
@@ -123,7 +118,7 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                                 value={formData.email}
                                 onChange={handleChange}
                                 placeholder="Enter email address"
-                                className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                                className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 text-sm ${
                                     errors.email
                                         ? "border-red-500 focus:ring-red-500"
                                         : "border-[#E4E7EC] focus:ring-blue-500"
@@ -131,19 +126,19 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                             />
                         </div>
                         {errors.email && (
-                            <p className="text-sm text-red-600 mt-1">{errors.email}</p>
+                            <p className="text-xs text-red-600 mt-1">{errors.email}</p>
                         )}
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Role
                         </label>
                         <select
                             name="role"
                             value={formData.role}
                             onChange={handleChange}
-                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                         >
                             <option value="ADMIN">Admin</option>
                             <option value="SUPER_ADMIN">Super Admin</option>
@@ -151,14 +146,14 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Status
                         </label>
                         <select
                             name="status"
                             value={formData.status}
                             onChange={handleChange}
-                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                         >
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
@@ -167,7 +162,7 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
 
                     {!admin && (
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                            <p className="text-sm text-blue-700">
+                            <p className="text-xs text-blue-700">
                                 A temporary password will be sent to the email address provided.
                             </p>
                         </div>
@@ -177,14 +172,14 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 px-4 py-2 border border-[#E4E7EC] rounded-lg font-medium hover:bg-gray-50"
+                            className="flex-1 px-4 py-2 border border-[#E4E7EC] rounded-lg font-medium hover:bg-gray-50 text-sm"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+                            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 text-sm"
                         >
                             {loading ? "Saving..." : admin ? "Update Admin" : "Add Admin"}
                         </button>

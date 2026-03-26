@@ -49,9 +49,9 @@ const TaxFormModal = ({ tax, onClose, onSave }: TaxFormModalProps) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-lg max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-                <div className="flex items-center justify-between p-6 border-b border-[#E4E7EC]">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
+            <div className="bg-white rounded-xl shadow-lg max-w-md w-full mx-4 max-h-[98vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between p-6 border-b border-[#E4E7EC] flex-shrink-0">
                     <h2 className="text-xl font-bold text-gray-900">
                         {tax ? "Edit Tax Type" : "Add Tax Type"}
                     </h2>
@@ -60,7 +60,8 @@ const TaxFormModal = ({ tax, onClose, onSave }: TaxFormModalProps) => {
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+                    <div className="p-6 space-y-4 overflow-y-auto flex-1">
                     <div>
                         <label className="block text-sm font-medium text-gray-900 mb-2">
                             Tax Name *
@@ -71,7 +72,7 @@ const TaxFormModal = ({ tax, onClose, onSave }: TaxFormModalProps) => {
                             value={formData.name}
                             onChange={handleChange}
                             placeholder="e.g., VAT"
-                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                             required
                         />
                     </div>
@@ -84,7 +85,7 @@ const TaxFormModal = ({ tax, onClose, onSave }: TaxFormModalProps) => {
                             name="category"
                             value={formData.category}
                             onChange={handleChange}
-                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                         >
                             <option value="WHT">WHT</option>
                             <option value="VAT">VAT</option>
@@ -104,7 +105,7 @@ const TaxFormModal = ({ tax, onClose, onSave }: TaxFormModalProps) => {
                             onChange={handleChange}
                             placeholder="Tax description"
                             rows={3}
-                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                         />
                     </div>
 
@@ -119,7 +120,7 @@ const TaxFormModal = ({ tax, onClose, onSave }: TaxFormModalProps) => {
                                 value={formData.baseRate}
                                 onChange={handleChange}
                                 step="0.01"
-                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                 required
                             />
                         </div>
@@ -133,7 +134,7 @@ const TaxFormModal = ({ tax, onClose, onSave }: TaxFormModalProps) => {
                                 value={formData.individualRate}
                                 onChange={handleChange}
                                 step="0.01"
-                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                 required
                             />
                         </div>
@@ -147,7 +148,7 @@ const TaxFormModal = ({ tax, onClose, onSave }: TaxFormModalProps) => {
                                 value={formData.businessRate}
                                 onChange={handleChange}
                                 step="0.01"
-                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
                                 required
                             />
                         </div>
@@ -165,8 +166,9 @@ const TaxFormModal = ({ tax, onClose, onSave }: TaxFormModalProps) => {
                             Active
                         </label>
                     </div>
+                    </div>
 
-                    <div className="flex gap-3 pt-4">
+                    <div className="flex gap-3 pt-4 p-6 border-t border-[#E4E7EC] flex-shrink-0">
                         <button
                             type="button"
                             onClick={onClose}
@@ -176,7 +178,7 @@ const TaxFormModal = ({ tax, onClose, onSave }: TaxFormModalProps) => {
                         </button>
                         <button
                             type="submit"
-                            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"
+                            className="flex-1 px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7]"
                         >
                             {tax ? "Update" : "Create"}
                         </button>
