@@ -15,10 +15,10 @@ import {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
 
-// Configure axios instance for direct backend communication
+// Single axios instance for direct backend communication with HTTP-only cookies
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true,
+  withCredentials: true, // CRITICAL: Enables HTTP-only cookie authentication
   headers: {
     "Content-Type": "application/json",
   },
@@ -435,6 +435,12 @@ export class ApiClient {
         withCredentials: true,
       },
     );
+  }
+
+  static async markInvoiceAsIncomplete(invoiceId: string, amountPaid: number) {
+    return this.request("PATCH", `/api/invoices/${invoiceId}/mark-as-incomplete`, {
+      amountPaid,
+    });
   }
 
   static async getAllUserInvoices(userId?: string) {
@@ -997,7 +1003,14 @@ export class ApiClient {
   ): Array<{ label: string; action: string }> {
     const baseOptions = [{ label: "View Detail", action: "view" }];
 
-    if (status.toLowerCase() !== "paid") {
+    const statusLower = status.toLowerCase();
+    if (statusLower === "pending" || statusLower === "outstanding") {
+      return [
+        ...baseOptions,
+        { label: "Upload Receipt", action: "upload" },
+        { label: "Mark as Incomplete", action: "incomplete" },
+      ];
+    } else if (statusLower === "paid") {
       return [...baseOptions, { label: "View Receipt", action: "receipt" }];
     } else {
       return [...baseOptions, { label: "Upload Receipt", action: "upload" }];
