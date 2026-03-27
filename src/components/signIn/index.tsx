@@ -65,10 +65,16 @@ export default function SignIn() {
       const response = await ApiClient.login(formData.email, formData.password, null);
 
       if (response.status === 200) {
-        // Show success message and redirect to dashboard
-        showSuccess('Login successful! Redirecting to dashboard...');
+        showSuccess('Login successful! Redirecting...');
+        // Roles may come directly from login response or need a separate fetch
+        let roles: string[] = response.data?.roles ?? [];
+        if (roles.length === 0) {
+          const userRes = await ApiClient.getCurrentUser();
+          roles = userRes.data?.roles ?? [];
+        }
+        const isAdmin = roles.includes('SUPER_ADMIN') || roles.includes('ADMIN');
         setTimeout(() => {
-          router.push('/dashboard/overview');
+          router.push(isAdmin ? '/admin/overview' : '/dashboard/overview');
         }, 1500);
       } else {
         showError(response.error || 'Login failed. Please try again.');
