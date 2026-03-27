@@ -13,16 +13,12 @@ import {
   SendDraftErrorResponse,
 } from "@/types/draft";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
 
-// Temporary bypass flag for testing - set to true to skip 401 redirects
-const BYPASS_AUTH_REDIRECT = true;
-
-
-// Configure axios defaults
+// Single axios instance for direct backend communication with HTTP-only cookies
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true,
+  withCredentials: true, // CRITICAL: Enables HTTP-only cookie authentication
   headers: {
     "Content-Type": "application/json",
   },
@@ -45,11 +41,6 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Skip redirect if bypass flag is enabled (for testing)
-      if (BYPASS_AUTH_REDIRECT) {
-        return Promise.reject(error);
-      }
-
       // Skip redirect for certain API endpoints that may return 401 for empty data
       const skipRedirectEndpoints = [
         "/api/product/",
@@ -171,13 +162,13 @@ export class ApiClient {
   }
 
   // Authentication APIs
-  static async login(email: string, password: string, token: string) {
+  static async login(email: string, password: string) {
     try {
       const response = await axiosInstance.post("/api/auth/login",
-        { email, password },
-        { headers: 
-          { "X-Captcha-Token": token }
-        }
+        { email, password }
+        // { headers: 
+        //   { "X-Captcha-Token": token }
+        // }
       );
 
       return {
@@ -190,7 +181,7 @@ export class ApiClient {
   }
 
   static async forgotPassword(email: string) {
-    return await this.request("POST", "/api/auth/forgot-password", { email });
+    return await axiosInstance.post("/api/auth/forgot-password", { email });
   }
 
   static async register(data: {
@@ -200,40 +191,36 @@ export class ApiClient {
     phoneNumber?: string;
     businessName?: string;
     businessCategory?: string;
-  }, captcha: string ) {
-    return  await axiosInstance.post("/api/users/register", data, {
-      headers: {
-        "X-Captcha-Token": captcha,
-      },
-    })
+  } ) {
+    return  await axiosInstance.post("/api/users/register", data)
   }
 
   static async logout() {
-    return this.request("POST", "/api/auth/logout");
+    return await axiosInstance.post("/api/auth/logout");
   }
 
   static async refreshToken() {
-    return this.request("POST", "/api/auth/refresh");
+    return await axiosInstance.post("/api/auth/refresh");
   }
 
   static async verifyEmail(token: string) {
-    return this.request("GET", "/api/auth/verify", undefined, { token });
+    return await axiosInstance.get("/api/auth/verify", { params: { token } });
   }
 
   static async verifyOTP(email: string, otp: string) {
-    return this.request("POST", "/api/auth/verify-otp", { email, otp });
+    return await axiosInstance.post("/api/auth/verify-otp", { email, otp });
   }
 
   static async resendOTP(email: string) {
-    return this.request("POST", "/api/auth/resend-otp", { email });
+    return await axiosInstance.post("/api/auth/resend-otp", { email });
   }
 
   static async sendVerificationOTP(email: string) {
-    return this.request("POST", "/api/auth/send-verification-otp", { email });
+    return await axiosInstance.post("/api/auth/send-verification-otp", { email });
   }
 
   static async verifyPasswordResetOTP(email: string, otp: string) {
-    return this.request("POST", "/api/auth/verify-password-reset-otp", {
+    return await axiosInstance.post("/api/auth/verify-password-reset-otp", {
       email,
       otp,
     });
@@ -244,7 +231,7 @@ export class ApiClient {
     otp: string,
     newPassword: string,
   ) {
-    return this.request("POST", "/api/auth/reset-password-with-otp", {
+    return await axiosInstance.post("/api/auth/reset-password-with-otp", {
       email,
       otp,
       newPassword,
@@ -450,6 +437,12 @@ export class ApiClient {
     );
   }
 
+  static async markInvoiceAsIncomplete(invoiceId: string, amountPaid: number) {
+    return this.request("PATCH", `/api/invoices/${invoiceId}/mark-as-incomplete`, {
+      amountPaid,
+    });
+  }
+
   static async getAllUserInvoices(userId?: string) {
     return userId
       ? await axiosInstance.get(`/api/invoices/all-user/${userId}`, {
@@ -478,7 +471,7 @@ export class ApiClient {
   static async getPublicInvoiceByUuid(uuid: string): Promise<ApiResponse<any>> {
     try {
       const response = await axios.get(
-        `https://api.originalinvoice.com/api/invoices/public/${uuid}`,
+        `${API_BASE_URL}/api/invoices/public/${uuid}`,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -660,6 +653,7 @@ export class ApiClient {
 
   static async initializeTransactionWithPlan(data: {
     plan: string;
+    billingCycle?: 'monthly' | 'yearly';
     channels?: string[];
     callbackUrl?: string;
   }) {
@@ -696,7 +690,7 @@ export class ApiClient {
       formData.append("evidence", receiptFile);
       // Use the public endpoint - no authentication required
       const response = await axios.post(
-        `https://api.originalinvoice.com/api/invoices/${invoiceId}/upload-evidence`,
+        `${API_BASE_URL}/api/invoices/${invoiceId}/upload-evidence`,
         formData,
         {
           headers: {
@@ -1009,7 +1003,14 @@ export class ApiClient {
   ): Array<{ label: string; action: string }> {
     const baseOptions = [{ label: "View Detail", action: "view" }];
 
-    if (status.toLowerCase() !== "paid") {
+    const statusLower = status.toLowerCase();
+    if (statusLower === "pending" || statusLower === "outstanding") {
+      return [
+        ...baseOptions,
+        { label: "Upload Receipt", action: "upload" },
+        { label: "Mark as Incomplete", action: "incomplete" },
+      ];
+    } else if (statusLower === "paid") {
       return [...baseOptions, { label: "View Receipt", action: "receipt" }];
     } else {
       return [...baseOptions, { label: "Upload Receipt", action: "upload" }];

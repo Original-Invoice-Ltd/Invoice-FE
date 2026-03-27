@@ -39,9 +39,11 @@ const CustomerDashboardPage = () => {
 
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [isIncompleteModalOpen, setIsIncompleteModalOpen] = useState(false);
     const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
+    const [selectedInvoiceTotalDue, setSelectedInvoiceTotalDue] = useState<number | undefined>(undefined);
 
-    const handleDropdownAction = (action: string, invoiceId: string) => {
+    const handleDropdownAction = (action: string, invoiceId: string, totalDue?: number) => {
 
         setOpenDropdown(null);
         
@@ -57,8 +59,14 @@ const CustomerDashboardPage = () => {
             case 'upload':
                 // Open upload modal for unpaid invoices
                 setSelectedInvoiceId(invoiceId);
-
+                setSelectedInvoiceTotalDue(totalDue);
                 setIsUploadModalOpen(true);
+                break;
+            case 'incomplete':
+                // Open incomplete modal for partial payments
+                setSelectedInvoiceId(invoiceId);
+                setSelectedInvoiceTotalDue(totalDue);
+                setIsIncompleteModalOpen(true);
                 break;
         }
     };
@@ -70,7 +78,9 @@ const CustomerDashboardPage = () => {
 
     const handleModalClose = () => {
         setIsUploadModalOpen(false);
+        setIsIncompleteModalOpen(false);
         setSelectedInvoiceId(null);
+        setSelectedInvoiceTotalDue(undefined);
     };
 
     const itemsPerPage = 4;
@@ -264,7 +274,7 @@ const CustomerDashboardPage = () => {
                                                                     {getDropdownOptions(invoice.status).map((option, index) => (
                                                                         <button
                                                                             key={index}
-                                                                            onClick={() => handleDropdownAction(option.action, invoice.id)}
+                                                                            onClick={() => handleDropdownAction(option.action, invoice.id, invoice.totalDue)}
                                                                             className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                                                                         >
                                                                             {option.label}
@@ -331,6 +341,15 @@ const CustomerDashboardPage = () => {
                     onClose={handleModalClose}
                     onUpload={handleUploadReceipt}
                     invoiceId={selectedInvoiceId || undefined}
+                />
+
+                <UploadReceiptModal
+                    isOpen={isIncompleteModalOpen}
+                    onClose={handleModalClose}
+                    onUpload={handleUploadReceipt}
+                    invoiceId={selectedInvoiceId || undefined}
+                    mode="incomplete"
+                    invoiceTotalDue={selectedInvoiceTotalDue}
                 />
 
                 {/* Click outside to close dropdown */}

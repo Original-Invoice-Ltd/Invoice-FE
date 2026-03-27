@@ -44,9 +44,10 @@ interface InvoiceData {
 
 interface StandardTemplateProps {
     data: InvoiceData;
+    isFreePlan?: boolean;
 }
 
-const StandardTemplate = ({ data }: StandardTemplateProps) => {
+const StandardTemplate = ({ data, isFreePlan = false }: StandardTemplateProps) => {
     
     const calculateSubtotal = () => {
         return data.items.reduce((sum, item) => sum + item.amount, 0);
@@ -86,35 +87,35 @@ const StandardTemplate = ({ data }: StandardTemplateProps) => {
 
     return (
         <div className="bg-white p-4 sm:p-8 lg:p-12 relative">
-            {/* Watermark */}
-            <div 
-                className="absolute left-4 sm:left-8 top-2/3 -translate-y-2/3 pointer-events-none select-none z-0"
-                style={{
-                    transform: 'translateY(-50%) rotate(-22deg)',
-                    transformOrigin: 'center',
-                }}
-            >
-                <span 
-                    className="text-blue-200 font-bold whitespace-nowrap text-[1.5rem] sm:text-[2rem] md:text-[4rem]"
+            {/* Watermark - Only for Free Plan */}
+            {isFreePlan && (
+                <div 
+                    className="absolute left-4 sm:left-8 top-2/3 -translate-y-2/3 pointer-events-none select-none z-0"
                     style={{
-                        opacity: 0.3,
-                        letterSpacing: '0.1em'
+                        transform: 'translateY(-50%) rotate(-22deg)',
+                        transformOrigin: 'center',
                     }}
                 >
-                    www.originalInvoice.com
-                </span>
-            </div>
+                    <span 
+                        className="text-blue-200 font-bold whitespace-nowrap text-[1.5rem] sm:text-[2rem] md:text-[4rem]"
+                        style={{
+                            opacity: 0.3,
+                            letterSpacing: '0.1em'
+                        }}
+                    >
+                        www.originalInvoice.com
+                    </span>
+                </div>
+            )}
 
             {/* Invoice content */}
             <div className="relative z-10">
             {/* Logo */}
-            <div className="mb-6 sm:mb-8 lg:mb-12">
-                {data.logo ? (
+            {data.logo && (
+                <div className="mb-6 sm:mb-8 lg:mb-12">
                     <img src={data.logo} alt="Logo" className="w-12 h-12 sm:w-16 sm:h-16 object-contain" />
-                ) : (
-                    <span className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-900">Logo</span>
-                )}
-            </div>
+                </div>
+            )}
 
             {/* Invoice Title */}
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">INVOICE</h1>
