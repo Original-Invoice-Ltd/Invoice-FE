@@ -67,11 +67,15 @@ export default function SignIn() {
       if (response.status === 200) {
         showSuccess('Login successful! Redirecting...');
         // Roles may come directly from login response or need a separate fetch
-        let roles: string[] = response.data?.roles ?? [];
-        if (roles.length === 0) {
+        let rawRoles: any[] = response.data?.roles ?? [];
+        if (rawRoles.length === 0) {
           const userRes = await ApiClient.getCurrentUser();
-          roles = userRes.data?.roles ?? [];
+          rawRoles = userRes.data?.roles ?? [];
         }
+        // Flatten nested arrays and normalize to lowercase for comparison
+        // Roles may come as ["[USER, SUPER_ADMIN]"] — a stringified array inside an array
+        const rolesStr = rawRoles.flat().join(',');
+        const roles = rolesStr.replace(/[\[\]]/g, '').split(',').map((r: string) => r.trim());
         const isAdmin = roles.includes('SUPER_ADMIN') || roles.includes('ADMIN');
         setTimeout(() => {
           router.push(isAdmin ? '/admin/overview' : '/dashboard/overview');
