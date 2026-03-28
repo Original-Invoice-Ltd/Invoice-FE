@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Logo from '../signUp/Logo';
 import LeftIllustrationPanel from '../signUp/LeftIllustrationPanel';
 import SignInForm from './SignInForm';
@@ -11,7 +10,6 @@ import { ApiClient } from '@/lib/api';
 
 
 export default function SignIn() {
-  const router = useRouter();
   const { toast, showSuccess, showError, hideToast } = useToast();
   const [captchaToken, setCaptchaToken] = useState<string | null>(null)
   const [formData, setFormData] = useState({
@@ -57,29 +55,11 @@ export default function SignIn() {
     setLoading(true);
 
     try {
-      // CAPTCHA validation disabled
-      // if (!captchaToken) {
-      //   showError('Please complete the CAPTCHA');
-      //   return;
-      // }
       const response = await ApiClient.login(formData.email, formData.password);
 
       if (response.status === 200) {
-        showSuccess('Login successful! Redirecting...');
-        // Roles may come directly from login response or need a separate fetch
-        let rawRoles: any[] = response.data?.roles ?? [];
-        if (rawRoles.length === 0) {
-          const userRes = await ApiClient.getCurrentUser();
-          rawRoles = userRes.data?.roles ?? [];
-        }
-        // Flatten nested arrays and normalize to lowercase for comparison
-        // Roles may come as ["[USER, SUPER_ADMIN]"] — a stringified array inside an array
-        const rolesStr = rawRoles.flat().join(',');
-        const roles = rolesStr.replace(/[\[\]]/g, '').split(',').map((r: string) => r.trim());
-        const isAdmin = roles.includes('SUPER_ADMIN') || roles.includes('ADMIN');
-        setTimeout(() => {
-          router.push(isAdmin ? '/admin/overview' : '/dashboard/overview');
-        }, 1500);
+        showSuccess('Login successful!');
+        window.location.href = '/admin/overview';
       } else {
         showError(response.error || 'Login failed. Please try again.');
       }
