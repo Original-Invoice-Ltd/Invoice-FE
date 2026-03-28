@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Area, AreaChart } from "recharts";
 import { RevenueDataPoint, StatusDistribution } from "./types";
 import { useTranslation } from "react-i18next";
@@ -15,6 +15,30 @@ interface RevenueChartProps {
 
 const RevenueChart = ({ data, isEmpty, period = 'month', onPeriodChange, loading = false }: RevenueChartProps) => {
   const { t } = useTranslation();
+  const [isClient, setIsClient] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    setIsClient(true);
+    
+    // Set initial dimensions
+    if (containerRef.current) {
+      const { width, height } = containerRef.current.getBoundingClientRect();
+      setDimensions({ width, height });
+    }
+
+    // Update dimensions on resize
+    const handleResize = () => {
+      if (containerRef.current) {
+        const { width, height } = containerRef.current.getBoundingClientRect();
+        setDimensions({ width, height });
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const emptyData = [
     { month: "Jan", revenue: 0 },
     { month: "Feb", revenue: 0 },
@@ -48,9 +72,13 @@ const RevenueChart = ({ data, isEmpty, period = 'month', onPeriodChange, loading
         </button>
       </div>
       
-      <div className="w-full h-[200px] lg:h-[280px]">
+      <div ref={containerRef} className="w-full h-[200px] lg:h-[280px]">
         {loading ? (
           <div className="animate-pulse h-full bg-gray-100 rounded flex items-center justify-center">
+            <div className="text-gray-400">{t('loading_chart')}</div>
+          </div>
+        ) : !isClient || dimensions.width === 0 || dimensions.height === 0 ? (
+          <div className="h-full bg-gray-50 rounded flex items-center justify-center">
             <div className="text-gray-400">{t('loading_chart')}</div>
           </div>
         ) : (
@@ -105,9 +133,28 @@ interface StatusChartProps {
 export const StatusChart = ({ data, isEmpty }: StatusChartProps) => {
   const { t } = useTranslation();
   const [isClient, setIsClient] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     setIsClient(true);
+    
+    // Set initial dimensions
+    if (containerRef.current) {
+      const { width, height } = containerRef.current.getBoundingClientRect();
+      setDimensions({ width, height });
+    }
+
+    // Update dimensions on resize
+    const handleResize = () => {
+      if (containerRef.current) {
+        const { width, height } = containerRef.current.getBoundingClientRect();
+        setDimensions({ width, height });
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return (
@@ -131,8 +178,16 @@ export const StatusChart = ({ data, isEmpty }: StatusChartProps) => {
         </div>
       ) : (
         <div className="flex flex-col">
-          <div className="w-full h-[200px] lg:h-[225px] flex items-center justify-center mb-4">
-            {isClient && data.length > 0 && (
+          <div ref={containerRef} className="w-full h-[200px] lg:h-[225px] flex items-center justify-center mb-4">
+            {!isClient || dimensions.width === 0 || dimensions.height === 0 ? (
+              <div className="flex items-center justify-center h-full text-gray-500">
+                {t('loading_chart')}
+              </div>
+            ) : data.length === 0 ? (
+              <div className="flex items-center justify-center h-full text-gray-500">
+                {t('no_status_data')}
+              </div>
+            ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -150,11 +205,6 @@ export const StatusChart = ({ data, isEmpty }: StatusChartProps) => {
                   </Pie>
                 </PieChart>
               </ResponsiveContainer>
-            )}
-            {(!isClient || data.length === 0) && (
-              <div className="flex items-center justify-center h-full text-gray-500">
-                {data.length === 0 ? t('no_status_data') : t('loading_chart')}
-              </div>
             )}
           </div>
           

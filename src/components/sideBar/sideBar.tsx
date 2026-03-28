@@ -187,7 +187,13 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
                     </nav>
 
                     {/* Get Started Button */}
-                    <button className="w-full bg-[#2F80ED] text-white py-3 rounded-lg font-medium">
+                    <button 
+                        onClick={() => {
+                            router.push("/signUp");
+                            onClose();
+                        }}
+                        className="w-full bg-[#2F80ED] text-white py-3 rounded-lg font-medium"
+                    >
                         Get Started
                     </button>
                 </div>

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { ChevronDown, Search } from 'lucide-react';
+import countries from 'world-countries';
 
 interface CountryDropdownProps {
   value: string;
@@ -12,18 +13,10 @@ interface CountryDropdownProps {
   required?: boolean;
 }
 
-const COUNTRIES = [
-  { code: 'NG', name: 'Nigeria' },
-  { code: 'GH', name: 'Ghana' },
-  { code: 'KE', name: 'Kenya' },
-  { code: 'ZA', name: 'South Africa' },
-  { code: 'US', name: 'United States' },
-  { code: 'GB', name: 'United Kingdom' },
-  { code: 'CA', name: 'Canada' },
-  { code: 'AU', name: 'Australia' },
-  { code: 'IN', name: 'India' },
-  { code: 'DE', name: 'Germany' },
-];
+const COUNTRIES = countries.map(country => ({
+  code: country.cca2,
+  name: country.name.common
+})).sort((a, b) => a.name.localeCompare(b.name));
 
 export default function CountryDropdown({
   value,
@@ -34,20 +27,38 @@ export default function CountryDropdown({
   required = false,
 }: CountryDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const selectedCountry = COUNTRIES.find((c) => c.code === value);
+
+  // Filter countries based on search query
+  const filteredCountries = useMemo(() => {
+    if (!searchQuery.trim()) return COUNTRIES;
+    return COUNTRIES.filter(country =>
+      country.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+        setSearchQuery('');
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Focus search input when dropdown opens
+  useEffect(() => {
+    if (isOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isOpen]);
 
   return (
     <div className="flex flex-col gap-1">
@@ -74,22 +85,47 @@ export default function CountryDropdown({
         </button>
 
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[#D0D5DD] rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
-            {COUNTRIES.map((country) => (
-              <button
-                key={country.code}
-                type="button"
-                onClick={() => {
-                  onChange(country.code);
-                  setIsOpen(false);
-                }}
-                className={`w-full px-3 py-2.5 text-left hover:bg-blue-50 transition-colors first:rounded-t-lg last:rounded-b-lg text-[13px] ${
-                  value === country.code ? 'bg-blue-50 text-[#2F80ED] font-medium' : 'text-[#344054]'
-                }`}
-              >
-                {country.name}
-              </button>
-            ))}
+          <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-[#D0D5DD] rounded-lg shadow-lg z-50 max-h-60 overflow-hidden flex flex-col">
+            {/* Search Bar */}
+            <div className="p-2 border-b border-[#D0D5DD]">
+              <div className="relative">
+                <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search countries..."
+                  className="w-full pl-9 pr-3 py-2 text-[13px] border border-[#D0D5DD] rounded-md focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
+                />
+              </div>
+            </div>
+            
+            {/* Countries List */}
+            <div className="overflow-y-auto max-h-48">
+              {filteredCountries.length > 0 ? (
+                filteredCountries.map((country) => (
+                  <button
+                    key={country.code}
+                    type="button"
+                    onClick={() => {
+                      onChange(country.code);
+                      setIsOpen(false);
+                      setSearchQuery('');
+                    }}
+                    className={`w-full px-3 py-2.5 text-left hover:bg-blue-50 transition-colors text-[13px] ${
+                      value === country.code ? 'bg-blue-50 text-[#2F80ED] font-medium' : 'text-[#344054]'
+                    }`}
+                  >
+                    {country.name}
+                  </button>
+                ))
+              ) : (
+                <div className="px-3 py-4 text-center text-[13px] text-[#667085]">
+                  No countries found
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

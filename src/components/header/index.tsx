@@ -69,6 +69,7 @@ const Header = ({ currentPage }: HeaderProps) => {
                 featuresSection.scrollIntoView({ behavior: "smooth" });
             }
         }
+        // Contact Us navigation is handled by the Link component automatically
     };
 
     const handleLogout = async () => {

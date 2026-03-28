@@ -1,13 +1,3 @@
-/**
- * SignUp Component (Main Container)
- * 
- * Main component that orchestrates the two-screen signup flow:
- * 1. Sign Up screen - Email, password, full name, phone number, and social login
- * 2. OTP Verification screen - Email verification with OTP
- * 
- * Manages state and screen transitions between the forms.
- * Fully responsive for mobile and desktop devices.
- */
 'use client';
 
 import { useState } from 'react';
@@ -22,11 +12,13 @@ import { ApiClient } from '@/lib/api';
 
 type Screen = 'signup' | 'otp';
 
+
 export default function SignUp() {
   const router = useRouter();
   const { toast, showSuccess, showError, hideToast } = useToast();
   const [currentScreen, setCurrentScreen] = useState<Screen>('signup');
   const [loading, setLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -48,6 +40,7 @@ export default function SignUp() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    
 
     try {
       const response = await ApiClient.register({
@@ -63,7 +56,7 @@ export default function SignUp() {
       } else {
         // Handle different error types
         let errorMessage = 'Registration failed. Please try again.';
-        
+
         if (response.error) {
           // Handle object errors (e.g., {message: "..."})
           if (typeof response.error === 'object' && response.error !== null) {
@@ -78,7 +71,7 @@ export default function SignUp() {
             }
           }
         }
-        
+
         showError(errorMessage);
       }
     } catch (err) {
@@ -158,43 +151,44 @@ export default function SignUp() {
 
   return (
     <div className="w-full h-screen max-h-screen  flex flex-col md:flex-row">
-      {/* Left Panel - Hidden on mobile, shown on md and lg */}
       <div className="hidden md:flex md:w-1/2 h-full">
         <LeftIllustrationPanel />
       </div>
 
       {/* Right Side - Form Section */}
-      <div className="w-full md:w-1/2 h-full flex flex-col px-4 sm:px-8 md:px-6 lg:px-12 overflow-hidden"> 
+      <div className="w-full md:w-1/2 h-full flex flex-col px-4 sm:px-8 md:px-6 lg:px-12 overflow-hidden">
         {/* Logo - top-left on desktop only */}
         <div className="hidden md:block pt-6 md:pt-8 lg:pt-6 lg:mb-4">
           <Logo />
         </div>
-        
+
         {/* Form Container - scrollable with hidden scrollbar */}
         <div className="flex-1 overflow-y-auto flex items-start md:items-center justify-center pt-4 md:pt-0 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <div className="w-full max-w-[470px] py-4">
-          {/* Conditional Rendering: Sign Up or OTP Verification Form */}
-          {currentScreen === 'signup' ? (
-            <SignUpForm
-              formData={{
-                email: formData.email,
-                password: formData.password,
-                fullName: formData.fullName,
-                phoneNumber: formData.phoneNumber,
-                agreeToTerms: formData.agreeToTerms,
-              }}
-              onInputChange={handleInputChange}
-              onSubmit={handleSignUp}
-              loading={loading}
-            />
-          ) : (
-            <OTPVerificationForm
-              email={formData.email}
-              onOTPComplete={handleOTPVerification}
-              onResendOTP={handleResendOTP}
-              loading={loading}
-            />
-          )}
+            {/* Conditional Rendering: Sign Up or OTP Verification Form */}
+            {currentScreen === 'signup' ? (
+              <SignUpForm
+                formData={{
+                  email: formData.email,
+                  password: formData.password,
+                  fullName: formData.fullName,
+                  phoneNumber: formData.phoneNumber,
+                  agreeToTerms: formData.agreeToTerms,
+                }}
+                captchaToken={captchaToken}
+                setCaptchaToken={setCaptchaToken}
+                onInputChange={handleInputChange}
+                onSubmit={handleSignUp}
+                loading={loading}
+              />
+            ) : (
+              <OTPVerificationForm
+                email={formData.email}
+                onOTPComplete={handleOTPVerification}
+                onResendOTP={handleResendOTP}
+                loading={loading}
+              />
+            )}
           </div>
         </div>
       </div>

@@ -3,22 +3,55 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Settings, LogOut, ArrowLeftRight } from "lucide-react";
+import { Settings, LogOut, LucideIcon } from "lucide-react";
 import siderLogo from './../../../public/assets/header logo.svg';
 import { AuthService } from '@/lib/auth';
 import { useTranslation } from 'react-i18next';
+import { StaticImageData } from "next/image";
+
+export interface MenuItem {
+    label: string;
+    href: string;
+    icon: (isActive: boolean) => React.ReactNode;
+    isSectionDivider?: boolean;
+    sectionLabel?: string;
+}
+
+export interface BottomMenuItem {
+    icon: LucideIcon;
+    label: string;
+    href: string;
+    isLogout: boolean;
+}
 
 interface DashboardSideBarProps {
     isOpen?: boolean;
     onClose?: () => void;
     notificationsOpen?: boolean;
+    menuItems?: MenuItem[];
+    bottomItems?: BottomMenuItem[];
+    logoSrc?: StaticImageData | string;
+    logoAlt?: string;
+    logoWidth?: number;
+    logoHeight?: number;
 }
 
-const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }: DashboardSideBarProps) => {
+const DashboardSideBar = ({ 
+    isOpen = true, 
+    onClose, 
+    notificationsOpen = false,
+    menuItems,
+    bottomItems: customBottomItems,
+    logoSrc = siderLogo,
+    logoAlt = "logo",
+    logoWidth = 106,
+    logoHeight = 40
+}: DashboardSideBarProps) => {
     const pathname = usePathname();
     const { t } = useTranslation();
     
-    const menuItems = [
+    // Default menu items if none provided
+    const defaultMenuItems: MenuItem[] = [
         { 
             label: t('dashboard'),
             href: "/dashboard/overview",
@@ -84,6 +117,9 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
         }
     ];
     
+    // Use provided menu items or defaults
+    const finalMenuItems = menuItems || defaultMenuItems;
+    
     const isActive = (href: string) => {
         if (href === "/dashboard/overview") {
             return pathname === "/dashboard/overview" || pathname === "/dashboard";
@@ -91,10 +127,14 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
         return pathname?.startsWith(href);
     };
 
-    const bottomItems = [
+    // Default bottom items if none provided
+    const defaultBottomItems: BottomMenuItem[] = [
         { icon: Settings, label: t('account_settings'), href: "/dashboard/settings/account", isLogout: false },
         { icon: LogOut, label: t('logout'), href: "#", isLogout: true },
     ];
+    
+    // Use provided bottom items or defaults
+    const finalBottomItems = customBottomItems || defaultBottomItems;
 
     const handleLogout = async () => {
         await AuthService.logout();
@@ -123,12 +163,30 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
                 <div className="flex flex-col gap-[32px]">
                     {/* Logo */}
                     <div className="flex items-center justify-between">
-                        <Image src={siderLogo} height={40} width={106} className="h-[40px] w-[106px]" alt="logo" />
+                        <Image 
+                            src={logoSrc} 
+                            height={logoHeight} 
+                            width={logoWidth} 
+                            className="h-[40px] w-[106px]" 
+                            alt={logoAlt} 
+                        />
                     </div>
 
                     {/* Main Menu Items */}
                     <div className="flex flex-col gap-[8px]">
-                        {menuItems.map((item) => {
+                        {finalMenuItems.map((item, index) => {
+                            // Render section divider if this item is marked as one
+                            if (item.isSectionDivider && item.sectionLabel) {
+                                return (
+                                    <div key={`section-${index}`}>
+                                        <div className="my-[16px] border-t border-[#E4E7EC]"></div>
+                                        <div className="px-[12px] py-[8px] text-[12px] font-semibold text-[#667085] uppercase tracking-wide">
+                                            {item.sectionLabel}
+                                        </div>
+                                    </div>
+                                );
+                            }
+                            
                             const active = isActive(item.href);
                             return (
                                 <Link
@@ -154,7 +212,7 @@ const DashboardSideBar = ({ isOpen = true, onClose, notificationsOpen = false }:
 
                 {/* Bottom Menu Items */}
                 <div className="flex flex-col gap-[8px]">
-                    {bottomItems.map((item) => {
+                    {finalBottomItems.map((item) => {
                         const Icon = item.icon;
                         
                         if (item.isLogout) {

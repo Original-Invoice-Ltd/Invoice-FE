@@ -9,6 +9,8 @@ interface UploadReceiptModalProps {
   onClose: () => void;
   invoiceId?: string;
   testMode?: boolean;
+  mode?: "upload" | "incomplete";
+  invoiceTotalDue?: number;
 }
 
 type ModalState = "initial" | "uploading" | "success" | "failed";
@@ -26,12 +28,16 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
   onClose,
   invoiceId,
   testMode = false,
+  mode = "upload",
+  invoiceTotalDue,
 }) => {
   const [modalState, setModalState] = useState<ModalState>("initial");
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
+  const [amountPaid, setAmountPaid] = useState<string>("");
+  const [amountError, setAmountError] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { uploadReceipt, uploading, progress, error: uploadError, success, reset } = useReceiptUpload();
@@ -66,6 +72,8 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
         setUploadedFile(null);
         setSelectedFile(null);
         setFilePreviewUrl(null);
+        setAmountPaid("");
+        setAmountError("");
         reset();
       }, 300);
     }
@@ -223,6 +231,41 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
     }, 300);
   };
 
+  const handleSubmitIncomplete = async () => {
+    // Validate amount
+    const amount = parseFloat(amountPaid);
+    if (!amountPaid || isNaN(amount) || amount <= 0) {
+      setAmountError("Please enter a valid amount greater than 0");
+      return;
+    }
+    setAmountError("");
+
+    if (!invoiceId) {
+      console.error("No invoice ID provided");
+      return;
+    }
+
+    setModalState("uploading");
+
+    try {
+      const { ApiClient } = await import("@/lib/api");
+      const response = await ApiClient.markInvoiceAsIncomplete(invoiceId, amount);
+      
+      if (response.status === 200) {
+        setModalState("success");
+        setTimeout(() => {
+          onClose();
+          window.location.reload(); 
+        }, 1500);
+      } else {
+        setModalState("failed");
+      }
+    } catch (error) {
+      console.error("Error marking invoice as incomplete:", error);
+      setModalState("failed");
+    }
+  };
+
   const handleCancel = () => {
     onClose();
     setTimeout(() => {
@@ -273,11 +316,12 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
         <div className="flex justify-between items-start p-6 pb-4">
           <div>
             <h2 className="text-xl font-bold text-gray-900">
-              Upload Payment Receipt
+              {mode === "incomplete" ? "Mark as Incomplete Payment" : "Upload Payment Receipt"}
             </h2>
             <p className="text-sm text-gray-600 mt-2">
-              Please upload proof of your payment so the business can review and
-              confirm it. Supported files: JPG, PNG, PDF (max 10MB).
+              {mode === "incomplete" 
+                ? "Enter the amount you've paid so far and optionally upload a receipt. The invoice will remain outstanding until fully paid."
+                : "Please upload proof of your payment so the business can review and confirm it. Supported files: JPG, PNG, PDF (max 10MB)."}
             </p>
           </div>
           <button
@@ -289,6 +333,32 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
         </div>
 
         <div className="px-6 pb-6">
+          {/* Amount Paid Input (incomplete mode only) */}
+          {mode === "incomplete" && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Balance Left {invoiceTotalDue && `(Total Due: ₦${invoiceTotalDue.toLocaleString()})`}
+              </label>
+              <input
+                type="number"
+                value={amountPaid}
+                onChange={(e) => {
+                  setAmountPaid(e.target.value);
+                  setAmountError("");
+                }}
+                placeholder="Enter balance left"
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${
+                  amountError 
+                    ? "border-red-500 focus:ring-red-500" 
+                    : "border-gray-300 focus:ring-blue-500"
+                }`}
+                disabled={modalState === "uploading"}
+              />
+              {amountError && (
+                <p className="text-red-500 text-sm mt-1">{amountError}</p>
+              )}
+            </div>
+          )}
           {/* Large Preview Area - shown for uploading, success, and failed states */}
           {(modalState === "uploading" || modalState === "success" || modalState === "failed") && filePreviewUrl && (
             <div className="border-2 border-dashed border-gray-300 rounded-lg mb-4 bg-white min-h-[280px] flex items-center justify-center p-4 overflow-hidden">
@@ -345,7 +415,7 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
                   <UploadIcon className="w-8 h-8 text-blue-600" />
                 </div>
                 <div className="text-gray-900 font-semibold mb-1">
-                  Upload Receipt
+                  {mode === "incomplete" ? "Upload Receipt (Optional)" : "Upload Receipt"}
                 </div>
                 <div className="text-sm text-gray-500 mb-4">
                   Drag & drop or click to upload
@@ -475,7 +545,11 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
               Cancel
             </button>
             <button
-              onClick={modalState === "success" ? handleSave : handleBrowseClick}
+              onClick={
+                mode === "incomplete" 
+                  ? handleSubmitIncomplete 
+                  : (modalState === "success" ? handleSave : handleBrowseClick)
+              }
               disabled={modalState === "uploading"}
               className={`flex-1 px-6 py-3 rounded-lg font-medium ${
                 modalState === "uploading"
@@ -483,7 +557,9 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
                   : "bg-blue-600 text-white hover:bg-blue-700"
               }`}
             >
-              {modalState === "success" ? "Save" : "Upload Receipt"}
+              {mode === "incomplete" 
+                ? "Submit" 
+                : (modalState === "success" ? "Save" : "Upload Receipt")}
             </button>
           </div>
         </div>

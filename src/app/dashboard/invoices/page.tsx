@@ -6,7 +6,7 @@ import { Plus, Search, MoreHorizontal, Eye, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 import { ApiClient } from "@/lib/api";
-import { InvoiceResponse } from "@/types/invoice";
+import { InvoiceResponse } from "@/lib/invoiceTypes";
 import DeleteConfirmationModal from "@/components/common/DeleteConfirmationModal";
 import Toast from '@/components/ui/Toast';
 import { useToast } from "@/hooks/useToast";;
@@ -139,7 +139,11 @@ const InvoicesPage = () => {
     const filteredInvoices = invoices.filter(invoice =>
         (invoice.billTo?.fullName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         (invoice.invoiceNumber || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (invoice.billTo?.businessName || '').toLowerCase().includes(searchQuery.toLowerCase())
+        (invoice.billTo?.businessName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (invoice.billFrom?.businessName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (invoice.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (invoice.status || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (invoice.note || '').toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const sortedInvoices = [...filteredInvoices].sort((a, b) => {
@@ -182,7 +186,7 @@ const InvoicesPage = () => {
 
     const getStatusColor = (status: string | null | undefined) => {
         if (!status) {
-            return 'bg-gray-100 text-gray-800'; // Default for null/undefined status
+            return 'bg-gray-100 text-gray-800'; 
         }
         switch (status.toLowerCase()) {
             case 'paid':

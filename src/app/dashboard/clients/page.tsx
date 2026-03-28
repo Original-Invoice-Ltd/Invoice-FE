@@ -10,6 +10,7 @@ import DeleteConfirmationModal from "@/components/common/DeleteConfirmationModal
 import { useInvoiceLimit } from "@/contexts/InvoiceLimitContext";
 import { useInvoiceLimitNotification } from "@/hooks/useInvoiceLimitNotification";
 import { useTranslation } from 'react-i18next';
+import { useSubscription } from '@/hooks/useSubscription';
 
 
 interface Client {
@@ -37,6 +38,7 @@ interface FormData {
 const ClientsPage = () => {
     const router = useRouter();
     const { t } = useTranslation();
+    const { subscription } = useSubscription();
     const { canCreateInvoice } = useInvoiceLimit();
     const { showBlockedNotification } = useInvoiceLimitNotification();
     const [searchQuery, setSearchQuery] = useState("");
@@ -192,10 +194,47 @@ const ClientsPage = () => {
 
             const clientData = { ...formData, phone: normalizedPhone };
 
-            if (isEditMode && editingClientId) {
-                response = await ApiClient.updateClient(editingClientId, clientData);
+            // Check if user is premium (ESSENTIALS or PREMIUM plan)
+            const isPremium = subscription && (subscription.plan === 'PREMIUM' || subscription.plan === 'ESSENTIALS');
+
+            if (isPremium) {
+                // Get default business profile for premium users
+                const profilesResponse = await ApiClient.getAllBusinessProfiles();
+                
+                if (profilesResponse.status === 200 && profilesResponse.data && profilesResponse.data.length > 0) {
+                    // Find default profile or use first one
+                    const defaultProfile = profilesResponse.data.find((p: any) => p.isDefault) || profilesResponse.data[0];
+                    const businessProfileId = defaultProfile.id;
+                    
+                    // Use business profile endpoint for premium users
+                    if (isEditMode && editingClientId) {
+                        // Update client in business profile
+                        response = await ApiClient.put(
+                            `/api/client/business-profile/${businessProfileId}/${editingClientId}`,
+                            clientData
+                        );
+                    } else {
+                        // Add client to business profile
+                        response = await ApiClient.post(
+                            `/api/client/business-profile/${businessProfileId}`,
+                            clientData
+                        );
+                    }
+                } else {
+                    // No business profile found, fall back to standard endpoint
+                    if (isEditMode && editingClientId) {
+                        response = await ApiClient.updateClient(editingClientId, clientData);
+                    } else {
+                        response = await ApiClient.addClient(clientData);
+                    }
+                }
             } else {
-                response = await ApiClient.addClient(clientData);
+                // Use standard endpoint for non-premium users
+                if (isEditMode && editingClientId) {
+                    response = await ApiClient.updateClient(editingClientId, clientData);
+                } else {
+                    response = await ApiClient.addClient(clientData);
+                }
             }
 
             const expectedStatus = isEditMode ? 200 : 201;

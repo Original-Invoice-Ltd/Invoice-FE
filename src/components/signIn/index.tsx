@@ -9,9 +9,11 @@ import Toast from '@/components/ui/Toast';
 import { useToast } from '@/hooks/useToast';
 import { ApiClient } from '@/lib/api';
 
+
 export default function SignIn() {
   const router = useRouter();
   const { toast, showSuccess, showError, hideToast } = useToast();
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -55,13 +57,28 @@ export default function SignIn() {
     setLoading(true);
 
     try {
+      // CAPTCHA validation disabled
+      // if (!captchaToken) {
+      //   showError('Please complete the CAPTCHA');
+      //   return;
+      // }
       const response = await ApiClient.login(formData.email, formData.password);
 
       if (response.status === 200) {
-        // Show success message and redirect to dashboard
-        showSuccess('Login successful! Redirecting to dashboard...');
+        showSuccess('Login successful! Redirecting...');
+        // Roles may come directly from login response or need a separate fetch
+        let rawRoles: any[] = response.data?.roles ?? [];
+        if (rawRoles.length === 0) {
+          const userRes = await ApiClient.getCurrentUser();
+          rawRoles = userRes.data?.roles ?? [];
+        }
+        // Flatten nested arrays and normalize to lowercase for comparison
+        // Roles may come as ["[USER, SUPER_ADMIN]"] — a stringified array inside an array
+        const rolesStr = rawRoles.flat().join(',');
+        const roles = rolesStr.replace(/[\[\]]/g, '').split(',').map((r: string) => r.trim());
+        const isAdmin = roles.includes('SUPER_ADMIN') || roles.includes('ADMIN');
         setTimeout(() => {
-          router.push('/dashboard/overview');
+          router.push(isAdmin ? '/admin/overview' : '/dashboard/overview');
         }, 1500);
       } else {
         showError(response.error || 'Login failed. Please try again.');
@@ -76,28 +93,27 @@ export default function SignIn() {
 
   return (
     <div className="w-full h-screen max-h-screen bg-[#FFFFFF] flex flex-col md:flex-row">
-      {/* Left Panel - Hidden on mobile, shown on md and lg */}
       <div className="hidden md:flex md:w-1/2 h-full ">
         <LeftIllustrationPanel />
       </div>
 
-      {/* Right Side - Form Section */}
-      <div className="w-full md:w-1/2 h-full flex flex-col px-4 sm:px-8 md:px-6 lg:px-12 overflow-hidden"> 
-        {/* Logo - top-left on desktop, hidden on mobile (shown in form) */}
+      <div className="w-full md:w-1/2 h-full flex flex-col px-4 sm:px-8 md:px-6 lg:px-12 overflow-hidden">
         <div className="hidden md:block pt-6 md:pt-8 lg:pt-7">
           <Logo />
         </div>
-        
+
         {/* Form Container - scrollable with hidden scrollbar */}
         <div className="flex-1 overflow-y-auto flex items-start md:items-center justify-center pt-4 md:pt-0 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <div className="w-full max-w-[470px] py-4">
-          {/* Sign In Form */}
-          <SignInForm
-            formData={formData}
-            onInputChange={handleInputChange}
-            onSubmit={handleSignIn}
-            loading={loading}
-          />
+            <SignInForm
+              formData={formData}
+              onInputChange={handleInputChange}
+              onSubmit={handleSignIn}
+              captchaToken={captchaToken}
+              setCaptchaToken={setCaptchaToken}
+              loading={loading}
+
+            />
           </div>
         </div>
       </div>

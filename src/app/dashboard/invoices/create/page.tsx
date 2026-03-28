@@ -20,9 +20,11 @@ import InvoiceLimitWarning from "@/components/ui/InvoiceLimitWarning";
 import { useDraft } from "@/hooks/useDraft";
 import { useTranslation } from "react-i18next";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const CreateInvoicePage = () => {
     const { t } = useTranslation();
+    const { subscription } = useSubscription();
     const {
         canCreateInvoice,
         invoicesRemaining,
@@ -86,12 +88,37 @@ const CreateInvoicePage = () => {
 
     const [showAddProductModal, setShowAddProductModal] = useState(false);
 
+    // Business Profile Dropdown State
+    const [showBusinessProfileDropdown, setShowBusinessProfileDropdown] = useState(false);
+    const [businessProfiles, setBusinessProfiles] = useState<any[]>([]);
+    const [isLoadingBusinessProfiles, setIsLoadingBusinessProfiles] = useState(false);
+    const [businessProfilesLoaded, setBusinessProfilesLoaded] = useState(false);
+    const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | null>(null);
+
     const [showBankDropdown, setShowBankDropdown] = useState(false);
     const [bankSearchQuery, setBankSearchQuery] = useState("");
 
     const nigerianBanks = [
-        { category: "Fintechs", banks: ["OPay", "PalmPay", "Moniepoint", "Kuda Bank", "Carbon", "Fairmoney"] },
-        { category: "Commercial Banks", banks: ["Access Bank", "Zenith Bank", "GTBank", "First Bank", "UBA", "Fidelity Bank", "Union Bank", "Stanbic IBTC", "Sterling Bank", "Ecobank", "FCMB", "Wema Bank", "Polaris Bank", "Keystone Bank", "Unity Bank"] }
+        { 
+            category: "Commercial Banks (Tier 1)", 
+            banks: ["Access Bank", "Zenith Bank", "GTBank", "First Bank", "UBA"] 
+        },
+        { 
+            category: "Commercial Banks (Tier 2 & Others)", 
+            banks: ["Fidelity Bank", "Union Bank", "Sterling Bank", "Stanbic IBTC", "Wema Bank", "Polaris Bank", "Keystone Bank", "Heritage Bank", "Jaiz Bank", "SunTrust Bank", "Titan Trust Bank", "Providus Bank", "Premium Trust Bank", "Globus Bank", "Parallex Bank", "Ecobank", "FCMB", "Unity Bank"] 
+        },
+        { 
+            category: "Digital / Microfinance Banks", 
+            banks: ["Kuda Bank", "OPay", "PalmPay", "Moniepoint", "VFD Microfinance Bank", "ALAT by Wema", "Carbon", "Eyowo", "Rubies Bank", "Sparkle Microfinance Bank", "Raven Bank", "Fairmoney"] 
+        },
+        { 
+            category: "Merchant / Specialized Banks", 
+            banks: ["FSDH Merchant Bank", "Coronation Merchant Bank", "FBNQuest Merchant Bank", "Nova Merchant Bank", "Rand Merchant Bank"] 
+        },
+        { 
+            category: "Development Finance Institutions", 
+            banks: ["Bank of Agriculture", "Bank of Industry", "Development Bank of Nigeria", "Federal Mortgage Bank of Nigeria", "Nigerian Export-Import Bank"] 
+        }
     ];
 
     const loadProducts = async () => {
@@ -111,6 +138,57 @@ const CreateInvoicePage = () => {
         } finally {
             setIsLoadingProducts(false);
         }
+    };
+
+    const loadBusinessProfiles = async () => {
+        if (businessProfilesLoaded || isLoadingBusinessProfiles) return;
+        
+        // Only load business profiles for Premium users
+        if (!hasAccess('multipleCompanyProfiles')) {
+            setBusinessProfilesLoaded(true);
+            return;
+        }
+        
+        try {
+            setIsLoadingBusinessProfiles(true);
+            
+            // Premium users: fetch active business profiles from API
+            const response = await ApiClient.getActiveBusinessProfiles();
+            if (response.status === 200 && response.data && response.data.length > 0) {
+                setBusinessProfiles(response.data);
+                setBusinessProfilesLoaded(true);
+            } else {
+                console.error('Failed to load business profiles:', response.error);
+                setBusinessProfiles([]);
+                setBusinessProfilesLoaded(true);
+            }
+        } catch (error) {
+            console.error('Error loading business profiles:', error);
+            setBusinessProfiles([]);
+            setBusinessProfilesLoaded(true);
+        } finally {
+            setIsLoadingBusinessProfiles(false);
+        }
+    };
+
+    const handleBusinessProfileDropdownClick = () => {
+        if (!showBusinessProfileDropdown) {
+            loadBusinessProfiles();
+        }
+        setShowBusinessProfileDropdown(!showBusinessProfileDropdown);
+    };
+
+    const handleSelectBusinessProfile = (profile: any) => {
+        setBillFrom({
+            ...billFrom,
+            businessName: profile.businessName || '',
+            fullName: profile.businessFullName || profile.businessName || '',
+            email: profile.emailAddress || '',
+            phoneNumber: profile.phoneNumber || '',
+            address: profile.registeredBusinessAddress || ''
+        });
+        setSelectedBusinessProfileId(profile.id); // Store the selected business profile ID
+        setShowBusinessProfileDropdown(false);
     };
 
     const handleProductsDropdownClick = () => {
@@ -163,7 +241,6 @@ const CreateInvoicePage = () => {
     const handleSaveNewClient = async () => {
         setClientFormError(null);
         if (!newClientForm.customerType || !newClientForm.title || !newClientForm.fullName ||
-
             !newClientForm.businessName || !newClientForm.email || !newClientForm.phone) {
             setClientFormError('Please fill in all required fields');
             return;
@@ -171,7 +248,39 @@ const CreateInvoicePage = () => {
 
         try {
             setIsSavingClient(true);
-            const response = await ApiClient.addClient(newClientForm);
+            let response;
+
+            // Check if user is premium (ESSENTIALS or PREMIUM plan)
+            const isPremium = subscription && (subscription.plan === 'PREMIUM' || subscription.plan === 'ESSENTIALS');
+
+            if (isPremium && selectedBusinessProfileId) {
+                // Use the selected business profile ID from the BillFrom section
+                response = await ApiClient.post(
+                    `/api/client/business-profile/${selectedBusinessProfileId}`,
+                    newClientForm
+                );
+            } else if (isPremium && !selectedBusinessProfileId) {
+                // Premium user but no business profile selected - fetch default
+                const profilesResponse = await ApiClient.getAllBusinessProfiles();
+                
+                if (profilesResponse.status === 200 && profilesResponse.data && profilesResponse.data.length > 0) {
+                    // Find default profile or use first one
+                    const defaultProfile = profilesResponse.data.find((p: any) => p.isDefault) || profilesResponse.data[0];
+                    const businessProfileId = defaultProfile.id;
+                    
+                    // Use business profile endpoint for premium users
+                    response = await ApiClient.post(
+                        `/api/client/business-profile/${businessProfileId}`,
+                        newClientForm
+                    );
+                } else {
+                    // No business profile found, fall back to standard endpoint
+                    response = await ApiClient.addClient(newClientForm);
+                }
+            } else {
+                // Use standard endpoint for non-premium users
+                response = await ApiClient.addClient(newClientForm);
+            }
 
             if (response.status === 201) {
                 // Close modal and reset form
@@ -185,6 +294,8 @@ const CreateInvoicePage = () => {
                     email: "",
                     country: ""
                 });
+                // Show success toast
+                showSuccess('Client added successfully');
                 // Refresh clients list
                 setClientsLoaded(false);
                 await loadClients();
@@ -214,7 +325,8 @@ const CreateInvoicePage = () => {
         invoiceNumber: "",
         paymentTerms: "",
         invoiceDate: "",
-        dueDate: ""
+        dueDate: "",
+        email: ""
     });
 
     const [customerNote, setCustomerNote] = useState("");
@@ -286,6 +398,8 @@ const CreateInvoicePage = () => {
         };
         setItems([...items, newItem]);
         setShowAddProductModal(false);
+        // Show success toast
+        showSuccess('Product added successfully');
     };
 
     const removeRow = (id: number) => {
@@ -415,8 +529,8 @@ const CreateInvoicePage = () => {
         } else if (paymentDetails.accountName.trim() === "") {
             errors.payment = "Account name is required";
             newFieldErrors.paymentAccountName = "Account name is required";
-        } else if (!/^\d+$/.test(paymentDetails.accountNumber)) {
-            errors.payment = "Invalid Account Number provided";
+        } else if (!/^\d{10}$/.test(paymentDetails.accountNumber)) {
+            errors.payment = "Invalid account number";
             newFieldErrors.paymentAccountNumber = "Invalid account number";
         }
 
@@ -476,6 +590,9 @@ const CreateInvoicePage = () => {
         }
         if (paymentDetails.accountNumber.trim() === "") {
             return "Account number is required";
+        }
+        if (!/^\d{10}$/.test(paymentDetails.accountNumber)) {
+            return "Invalid account number";
         }
 
         return null;
@@ -541,7 +658,15 @@ const CreateInvoicePage = () => {
     useEffect(() => {
         if (!isLoadingDraft && loadedDraftData) {
             setBillFrom(loadedDraftData.billFrom);
-            setBillTo(loadedDraftData.billTo);
+            setBillTo({
+                customer: loadedDraftData.billTo.customer || "",
+                title: loadedDraftData.billTo.title || "",
+                invoiceNumber: loadedDraftData.billTo.invoiceNumber || "",
+                paymentTerms: loadedDraftData.billTo.paymentTerms || "",
+                invoiceDate: loadedDraftData.billTo.invoiceDate || "",
+                dueDate: loadedDraftData.billTo.dueDate || "",
+                email: (loadedDraftData.billTo as any).email || ""
+            });
 
             if (loadedDraftData.selectedClientId) {
                 setSelectedClientId(loadedDraftData.selectedClientId);
@@ -1210,14 +1335,64 @@ const CreateInvoicePage = () => {
                                                     <label className="block text-[14px] font-medium text-[#344054] mb-2">
                                                         Business Name <span className="text-red-500">*</span>
                                                     </label>
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Enter business name"
-                                                        value={billFrom.businessName}
-                                                        onChange={(e) => setBillFrom({ ...billFrom, businessName: e.target.value })}
-                                                        className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${fieldErrors.billFromBusinessName ? 'border-red-500' : 'border-[#D0D5DD]'
-                                                            }`}
-                                                    />
+                                                    {hasAccess('multipleCompanyProfiles') ? (
+                                                        <div className="relative">
+                                                            <div
+                                                                onClick={handleBusinessProfileDropdownClick}
+                                                                className={`w-full px-3 py-2.5 border rounded-lg text-[14px] text-[#344054] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2F80ED] flex justify-between items-center ${fieldErrors.billFromBusinessName ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                                    }`}
+                                                            >
+                                                                <span className={billFrom.businessName ? 'text-[#344054]' : 'text-[#98A2B3]'}>
+                                                                    {billFrom.businessName || 'Select business profile'}
+                                                                </span>
+                                                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                                </svg>
+                                                            </div>
+
+                                                            {showBusinessProfileDropdown && (
+                                                                <div className="absolute z-10 w-full mt-1 bg-white border border-[#D0D5DD] rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                                                    {isLoadingBusinessProfiles ? (
+                                                                        <div className="p-4 text-center text-[#667085] text-[14px]">
+                                                                            Loading profiles...
+                                                                        </div>
+                                                                    ) : businessProfiles.length > 0 ? (
+                                                                        <div className="py-1">
+                                                                            {businessProfiles.map((profile) => (
+                                                                                <div
+                                                                                    key={profile.id}
+                                                                                    onClick={() => handleSelectBusinessProfile(profile)}
+                                                                                    className="px-4 py-3 hover:bg-[#F9FAFB] cursor-pointer transition-colors"
+                                                                                >
+                                                                                    <div className="font-medium text-[14px] text-[#344054]">
+                                                                                        {profile.businessName}
+                                                                                    </div>
+                                                                                    {profile.emailAddress && (
+                                                                                        <div className="text-[12px] text-[#667085] mt-0.5">
+                                                                                            {profile.emailAddress}
+                                                                                        </div>
+                                                                                    )}
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="p-4 text-center text-[#667085] text-[14px]">
+                                                                            No business profiles found
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Enter business name"
+                                                            value={billFrom.businessName}
+                                                            onChange={(e) => setBillFrom({ ...billFrom, businessName: e.target.value })}
+                                                            className={`w-full px-3 py-2.5 border rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] ${fieldErrors.billFromBusinessName ? 'border-red-500' : 'border-[#D0D5DD]'
+                                                                }`}
+                                                        />
+                                                    )}
                                                     {fieldErrors.billFromBusinessName && (
                                                         <p className="text-red-500 text-xs mt-1">{fieldErrors.billFromBusinessName}</p>
                                                     )}
@@ -1265,7 +1440,12 @@ const CreateInvoicePage = () => {
                                                                 <div
                                                                     key={client.id}
                                                                     onClick={() => {
-                                                                        setBillTo({ ...billTo, customer: client.fullName });
+                                                                        const selectedClient = clients.find(c => c.id === client.id);
+                                                                        setBillTo({ 
+                                                                            ...billTo, 
+                                                                            customer: client.fullName,
+                                                                            email: selectedClient?.email || ""
+                                                                        });
                                                                         setSelectedClientId(client.id);
                                                                         setShowClientDropdown(false);
                                                                     }}

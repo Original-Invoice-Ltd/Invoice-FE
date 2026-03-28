@@ -5,6 +5,7 @@ import {
   PaymentTrend,
   RecentInvoice,
   InvoiceResponse,
+  BusinessProfileDto,
 } from "@/types/invoice";
 import {
   DraftInvoiceResponse,
@@ -12,15 +13,12 @@ import {
   SendDraftErrorResponse,
 } from "@/types/draft";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
 
-// Temporary bypass flag for testing - set to true to skip 401 redirects
-const BYPASS_AUTH_REDIRECT = true;
-
-// Configure axios defaults
+// Single axios instance for direct backend communication with HTTP-only cookies
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true,
+  withCredentials: true, // CRITICAL: Enables HTTP-only cookie authentication
   headers: {
     "Content-Type": "application/json",
   },
@@ -43,11 +41,6 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Skip redirect if bypass flag is enabled (for testing)
-      if (BYPASS_AUTH_REDIRECT) {
-        return Promise.reject(error);
-      }
-
       // Skip redirect for certain API endpoints that may return 401 for empty data
       const skipRedirectEndpoints = [
         "/api/product/",
@@ -171,10 +164,12 @@ export class ApiClient {
   // Authentication APIs
   static async login(email: string, password: string) {
     try {
-      const response = await axiosInstance.post("/api/auth/login", {
-        email,
-        password,
-      });
+      const response = await axiosInstance.post("/api/auth/login",
+        { email, password }
+        // { headers: 
+        //   { "X-Captcha-Token": token }
+        // }
+      );
 
       return {
         status: response.status,
@@ -186,7 +181,7 @@ export class ApiClient {
   }
 
   static async forgotPassword(email: string) {
-    return await this.request("POST", "/api/auth/forgot-password", { email });
+    return await axiosInstance.post("/api/auth/forgot-password", { email });
   }
 
   static async register(data: {
@@ -196,36 +191,36 @@ export class ApiClient {
     phoneNumber?: string;
     businessName?: string;
     businessCategory?: string;
-  }) {
-    return this.request("POST", "/api/users/register", data);
+  } ) {
+    return  await axiosInstance.post("/api/users/register", data)
   }
 
   static async logout() {
-    return this.request("POST", "/api/auth/logout");
+    return await axiosInstance.post("/api/auth/logout");
   }
 
   static async refreshToken() {
-    return this.request("POST", "/api/auth/refresh");
+    return await axiosInstance.post("/api/auth/refresh");
   }
 
   static async verifyEmail(token: string) {
-    return this.request("GET", "/api/auth/verify", undefined, { token });
+    return await axiosInstance.get("/api/auth/verify", { params: { token } });
   }
 
   static async verifyOTP(email: string, otp: string) {
-    return this.request("POST", "/api/auth/verify-otp", { email, otp });
+    return await axiosInstance.post("/api/auth/verify-otp", { email, otp });
   }
 
   static async resendOTP(email: string) {
-    return this.request("POST", "/api/auth/resend-otp", { email });
+    return await axiosInstance.post("/api/auth/resend-otp", { email });
   }
 
   static async sendVerificationOTP(email: string) {
-    return this.request("POST", "/api/auth/send-verification-otp", { email });
+    return await axiosInstance.post("/api/auth/send-verification-otp", { email });
   }
 
   static async verifyPasswordResetOTP(email: string, otp: string) {
-    return this.request("POST", "/api/auth/verify-password-reset-otp", {
+    return await axiosInstance.post("/api/auth/verify-password-reset-otp", {
       email,
       otp,
     });
@@ -236,7 +231,7 @@ export class ApiClient {
     otp: string,
     newPassword: string,
   ) {
-    return this.request("POST", "/api/auth/reset-password-with-otp", {
+    return await axiosInstance.post("/api/auth/reset-password-with-otp", {
       email,
       otp,
       newPassword,
@@ -442,6 +437,12 @@ export class ApiClient {
     );
   }
 
+  static async markInvoiceAsIncomplete(invoiceId: string, amountPaid: number) {
+    return this.request("PATCH", `/api/invoices/${invoiceId}/mark-as-incomplete`, {
+      amountPaid,
+    });
+  }
+
   static async getAllUserInvoices(userId?: string) {
     return userId
       ? await axiosInstance.get(`/api/invoices/all-user/${userId}`, {
@@ -470,7 +471,7 @@ export class ApiClient {
   static async getPublicInvoiceByUuid(uuid: string): Promise<ApiResponse<any>> {
     try {
       const response = await axios.get(
-        `https://api.originalinvoice.com/api/invoices/public/${uuid}`,
+        `${API_BASE_URL}/api/invoices/public/${uuid}`,
       );
       return this.handleResponse(response);
     } catch (error) {
@@ -652,6 +653,7 @@ export class ApiClient {
 
   static async initializeTransactionWithPlan(data: {
     plan: string;
+    billingCycle?: 'monthly' | 'yearly';
     channels?: string[];
     callbackUrl?: string;
   }) {
@@ -688,7 +690,7 @@ export class ApiClient {
       formData.append("evidence", receiptFile);
       // Use the public endpoint - no authentication required
       const response = await axios.post(
-        `https://api.originalinvoice.com/api/invoices/${invoiceId}/upload-evidence`,
+        `${API_BASE_URL}/api/invoices/${invoiceId}/upload-evidence`,
         formData,
         {
           headers: {
@@ -756,32 +758,152 @@ export class ApiClient {
       withCredentials : true
     });
   }
-
-  static async updateBusinessProfile(businessProfileData: {
-    businessName?: string;
-    businessFullName?: string;
-    registeredBusinessAddress?: string;
-    emailAddress?: string;
-    phoneNumber?: string;
-    businessType?: string;
-    country?: string;
-    businessRegistrationNumber?: string;
-    businessLogoUrl?: string;
-  }) {
-    return this.request(
-      "PATCH",
-      "/api/settings/businessProfile",
-      businessProfileData,
-    );
+  // Business Profile Management
+  static async getAllBusinessProfiles(): Promise<ApiResponse<BusinessProfileDto[]>> {
+    const response = await this.get("/api/business-profiles");
+    
+    // Handle the nested response structure: { success, message, data, count }
+    if (response.status === 200 && response.data) {
+      const apiData = response.data as any;
+      // If data is nested inside another data property
+      if (apiData.data && Array.isArray(apiData.data)) {
+        return {
+          status: response.status,
+          data: apiData.data as BusinessProfileDto[],
+          error: response.error
+        };
+      }
+    }
+    
+    return response as ApiResponse<BusinessProfileDto[]>;
   }
 
-  static async uploadBusinessLogo(logoFile: File): Promise<ApiResponse<any>> {
+  static async createBusinessProfile(businessProfileData: {
+    businessName: string;
+    businessFullName?: string;
+    registeredBusinessAddress: string;
+    emailAddress: string;
+    phoneNumber: string;
+    businessType: string;
+    country: string;
+    businessRegistrationNumber?: string;
+    invoicePrefix?: string;
+  }): Promise<ApiResponse<any>> {
+    const response = await this.post("/api/business-profiles", businessProfileData);
+    
+    // Handle the nested response structure for created profile
+    if (response.status === 201 && response.data) {
+      const apiData = response.data as any;
+      if (apiData.data) {
+        return {
+          status: response.status,
+          data: apiData.data,
+          error: response.error
+        };
+      }
+    }
+    
+    return response;
+  }
+
+  static async deleteBusinessProfile(profileId: string): Promise<ApiResponse<any>> {
+    return this.delete(`/api/business-profiles/${profileId}`);
+  }
+
+  static async getActiveBusinessProfiles(): Promise<ApiResponse<BusinessProfileDto[]>> {
+    const response = await this.get("/api/business-profiles/active");
+    
+    if (response.status === 200 && response.data) {
+      const apiData = response.data as any;
+      if (apiData.data && Array.isArray(apiData.data)) {
+        return {
+          status: response.status,
+          data: apiData.data as BusinessProfileDto[],
+          error: response.error
+        };
+      }
+    }
+    
+    return response as ApiResponse<BusinessProfileDto[]>;
+  }
+
+  // Get clients by business profile
+  static async getClientsByBusinessProfile(businessProfileId: string): Promise<ApiResponse<any[]>> {
+    const response = await this.get(`/api/clients/business-profile/${businessProfileId}`);
+    
+    if (response.status === 200 && response.data) {
+      const apiData = response.data as any;
+      if (apiData.data && Array.isArray(apiData.data)) {
+        return {
+          status: response.status,
+          data: apiData.data,
+          error: response.error
+        };
+      }
+    }
+    
+    return response as ApiResponse<any[]>;
+  }
+
+  // Get products by business profile
+  static async getProductsByBusinessProfile(businessProfileId: string): Promise<ApiResponse<any[]>> {
+    const response = await this.get(`/api/products/business-profile/${businessProfileId}`);
+    
+    if (response.status === 200 && response.data) {
+      const apiData = response.data as any;
+      if (apiData.data && Array.isArray(apiData.data)) {
+        return {
+          status: response.status,
+          data: apiData.data,
+          error: response.error
+        };
+      }
+    }
+    
+    return response as ApiResponse<any[]>;
+  }
+
+
+  static async updateBusinessProfile(
+    profileId: string,
+    businessProfileData: {
+      businessName?: string;
+      businessFullName?: string;
+      registeredBusinessAddress?: string;
+      emailAddress?: string;
+      phoneNumber?: string;
+      businessType?: string;
+      country?: string;
+      businessRegistrationNumber?: string;
+      businessLogoUrl?: string;
+      invoicePrefix?: string;
+      isActive?: boolean;
+    }
+  ): Promise<ApiResponse<any>> {
+    const response = await this.put(`/api/business-profiles/${profileId}`, businessProfileData);
+    
+    // Handle the nested response structure
+    if (response.status === 200 && response.data) {
+      const apiData = response.data as any;
+      if (apiData.data) {
+        return {
+          status: response.status,
+          data: apiData.data,
+          error: response.error
+        };
+      }
+    }
+    
+    return response;
+  }
+
+  static async uploadBusinessLogo(profileId: string, logoFile: File): Promise<ApiResponse<any>> {
     try {
       const formData = new FormData();
-      formData.append("logoFile", logoFile);
+      formData.append("logo", logoFile);
 
       const response = await axiosInstance.post(
-        "/api/settings/uploadLogo",
+        `/api/business-profiles/${profileId}/upload-logo`,
         formData,
         {
           headers: {
@@ -878,15 +1000,28 @@ export class ApiClient {
 
   static getDropdownOptions(
     status: string,
+    role: 'admin' | 'customer' = 'customer'
   ): Array<{ label: string; action: string }> {
     const baseOptions = [{ label: "View Detail", action: "view" }];
+    const statusLower = status.toLowerCase();
 
-    if (status.toLowerCase() !== "paid") {
-      return [...baseOptions, { label: "View Receipt", action: "receipt" }];
-    } else {
+    if (role === 'customer') {
+      if (statusLower === 'paid') {
+        return [...baseOptions, { label: "View Receipt", action: "receipt" }];
+      }
       return [...baseOptions, { label: "Upload Receipt", action: "upload" }];
     }
+
+    if (statusLower === "pending" || statusLower === "outstanding") {
+      return [
+        ...baseOptions,
+        { label: "Mark as Paid", action: "paid" },
+        { label: "Mark as Incomplete", action: "incomplete" },
+      ];
+    }
+    return baseOptions;
   }
+  
   static isValidPhone = (phone: string) => {
     return /^\+\d{7,15}$/.test(phone);
   };

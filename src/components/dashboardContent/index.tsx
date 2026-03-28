@@ -113,8 +113,24 @@ const DashboardContent = () => {
         ];
     };
 
-    // Format currency
+    // Format currency with abbreviations for large numbers
     const formatCurrency = (amount: number) => {
+        const absAmount = Math.abs(amount);
+        
+        if (absAmount >= 1_000_000_000) {
+            // Billions
+            const billions = amount / 1_000_000_000;
+            return `₦${billions.toFixed(billions >= 10 ? 0 : 1)}B`;
+        } else if (absAmount >= 1_000_000) {
+            // Millions
+            const millions = amount / 1_000_000;
+            return `₦${millions.toFixed(millions >= 10 ? 0 : 1)}M`;
+        } else if (absAmount >= 1_000) {
+            // Thousands
+            const thousands = amount / 1_000;
+            return `₦${thousands.toFixed(thousands >= 10 ? 0 : 1)}K`;
+        }
+        
         return `₦${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
     };
 

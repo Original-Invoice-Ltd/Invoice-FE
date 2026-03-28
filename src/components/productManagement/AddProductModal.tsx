@@ -5,6 +5,7 @@ import { ApiClient } from '@/lib/api';
 import { Product } from '@/lib/productCache';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface AddProductModalProps {
   product: Product | null;
@@ -14,6 +15,7 @@ interface AddProductModalProps {
 
 export default function AddProductModal({ product, onClose, onSave }: AddProductModalProps) {
   const { t } = useTranslation();
+  const { subscription } = useSubscription();
   const [formData, setFormData] = useState({
     itemName: '',
     category: 'PRODUCT',
@@ -83,13 +85,52 @@ export default function AddProductModal({ product, onClose, onSave }: AddProduct
         amount: formData.amount ? parseFloat(formData.amount) : undefined
       };
 
-      const response = product 
-        ? await ApiClient.updateProduct(product.id, productData)
-        : await ApiClient.addProduct(productData);
+      // Check if user is premium (ESSENTIALS or PREMIUM plan)
+      const isPremium = subscription && (subscription.plan === 'PREMIUM' || subscription.plan === 'ESSENTIALS');
+      
+      let response;
+      
+      if (isPremium) {
+        // Get default business profile for premium users
+        const profilesResponse = await ApiClient.getAllBusinessProfiles();
+        
+        if (profilesResponse.status === 200 && profilesResponse.data && profilesResponse.data.length > 0) {
+          // Find default profile or use first one
+          const defaultProfile = profilesResponse.data.find((p: any) => p.isDefault) || profilesResponse.data[0];
+          const businessProfileId = defaultProfile.id;
+          
+          // Use business profile endpoint for premium users
+          if (product) {
+            // Update product in business profile
+            const updateResponse = await ApiClient.put(
+              `/api/product/business-profile/${businessProfileId}/${product.id}`,
+              productData
+            );
+            response = updateResponse;
+          } else {
+            // Add product to business profile
+            const addResponse = await ApiClient.post(
+              `/api/product/business-profile/${businessProfileId}`,
+              productData
+            );
+            response = addResponse;
+          }
+        } else {
+          // No business profile found, fall back to standard endpoint
+          response = product 
+            ? await ApiClient.updateProduct(product.id, productData)
+            : await ApiClient.addProduct(productData);
+        }
+      } else {
+        // Use standard endpoint for non-premium users
+        response = product 
+          ? await ApiClient.updateProduct(product.id, productData)
+          : await ApiClient.addProduct(productData);
+      }
 
       if (response.status === 200 || response.status === 201) {
-        // Use the product data returned from the server
-        const savedProduct: Product = response.data;
+        // Extract product data from response (handle nested data structure)
+        const savedProduct: Product = response.data?.data || response.data;
         onSave(savedProduct);
       } else {
         setError(response.error || t('failed_to_save_product'));

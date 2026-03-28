@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { X, Bell, Check, ArrowLeft } from "lucide-react";
 import { ApiClient } from "@/lib/api";
 import { useTranslation } from 'react-i18next';
+import { useRouter } from "next/navigation";
 
 interface Notification {
     id: string;
@@ -14,6 +15,22 @@ interface Notification {
     relatedEntityId?: string;
     relatedEntityType?: string;
     createdAt: string;
+    invoiceData?: {
+        invoiceNumber?: string;
+        status?: string;
+        clientName?: string;
+        amount?: number;
+        currency?: string;
+        creationDate?: string;
+        dueDate?: string;
+    };
+    metadata?: {
+        fileName?: string;
+        fileSize?: string;
+        fileUrl?: string;
+        customerName?: string;
+        invoiceNumber?: string;
+    };
 }
 
 interface NotificationsPanelProps {
@@ -24,10 +41,15 @@ interface NotificationsPanelProps {
 
 const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: NotificationsPanelProps) => {
     const { t } = useTranslation();
+    const router = useRouter();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
     const [activeTab, setActiveTab] = useState<'all' | 'invoices' | 'payments' | 'clients' | 'system'>('all');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [loadingEvidenceId, setLoadingEvidenceId] = useState<string | null>(null);
+    const [paymentEvidenceUrl, setPaymentEvidenceUrl] = useState<string | null>(null);
+    const [isEvidenceModalOpen, setIsEvidenceModalOpen] = useState(false);
 
 
     const fetchNotifications = useCallback(async () => {
@@ -93,6 +115,30 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
         } catch (error) {
             console.error('Error marking all notifications as read:', error);
         }
+    };
+
+    const handleViewPaymentEvidence = async (invoiceId: string) => {
+        try {
+            setLoadingEvidenceId(invoiceId);
+            const response = await ApiClient.getPaymentEvidenceUrl(invoiceId);
+            
+            if (response.status === 200 && response.data?.url) {
+                // Open the payment evidence in a modal
+                setPaymentEvidenceUrl(response.data.url);
+                setIsEvidenceModalOpen(true);
+            } else {
+                console.error('Failed to get payment evidence URL:', response.error);
+            }
+        } catch (error) {
+            console.error('Error fetching payment evidence URL:', error);
+        } finally {
+            setLoadingEvidenceId(null);
+        }
+    };
+
+    const closeEvidenceModal = () => {
+        setIsEvidenceModalOpen(false);
+        setPaymentEvidenceUrl(null);
     };
 
     const getNotificationIcon = (type: string) => {
@@ -166,16 +212,46 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
     };
 
     const getFilteredNotifications = () => {
-        if (activeTab === 'all') return notifications;
+        let filtered = notifications;
 
-        const typeMap = {
-            'invoices': ['INVOICE_CREATED', 'INVOICE_UPDATED', 'INVOICE_DELETED'],
-            'clients': ['CLIENT_CREATED', 'CLIENT_UPDATED', 'CLIENT_DELETED'],
-            'payments': ['PAYMENT_RECEIVED'],
-            'system': ['SYSTEM_UPDATE', 'SYSTEM_MAINTENANCE', 'ACCOUNT_UPDATE']
-        };
+        // Filter by tab
+        if (activeTab !== 'all') {
+            const typeMap = {
+                'invoices': ['INVOICE_CREATED', 'INVOICE_UPDATED', 'INVOICE_DELETED'],
+                'clients': ['CLIENT_CREATED', 'CLIENT_UPDATED', 'CLIENT_DELETED'],
+                'payments': ['PAYMENT_RECEIVED'],
+                'system': ['SYSTEM_UPDATE', 'SYSTEM_MAINTENANCE', 'ACCOUNT_UPDATE']
+            };
+            filtered = filtered.filter(n => typeMap[activeTab]?.includes(n.type));
+        }
 
-        return notifications.filter(n => typeMap[activeTab]?.includes(n.type));
+        // Filter by search term
+        if (searchTerm.trim()) {
+            const search = searchTerm.toLowerCase();
+            filtered = filtered.filter(n => {
+                // Search in title and message
+                const matchesBasic = n.title.toLowerCase().includes(search) || 
+                                   n.message.toLowerCase().includes(search);
+                
+                // Search in invoice data if available
+                if (n.invoiceData) {
+                    const matchesInvoiceNumber = n.invoiceData.invoiceNumber?.toLowerCase().includes(search);
+                    const matchesStatus = n.invoiceData.status?.toLowerCase().includes(search);
+                    const matchesClientName = n.invoiceData.clientName?.toLowerCase().includes(search);
+                    const matchesAmount = n.invoiceData.amount?.toString().includes(search);
+                    const matchesCurrency = n.invoiceData.currency?.toLowerCase().includes(search);
+                    const matchesDate = n.invoiceData.creationDate?.includes(search) || 
+                                       n.invoiceData.dueDate?.includes(search);
+                    
+                    return matchesBasic || matchesInvoiceNumber || matchesStatus || 
+                           matchesClientName || matchesAmount || matchesCurrency || matchesDate;
+                }
+                
+                return matchesBasic;
+            });
+        }
+
+        return filtered;
     };
 
     const getTabCount = (tab: 'all' | 'invoices' | 'clients' | 'payments' | 'system') => {
@@ -219,9 +295,43 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
                             <X size={24} />
                         </button>
                     </div>
-                    <p className="text-[#667085] text-sm">
+                    <p className="text-[#667085] text-sm mb-4">
                         {t('stay_updated')}
                     </p>
+
+                    {/* Search Bar */}
+                    <div className="relative">
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder={t('search_notifications') || 'Search notifications...'}
+                            className="w-full px-4 py-2 pl-10 border border-[#D0D5DD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent text-sm"
+                        />
+                        <svg 
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" 
+                            width="16" 
+                            height="16" 
+                            viewBox="0 0 16 16" 
+                            fill="none" 
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path 
+                                d="M7.33333 12.6667C10.2789 12.6667 12.6667 10.2789 12.6667 7.33333C12.6667 4.38781 10.2789 2 7.33333 2C4.38781 2 2 4.38781 2 7.33333C2 10.2789 4.38781 12.6667 7.33333 12.6667Z" 
+                                stroke="currentColor" 
+                                strokeWidth="1.5" 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round"
+                            />
+                            <path 
+                                d="M14 14L11.1 11.1" 
+                                stroke="currentColor" 
+                                strokeWidth="1.5" 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round"
+                            />
+                        </svg>
+                    </div>
                 </div>
 
                 <div className="border-b border-[#E4E7EC]">
@@ -370,7 +480,65 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
                                                     <p className="text-sm text-[#667085] mb-2">
                                                         {notification.message}
                                                     </p>
-                                                    <p className="text-xs text-[#98A2B3]">
+                                                    
+                                                    {/* Payment Evidence Upload - Show file details inline */}
+                                                    {notification.type === 'PAYMENT_EVIDENCE_UPLOADED' && notification.metadata && (
+                                                        <>
+                                                            {/* File attachment */}
+                                                            <div className="flex items-center gap-3 mb-3 mt-3">
+                                                                <div className="w-10 h-10 flex-shrink-0">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none">
+                                                                        <path fill="#fff" stroke="#EDEDED" strokeWidth="1.5" d="M10 .75h10.515a5.25 5.25 0 0 1 3.712 1.538l9.485 9.485a5.25 5.25 0 0 1 1.538 3.712V34c0 2.9-2.35 5.25-5.25 5.25H10A5.25 5.25 0 0 1 4.75 34V6C4.75 3.1 7.1.75 10 .75Z"/>
+                                                                        <path stroke="#EDEDED" strokeWidth="1.5" d="M23 1v8a4 4 0 0 0 4 4h8"/>
+                                                                        <path fill="#EF4444" d="M0 22a4 4 0 0 1 4-4h20a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4v-8Z"/>
+                                                                        <text x="14" y="29" fill="#fff" fontSize="8" fontWeight="bold" textAnchor="middle">PDF</text>
+                                                                    </svg>
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-sm font-medium text-[#101828]">
+                                                                        {notification.metadata.fileName || 'Payment Evidence.pdf'}
+                                                                    </p>
+                                                                    <p className="text-xs text-[#667085]">
+                                                                        {notification.metadata.fileSize || 'PDF Document'}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            {/* Action buttons */}
+                                                            <div className="flex items-center gap-2 flex-wrap">
+                                                                {notification.metadata.fileUrl && (
+                                                                    <a
+                                                                        href={notification.metadata.fileUrl}
+                                                                        download
+                                                                        className="flex items-center gap-2 px-3 py-2 border border-[#2F80ED] text-[#2F80ED] rounded-lg text-xs font-medium hover:bg-blue-50 transition-colors"
+                                                                    >
+                                                                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                                                            <path d="M2 10V12.6667C2 13.0203 2.14048 13.3594 2.39052 13.6095C2.64057 13.8595 2.97971 14 3.33333 14H12.6667C13.0203 14 13.3594 13.8595 13.6095 13.6095C13.8595 13.3594 14 13.0203 14 12.6667V10M4.66667 6.66667L8 10M8 10L11.3333 6.66667M8 10V2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                                        </svg>
+                                                                        Download
+                                                                    </a>
+                                                                )}
+                                                                {notification.relatedEntityId && (
+                                                                    <button
+                                                                        onClick={() => handleViewPaymentEvidence(notification.relatedEntityId!)}
+                                                                        disabled={loadingEvidenceId === notification.relatedEntityId}
+                                                                        className="flex items-center gap-2 px-3 py-2 bg-[#2F80ED] text-white rounded-lg text-xs font-medium hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                    >
+                                                                        {loadingEvidenceId === notification.relatedEntityId ? (
+                                                                            <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></div>
+                                                                        ) : (
+                                                                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                                                                <path d="M6 10L10 6M10 6H6M10 6V10M5.33333 2H3.33333C2.59695 2 2 2.59695 2 3.33333V5.33333M10.6667 2H12.6667C13.403 2 14 2.59695 14 3.33333V5.33333M14 10.6667V12.6667C14 13.403 13.403 14 12.6667 14H10.6667M5.33333 14H3.33333C2.59695 14 2 13.403 2 12.6667V10.6667" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                                            </svg>
+                                                                        )}
+                                                                        View Receipt
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                    
+                                                    <p className="text-xs text-[#98A2B3] mt-2">
                                                         {formatTimeAgo(notification.createdAt)}
                                                     </p>
                                                 </div>
@@ -392,6 +560,37 @@ const NotificationsPanel = ({ isOpen, onClose, onUnreadCountChange }: Notificati
                     )}
                 </div>
             </div>
+
+            {/* Payment Evidence Modal */}
+            {isEvidenceModalOpen && paymentEvidenceUrl && (
+                <div className="fixed inset-0 z-[80] flex items-center justify-center">
+                    <div 
+                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                        onClick={closeEvidenceModal}
+                    />
+                    <div className="relative bg-white rounded-lg shadow-2xl w-[95vw] h-[95vh] max-w-6xl flex flex-col">
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                            <h3 className="text-lg font-semibold text-gray-900">Payment Evidence</h3>
+                            <button
+                                onClick={closeEvidenceModal}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
+                        
+                        {/* Modal Content - PDF Viewer */}
+                        <div className="flex-1 overflow-hidden">
+                            <iframe
+                                src={paymentEvidenceUrl}
+                                className="w-full h-full border-0"
+                                title="Payment Evidence"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

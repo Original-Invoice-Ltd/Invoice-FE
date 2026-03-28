@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Eye, X, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { ApiClient } from "@/lib/api";
 import { InvoiceResponse } from "@/types/invoice";
 import { useTranslation } from "react-i18next";
+import { UploadReceiptModal } from "@/components/modals";
 
 const InvoiceViewPage = () => {
     const params = useParams();
@@ -15,6 +16,9 @@ const InvoiceViewPage = () => {
     const [invoice, setInvoice] = useState<InvoiceResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [selectedDescription, setSelectedDescription] = useState<string | null>(null);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
     useEffect(() => {
         if (params.id) {
@@ -58,6 +62,13 @@ const InvoiceViewPage = () => {
         }).format(safeAmount);
     };
 
+    const handleMarkAsPaid = async () => {
+        const response = await ApiClient.markInvoiceAsPaid(params.id as string);
+        if (response.status === 200) {
+            window.location.reload();
+        }
+    };
+
     if (loading) {
         return (
             <div className="max-w-7xl mx-auto mb-[200px] p-6">
@@ -88,7 +99,6 @@ const InvoiceViewPage = () => {
 
     return (
         <div className="max-w-7xl mx-auto mb-[200px]">
-            {/* Header */}
             <div className="flex items-center justify-between mb-6 px-6">
                 <div className="flex items-center gap-4">
                     <Link
@@ -105,202 +115,170 @@ const InvoiceViewPage = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    {/* <button className="flex items-center gap-2 px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors">
-                        <Send size={16} />
-                        {t('send_invoice')}
-                    </button> */}
-                    <button
-                        onClick={() => {
-                            
-                        }}
-                        className="flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors">
-                        <Download size={16} />
-                        {t('mark_as_paid')}
-                    </button>
+                    <div className="relative">
+                        <button
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
+                        >
+                            Mark
+                            <ChevronDown size={16} />
+                        </button>
+                        
+                        {isDropdownOpen && (
+                            <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                                <div className="py-1">
+                                    <button
+                                        onClick={() => {
+                                            setIsDropdownOpen(false);
+                                            handleMarkAsPaid();
+                                        }}
+                                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                    >
+                                        Mark as Paid
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setIsDropdownOpen(false);
+                                            setIsUploadModalOpen(true);
+                                        }}
+                                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                    >
+                                        Mark as Incomplete
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
-            {/* Invoice Preview */}
             <div className="bg-white rounded-lg border border-[#E4E7EC] overflow-hidden mx-6">
                 <div className="relative">
-                    <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
-                        {invoice.status === 'PAID' && (
-                            <>
-                                <div className="absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2">
-                                    <div className="text-[80px] font-bold text-green-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
-                                        PAID
-                                    </div>
-                                </div>
-                                <div className="absolute top-2/3 right-1/4 transform translate-x-1/2 translate-y-1/2">
-                                    <div className="text-[80px] font-bold text-green-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
-                                        PAID
-                                    </div>
-                                </div>
-                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                                    <div className="text-[80px] font-bold text-green-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
-                                        PAID
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                        {invoice.status === 'OVERDUE' && (
-                            <>
-                                <div className="absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2">
-                                    <div className="text-[80px] font-bold text-red-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
-                                        OVERDUE
-                                    </div>
-                                </div>
-                                <div className="absolute top-2/3 right-1/4 transform translate-x-1/2 translate-y-1/2">
-                                    <div className="text-[80px] font-bold text-red-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
-                                        OVERDUE
-                                    </div>
-                                </div>
-                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                                    <div className="text-[80px] font-bold text-red-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
-                                        OVERDUE
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                        {invoice.status === 'UNPAID' && (
-                            <>
-                                <div className="absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2">
-                                    <div className="text-[80px] font-bold text-orange-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
-                                        UNPAID
-                                    </div>
-                                </div>
-                                <div className="absolute top-2/3 right-1/4 transform translate-x-1/2 translate-y-1/2">
-                                    <div className="text-[80px] font-bold text-orange-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
-                                        UNPAID
-                                    </div>
-                                </div>
-                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                                    <div className="text-[80px] font-bold text-orange-200 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
-                                        UNPAID
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                        {(!invoice.status || (invoice.status !== 'PAID' && invoice.status !== 'OVERDUE' && invoice.status !== 'UNPAID')) && (
-                            <>
-                                <div className="absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2">
-                                    <div className="text-[80px] font-bold text-gray-300 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
-                                        ORIGINAL INVOICE
-                                    </div>
-                                </div>
-                                <div className="absolute top-2/3 right-1/4 transform translate-x-1/2 translate-y-1/2">
-                                    <div className="text-[80px] font-bold text-gray-300 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
-                                        ORIGINAL INVOICE
-                                    </div>
-                                </div>
-                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                                    <div className="text-[80px] font-bold text-gray-300 opacity-15 rotate-[-30deg] select-none whitespace-nowrap">
-                                        ORIGINAL INVOICE
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                    
-                    {/* Invoice Content */}
-                    <div className="relative z-0 p-8 bg-white">
-                        {/* Header Section */}
-                        <div className="flex justify-between items-start mb-8">
-                            <div className="flex items-center gap-4">
-                                {invoice.logoUrl ? (
-                                    <img 
-                                        src={invoice.logoUrl} 
-                                        alt="Company Logo" 
-                                        className="h-16 w-auto object-contain"
-                                    />
-                                ) : (
-                                    <div className="h-16 w-24 bg-gray-200 rounded flex items-center justify-center text-gray-500 text-sm">
-                                        {t('logo')}
-                                    </div>
-                                )}
-                            </div>
-                            <div className="text-right">
-                                <div className="text-[14px] text-[#667085] mb-1">{t('bill_from_label')}</div>
-                                <div className="text-[16px] font-semibold text-[#101828]">{invoice.billFrom?.fullName}</div>
-                                <div className="text-[14px] text-[#667085]">{invoice.billFrom?.email}</div>
-                                <div className="text-[14px] text-[#667085]">{invoice.billFrom?.phone}</div>
-                                {invoice.billFrom?.address && (
-                                    <div className="text-[14px] text-[#667085]">{invoice.billFrom.address}</div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Invoice Title */}
-                        <div className="text-center mb-8">
-                            <h1 className="text-[32px] font-bold text-[#101828]">{t('invoice_label')}</h1>
-                        </div>
-
-                        {/* Bill To and Invoice Details */}
-                        <div className="flex justify-between mb-8">
-                            <div>
-                                <div className="text-[14px] text-[#667085] mb-2">{t('bill_to_label')}</div>
-                                <div className="text-[16px] font-semibold text-[#101828] mb-1">
-                                    {invoice.billTo?.businessName || invoice.billTo?.fullName}
-                                </div>
-                                <div className="text-[14px] text-[#667085]">{invoice.billTo?.email}</div>
-                                <div className="text-[14px] text-[#667085]">{invoice.billTo?.phone}</div>
-                                {invoice.billTo?.country && (
-                                    <div className="text-[14px] text-[#667085]">{invoice.billTo.country}</div>
-                                )}
-                            </div>
-                            <div className="text-right">
-                                <div className="text-[14px] text-[#667085] mb-1">{t('invoice_id_label')}</div>
-                                <div className="text-[16px] font-semibold text-[#101828] mb-4">{invoice.invoiceNumber}</div>
-                                <div className="text-[14px] text-[#667085] mb-1">{t('invoice_date_label')}</div>
-                                <div className="text-[14px] text-[#101828] mb-2">{formatDate(invoice.creationDate)}</div>
-                                <div className="text-[14px] text-[#667085] mb-1">{t('due_date_label')}</div>
-                                <div className="text-[14px] text-[#101828]">{formatDate(invoice.dueDate)}</div>
-                            </div>
-                        </div>
-
-                        {/* Items Table */}
+                    <div className="relative z-0 p-4 sm:p-6 md:p-8 bg-white">
                         <div className="mb-8">
-                            <div className="bg-[#2F80ED] text-white px-6 py-3 rounded-t-lg">
-                                <div className="grid grid-cols-5 gap-4 text-[14px] font-medium">
-                                    <div className="col-span-2">{t('item_description')}</div>
-                                    <div className="text-center">{t('qty_label')}</div>
-                                    <div className="text-center">{t('rate_label_short')}</div>
-                                    <div className="text-right">{t('amount_label_short')}</div>
+                            <div className="flex flex-col md:flex-row justify-between gap-6 mb-6">
+                                    <div className="flex-1">
+                                    <h3 className="text-sm font-semibold text-[#101828] mb-3">Bill From</h3>
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-medium text-[#101828]">{invoice.billFrom?.fullName}</p>
+                                        {invoice.billFrom?.address && (
+                                            <p className="text-sm text-[#667085]">{invoice.billFrom.address}</p>
+                                        )}
+                                        <p className="text-sm text-[#667085]">{invoice.billFrom?.email}</p>
+                                        {invoice.billFrom?.phone && (
+                                            <p className="text-sm text-[#667085]">{invoice.billFrom.phone}</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex-1 md:text-right">
+                                    <h3 className="text-sm font-semibold text-[#101828] mb-3">Bill To</h3>
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-medium text-[#101828]">
+                                            {invoice.billTo?.businessName || invoice.billTo?.fullName}
+                                        </p>
+                                        {invoice.billTo?.country && (
+                                            <p className="text-sm text-[#667085]">{invoice.billTo.country}</p>
+                                        )}
+                                        <p className="text-sm text-[#667085]">{invoice.billTo?.email}</p>
+                                        {invoice.billTo?.phone && (
+                                            <p className="text-sm text-[#667085]">{invoice.billTo.phone}</p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                            <div className="border border-t-0 border-[#E4E7EC] rounded-b-lg">
-                                {invoice.items?.map((item, index) => (
-                                    <div key={index} className="grid grid-cols-5 gap-4 px-6 py-4 border-b border-[#E4E7EC] last:border-b-0">
-                                        <div className="col-span-2">
-                                            <div className="text-[14px] font-medium text-[#101828]">{item.itemName}</div>
-                                            {item.description && (
-                                                <div className="text-[12px] text-[#667085] mt-1">{item.description}</div>
-                                            )}
-                                        </div>
-                                        <div className="text-center text-[14px] text-[#101828]">{item.quantity}</div>
-                                        <div className="text-center text-[14px] text-[#101828]">
-                                            {formatCurrency(item.rate, invoice.currency)}
-                                        </div>
-                                        <div className="text-right text-[14px] font-medium text-[#101828]">
-                                            {formatCurrency(item.amount, invoice.currency)}
-                                        </div>
+
+                            <div className="w-full">
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-[#667085]">Invoice</span>
+                                        <span className="text-sm font-medium text-[#101828]">#{invoice.invoiceNumber}</span>
                                     </div>
-                                ))}
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-[#667085]">Invoice Date</span>
+                                        <span className="text-sm font-medium text-[#101828]">{formatDate(invoice.creationDate)}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-[#667085]">Terms</span>
+                                        <span className="text-sm font-medium text-[#101828]">{invoice.paymentTerms || 'Net 60'}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-[#667085]">Due Date</span>
+                                        <span className="text-sm font-medium text-[#101828]">{formatDate(invoice.dueDate)}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Totals Section */}
+                        <div className="mb-8 overflow-x-auto">
+                            <table className="w-full border-collapse">
+                                <thead>
+                                    <tr style={{ backgroundColor: invoice.color ? `${invoice.color}20` : '#EBF5FF' }}>
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD] w-12">#</th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD]">Item Detail</th>
+                                        <th className="text-right py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD] w-20">Qty</th>
+                                        <th className="text-right py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD] w-32">Rate</th>
+                                        <th className="text-right py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD] w-32">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {invoice.items?.map((item, index) => (
+                                        <tr key={index}>
+                                            <td className="py-3 px-4 text-sm text-[#101828] border border-[#D0D5DD]">{index + 1}</td>
+                                            <td className="py-3 px-4 text-sm text-[#101828] border border-[#D0D5DD]">
+                                                <div className="font-medium">{item.itemName}</div>
+                                                {item.description && (
+                                                    <div className="mt-1">
+                                                        <div className="hidden md:block text-xs text-[#667085]">
+                                                            {item.description}
+                                                        </div>
+                                                        <div className="md:hidden">
+                                                            {item.description.length > 50 ? (
+                                                                <div className="flex items-start gap-2">
+                                                                    <span className="text-xs text-[#667085] line-clamp-1 flex-1">
+                                                                        {item.description}
+                                                                    </span>
+                                                                    <button
+                                                                        onClick={() => setSelectedDescription(item.description || null)}
+                                                                        className="flex-shrink-0 p-1 hover:bg-gray-100 rounded transition-colors"
+                                                                        title="View full description"
+                                                                    >
+                                                                        <Eye size={14} className="text-[#2F80ED]" />
+                                                                    </button>
+                                                                </div>
+                                                            ) : (
+                                                                <span className="text-xs text-[#667085]">
+                                                                    {item.description}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="py-3 px-4 text-sm text-[#101828] text-right border border-[#D0D5DD]">{item.quantity}</td>
+                                            <td className="py-3 px-4 text-sm text-[#101828] text-right border border-[#D0D5DD]">
+                                                {formatCurrency(item.rate, invoice.currency)}
+                                            </td>
+                                            <td className="py-3 px-4 text-sm font-medium text-[#101828] text-right border border-[#D0D5DD]">
+                                                {formatCurrency(item.amount, invoice.currency)}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
                         <div className="flex justify-end mb-8">
-                            <div className="w-80">
+                            <div className="w-full md:w-80">
                                 <div className="space-y-2">
-                                    <div className="flex justify-between text-[14px]">
-                                        <span className="text-[#667085]">{t('sub_total_label')}</span>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-[#667085]">Sub Total</span>
                                         <span className="text-[#101828] font-medium">
                                             {formatCurrency(invoice.subtotal, invoice.currency)}
                                         </span>
                                     </div>
                                     {invoice.appliedTaxes?.map((tax, index) => (
-                                        <div key={index} className="flex justify-between text-[14px]">
+                                        <div key={index} className="flex justify-between text-sm">
                                             <span className="text-[#667085]">
                                                 {tax.taxName} ({tax.appliedRate}%)
                                             </span>
@@ -309,25 +287,24 @@ const InvoiceViewPage = () => {
                                             </span>
                                         </div>
                                     ))}
-                                    <div className="border-t border-[#E4E7EC] pt-2">
-                                        <div className="flex justify-between text-[16px] font-semibold">
-                                            <span className="text-[#101828]">{t('total_label')}</span>
-                                            <span className="text-[#101828]">
-                                                {formatCurrency(invoice.totalDue, invoice.currency)}
-                                            </span>
-                                        </div>
+                                    <div className="flex justify-between text-sm pt-2 border-t border-[#E4E7EC]">
+                                        <span className="text-[#101828] font-semibold">Total</span>
+                                        <span className="text-[#101828] font-semibold">
+                                            {formatCurrency(invoice.totalDue, invoice.currency)}
+                                        </span>
                                     </div>
                                 </div>
-                                <div className="mt-4 bg-[#2F80ED] text-white px-4 py-2 rounded text-center">
-                                    <div className="text-[14px] font-medium">{t('amount_due')}</div>
-                                    <div className="text-[18px] font-bold">
-                                        {formatCurrency(invoice.totalDue, invoice.currency)}
+                                <div className="mt-3 px-4 py-3 rounded" style={{ backgroundColor: invoice.color ? `${invoice.color}20` : '#EBF5FF' }}>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm font-semibold text-[#101828]">Balance Due</span>
+                                        <span className="text-base font-bold text-[#101828]">
+                                            {formatCurrency(invoice.totalDue, invoice.currency)}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Signature */}
                         {invoice.signatureUrl && (
                             <div className="mb-8">
                                 <div className="text-[14px] font-medium text-[#101828] mb-2">{t('signature_label')}</div>
@@ -339,7 +316,6 @@ const InvoiceViewPage = () => {
                             </div>
                         )}
 
-                        {/* Notes and Terms */}
                         {(invoice.note || invoice.termsAndConditions || invoice.paymentTerms) && (
                             <div className="space-y-6">
                                 {invoice.note && (
@@ -372,19 +348,47 @@ const InvoiceViewPage = () => {
                 </div>
             </div>
 
-            {/* <div className="flex w-full justify-start gap-4 mt-6 px-6"> */}
-                {/* <button className="flex w-full max-w-[200px] items-center gap-2 px-6 py-3 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors">
-                    <Download size={16} />
-                    {t('save_as_pdf')}
-                </button> */}
-                {/* <Link
-                    href={`/dashboard/invoices/edit/${invoice.id}`}
-                    className="flex items-center gap-2 px-6 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
-                >
-                    <Edit size={16} />
-                    {t('edit_invoice_button')}
-                </Link> */}
-            {/* </div> */}
+            {selectedDescription && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg w-full max-w-md mx-4 p-6">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-semibold text-[#101828]">Item Description</h3>
+                            <button
+                                onClick={() => setSelectedDescription(null)}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="text-sm text-[#667085] whitespace-pre-wrap">
+                            {selectedDescription}
+                        </div>
+                        <div className="mt-6 flex justify-end">
+                            <button
+                                onClick={() => setSelectedDescription(null)}
+                                className="px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <UploadReceiptModal
+                isOpen={isUploadModalOpen}
+                onClose={() => setIsUploadModalOpen(false)}
+                invoiceId={params.id as string}
+                mode="incomplete"
+                invoiceTotalDue={invoice?.totalDue}
+            />
+
+            {isDropdownOpen && (
+                <div
+                    className="fixed inset-0 z-0"
+                    onClick={() => setIsDropdownOpen(false)}
+                />
+            )}
         </div>
     );
 };
