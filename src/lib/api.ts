@@ -1000,22 +1000,28 @@ export class ApiClient {
 
   static getDropdownOptions(
     status: string,
+    role: 'admin' | 'customer' = 'customer'
   ): Array<{ label: string; action: string }> {
     const baseOptions = [{ label: "View Detail", action: "view" }];
-
     const statusLower = status.toLowerCase();
+
+    if (role === 'customer') {
+      if (statusLower === 'paid') {
+        return [...baseOptions, { label: "View Receipt", action: "receipt" }];
+      }
+      return [...baseOptions, { label: "Upload Receipt", action: "upload" }];
+    }
+
     if (statusLower === "pending" || statusLower === "outstanding") {
       return [
         ...baseOptions,
-        { label: "Upload Receipt", action: "upload" },
+        { label: "Mark as Paid", action: "paid" },
         { label: "Mark as Incomplete", action: "incomplete" },
       ];
-    } else if (statusLower === "paid") {
-      return [...baseOptions, { label: "View Receipt", action: "receipt" }];
-    } else {
-      return [...baseOptions, { label: "Upload Receipt", action: "upload" }];
     }
+    return baseOptions;
   }
+  
   static isValidPhone = (phone: string) => {
     return /^\+\d{7,15}$/.test(phone);
   };

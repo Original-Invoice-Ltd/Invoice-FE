@@ -238,10 +238,6 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
       setAmountError("Please enter a valid amount greater than 0");
       return;
     }
-    if (invoiceTotalDue && amount >= invoiceTotalDue) {
-      setAmountError(`Amount must be less than total due (${invoiceTotalDue})`);
-      return;
-    }
     setAmountError("");
 
     if (!invoiceId) {
@@ -252,14 +248,6 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
     setModalState("uploading");
 
     try {
-      if (selectedFile) {
-        const uploadSuccess = await uploadReceipt(invoiceId, selectedFile);
-        if (!uploadSuccess) {
-          setModalState("failed");
-          return;
-        }
-      }
-
       const { ApiClient } = await import("@/lib/api");
       const response = await ApiClient.markInvoiceAsIncomplete(invoiceId, amount);
       
@@ -349,7 +337,7 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
           {mode === "incomplete" && (
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Amount Paid {invoiceTotalDue && `(Total Due: ₦${invoiceTotalDue.toLocaleString()})`}
+                Balance Left {invoiceTotalDue && `(Total Due: ₦${invoiceTotalDue.toLocaleString()})`}
               </label>
               <input
                 type="number"
@@ -358,7 +346,7 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
                   setAmountPaid(e.target.value);
                   setAmountError("");
                 }}
-                placeholder="Enter amount paid"
+                placeholder="Enter balance left"
                 className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${
                   amountError 
                     ? "border-red-500 focus:ring-red-500" 

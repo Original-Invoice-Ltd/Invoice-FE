@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { X } from "lucide-react";
 import { useReceiptUpload } from "@/hooks/useReceiptUpload";
+import { ApiClient } from "@/lib/api";
 
 interface UploadReceiptModalProps {
     isOpen: boolean;
@@ -166,50 +167,17 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
     };
 
     const handleSubmitIncomplete = async () => {
-        // Validate amount
-        const amount = parseFloat(amountPaid);
-        if (!amountPaid || isNaN(amount) || amount <= 0) {
-            setAmountError("Please enter a valid amount greater than 0");
-            return;
-        }
-        if (invoiceTotalDue && amount >= invoiceTotalDue) {
-            setAmountError(`Amount must be less than total due (${invoiceTotalDue})`);
-            return;
-        }
-        setAmountError("");
-
-        if (!invoiceId) {
-            console.error("No invoice ID provided");
-            return;
-        }
+        const value = parseFloat(amountPaid);
+        if (isNaN(value)) return;
 
         setUploadState("uploading");
 
-        try {
-            // If file is selected, upload it first
-            if (selectedFile) {
-                const uploadSuccess = await uploadReceipt(invoiceId, selectedFile);
-                if (!uploadSuccess) {
-                    setUploadState("failed");
-                    return;
-                }
-            }
-
-            // Then mark as incomplete
-            const { ApiClient } = await import("@/lib/api");
-            const response = await ApiClient.markInvoiceAsIncomplete(invoiceId, amount);
-            
-            if (response.status === 200) {
-                setUploadState("completed");
-                setTimeout(() => {
-                    onClose();
-                    window.location.reload(); // Refresh to show updated status
-                }, 1500);
-            } else {
-                setUploadState("failed");
-            }
-        } catch (error) {
-            console.error("Error marking invoice as incomplete:", error);
+        const response = await ApiClient.markInvoiceAsIncomplete(invoiceId!, value);
+        
+        if (response.status === 200) {
+            setUploadState("completed");
+            window.location.reload();
+        } else {
             setUploadState("failed");
         }
     };
@@ -246,11 +214,10 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                             : "Please upload proof of your payment so the business can review and confirm it. Supported files: JPG, PNG, PDF (max 10MB)."}
                     </p>
 
-                    {/* Amount Paid Input (incomplete mode only) */}
                     {mode === "incomplete" && (
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Amount Paid So Far {invoiceTotalDue && `(Total Due: ₦${invoiceTotalDue.toLocaleString()})`}
+                                Balance Left {invoiceTotalDue && `(Total Due: ₦${invoiceTotalDue.toLocaleString()})`}
                             </label>
                             <input
                                 type="number"
@@ -259,7 +226,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                                     setAmountPaid(e.target.value);
                                     setAmountError("");
                                 }}
-                                placeholder="Enter amount paid"
+                                placeholder="Enter balance left"
                                 className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${
                                     amountError 
                                         ? "border-red-500 focus:ring-red-500" 
