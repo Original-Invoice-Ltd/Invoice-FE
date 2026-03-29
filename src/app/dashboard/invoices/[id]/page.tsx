@@ -174,15 +174,21 @@ const InvoiceViewPage = () => {
                                 <div className="flex-1 md:text-right">
                                     <h3 className="text-sm font-semibold text-[#101828] mb-3">Bill To</h3>
                                     <div className="space-y-1">
-                                        <p className="text-sm font-medium text-[#101828]">
-                                            {invoice.billTo?.businessName || invoice.billTo?.fullName}
-                                        </p>
-                                        {invoice.billTo?.country && (
-                                            <p className="text-sm text-[#667085]">{invoice.billTo.country}</p>
-                                        )}
-                                        <p className="text-sm text-[#667085]">{invoice.billTo?.email}</p>
-                                        {invoice.billTo?.phone && (
-                                            <p className="text-sm text-[#667085]">{invoice.billTo.phone}</p>
+                                        {invoice.billTo ? (
+                                            <>
+                                                <p className="text-sm font-medium text-[#101828]">
+                                                    {invoice.billTo.businessName || invoice.billTo.fullName}
+                                                </p>
+                                                {invoice.billTo.country && (
+                                                    <p className="text-sm text-[#667085]">{invoice.billTo.country}</p>
+                                                )}
+                                                <p className="text-sm text-[#667085]">{invoice.billTo.email}</p>
+                                                {invoice.billTo.phone && (
+                                                    <p className="text-sm text-[#667085]">{invoice.billTo.phone}</p>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <p className="text-sm text-[#667085]">You (Received Invoice)</p>
                                         )}
                                     </div>
                                 </div>
