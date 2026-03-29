@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
@@ -55,8 +55,8 @@ const AdminOverviewPage = () => {
     const kpiCards = [
         {
             title: "Total Platform Revenue",
-            value: stats ? `$${stats.totalRevenue?.toLocaleString()}` : "$0",
-            subtext: `Current Month: $${stats?.currentMonthRevenue?.toLocaleString() ?? 0}`,
+            value: stats ? `?${stats.totalRevenue?.toLocaleString()}` : "?0",
+            subtext: `Current Month: ₦${stats?.currentMonthRevenue?.toLocaleString() ?? 0}`,
             change: stats ? `+${stats.revenueChange}%` : "—",
             icon: CreditCard,
         },
@@ -69,7 +69,7 @@ const AdminOverviewPage = () => {
         },
         {
             title: "Monthly Recurring Revenue",
-            value: stats ? `$${stats.monthlyRecurringRevenue?.toLocaleString()}` : "$0",
+            value: stats ? `?${stats.monthlyRecurringRevenue?.toLocaleString()}` : "?0",
             subtext: "From paid subscriptions",
             change: stats ? `+${stats.mrrChange}%` : "—",
             icon: TrendingUp,

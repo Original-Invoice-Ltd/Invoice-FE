@@ -81,7 +81,7 @@ const UserActionModal = ({ user, actionType, onClose }: UserActionModalProps) =>
     const config = configs[actionType];
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
             <div className="bg-white rounded-xl shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-4 sm:p-6 border-b border-[#E4E7EC]">
                     <h2 className="text-lg font-bold text-gray-900">{config.title}</h2>
