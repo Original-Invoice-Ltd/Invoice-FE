@@ -3,6 +3,14 @@
  */
 import { ApiClient } from './api';
 
+/**
+ * Parses roles from the API which may come as a stringified nested array
+ * e.g. ["[USER, SUPER_ADMIN]"] → ["USER", "SUPER_ADMIN"]
+ */
+export function parseRoles(roles: any[]): string[] {
+  return (roles ?? []).flat().join(',').replace(/[\[\]]/g, '').split(',').map(r => r.trim()).filter(Boolean);
+}
+
 export class AuthService {
   /**
    * Logout user by calling the logout endpoint and redirecting to sign in
