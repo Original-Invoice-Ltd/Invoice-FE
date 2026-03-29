@@ -5,6 +5,7 @@ import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { parseRoles } from "@/lib/auth";
 
 export default function AdminLayout({
     children,
@@ -15,7 +16,10 @@ export default function AdminLayout({
     const router = useRouter();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    const isSuperAdmin = user?.roles?.includes("SUPER_ADMIN") ?? false;
+    const rawRoles = user?.roles ?? [];
+    const roles = parseRoles(rawRoles);
+    const isSuperAdmin = roles.includes("SUPER_ADMIN");
+    const isAdminUser = isSuperAdmin || roles.includes("ADMIN");
 
     useEffect(() => {
         if (!loading && !user) {
