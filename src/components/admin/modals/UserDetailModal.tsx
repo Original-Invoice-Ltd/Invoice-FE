@@ -20,7 +20,7 @@ interface UserDetailModalProps {
 
 const UserDetailModal = ({ user, onClose }: UserDetailModalProps) => {
     return (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
             <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[98vh] flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-4 border-b border-[#E4E7EC] flex-shrink-0">
                     <h2 className="text-lg font-bold text-gray-900">User Details</h2>

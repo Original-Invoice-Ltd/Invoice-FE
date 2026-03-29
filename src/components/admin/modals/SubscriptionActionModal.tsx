@@ -64,7 +64,7 @@ const SubscriptionActionModal = ({ subscription, actionType, onClose }: Subscrip
     const content = getActionContent();
 
     return (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
             <div className="bg-white rounded-xl shadow-lg max-w-md w-full max-h-[98vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-6 border-b border-[#E4E7EC] flex-shrink-0">
                     <h2 className="text-lg sm:text-xl font-bold text-gray-900">{content.title}</h2>
