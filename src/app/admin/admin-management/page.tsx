@@ -61,12 +61,15 @@ const AdminManagementPage = () => {
             });
             if (res.status === 200) await fetchAdmins();
         } else {
-            const res = await AdminApi.createAdmin({
+            const payload = {
                 email: data.email,
                 fullName: data.fullName,
                 role: data.role,
                 status: data.status,
-            });
+            };
+            console.log('[createAdmin] payload:', JSON.stringify(payload, null, 2));
+            const res = await AdminApi.createAdmin(payload);
+            console.log('[createAdmin] response:', res.status, res.data ?? res.error);
             if (res.status === 200 || res.status === 201) await fetchAdmins();
         }
         setShowFormModal(false);
