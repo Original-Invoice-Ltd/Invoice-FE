@@ -9,15 +9,19 @@ interface UploadReceiptModalProps {
     onClose: () => void;
     onUpload?: (file: File) => void;
     invoiceId?: string; // Invoice ID for API upload
+    mode?: "upload" | "incomplete";
+    invoiceTotalDue?: number;
 }
 
 type UploadState = 'idle' | 'uploading' | 'completed' | 'failed';
 
-const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadReceiptModalProps) => {
+const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "upload", invoiceTotalDue }: UploadReceiptModalProps) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
     const [uploadState, setUploadState] = useState<UploadState>('idle');
     const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
+    const [amountPaid, setAmountPaid] = useState<string>("");
+    const [amountError, setAmountError] = useState<string>("");
     const fileInputRef = useRef<HTMLInputElement>(null);
     
     const { uploadReceipt, uploading, progress, error: uploadError, success, reset } = useReceiptUpload();
@@ -40,6 +44,8 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
                 setSelectedFile(null);
                 setUploadState('idle');
                 setFilePreviewUrl(null);
+                setAmountPaid("");
+                setAmountError("");
                 reset();
             }, 300);
         }
@@ -159,6 +165,55 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
         onClose();
     };
 
+    const handleSubmitIncomplete = async () => {
+        // Validate amount
+        const amount = parseFloat(amountPaid);
+        if (!amountPaid || isNaN(amount) || amount <= 0) {
+            setAmountError("Please enter a valid amount greater than 0");
+            return;
+        }
+        if (invoiceTotalDue && amount >= invoiceTotalDue) {
+            setAmountError(`Amount must be less than total due (${invoiceTotalDue})`);
+            return;
+        }
+        setAmountError("");
+
+        if (!invoiceId) {
+            console.error("No invoice ID provided");
+            return;
+        }
+
+        setUploadState("uploading");
+
+        try {
+            // If file is selected, upload it first
+            if (selectedFile) {
+                const uploadSuccess = await uploadReceipt(invoiceId, selectedFile);
+                if (!uploadSuccess) {
+                    setUploadState("failed");
+                    return;
+                }
+            }
+
+            // Then mark as incomplete
+            const { ApiClient } = await import("@/lib/api");
+            const response = await ApiClient.markInvoiceAsIncomplete(invoiceId, amount);
+            
+            if (response.status === 200) {
+                setUploadState("completed");
+                setTimeout(() => {
+                    onClose();
+                    window.location.reload(); // Refresh to show updated status
+                }, 1500);
+            } else {
+                setUploadState("failed");
+            }
+        } catch (error) {
+            console.error("Error marking invoice as incomplete:", error);
+            setUploadState("failed");
+        }
+    };
+
     const handleCancel = () => {
         setSelectedFile(null);
         setUploadState('idle');
@@ -172,7 +227,9 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto border border-gray-200">
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-100">
-                    <h2 className="text-xl font-semibold text-gray-900">Upload Payment Receipt</h2>
+                    <h2 className="text-xl font-semibold text-gray-900">
+                        {mode === "incomplete" ? "Mark as Incomplete Payment" : "Upload Payment Receipt"}
+                    </h2>
                     <button
                         onClick={onClose}
                         className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -184,9 +241,37 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
                 {/* Content */}
                 <div className="px-6 py-4">
                     <p className="text-gray-600 text-sm mb-4">
-                        Please upload proof of your payment so the business can review and confirm it. 
-                        Supported files: JPG, PNG, PDF (max 10MB).
+                        {mode === "incomplete" 
+                            ? "Enter the amount you've paid so far and optionally upload a receipt. The invoice will remain outstanding until fully paid."
+                            : "Please upload proof of your payment so the business can review and confirm it. Supported files: JPG, PNG, PDF (max 10MB)."}
                     </p>
+
+                    {/* Amount Paid Input (incomplete mode only) */}
+                    {mode === "incomplete" && (
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Amount Paid So Far {invoiceTotalDue && `(Total Due: ₦${invoiceTotalDue.toLocaleString()})`}
+                            </label>
+                            <input
+                                type="number"
+                                value={amountPaid}
+                                onChange={(e) => {
+                                    setAmountPaid(e.target.value);
+                                    setAmountError("");
+                                }}
+                                placeholder="Enter amount paid"
+                                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${
+                                    amountError 
+                                        ? "border-red-500 focus:ring-red-500" 
+                                        : "border-gray-300 focus:ring-blue-500"
+                                }`}
+                                disabled={uploadState === "uploading"}
+                            />
+                            {amountError && (
+                                <p className="text-red-500 text-sm mt-1">{amountError}</p>
+                            )}
+                        </div>
+                    )}
 
                     {/* Upload States */}
                     {uploadState === 'idle' && (
@@ -226,7 +311,9 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
                                         </svg>
                                     </div>
                                     <div>
-                                        <p className="font-medium text-gray-900 mb-1">Upload Receipt</p>
+                                        <p className="font-medium text-gray-900 mb-1">
+                                            {mode === "incomplete" ? "Upload Receipt (Optional)" : "Upload Receipt"}
+                                        </p>
                                         <p className="text-sm text-gray-500 mb-3">Drag & drop or click to upload</p>
                                         <button
                                             onClick={handleBrowseClick}
@@ -453,6 +540,18 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId }: UploadRece
                             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                         >
                             Save
+                        </button>
+                    ) : mode === "incomplete" ? (
+                        <button
+                            onClick={handleSubmitIncomplete}
+                            disabled={uploadState === 'uploading'}
+                            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                                uploadState !== 'uploading'
+                                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            }`}
+                        >
+                            {uploadState === 'uploading' ? 'Submitting...' : 'Submit'}
                         </button>
                     ) : (
                         <button

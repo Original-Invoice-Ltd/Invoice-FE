@@ -48,7 +48,7 @@ export default function SignUp() {
         password: formData.password,
         fullName: formData.fullName,
         phoneNumber: formData.phoneNumber
-      }, captchaToken!);
+      });
 
       if (response.status === 201) {
         showSuccess('Registration successful! Please check your email for verification code.');

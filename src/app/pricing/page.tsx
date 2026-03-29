@@ -64,6 +64,7 @@ const PricingContent = ()=>{
             // Initialize transaction with plan
             const result = await initializeTransactionWithPlan(
                 plan,
+                'yearly', // Default to yearly, can be made dynamic
                 ["card", "bank_transfer"], // Allow both card and bank transfer
                 `${window.location.origin}/dashboard/subscription/success` // Callback URL
             );

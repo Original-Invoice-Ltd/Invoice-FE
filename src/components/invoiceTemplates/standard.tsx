@@ -88,12 +88,7 @@ export default function StandardInvoiceTemplate({ data = defaultInvoiceData }: {
     <div className="min-h-screen bg-white py-4 px-4 sm:py-6 sm:px-6 lg:px-8 relative">
       {/* Watermark */}
       <div className="fixed inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-        <div 
-          className="text-blue-100 text-4xl sm:text-6xl font-bold opacity-10 transform rotate-[-45deg] select-none"
-          style={{ fontSize: 'clamp(2rem, 8vw, 4rem)' }}
-        >
-          www.originalinvoice.com
-        </div>
+        {/* Watermark removed - only shown for free plan users in actual invoices */}
       </div>
 
       {/* Content Container */}
@@ -115,9 +110,11 @@ export default function StandardInvoiceTemplate({ data = defaultInvoiceData }: {
         </div>
 
         {/* Logo - Centered */}
-        <div className="text-center mb-6 sm:mb-8">
-          <div className="text-3xl sm:text-4xl font-bold text-gray-900">{t('logo')}</div>
-        </div>
+        {data.billFrom?.name && (
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="text-3xl sm:text-4xl font-bold text-gray-900">{data.billFrom.name}</div>
+          </div>
+        )}
 
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">{t('invoice').toUpperCase()}</h1>
 

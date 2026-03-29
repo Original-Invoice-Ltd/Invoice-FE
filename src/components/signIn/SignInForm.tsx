@@ -1,13 +1,9 @@
 'use client';
 
 import { Dispatch, SetStateAction, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import MailIcon from '../signUp/mailIcon';
 import PasswordIcon from '../signUp/passwordIcon';
-import GoogleIcon from '../signUp/googleIcon';
-import AppleIcon from '../signUp/appleIcon';
 import Logo from '../signUp/Logo';
-import ReCAPTCHA from 'react-google-recaptcha';
 
 interface SignInFormProps {
   formData: {
@@ -24,11 +20,6 @@ interface SignInFormProps {
 
 export default function SignInForm({ formData, onInputChange, onSubmit, loading = false,  captchaToken ,setCaptchaToken }: SignInFormProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
-
-  const handleSignUpClick = () => {
-    router.push('/signUp');
-  };
 
   return (
     <div className="w-full  max-w-[470px] mx-auto flex flex-col gap-2">
@@ -40,10 +31,10 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
       {/* Header */}
       <div className="text-center">
         <h2 className="text-[24px] font-medium text-[#000000] font-['Inter_Tight']">
-          Sign In
+          Admin Sign In
         </h2>
         <p className="text-[16px] text-[#666666] font-['Inter_Tight']">
-          Sign in with your email or social accounts
+          Enter your credentials to access the admin dashboard
         </p>
       </div>
 
@@ -137,55 +128,6 @@ export default function SignInForm({ formData, onInputChange, onSubmit, loading 
       >
         {loading ? 'Signing In...' : 'Sign In'}
       </button>
-
-      {/* Divider with lines */}
-      <div className="flex items-center gap-4 my-1">
-        <div className="flex-1 h-[1px] bg-[#E5E5E5]"></div>
-        <span className="text-[16px] font-semibold text-[#333333] font-['Inter_Tight']">Or</span>
-        <div className="flex-1 h-[1px] bg-[#E5E5E5]"></div>
-      </div>
-
-      {/* Social Login Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <button
-          onClick={() => {
-            const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
-            window.location.href = `${apiBaseUrl}/oauth/google/login`;
-          }}
-          disabled={loading}
-          className="w-full sm:flex-1 h-[38px] rounded-lg border border-[#E5E5E5] bg-white 
-          flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-          <GoogleIcon width={20} height={20} />
-          <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
-            Continue with Google
-          </span>
-        </button>
-
-        <button
-          onClick={() => {
-            const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
-            window.location.href = `${apiBaseUrl}/oauth/apple/login`;
-          }}
-          disabled={loading}
-          className="w-full sm:flex-1 h-[38px] rounded-lg border border-[#E5E5E5] bg-white 
-          flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-          <AppleIcon width={20} height={20} />
-          <span className="text-[14px] font-medium text-[#000000] font-['Inter_Tight']">
-            Continue with Apple
-          </span>
-        </button>
-      </div>
-
-
-      <div className="text-center text-[14px] font-['Inter_Tight']">
-        <span className="text-[#666666]">Don&apos;t have account? </span>
-        <span
-          onClick={handleSignUpClick}
-          className="text-[#2F80ED] font-medium cursor-pointer hover:underline"
-        >
-          Sign Up
-        </span>
-      </div>
     </div>
   );
 }

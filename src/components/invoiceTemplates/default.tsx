@@ -105,12 +105,14 @@ export default function DefaultInvoiceTemplate({ data = defaultInvoiceData }: { 
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start gap-6 sm:gap-8 mb-8 sm:mb-12">
           {/* Logo */}
-          <div className="flex-shrink-0">
-            <div className="text-2xl sm:text-3xl font-bold text-gray-800">{t('logo')}</div>
-          </div>
+          {data.billFrom?.name && (
+            <div className="flex-shrink-0">
+              <div className="text-2xl sm:text-3xl font-bold text-gray-800">{data.billFrom.name}</div>
+            </div>
+          )}
 
           {/* Invoice Info */}
-          <div className="text-left sm:text-right w-full sm:w-auto">
+          <div className={`text-left sm:text-right w-full sm:w-auto ${!data.billFrom?.name ? 'sm:ml-auto' : ''}`}>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">{t('invoice').toUpperCase()}</h1>
             <p className="text-sm text-gray-500 mb-1">{data.invoiceNumber}</p>
             <p className="text-xs sm:text-sm text-gray-600 mb-1">{t('balance_due')}</p>

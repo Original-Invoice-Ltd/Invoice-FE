@@ -16,13 +16,12 @@ export default function AdminLayout({
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const isSuperAdmin = user?.roles?.includes("SUPER_ADMIN") ?? false;
-    const isAdmin = user?.roles?.includes("ADMIN") || isSuperAdmin;
 
     useEffect(() => {
-        if (!loading && (!user || !isAdmin)) {
-            router.push("/dashboard");
+        if (!loading && !user) {
+            router.push("/signIn");
         }
-    }, [user, loading, isAdmin, router]);
+    }, [user, loading, router]);
 
     if (loading) {
         return (
@@ -32,7 +31,7 @@ export default function AdminLayout({
         );
     }
 
-    if (!user || !isAdmin) {
+    if (!user) {
         return null;
     }
 
