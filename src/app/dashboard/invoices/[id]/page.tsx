@@ -63,9 +63,13 @@ const InvoiceViewPage = () => {
     };
 
     const handleMarkAsPaid = async () => {
+        const { toast } = await import("@/lib/toast");
         const response = await ApiClient.markInvoiceAsPaid(params.id as string);
         if (response.status === 200) {
-            window.location.reload();
+            toast.show({ type: 'success', message: 'Successfully marked as paid' });
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         }
     };
 
@@ -387,6 +391,7 @@ const InvoiceViewPage = () => {
                 invoiceId={params.id as string}
                 mode="incomplete"
                 invoiceTotalDue={invoice?.totalDue}
+                isDashboardUser={true}
             />
 
             {isDropdownOpen && (
