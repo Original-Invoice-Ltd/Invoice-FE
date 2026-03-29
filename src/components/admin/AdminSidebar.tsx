@@ -12,6 +12,7 @@ interface AdminSidebarProps {
     isSuperAdmin?: boolean;
 }
 
+
 const AdminSidebar = ({ isOpen = true, onClose, isSuperAdmin = true }: AdminSidebarProps) => {
     const pathname = usePathname();
 
