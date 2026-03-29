@@ -42,8 +42,7 @@ const AdminSidebar = ({ isOpen = true, onClose, isSuperAdmin = true }: AdminSide
             <div className="flex flex-col h-full">
                 <div className="p-6 border-b border-[#E4E7EC]">
                     <Link href="/admin/overview" className="flex items-center gap-2">
-                        <Image src="/assets/header logo.svg" alt="Logo" width={32} height={32} />
-                        <span className="font-bold text-lg">Admin</span>
+                        <Image src="/assets/header logo.svg" alt="Logo" width={36} height={36} />
                     </Link>
                 </div>
 
