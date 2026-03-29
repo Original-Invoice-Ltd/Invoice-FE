@@ -1,153 +1,163 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Download, FileText } from "lucide-react";
 import { AdminApi } from "@/lib/adminApi";
 
 const AdminReportsPage = () => {
-    const [dateRange, setDateRange] = useState("monthly");
-    const [startDate, setStartDate] = useState("2024-01-01");
-    const [endDate, setEndDate] = useState("2024-03-31");
-    const [exportFormat, setExportFormat] = useState("csv");
-    const [recentExports, setRecentExports] = useState<any[]>([]);
-    const [loadingExports, setLoadingExports] = useState(true);
-    const [generatingReport, setGeneratingReport] = useState<string | null>(null);
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [generating, setGenerating] = useState<string | null>(null);
+    const [results, setResults] = useState<Record<string, any>>({});
 
-    const reports = [
-        { id: "revenue", name: "Revenue Report", description: "Collected vs invoiced revenue by period" },
-        { id: "subscription", name: "Subscription Report", description: "Plan distribution, upgrades, downgrades, and churn" },
-        { id: "user-activity", name: "User Activity Report", description: "Login frequency, invoice actions, and feature usage" },
-        { id: "invoice-stats", name: "Invoice Statistics Report", description: "Volume, status breakdown, average value, and top creators" },
-        { id: "tax-collection", name: "Tax Collection Report", description: "Tax amounts collected by type, user, and period" },
-        { id: "user-list", name: "User List Export", description: "All user records with profile, plan, and status" },
-        { id: "transaction", name: "Transaction Data Export", description: "Payment records, amounts, methods, and statuses" },
-        { id: "invoice-data", name: "Invoice Data Export", description: "Full platform-wide invoice records" },
+    const dateReports = [
+        {
+            id: "revenue",
+            name: "Revenue Report",
+            description: "Collected vs invoiced revenue by period",
+            call: () => AdminApi.getRevenueReport(startDate, endDate),
+        },
+        {
+            id: "subscriptions",
+            name: "Subscription Report",
+            description: "Plan distribution, upgrades, downgrades, and churn",
+            call: () => AdminApi.getSubscriptionReport(startDate, endDate),
+        },
+        {
+            id: "user-activity",
+            name: "User Activity Report",
+            description: "Login frequency, invoice actions, and feature usage",
+            call: () => AdminApi.getUserActivityReport(startDate, endDate),
+        },
+        {
+            id: "invoice-statistics",
+            name: "Invoice Statistics Report",
+            description: "Volume, status breakdown, average value, and top creators",
+            call: () => AdminApi.getInvoiceStatisticsReport(startDate, endDate),
+        },
+        {
+            id: "tax-collection",
+            name: "Tax Collection Report",
+            description: "Tax amounts collected by type, user, and period",
+            call: () => AdminApi.getTaxCollectionReport(startDate, endDate),
+        },
     ];
 
-    useEffect(() => {
-        const fetchRecentExports = async () => {
-            setLoadingExports(true);
-            const res = await AdminApi.getRecentExports();
-            if (res.status === 200 && res.data) {
-                setRecentExports(res.data);
-            }
-            setLoadingExports(false);
-        };
-        fetchRecentExports();
-    }, []);
+    const exportReports = [
+        {
+            id: "export-users",
+            name: "User List Export",
+            description: "All user records with profile, plan, and status",
+            call: () => AdminApi.exportUsers(),
+        },
+        {
+            id: "export-transactions",
+            name: "Transaction Data Export",
+            description: "Payment records, amounts, methods, and statuses",
+            call: () => AdminApi.exportTransactions(),
+        },
+        {
+            id: "export-invoices",
+            name: "Invoice Data Export",
+            description: "Full platform-wide invoice records",
+            call: () => AdminApi.exportInvoices(),
+        },
+    ];
 
-    const handleGenerateReport = async (reportId: string) => {
-        setGeneratingReport(reportId);
+    const handleGenerate = async (id: string, call: () => Promise<any>) => {
+        setGenerating(id);
         try {
-            const res = await AdminApi.generateReport({ reportId, startDate, endDate, format: exportFormat });
+            const res = await call();
             if (res.status === 200 && res.data) {
-                // Refresh recent exports after generating
-                const exportsRes = await AdminApi.getRecentExports();
-                if (exportsRes.status === 200 && exportsRes.data) {
-                    setRecentExports(exportsRes.data);
+                setResults(prev => ({ ...prev, [id]: res.data }));
+                // If response is a download URL or blob, trigger download
+                if (typeof res.data === "string" && res.data.startsWith("http")) {
+                    window.open(res.data, "_blank");
                 }
+            } else {
+                console.error(`[${id}] error:`, res.error);
             }
         } finally {
-            setGeneratingReport(null);
+            setGenerating(null);
         }
     };
 
     return (
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <div className="p-4 sm:p-6 space-y-6">
             <div>
                 <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Reports & Export</h1>
-                <p className="text-gray-600 mt-1 text-sm sm:text-base">Generate and export platform data</p>
+                <p className="text-gray-600 mt-1 text-sm">Generate and export platform data</p>
             </div>
 
+            {/* Date filters */}
             <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
-                <h2 className="text-sm sm:text-base font-bold text-gray-700 mb-4">Report Settings</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">Date Range</label>
-                        <select value={dateRange} onChange={(e) => setDateRange(e.target.value)} className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm">
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
-                            <option value="yearly">Yearly</option>
-                            <option value="custom">Custom Range</option>
-                        </select>
-                    </div>
+                <h2 className="text-sm font-bold text-gray-700 mb-4">Date Range (for date-based reports)</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md">
                     <div>
                         <label className="block text-sm font-medium text-gray-900 mb-2">Start Date</label>
-                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm" />
+                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
+                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm" />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-900 mb-2">End Date</label>
-                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm" />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">Export Format</label>
-                        <select value={exportFormat} onChange={(e) => setExportFormat(e.target.value)} className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm">
-                            <option value="csv">CSV</option>
-                            <option value="xlsx">Excel (.xlsx)</option>
-                            <option value="pdf">PDF</option>
-                        </select>
+                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
+                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm" />
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {reports.map((report) => (
-                    <div key={report.id} className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6 hover:shadow-lg transition-shadow">
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="p-3 bg-[#E8F2FE] rounded-lg text-[#2F80ED]">
-                                <FileText size={24} />
+            {/* Date-based reports */}
+            <div>
+                <h2 className="text-sm font-semibold text-gray-700 mb-3">Analytics Reports</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {dateReports.map((report) => (
+                        <div key={report.id} className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-5 hover:shadow-md transition-shadow">
+                            <div className="p-2 bg-[#E8F2FE] rounded-lg w-fit mb-3">
+                                <FileText size={20} className="text-[#2F80ED]" />
                             </div>
+                            <h3 className="text-sm font-semibold text-gray-800 mb-1">{report.name}</h3>
+                            <p className="text-xs text-gray-500 mb-4">{report.description}</p>
+                            <button
+                                onClick={() => handleGenerate(report.id, report.call)}
+                                disabled={generating === report.id}
+                                className="w-full px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                            >
+                                <Download size={16} />
+                                {generating === report.id ? "Generating..." : "Generate"}
+                            </button>
+                            {results[report.id] && (
+                                <p className="text-xs text-green-600 mt-2 text-center">Report ready</p>
+                            )}
                         </div>
-                        <h3 className="text-sm sm:text-base font-semibold text-gray-600 mb-2">{report.name}</h3>
-                        <p className="text-xs sm:text-sm text-gray-500 mb-4">{report.description}</p>
-                        <button
-                            onClick={() => handleGenerateReport(report.id)}
-                            disabled={generatingReport === report.id}
-                            className="w-full px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] flex items-center justify-center gap-2 text-sm disabled:opacity-50"
-                        >
-                            <Download size={18} />
-                            {generatingReport === report.id ? "Generating..." : "Generate Report"}
-                        </button>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
 
+            {/* Export reports */}
             <div>
-                <h2 className="text-sm sm:text-base font-semibold text-gray-800 mb-4">Recent Exports</h2>
-                {loadingExports ? (
-                    <div className="space-y-3">
-                        {[1, 2, 3].map((i) => (
-                            <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse" />
-                        ))}
-                    </div>
-                ) : recentExports.length === 0 ? (
-                    <p className="text-sm text-gray-500 text-center py-8">No recent exports</p>
-                ) : (
-                    <div className="space-y-3">
-                        {recentExports.map((item, idx) => (
-                            <div key={idx} className="flex items-center border border-gray-200 bg-white justify-between p-4 rounded-lg hover:bg-gray-50">
-                                <div className="flex items-center gap-3">
-                                    <FileText size={20} className="text-gray-400 flex-shrink-0" />
-                                    <div>
-                                        <p className="font-medium text-gray-900 text-sm">{item.name}</p>
-                                        <p className="text-xs text-gray-500">{item.date || item.createdAt}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <span className="px-3 py-1 bg-[#E8F2FE] text-[#2F80ED] rounded text-xs font-semibold">
-                                        {item.format}
-                                    </span>
-                                    {item.downloadUrl && (
-                                        <a href={item.downloadUrl} className="p-2 hover:bg-gray-200 rounded-lg">
-                                            <Download size={18} className="text-gray-600" />
-                                        </a>
-                                    )}
-                                </div>
+                <h2 className="text-sm font-semibold text-gray-700 mb-3">Data Exports</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {exportReports.map((report) => (
+                        <div key={report.id} className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-5 hover:shadow-md transition-shadow">
+                            <div className="p-2 bg-green-50 rounded-lg w-fit mb-3">
+                                <Download size={20} className="text-green-600" />
                             </div>
-                        ))}
-                    </div>
-                )}
+                            <h3 className="text-sm font-semibold text-gray-800 mb-1">{report.name}</h3>
+                            <p className="text-xs text-gray-500 mb-4">{report.description}</p>
+                            <button
+                                onClick={() => handleGenerate(report.id, report.call)}
+                                disabled={generating === report.id}
+                                className="w-full px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                            >
+                                <Download size={16} />
+                                {generating === report.id ? "Exporting..." : "Export"}
+                            </button>
+                            {results[report.id] && (
+                                <p className="text-xs text-green-600 mt-2 text-center">Export ready</p>
+                            )}
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );

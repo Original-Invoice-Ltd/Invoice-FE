@@ -73,7 +73,26 @@ const AdminUsersPage = () => {
     };
 
     const handleExport = async () => {
-        await AdminApi.exportUsers();
+        const res = await AdminApi.exportUsers();
+        if (res.status === 200 && res.data) {
+            if (typeof res.data === "string" && res.data.startsWith("http")) {
+                window.open(res.data, "_blank");
+            }
+        } else {
+            // Fallback: download current page data as CSV
+            const rows = users.map(u => ({
+                fullName: u.fullName, email: u.email,
+                status: u.status, role: u.role,
+                plan: u.currentPlan ?? u.plan, invoiceCount: u.invoiceCount,
+                createdAt: u.createdAt ?? u.registeredDate ?? ""
+            }));
+            const headers = Object.keys(rows[0]);
+            const csv = [headers.join(","), ...rows.map(r => headers.map(h => `"${(r as any)[h] ?? ""}"`).join(","))].join("\n");
+            const blob = new Blob([csv], { type: "text/csv" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a"); a.href = url; a.download = "users.csv"; a.click();
+            URL.revokeObjectURL(url);
+        }
     };
 
     const getRoleColor = (role: string) => {
@@ -183,7 +202,7 @@ const AdminUsersPage = () => {
                                     </td>
                                     <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-900">{user.plan}</td>
                                     <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-900">{user.invoiceCount}</td>
-                                    <td className="hidden lg:table-cell px-6 py-4 text-xs text-gray-500">{user.registeredDate}</td>
+                                    <td className="hidden lg:table-cell px-6 py-4 text-xs text-gray-500">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : user.registeredDate ?? "—"}</td>
                                     <td className="px-3 sm:px-6 py-4">
                                         <div className="flex items-center gap-1">
                                             <button onClick={() => handleViewUser(user)} className="p-2 hover:bg-gray-100 rounded-lg" title="View">
@@ -197,7 +216,7 @@ const AdminUsersPage = () => {
                                                     <button onClick={() => handleAction(user, "role")} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">Change Role</button>
                                                     <button onClick={() => handleAction(user, "reset")} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">Reset Password</button>
                                                     <button onClick={() => handleAction(user, "deactivate")} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">
-                                                        {user.status === "active" ? "Deactivate" : "Activate"}
+                                                        {["ACTIVE","VERIFIED"].includes(user.status?.toUpperCase()) ? "Deactivate" : "Activate"}
                                                     </button>
                                                     <button onClick={() => handleAction(user, "delete")} className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-gray-50">Delete Account</button>
                                                 </div>

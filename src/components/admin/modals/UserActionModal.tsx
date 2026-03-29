@@ -8,11 +8,13 @@ interface User {
     id: string;
     email: string;
     fullName: string;
-    status: "active" | "inactive";
-    role: "USER" | "ADMIN" | "SUPER_ADMIN";
-    plan: "FREE" | "ESSENTIALS" | "PREMIUM";
+    status: string;
+    role: string;
+    plan: string;
+    currentPlan?: string;
     invoiceCount: number;
-    registeredDate: string;
+    registeredDate?: string;
+    createdAt?: string;
 }
 
 interface UserActionModalProps {
@@ -49,14 +51,15 @@ const UserActionModal = ({ user, actionType, onClose }: UserActionModalProps) =>
         }
     };
 
+    const isActive = ["ACTIVE", "VERIFIED"].includes(user.status?.toUpperCase());
     const configs = {
         deactivate: {
-            title: user.status === "active" ? "Deactivate User" : "Activate User",
-            description: user.status === "active"
+            title: isActive ? "Deactivate User" : "Activate User",
+            description: isActive
                 ? `Deactivating ${user.fullName} will remove their account access.`
                 : `Activating ${user.fullName} will restore their account access.`,
-            buttonText: user.status === "active" ? "Deactivate" : "Activate",
-            isDangerous: user.status === "active",
+            buttonText: isActive ? "Deactivate" : "Activate",
+            isDangerous: isActive,
         },
         role: {
             title: "Change User Role",
