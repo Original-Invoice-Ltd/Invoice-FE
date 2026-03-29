@@ -213,7 +213,7 @@ const InvoiceViewPage = () => {
                         <div className="mb-8 overflow-x-auto">
                             <table className="w-full border-collapse">
                                 <thead>
-                                    <tr style={{ backgroundColor: invoice.color ? `${invoice.color}20` : '#EBF5FF' }}>
+                                    <tr style={{ backgroundColor: invoice.invoiceColor ? `${invoice.invoiceColor}20` : '#EBF5FF' }}>
                                         <th className="text-left py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD] w-12">#</th>
                                         <th className="text-left py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD]">Item Detail</th>
                                         <th className="text-right py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD] w-20">Qty</th>

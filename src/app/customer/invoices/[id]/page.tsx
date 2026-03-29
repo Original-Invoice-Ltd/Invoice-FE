@@ -11,9 +11,34 @@ const InvoiceDetailPage = () => {
     const params = useParams();
     const router = useRouter();
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [invoice, setInvoice] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [selectedDescription, setSelectedDescription] = useState<string | null>(null);
 
-    const invoiceId = parseInt(params.id as string);
-    const invoice = getInvoiceById(invoiceId);
+    useEffect(() => {
+        if (params.id) {
+            fetchInvoice(params.id as string);
+        }
+    }, [params.id]);
+
+    const fetchInvoice = async (invoiceId: string) => {
+        try {
+            setLoading(true);
+            const response = await ApiClient.getInvoiceById(invoiceId);
+            
+            if (response.status === 200 && response.data) {
+                setInvoice(response.data);
+            } else {
+                setError('Failed to load invoice');
+            }
+        } catch (err) {
+            console.error("Error fetching invoice:", err);
+            setError('An error occurred while loading the invoice');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleUploadReceipt = (file: File) => {
         console.log('Uploaded file:', file);
@@ -114,8 +139,7 @@ const InvoiceDetailPage = () => {
 
                 {/* Invoice Content */}
                 <div className="bg-white rounded-lg shadow-sm relative overflow-hidden">
-                    {/* Watermark for unpaid invoices */}
-                    {invoice.status.toLowerCase() !== 'paid' && (
+                    {invoice?.status?.toLowerCase() !== 'paid' && (
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
                             <div
                                 className="text-orange-100 font-bold select-none"
@@ -126,7 +150,7 @@ const InvoiceDetailPage = () => {
                                     letterSpacing: '8px'
                                 }}
                             >
-                                {invoice.status.toUpperCase()}
+                                {invoice.status?.toUpperCase()}
                             </div>
                         </div>
                     )}
@@ -139,17 +163,12 @@ const InvoiceDetailPage = () => {
                             </div>
                             <div className="text-left sm:text-right w-full sm:w-auto">
                                 <h1 className="text-xl md:text-[28px] text-gray-900 mb-2">INVOICE</h1>
-                                <p className="text-gray-600 mb-1">#{invoice.invoiceId}</p>
+                                <p className="text-gray-600 mb-1">#{invoice?.invoiceNumber}</p>
                                 <div className="mb-2">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(invoice.status)}`}>
-                                        {invoice.status}
+                                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(invoice?.status || 'UNPAID')}`}>
+                                        {invoice?.status || 'UNPAID'}
                                     </span>
                                 </div>
-                            )}
-                            <div className={`${!invoice.logoUrl ? 'sm:ml-auto' : ''}`}>
-                                <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(invoice.status || 'UNPAID')}`}>
-                                    {invoice.status || 'UNPAID'}
-                                </span>
                             </div>
                         </div>
 
@@ -219,7 +238,7 @@ const InvoiceDetailPage = () => {
                         <div className="mb-8 overflow-x-auto">
                             <table className="w-full border-collapse">
                                 <thead>
-                                    <tr style={{ backgroundColor: invoice.color ? `${invoice.color}20` : '#EBF5FF' }}>
+                                    <tr style={{ backgroundColor: invoice?.invoiceColor ? `${invoice.invoiceColor}20` : '#EBF5FF' }}>
                                         <th className="text-left py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD] w-12">#</th>
                                         <th className="text-left py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD]">Item Detail</th>
                                         <th className="text-right py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD] w-20">Qty</th>
@@ -228,7 +247,7 @@ const InvoiceDetailPage = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {invoice.items?.map((item: any, index: number) => (
+                                        {invoice?.items?.map((item: any, index: number) => (
                                             <tr key={item.id || index}>
                                                 <td className="py-3 px-4 text-sm text-[#101828] border border-[#D0D5DD]">{index + 1}</td>
                                                 <td className="py-3 px-4 text-sm text-[#101828] border border-[#D0D5DD]">
@@ -304,11 +323,11 @@ const InvoiceDetailPage = () => {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="mt-3 px-4 py-3 rounded" style={{ backgroundColor: invoice.color ? `${invoice.color}20` : '#EBF5FF' }}>
+                                <div className="mt-3 px-4 py-3 rounded" style={{ backgroundColor: invoice?.invoiceColor ? `${invoice.invoiceColor}20` : '#EBF5FF' }}>
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm font-semibold text-[#101828]">Balance Due</span>
                                         <span className="text-base font-bold text-[#101828]">
-                                            {formatCurrency(invoice.totalDue || 0)}
+                                            {formatCurrency(invoice?.totalDue || 0)}
                                         </span>
                                     </div>
                                 </div>
@@ -427,9 +446,8 @@ const InvoiceDetailPage = () => {
                     isOpen={isUploadModalOpen}
                     onClose={handleModalClose}
                     onUpload={handleUploadReceipt}
-                    invoiceId={invoiceId.toString()}
+                    invoiceId={params.id as string}
                 />
-            </div>
         </CustomerLayout>
     );
 };
