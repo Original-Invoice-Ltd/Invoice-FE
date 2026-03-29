@@ -27,7 +27,10 @@ const AdminManagementPage = () => {
             role: roleFilter !== "all" ? roleFilter : undefined,
             status: statusFilter !== "all" ? statusFilter : undefined,
         });
-        if (res.status === 200 && res.data) setAdmins(res.data);
+        if (res.status === 200 && res.data) {
+            const data = res.data as any;
+            setAdmins(Array.isArray(data) ? data : data.content ?? data.data ?? []);
+        }
         setLoadingAdmins(false);
     }, [searchTerm, roleFilter, statusFilter]);
 
@@ -40,7 +43,10 @@ const AdminManagementPage = () => {
         if (activeTab === "audit" && auditLogs.length === 0) {
             setLoadingAudit(true);
             AdminApi.getAuditLogs().then((res) => {
-                if (res.status === 200 && res.data) setAuditLogs(res.data);
+                if (res.status === 200 && res.data) {
+                    const data = res.data as any;
+                    setAuditLogs(Array.isArray(data) ? data : data.content ?? data.data ?? []);
+                }
                 setLoadingAudit(false);
             });
         }
