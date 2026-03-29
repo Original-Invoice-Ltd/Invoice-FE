@@ -89,7 +89,6 @@ const AdminTaxConfigPage = () => {
                             <tr>
                                 <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold text-gray-900 whitespace-nowrap">Name</th>
                                 <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Category</th>
-                                <th className="hidden md:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Base Rate</th>
                                 <th className="hidden md:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Individual</th>
                                 <th className="hidden lg:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Business</th>
                                 <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">Status</th>
@@ -102,7 +101,6 @@ const AdminTaxConfigPage = () => {
                                     <tr key={i}>
                                         <td className="px-4 sm:px-6 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-24" /></td>
                                         <td className="hidden sm:table-cell px-6 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-20" /></td>
-                                        <td className="hidden md:table-cell px-6 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-12" /></td>
                                         <td className="hidden md:table-cell px-6 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-12" /></td>
                                         <td className="hidden lg:table-cell px-6 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-12" /></td>
                                         <td className="hidden sm:table-cell px-6 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-16" /></td>
@@ -125,7 +123,6 @@ const AdminTaxConfigPage = () => {
                                         <td className="hidden sm:table-cell px-6 py-4">
                                             <span className="px-3 py-1 bg-[#E8F2FE] text-[#2F80ED] rounded-full text-xs font-semibold">{tax.category}</span>
                                         </td>
-                                        <td className="hidden md:table-cell px-6 py-4 text-sm font-medium text-gray-900">{tax.baseRate}%</td>
                                         <td className="hidden md:table-cell px-6 py-4 text-sm font-medium text-gray-900">{tax.individualRate}%</td>
                                         <td className="hidden lg:table-cell px-6 py-4 text-sm font-medium text-gray-900">{tax.businessRate}%</td>
                                         <td className="hidden sm:table-cell px-6 py-4">

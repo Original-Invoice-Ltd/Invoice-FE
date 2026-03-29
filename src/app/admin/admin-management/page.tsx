@@ -1,9 +1,20 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Search, Plus, Edit2, Trash2, Clock } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, Clock, Download } from "lucide-react";
 import AdminFormModal from "@/components/admin/modals/AdminFormModal";
 import { AdminApi, AdminManagementUser, AuditLog } from "@/lib/adminApi";
+
+const downloadCSV = (rows: any[], filename: string) => {
+    if (!rows.length) return;
+    const headers = Object.keys(rows[0]);
+    const csv = [headers.join(","), ...rows.map(r => headers.map(h => `"${r[h] ?? ""}"`).join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+};
 
 const AdminManagementPage = () => {
     const [admins, setAdmins] = useState<AdminManagementUser[]>([]);
@@ -13,6 +24,7 @@ const AdminManagementPage = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [roleFilter, setRoleFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
+    const [auditSearch, setAuditSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [showFormModal, setShowFormModal] = useState(false);
     const [selectedAdmin, setSelectedAdmin] = useState<AdminManagementUser | null>(null);
@@ -84,11 +96,23 @@ const AdminManagementPage = () => {
     };
 
     const getRoleColor = (role: string) => role === "SUPER_ADMIN" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700";
-    const getStatusColor = (status: string) => status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700";
+    const getStatusColor = (status: string) => {
+        const s = status?.toUpperCase();
+        if (s === "ACTIVE" || s === "VERIFIED") return "bg-green-100 text-green-700";
+        if (s === "INACTIVE" || s === "SUSPENDED") return "bg-red-100 text-red-700";
+        return "bg-yellow-100 text-yellow-700";
+    };
 
     const totalPages = Math.ceil(admins.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedAdmins = admins.slice(startIndex, startIndex + itemsPerPage);
+
+    const filteredAuditLogs = auditLogs.filter(log =>
+        !auditSearch || [log.admin, log.action, log.target, log.details].some(f => f?.toLowerCase().includes(auditSearch.toLowerCase()))
+    );
+
+    const handleDownloadAdmins = () => downloadCSV(admins, "admins.csv");
+    const handleDownloadAudit = () => downloadCSV(filteredAuditLogs, "audit-logs.csv");
 
     return (
         <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
@@ -97,13 +121,22 @@ const AdminManagementPage = () => {
                     <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Admin Management</h1>
                     <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage admin users and view audit logs</p>
                 </div>
-                <button
-                    onClick={() => { setSelectedAdmin(null); setShowFormModal(true); }}
-                    className="w-full sm:w-auto px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] flex items-center justify-center gap-2 text-sm"
-                >
-                    <Plus size={20} />
-                    Add Admin
-                </button>
+                <div className="flex gap-2 w-full sm:w-auto">
+                    <button
+                        onClick={handleDownloadAdmins}
+                        className="flex-1 sm:flex-none px-4 py-2 border border-[#E4E7EC] rounded-lg font-medium hover:bg-gray-50 flex items-center justify-center gap-2 text-sm"
+                    >
+                        <Download size={18} />
+                        Export
+                    </button>
+                    <button
+                        onClick={() => { setSelectedAdmin(null); setShowFormModal(true); }}
+                        className="flex-1 sm:flex-none px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] flex items-center justify-center gap-2 text-sm"
+                    >
+                        <Plus size={20} />
+                        Add Admin
+                    </button>
+                </div>
             </div>
 
             <div className="flex gap-2 sm:gap-4 border-b border-[#E4E7EC] overflow-x-auto">
@@ -189,8 +222,8 @@ const AdminManagementPage = () => {
                                                 <td className="hidden md:table-cell px-6 py-4">
                                                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(admin.status)}`}>{admin.status}</span>
                                                 </td>
-                                                <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">{admin.lastLogin}</td>
-                                                <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">{admin.createdDate}</td>
+                                                <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">{admin.lastLogin ?? "—"}</td>
+                                                <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">{admin.createdAt ? new Date(admin.createdAt).toLocaleDateString() : admin.createdDate ?? "—"}</td>
                                                 <td className="px-3 sm:px-6 py-4">
                                                     <div className="flex items-center gap-2">
                                                         <button onClick={() => { setSelectedAdmin(admin); setShowFormModal(true); }} className="p-2 hover:bg-gray-100 rounded-lg">
@@ -221,6 +254,23 @@ const AdminManagementPage = () => {
             )}
 
             {activeTab === "audit" && (
+                <>
+                    <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+                        <div className="relative flex-1 w-full sm:max-w-sm">
+                            <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="Search audit logs..."
+                                value={auditSearch}
+                                onChange={(e) => setAuditSearch(e.target.value)}
+                                className="w-full pl-9 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm"
+                            />
+                        </div>
+                        <button onClick={handleDownloadAudit} className="w-full sm:w-auto px-4 py-2 border border-[#E4E7EC] rounded-lg font-medium hover:bg-gray-50 flex items-center justify-center gap-2 text-sm">
+                            <Download size={18} />
+                            Download CSV
+                        </button>
+                    </div>
                 <div className="bg-white border border-[#E4E7EC] rounded-xl overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
@@ -249,7 +299,7 @@ const AdminManagementPage = () => {
                                         <td colSpan={5} className="px-6 py-12 text-center text-gray-500 text-sm">No audit logs found</td>
                                     </tr>
                                 ) : (
-                                    auditLogs.map((log) => (
+                                    filteredAuditLogs.map((log) => (
                                         <tr key={log.id} className="hover:bg-gray-50">
                                             <td className="px-3 sm:px-6 py-4">
                                                 <p className="font-medium text-gray-900 text-sm">{log.admin}</p>
@@ -273,6 +323,7 @@ const AdminManagementPage = () => {
                         </table>
                     </div>
                 </div>
+                </>
             )}
 
             {showFormModal && (

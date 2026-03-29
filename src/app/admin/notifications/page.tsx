@@ -136,12 +136,17 @@ const AdminNotificationsPage = () => {
                         </div>
                     </div>
 
-                    {scheduleType === "scheduled" && (
-                        <div>
-                            <label className="block text-sm font-medium text-gray-900 mb-2">Send At</label>
-                            <input type="datetime-local" value={scheduledTime} onChange={(e) => setScheduledTime(e.target.value)} className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm" />
-                        </div>
-                    )}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                            Send Date & Time {scheduleType === "immediate" && <span className="text-gray-400 font-normal">(optional — leave blank to send now)</span>}
+                        </label>
+                        <input
+                            type="datetime-local"
+                            value={scheduledTime}
+                            onChange={(e) => setScheduledTime(e.target.value)}
+                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm"
+                        />
+                    </div>
                 </div>
             </div>
 

@@ -40,7 +40,7 @@ export default function AdminLayout({
     }
 
     return (
-        <div className="flex h-screen overflow-hidden bg-[#F9FAFB]">
+        <div className="flex h-screen overflow-hidden bg-[#F9FAFB] font-['Inter_Tight']">
             <AdminSidebar
                 isOpen={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}

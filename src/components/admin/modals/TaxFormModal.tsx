@@ -38,8 +38,8 @@ const TaxFormModal = ({ tax, onClose, onSave }: TaxFormModalProps) => {
         const { name, value, type } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : 
-                    ["baseRate", "individualRate", "businessRate"].includes(name) ? parseFloat(value) : value
+            [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked :
+                    ["individualRate", "businessRate"].includes(name) ? parseFloat(value) : value
         }));
     };
 
@@ -89,7 +89,7 @@ const TaxFormModal = ({ tax, onClose, onSave }: TaxFormModalProps) => {
                         >
                             <option value="WHT">WHT</option>
                             <option value="VAT">VAT</option>
-                            <option value="SALES_TAX">Sales Tax</option>
+                            <option value="CONSUMPTION_TAX">Consumption Tax</option>
                             <option value="EXCISE_TAX">Excise Tax</option>
                             <option value="CUSTOM">Custom</option>
                         </select>
@@ -109,25 +109,9 @@ const TaxFormModal = ({ tax, onClose, onSave }: TaxFormModalProps) => {
                         />
                     </div>
 
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="block text-sm font-medium text-gray-900 mb-2">
-                                Base Rate (%)
-                            </label>
-                            <input
-                                type="number"
-                                name="baseRate"
-                                value={formData.baseRate}
-                                onChange={handleChange}
-                                step="0.01"
-                                className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-900 mb-2">
-                                Individual (%)
-                            </label>
+                            <label className="block text-sm font-medium text-gray-900 mb-2">Individual Rate (%)</label>
                             <input
                                 type="number"
                                 name="individualRate"
@@ -139,9 +123,7 @@ const TaxFormModal = ({ tax, onClose, onSave }: TaxFormModalProps) => {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-900 mb-2">
-                                Business (%)
-                            </label>
+                            <label className="block text-sm font-medium text-gray-900 mb-2">Business Rate (%)</label>
                             <input
                                 type="number"
                                 name="businessRate"

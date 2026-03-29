@@ -7,6 +7,8 @@ import { AdminApi } from "@/lib/adminApi";
 
 const AdminOverviewPage = () => {
     const [dateRange, setDateRange] = useState("monthly");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
     const [stats, setStats] = useState<any>(null);
     const [paymentTrends, setPaymentTrends] = useState<any[]>([]);
     const [invoiceStatus, setInvoiceStatus] = useState<any[]>([]);
@@ -17,7 +19,7 @@ const AdminOverviewPage = () => {
         const fetchData = async () => {
             setLoading(true);
             const [statsRes, trendsRes, invoiceRes, subRes] = await Promise.all([
-                AdminApi.getOverviewStats(),
+                AdminApi.getOverviewStats(startDate || undefined, endDate || undefined),
                 AdminApi.getPaymentTrends(dateRange),
                 AdminApi.getInvoiceStatusBreakdown(),
                 AdminApi.getSubscriptionDistribution(),
@@ -29,7 +31,7 @@ const AdminOverviewPage = () => {
             setLoading(false);
         };
         fetchData();
-    }, [dateRange]);
+    }, [dateRange, startDate, endDate]);
 
     const naira = "\u20A6";
     const fmt = (val: any) => `${naira}${(Number(val) || 0).toLocaleString()}`;
@@ -98,16 +100,19 @@ const AdminOverviewPage = () => {
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
                     <p className="text-gray-600 mt-1 text-sm sm:text-base">Platform overview and key metrics</p>
                 </div>
-                <select
-                    value={dateRange}
-                    onChange={(e) => setDateRange(e.target.value)}
-                    className="w-full sm:w-auto px-4 py-2 border border-[#E4E7EC] rounded-lg text-sm font-medium"
-                >
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="yearly">Yearly</option>
-                </select>
+                <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
+                        className="px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                    <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
+                        className="px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                    <select value={dateRange} onChange={(e) => setDateRange(e.target.value)}
+                        className="px-4 py-2 border border-[#E4E7EC] rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </div>
             </div>
 
             {loading ? (
