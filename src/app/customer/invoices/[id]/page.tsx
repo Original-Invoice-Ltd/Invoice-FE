@@ -446,9 +446,8 @@ const InvoiceDetailPage = () => {
                     isOpen={isUploadModalOpen}
                     onClose={handleModalClose}
                     onUpload={handleUploadReceipt}
-                    invoiceId={invoiceId.toString()}
+                    invoiceId={params.id as string}
                 />
-            </div>
         </CustomerLayout>
     );
 };
