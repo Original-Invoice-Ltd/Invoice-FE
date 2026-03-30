@@ -28,6 +28,10 @@ const AdminOverviewPage = () => {
             if (trendsRes.data) setPaymentTrends(Array.isArray(trendsRes.data) ? trendsRes.data : []);
             if (invoiceRes.data) setInvoiceStatus(Array.isArray(invoiceRes.data) ? invoiceRes.data : []);
             if (subRes.data) setSubscriptionDist(Array.isArray(subRes.data) ? subRes.data : []);
+            console.log('[Overview] stats → status:', statsRes.status, '| data:', statsRes.data, '| error:', statsRes.error);
+            console.log('[Overview] trends → status:', trendsRes.status, '| data:', trendsRes.data, '| error:', trendsRes.error);
+            console.log('[Overview] invoiceStatus → status:', invoiceRes.status, '| data:', invoiceRes.data, '| error:', invoiceRes.error);
+            console.log('[Overview] subDist → status:', subRes.status, '| data:', subRes.data, '| error:', subRes.error);
             setLoading(false);
         };
         fetchData();
@@ -36,27 +40,6 @@ const AdminOverviewPage = () => {
     const naira = "\u20A6";
     const fmt = (val: any) => `${naira}${(Number(val) || 0).toLocaleString()}`;
     const pct = (val: any) => (val != null ? `+${val}%` : "\u2014");
-
-    const fallbackTrends = [
-        { month: "Jan", revenue: 45000, invoices: 320 },
-        { month: "Feb", revenue: 52000, invoices: 380 },
-        { month: "Mar", revenue: 48000, invoices: 350 },
-        { month: "Apr", revenue: 61000, invoices: 420 },
-        { month: "May", revenue: 55000, invoices: 390 },
-        { month: "Jun", revenue: 67000, invoices: 450 },
-    ];
-
-    const fallbackInvoiceStatus = [
-        { name: "Paid", value: 65, fill: "#10B981" },
-        { name: "Pending", value: 25, fill: "#F59E0B" },
-        { name: "Overdue", value: 10, fill: "#EF4444" },
-    ];
-
-    const fallbackSubDist = [
-        { name: "Free", value: 2500, fill: "#E5E7EB" },
-        { name: "Essentials", value: 778, fill: "#3B82F6" },
-        { name: "Premium", value: 456, fill: "#1E40AF" },
-    ];
 
     const kpiCards = [
         {
@@ -89,9 +72,16 @@ const AdminOverviewPage = () => {
         },
     ];
 
-    const trends = paymentTrends.length ? paymentTrends : fallbackTrends;
-    const invoiceData = invoiceStatus.length ? invoiceStatus : fallbackInvoiceStatus;
-    const subData = subscriptionDist.length ? subscriptionDist : fallbackSubDist;
+    const trends = paymentTrends.length ? paymentTrends : [];
+    const invoiceData = invoiceStatus.length ? invoiceStatus : [];
+    const subData = subscriptionDist.length ? subscriptionDist : [];
+
+    const EmptyChart = ({ message }: { message: string }) => (
+        <div className="flex flex-col items-center justify-center h-[200px] text-gray-400">
+            <FileText size={32} className="mb-2 opacity-40" />
+            <p className="text-sm">{message}</p>
+        </div>
+    );
 
     return (
         <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
@@ -152,55 +142,63 @@ const AdminOverviewPage = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 <div className="lg:col-span-2 bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
                     <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Payment Trends</h2>
-                    <ResponsiveContainer width="100%" height={260}>
-                        <LineChart data={trends}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#E4E7EC" />
-                            <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                            <YAxis tick={{ fontSize: 12 }} />
-                            <Tooltip />
-                            <Legend />
-                            <Line type="monotone" dataKey="revenue" stroke="#2F80ED" strokeWidth={2} dot={false} />
-                        </LineChart>
-                    </ResponsiveContainer>
+                    {trends.length ? (
+                        <ResponsiveContainer width="100%" height={260}>
+                            <LineChart data={trends}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#E4E7EC" />
+                                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                                <YAxis tick={{ fontSize: 12 }} />
+                                <Tooltip />
+                                <Legend />
+                                <Line type="monotone" dataKey="revenue" stroke="#2F80ED" strokeWidth={2} dot={false} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    ) : <EmptyChart message="No payment trend data available" />}
                 </div>
 
                 <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
                     <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Invoice Status</h2>
-                    <ResponsiveContainer width="100%" height={200}>
-                        <PieChart>
-                            <Pie data={invoiceData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2} dataKey="value">
-                                {invoiceData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                    {invoiceData.length ? (
+                        <>
+                            <ResponsiveContainer width="100%" height={200}>
+                                <PieChart>
+                                    <Pie data={invoiceData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2} dataKey="value">
+                                        {invoiceData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip />
+                                </PieChart>
+                            </ResponsiveContainer>
+                            <div className="mt-3 space-y-2">
+                                {invoiceData.map((item, idx) => (
+                                    <div key={idx} className="flex items-center justify-between text-xs sm:text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.fill }}></div>
+                                            <span className="text-gray-600">{item.name}</span>
+                                        </div>
+                                        <span className="font-semibold text-gray-900">{item.value}%</span>
+                                    </div>
                                 ))}
-                            </Pie>
-                            <Tooltip />
-                        </PieChart>
-                    </ResponsiveContainer>
-                    <div className="mt-3 space-y-2">
-                        {invoiceData.map((item, idx) => (
-                            <div key={idx} className="flex items-center justify-between text-xs sm:text-sm">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.fill }}></div>
-                                    <span className="text-gray-600">{item.name}</span>
-                                </div>
-                                <span className="font-semibold text-gray-900">{item.value}%</span>
                             </div>
-                        ))}
-                    </div>
+                        </>
+                    ) : <EmptyChart message="No invoice status data available" />}
                 </div>
             </div>
 
             <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
                 <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Subscription Distribution</h2>
-                <ResponsiveContainer width="100%" height={260}>
-                    <BarChart data={subData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#E4E7EC" />
-                        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                        <YAxis tick={{ fontSize: 12 }} />
-                        <Tooltip />
-                        <Bar dataKey="value" fill="#2F80ED" radius={[6, 6, 0, 0]} />
-                    </BarChart>
-                </ResponsiveContainer>
+                {subData.length ? (
+                    <ResponsiveContainer width="100%" height={260}>
+                        <BarChart data={subData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#E4E7EC" />
+                            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                            <YAxis tick={{ fontSize: 12 }} />
+                            <Tooltip />
+                            <Bar dataKey="value" fill="#2F80ED" radius={[6, 6, 0, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                ) : <EmptyChart message="No subscription data available" />}
             </div>
         </div>
     );
