@@ -21,7 +21,16 @@ const AdminUsersPage = () => {
     const [showActionModal, setShowActionModal] = useState(false);
     const [actionType, setActionType] = useState<"deactivate" | "role" | "reset" | "delete">("deactivate");
 
+    const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+    const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
+
     const PAGE_SIZE = 10;
+
+    const handleOpenDropdown = (userId: string, e: React.MouseEvent<HTMLButtonElement>) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setDropdownPos({ top: rect.bottom + window.scrollY, right: window.innerWidth - rect.right });
+        setOpenDropdown(prev => prev === userId ? null : userId);
+    };
 
     const fetchUsers = useCallback(async () => {
         setLoading(true);
@@ -201,21 +210,13 @@ const AdminUsersPage = () => {
                                     <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-900">{user.invoiceCount}</td>
                                     <td className="hidden lg:table-cell px-6 py-4 text-xs text-gray-500">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : user.registeredDate ?? "—"}</td>
                                     <td className="px-3 sm:px-6 py-4">
-                                        <div className="relative group flex justify-start">
-                                            <button className="p-2 hover:bg-[#EBF5FF] rounded-lg transition-colors">
+                                        <div className="relative flex justify-start">
+                                            <button
+                                                onClick={(e) => handleOpenDropdown(user.id, e)}
+                                                className="p-2 hover:bg-[#EBF5FF] rounded-lg transition-colors"
+                                            >
                                                 <MoreVertical size={18} className="text-[#2F80ED]" />
                                             </button>
-                                            <div className="hidden group-hover:block absolute right-0 mt-9 w-48 bg-white border border-[#E4E7EC] rounded-xl shadow-lg z-10 overflow-hidden">
-                                                <button onClick={() => handleViewUser(user)} className="w-full text-left px-4 py-2.5 text-xs text-[#2F80ED] font-medium hover:bg-[#EBF5FF]">View Details</button>
-                                                <div className="border-t border-[#E4E7EC]" />
-                                                <button onClick={() => handleAction(user, "role")} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">Change Role</button>
-                                                <button onClick={() => handleAction(user, "reset")} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">Reset Password</button>
-                                                <button onClick={() => handleAction(user, "deactivate")} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">
-                                                    {["ACTIVE","VERIFIED"].includes(user.status?.toUpperCase()) ? "Deactivate" : "Activate"}
-                                                </button>
-                                                <div className="border-t border-[#E4E7EC]" />
-                                                <button onClick={() => handleAction(user, "delete")} className="w-full text-left px-4 py-2.5 text-xs text-red-600 hover:bg-red-50">Delete Account</button>
-                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -240,6 +241,31 @@ const AdminUsersPage = () => {
             {showActionModal && selectedUser && (
                 <UserActionModal user={selectedUser} actionType={actionType} onClose={handleActionComplete} />
             )}
+
+            {/* Fixed dropdown portal */}
+            {openDropdown && (() => {
+                const user = users.find(u => u.id === openDropdown);
+                if (!user) return null;
+                return (
+                    <>
+                        <div className="fixed inset-0 z-40" onClick={() => setOpenDropdown(null)} />
+                        <div
+                            className="fixed z-50 w-48 bg-white border border-[#E4E7EC] rounded-xl shadow-xl overflow-hidden"
+                            style={{ top: dropdownPos.top, right: dropdownPos.right }}
+                        >
+                            <button onClick={() => { handleViewUser(user); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-[#2F80ED] font-medium hover:bg-[#EBF5FF]">View Details</button>
+                            <div className="border-t border-[#E4E7EC]" />
+                            <button onClick={() => { handleAction(user, "role"); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">Change Role</button>
+                            <button onClick={() => { handleAction(user, "reset"); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">Reset Password</button>
+                            <button onClick={() => { handleAction(user, "deactivate"); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">
+                                {["ACTIVE","VERIFIED"].includes(user.status?.toUpperCase()) ? "Deactivate" : "Activate"}
+                            </button>
+                            <div className="border-t border-[#E4E7EC]" />
+                            <button onClick={() => { handleAction(user, "delete"); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-red-600 hover:bg-red-50">Delete Account</button>
+                        </div>
+                    </>
+                );
+            })()}
         </div>
     );
 };

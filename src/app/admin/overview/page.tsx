@@ -25,9 +25,44 @@ const AdminOverviewPage = () => {
                 AdminApi.getSubscriptionDistribution(),
             ]);
             if (statsRes.data) setStats(statsRes.data);
-            if (trendsRes.data) setPaymentTrends(Array.isArray(trendsRes.data) ? trendsRes.data : []);
-            if (invoiceRes.data) setInvoiceStatus(Array.isArray(invoiceRes.data) ? invoiceRes.data : []);
-            if (subRes.data) setSubscriptionDist(Array.isArray(subRes.data) ? subRes.data : []);
+            if (trendsRes.data) {
+                const raw = trendsRes.data;
+                const arr = Array.isArray(raw) ? raw : [];
+                setPaymentTrends(arr.map((t: any) => ({
+                    month: t.period ?? t.month,
+                    revenue: t.totalAmount ?? t.revenue ?? 0,
+                    invoices: t.invoiceCount ?? t.invoices ?? 0,
+                })));
+            }
+            if (invoiceRes.data) {
+                const raw = invoiceRes.data as any;
+                if (Array.isArray(raw)) {
+                    setInvoiceStatus(raw);
+                } else {
+                    // Object shape: { paid, unpaid, pending, overdue, draft, total }
+                    const entries = [
+                        { name: "Paid", value: raw.paid ?? 0, fill: "#10B981" },
+                        { name: "Unpaid", value: raw.unpaid ?? 0, fill: "#F59E0B" },
+                        { name: "Pending", value: raw.pending ?? 0, fill: "#3B82F6" },
+                        { name: "Overdue", value: raw.overdue ?? 0, fill: "#EF4444" },
+                        { name: "Draft", value: raw.draft ?? 0, fill: "#9CA3AF" },
+                    ].filter(e => e.value > 0);
+                    setInvoiceStatus(entries);
+                }
+            }
+            if (subRes.data) {
+                const raw = subRes.data as any;
+                if (Array.isArray(raw)) {
+                    setSubscriptionDist(raw);
+                } else if (typeof raw === "object") {
+                    const entries = Object.entries(raw).map(([key, val]) => ({
+                        name: key.charAt(0).toUpperCase() + key.slice(1),
+                        value: Number(val) || 0,
+                        fill: key === "premium" ? "#1E40AF" : key === "essentials" ? "#3B82F6" : "#E5E7EB",
+                    })).filter(e => e.value > 0);
+                    setSubscriptionDist(entries);
+                }
+            }
             console.log('[Overview] stats → status:', statsRes.status, '| data:', statsRes.data, '| error:', statsRes.error);
             console.log('[Overview] trends → status:', trendsRes.status, '| data:', trendsRes.data, '| error:', trendsRes.error);
             console.log('[Overview] invoiceStatus → status:', invoiceRes.status, '| data:', invoiceRes.data, '| error:', invoiceRes.error);
@@ -74,7 +109,11 @@ const AdminOverviewPage = () => {
 
     const trends = paymentTrends.length ? paymentTrends : [];
     const invoiceData = invoiceStatus.length ? invoiceStatus : [];
-    const subData = subscriptionDist.length ? subscriptionDist : [];
+    const subData = subscriptionDist.length ? subscriptionDist : (stats ? [
+        { name: "Free", value: stats.freeSubscriptions ?? 0, fill: "#E5E7EB" },
+        { name: "Essentials", value: stats.essentialsSubscriptions ?? 0, fill: "#3B82F6" },
+        { name: "Premium", value: stats.premiumSubscriptions ?? 0, fill: "#1E40AF" },
+    ].filter(e => e.value > 0) : []);
 
     const EmptyChart = ({ message }: { message: string }) => (
         <div className="flex flex-col items-center justify-center h-[200px] text-gray-400">
@@ -150,7 +189,8 @@ const AdminOverviewPage = () => {
                                 <YAxis tick={{ fontSize: 12 }} />
                                 <Tooltip />
                                 <Legend />
-                                <Line type="monotone" dataKey="revenue" stroke="#2F80ED" strokeWidth={2} dot={false} />
+                                <Line type="monotone" dataKey="revenue" name="Revenue" stroke="#2F80ED" strokeWidth={2} dot={false} />
+                            <Line type="monotone" dataKey="invoices" name="Invoices" stroke="#10B981" strokeWidth={2} dot={false} />
                             </LineChart>
                         </ResponsiveContainer>
                     ) : <EmptyChart message="No payment trend data available" />}
@@ -177,7 +217,7 @@ const AdminOverviewPage = () => {
                                             <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.fill }}></div>
                                             <span className="text-gray-600">{item.name}</span>
                                         </div>
-                                        <span className="font-semibold text-gray-900">{item.value}%</span>
+                                        <span className="font-semibold text-gray-900">{item.value}</span>
                                     </div>
                                 ))}
                             </div>

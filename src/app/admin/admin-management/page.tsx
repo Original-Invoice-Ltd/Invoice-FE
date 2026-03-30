@@ -33,6 +33,14 @@ const AdminManagementPage = () => {
     const [selectedAdmin, setSelectedAdmin] = useState<AdminManagementUser | null>(null);
     const [activeTab, setActiveTab] = useState<"admins" | "audit">("admins");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+    const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
+
+    const handleOpenDropdown = (id: string, e: React.MouseEvent<HTMLButtonElement>) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setDropdownPos({ top: rect.bottom + window.scrollY, right: window.innerWidth - rect.right });
+        setOpenDropdown(prev => prev === id ? null : id);
+    };
     const [deletingAdminId, setDeletingAdminId] = useState<string | null>(null);
     const { toast, showSuccess, showError, hideToast } = useToast();
 
@@ -262,33 +270,12 @@ const AdminManagementPage = () => {
                                                 <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">{admin.lastLogin ?? "—"}</td>
                                                 <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">{admin.createdAt ? new Date(admin.createdAt).toLocaleDateString() : admin.createdDate ?? "—"}</td>
                                                 <td className="px-3 sm:px-6 py-4">
-                                                    <div className="relative group flex justify-start">
-                                                        <button className="p-2 hover:bg-[#EBF5FF] rounded-lg transition-colors">
-                                                            <MoreVertical size={18} className="text-[#2F80ED]" />
-                                                        </button>
-                                                        <div className="hidden group-hover:block absolute left-0 mt-9 w-48 bg-white border border-[#E4E7EC] rounded-xl shadow-lg z-50 overflow-hidden">
-                                                            <button 
-                                                                onClick={() => { setSelectedAdmin(admin); setShowFormModal(true); }} 
-                                                                className="w-full text-left px-4 py-2.5 text-xs text-[#2F80ED] font-medium hover:bg-[#EBF5FF]"
-                                                            >
-                                                                Edit Admin
-                                                            </button>
-                                                            <div className="border-t border-[#E4E7EC]" />
-                                                            <button 
-                                                                onClick={() => handleToggleStatus(admin)} 
-                                                                className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50"
-                                                            >
-                                                                {["ACTIVE","VERIFIED"].includes(admin.status?.toUpperCase()) ? "Disable Admin" : "Enable Admin"}
-                                                            </button>
-                                                            <div className="border-t border-[#E4E7EC]" />
-                                                            <button 
-                                                                onClick={() => { setDeletingAdminId(admin.id); setShowDeleteModal(true); }} 
-                                                                className="w-full text-left px-4 py-2.5 text-xs text-red-600 hover:bg-red-50"
-                                                            >
-                                                                Delete Admin
-                                                            </button>
-                                                        </div>
-                                                    </div>
+                                                    <button
+                                                        onClick={(e) => handleOpenDropdown(admin.id, e)}
+                                                        className="p-2 hover:bg-[#EBF5FF] rounded-lg transition-colors"
+                                                    >
+                                                        <MoreVertical size={18} className="text-[#2F80ED]" />
+                                                    </button>
                                                 </td>
                                             </tr>
                                         ))
@@ -405,6 +392,29 @@ const AdminManagementPage = () => {
                 isVisible={toast.isVisible}
                 onClose={hideToast}
             />
+
+            {/* Fixed dropdown portal */}
+            {openDropdown && (() => {
+                const admin = admins.find(a => a.id === openDropdown);
+                if (!admin) return null;
+                return (
+                    <>
+                        <div className="fixed inset-0 z-40" onClick={() => setOpenDropdown(null)} />
+                        <div
+                            className="fixed z-50 w-48 bg-white border border-[#E4E7EC] rounded-xl shadow-xl overflow-hidden"
+                            style={{ top: dropdownPos.top, right: dropdownPos.right }}
+                        >
+                            <button onClick={() => { setSelectedAdmin(admin); setShowFormModal(true); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-[#2F80ED] font-medium hover:bg-[#EBF5FF]">Edit Admin</button>
+                            <div className="border-t border-[#E4E7EC]" />
+                            <button onClick={() => { handleToggleStatus(admin); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">
+                                {["ACTIVE","VERIFIED"].includes(admin.status?.toUpperCase()) ? "Disable Admin" : "Enable Admin"}
+                            </button>
+                            <div className="border-t border-[#E4E7EC]" />
+                            <button onClick={() => { setDeletingAdminId(admin.id); setShowDeleteModal(true); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-red-600 hover:bg-red-50">Delete Admin</button>
+                        </div>
+                    </>
+                );
+            })()}
         </div>
     );
 };
