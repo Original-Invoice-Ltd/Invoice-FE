@@ -145,7 +145,7 @@ const UserActionModal = ({ user, actionType, onClose }: UserActionModalProps) =>
                     <button
                         onClick={handleConfirm}
                         disabled={loading}
-                        className={`flex-1 px-4 py-2 rounded-lg font-medium text-white text-sm disabled:opacity-50 ${config.isDangerous ? "bg-red-600 hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"}`}
+                        className={`flex-1 px-4 py-2 rounded-lg font-medium text-white text-sm disabled:opacity-50 ${config.isDangerous ? "bg-red-600 hover:bg-red-700" : "bg-[#2F80ED] hover:bg-[#2868C7]"}`}
                     >
                         {loading ? "Processing..." : config.buttonText}
                     </button>

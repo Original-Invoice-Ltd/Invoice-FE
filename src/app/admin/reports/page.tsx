@@ -40,7 +40,7 @@ const AdminReportsPage = () => {
     const dateReports = [
         { id: "revenue", name: "Revenue Report", filename: "revenue-report", description: "Collected vs invoiced revenue by period", call: () => AdminApi.getRevenueReport(startDate, endDate) },
         { id: "subscriptions", name: "Subscription Report", filename: "subscription-report", description: "Plan distribution, upgrades, downgrades, and churn", call: () => AdminApi.getSubscriptionReport(startDate, endDate) },
-        { id: "user-activity", name: "User Activity Report", filename: "user-activity-report", description: "Login frequency, invoice actions, and feature usage", call: () => AdminApi.getUserActivityReport(startDate, endDate) },
+        // { id: "user-activity", name: "User Activity Report", filename: "user-activity-report", description: "Login frequency, invoice actions, and feature usage", call: () => AdminApi.getUserActivityReport(startDate, endDate) },
         { id: "invoice-statistics", name: "Invoice Statistics Report", filename: "invoice-statistics-report", description: "Volume, status breakdown, average value, and top creators", call: () => AdminApi.getInvoiceStatisticsReport(startDate, endDate) },
         { id: "tax-collection", name: "Tax Collection Report", filename: "tax-collection-report", description: "Tax amounts collected by type, user, and period", call: () => AdminApi.getTaxCollectionReport(startDate, endDate) },
     ];
@@ -84,12 +84,12 @@ const AdminReportsPage = () => {
                     <div>
                         <label className="block text-sm font-medium text-gray-900 mb-2">Start Date</label>
                         <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
-                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm" />
+                            className="w-full px-4 py-2 bg-[#fafafa] border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm" />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-900 mb-2">End Date</label>
                         <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
-                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm" />
+                            className="w-full px-4 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm" />
                     </div>
                 </div>
             </div>
@@ -127,15 +127,15 @@ const AdminReportsPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {exportReports.map((report) => (
                         <div key={report.id} className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-5 hover:shadow-md transition-shadow">
-                            <div className="p-2 bg-green-50 rounded-lg w-fit mb-3">
-                                <Download size={20} className="text-green-600" />
+                            <div className="p-2 bg-[#e8f2fe] rounded-lg w-fit mb-3">
+                                <Download size={20} className="text-[#2f80ed]" />
                             </div>
                             <h3 className="text-sm font-semibold text-gray-800 mb-1">{report.name}</h3>
                             <p className="text-xs text-gray-500 mb-4">{report.description}</p>
                             <button
                                 onClick={() => handleGenerate(report.id, report.filename, report.call)}
                                 disabled={generating === report.id}
-                                className="w-full px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                                className="w-full px-4 py-2 bg-[#2f80ed] text-white rounded-lg font-medium hover:bg-green-700 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
                             >
                                 <Download size={16} />
                                 {generating === report.id ? "Exporting..." : "Export"}
@@ -145,6 +145,7 @@ const AdminReportsPage = () => {
                             )}
                         </div>
                     ))}
+
                 </div>
             </div>
         </div>

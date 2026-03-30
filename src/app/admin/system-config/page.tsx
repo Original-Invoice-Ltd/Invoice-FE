@@ -79,11 +79,11 @@ const AdminSystemConfigPage = () => {
                         <div className="space-y-3">
                             <div>
                                 <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Invoices</label>
-                                <input type="number" name="freeMaxInvoices" value={config.freeMaxInvoices} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                                <input type="number" name="freeMaxInvoices" value={config.freeMaxInvoices} onChange={handleChange} className="w-full px-3 bg-[#fafafa] py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                             </div>
                             <div>
                                 <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Logos</label>
-                                <input type="number" name="freeMaxLogos" value={config.freeMaxLogos} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                                <input type="number" name="freeMaxLogos" value={config.freeMaxLogos} onChange={handleChange} className="w-full px-3 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                             </div>
                         </div>
                     </div>
@@ -93,11 +93,11 @@ const AdminSystemConfigPage = () => {
                         <div className="space-y-3">
                             <div>
                                 <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Invoices</label>
-                                <input type="number" name="essentialsMaxInvoices" value={config.essentialsMaxInvoices} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                                <input type="number" name="essentialsMaxInvoices" value={config.essentialsMaxInvoices} onChange={handleChange} className="w-full px-3 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                             </div>
                             <div>
                                 <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Logos</label>
-                                <input type="number" name="essentialsMaxLogos" value={config.essentialsMaxLogos} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                                <input type="number" name="essentialsMaxLogos" value={config.essentialsMaxLogos} onChange={handleChange} className="w-full px-3 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                             </div>
                         </div>
                     </div>
@@ -107,11 +107,11 @@ const AdminSystemConfigPage = () => {
                         <div className="space-y-3">
                             <div>
                                 <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Invoices</label>
-                                <input type="number" name="premiumMaxInvoices" value={config.premiumMaxInvoices} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                                <input type="number" name="premiumMaxInvoices" value={config.premiumMaxInvoices} onChange={handleChange} className="w-full bg-[#fafafa] px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                             </div>
                             <div>
                                 <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Logos</label>
-                                <input type="number" name="premiumMaxLogos" value={config.premiumMaxLogos} onChange={handleChange} className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                                <input type="number" name="premiumMaxLogos" value={config.premiumMaxLogos} onChange={handleChange} className="w-full px-3 py-2 bg-[#fafafa] border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                             </div>
                         </div>
                     </div>
@@ -127,7 +127,7 @@ const AdminSystemConfigPage = () => {
                         </label>
                         <div className="flex items-center gap-2">
                             <span className="text-lg font-semibold text-gray-900">$</span>
-                            <input type="number" name="essentialPrice" value={config.essentialPrice} onChange={handleChange} className="flex-1 px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                            <input type="number" name="essentialPrice" value={config.essentialPrice} onChange={handleChange} className="flex-1 px-4 py-2 bg-[#fafafa] border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                         </div>
                     </div>
                     <div>
@@ -136,7 +136,7 @@ const AdminSystemConfigPage = () => {
                         </label>
                         <div className="flex items-center gap-2">
                             <span className="text-lg font-semibold text-gray-900">$</span>
-                            <input type="number" name="premiumPrice" value={config.premiumPrice} onChange={handleChange} className="flex-1 px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                            <input type="number" name="premiumPrice" value={config.premiumPrice} onChange={handleChange} className="flex-1 px-4 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                         </div>
                     </div>
                 </div>
@@ -149,20 +149,20 @@ const AdminSystemConfigPage = () => {
                         <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Invoice Number Prefix
                         </label>
-                        <input type="text" name="invoicePrefix" value={config.invoicePrefix} onChange={handleChange} placeholder="e.g., INV" className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                        <input type="text" name="invoicePrefix" value={config.invoicePrefix} onChange={handleChange} placeholder="e.g., INV" className="w-full px-4 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                     </div>
                     <div>
                         <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Number Format
                         </label>
-                        <select name="invoiceNumberFormat" value={config.invoiceNumberFormat} onChange={handleChange} className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <select name="invoiceNumberFormat" value={config.invoiceNumberFormat} onChange={handleChange} className="w-full px-4 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                             <option value="sequential">Sequential (INV-001, INV-002)</option>
                             <option value="date">Date-based (INV-20240315-001)</option>
                             <option value="random">Random (INV-A7K9M2)</option>
                         </select>
                     </div>
                     <div className="flex items-center gap-2">
-                        <input type="checkbox" name="invoiceAutoIncrement" checked={config.invoiceAutoIncrement} onChange={handleChange} className="w-4 h-4 rounded border-gray-300" />
+                        <input type="checkbox" name="invoiceAutoIncrement" checked={config.invoiceAutoIncrement} onChange={handleChange} className="w-4 h-4 bg-[FAFAFA] rounded border-gray-300" />
                         <label className="text-xs sm:text-sm font-medium text-gray-900">
                             Auto-increment invoice numbers
                         </label>
@@ -177,7 +177,7 @@ const AdminSystemConfigPage = () => {
                         <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Mode
                         </label>
-                        <select name="paystackMode" value={config.paystackMode} onChange={handleChange} className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                        <select name="paystackMode" value={config.paystackMode} onChange={handleChange} className="w-full px-4 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                             <option value="test">Test Mode</option>
                             <option value="live">Live Mode</option>
                         </select>
@@ -186,13 +186,13 @@ const AdminSystemConfigPage = () => {
                         <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Public API Key
                         </label>
-                        <input type="password" name="paystackApiKey" value={config.paystackApiKey} onChange={handleChange} placeholder="pk_test_..." className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                        <input type="password" name="paystackApiKey" value={config.paystackApiKey} onChange={handleChange} placeholder="pk_test_..." className="w-full px-4 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                     </div>
                     <div>
                         <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Secret API Key
                         </label>
-                        <input type="password" name="paystackSecretKey" value={config.paystackSecretKey} onChange={handleChange} placeholder="sk_test_..." className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                        <input type="password" name="paystackSecretKey" value={config.paystackSecretKey} onChange={handleChange} placeholder="sk_test_..." className="w-full px-4 bg-[#fafafa] py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                     </div>
                 </div>
             </div>
@@ -200,7 +200,7 @@ const AdminSystemConfigPage = () => {
             <div className="flex justify-end">
                 <button
                     onClick={handleSave}
-                    className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center justify-center gap-2 text-sm sm:text-base"
+                    className="w-full sm:w-auto px-6 py-3 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
                     <Save size={20} />
                     Save Configuration

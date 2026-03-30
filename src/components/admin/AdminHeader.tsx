@@ -45,7 +45,7 @@ const AdminHeader = ({ onMenuClick, isSuperAdmin = false }: AdminHeaderProps) =>
                         onClick={() => setShowUserMenu(!showUserMenu)}
                         className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg"
                     >
-                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <div className="w-8 h-8 bg-[#2F80ED] rounded-full flex items-center justify-center flex-shrink-0">
                             {user?.imageUrl ? (
                                 <img src={user.imageUrl} alt={displayName} className="w-8 h-8 rounded-full object-cover" />
                             ) : (

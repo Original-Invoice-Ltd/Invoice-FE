@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Search, Plus, Edit2, Trash2, Clock, Download, ToggleLeft, ToggleRight } from "lucide-react";
+import { Search, Plus, Clock, Download, MoreVertical } from "lucide-react";
 import AdminFormModal from "@/components/admin/modals/AdminFormModal";
 import { AdminApi, AdminManagementUser, AuditLog } from "@/lib/adminApi";
+import Toast from "@/components/ui/Toast";
+import { useToast } from "@/hooks/useToast";
 
 const downloadCSV = (rows: any[], filename: string) => {
     if (!rows.length) return;
@@ -29,6 +31,7 @@ const AdminManagementPage = () => {
     const [showFormModal, setShowFormModal] = useState(false);
     const [selectedAdmin, setSelectedAdmin] = useState<AdminManagementUser | null>(null);
     const [activeTab, setActiveTab] = useState<"admins" | "audit">("admins");
+    const { toast, showSuccess, showError, hideToast } = useToast();
 
     const itemsPerPage = 10;
 
@@ -71,7 +74,12 @@ const AdminManagementPage = () => {
                 role: data.role,
                 status: data.status,
             });
-            if (res.status === 200) await fetchAdmins();
+            if (res.status === 200) {
+                await fetchAdmins();
+                showSuccess("Admin updated successfully");
+            } else {
+                showError("Failed to update admin");
+            }
         } else {
             const payload = {
                 email: data.email,
@@ -82,7 +90,12 @@ const AdminManagementPage = () => {
             console.log('[createAdmin] payload:', JSON.stringify(payload, null, 2));
             const res = await AdminApi.createAdmin(payload);
             console.log('[createAdmin] response:', res.status, res.data ?? res.error);
-            if (res.status === 200 || res.status === 201) await fetchAdmins();
+            if (res.status === 200 || res.status === 201) {
+                await fetchAdmins();
+                showSuccess("Admin created successfully");
+            } else {
+                showError("Failed to create admin");
+            }
         }
         setShowFormModal(false);
     };
@@ -92,13 +105,21 @@ const AdminManagementPage = () => {
         const res = await AdminApi.deleteAdmin(id);
         if (res.status === 200 || res.status === 204) {
             setAdmins(admins.filter(a => a.id !== id));
+            showSuccess("Admin deleted successfully");
+        } else {
+            showError("Failed to delete admin");
         }
     };
 
     const handleToggleStatus = async (admin: AdminManagementUser) => {
         const isActive = ["ACTIVE", "VERIFIED"].includes(admin.status?.toUpperCase());
         const res = isActive ? await AdminApi.disableAdmin(admin.id) : await AdminApi.enableAdmin(admin.id);
-        if (res.status === 200) await fetchAdmins();
+        if (res.status === 200) {
+            await fetchAdmins();
+            showSuccess(isActive ? "Admin disabled successfully" : "Admin enabled successfully");
+        } else {
+            showError(isActive ? "Failed to disable admin" : "Failed to enable admin");
+        }
     };
 
     const getRoleColor = (role: string) => role === "SUPER_ADMIN" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700";
@@ -231,18 +252,32 @@ const AdminManagementPage = () => {
                                                 <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">{admin.lastLogin ?? "—"}</td>
                                                 <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">{admin.createdAt ? new Date(admin.createdAt).toLocaleDateString() : admin.createdDate ?? "—"}</td>
                                                 <td className="px-3 sm:px-6 py-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <button onClick={() => { setSelectedAdmin(admin); setShowFormModal(true); }} className="p-2 hover:bg-gray-100 rounded-lg" title="Edit">
-                                                            <Edit2 size={18} className="text-gray-600" />
+                                                    <div className="relative group flex justify-start">
+                                                        <button className="p-2 hover:bg-[#EBF5FF] rounded-lg transition-colors">
+                                                            <MoreVertical size={18} className="text-[#2F80ED]" />
                                                         </button>
-                                                        <button onClick={() => handleToggleStatus(admin)} className="p-2 hover:bg-gray-100 rounded-lg" title={["ACTIVE","VERIFIED"].includes(admin.status?.toUpperCase()) ? "Disable" : "Enable"}>
-                                                            {["ACTIVE","VERIFIED"].includes(admin.status?.toUpperCase())
-                                                                ? <ToggleRight size={18} className="text-green-600" />
-                                                                : <ToggleLeft size={18} className="text-gray-400" />}
-                                                        </button>
-                                                        <button onClick={() => handleDeleteAdmin(admin.id)} className="p-2 hover:bg-gray-100 rounded-lg" title="Delete">
-                                                            <Trash2 size={18} className="text-red-600" />
-                                                        </button>
+                                                        <div className="hidden group-hover:block absolute right-0 mt-9 w-48 bg-white border border-[#E4E7EC] rounded-xl shadow-lg z-10 overflow-hidden">
+                                                            <button 
+                                                                onClick={() => { setSelectedAdmin(admin); setShowFormModal(true); }} 
+                                                                className="w-full text-left px-4 py-2.5 text-xs text-[#2F80ED] font-medium hover:bg-[#EBF5FF]"
+                                                            >
+                                                                Edit Admin
+                                                            </button>
+                                                            <div className="border-t border-[#E4E7EC]" />
+                                                            <button 
+                                                                onClick={() => handleToggleStatus(admin)} 
+                                                                className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50"
+                                                            >
+                                                                {["ACTIVE","VERIFIED"].includes(admin.status?.toUpperCase()) ? "Disable Admin" : "Enable Admin"}
+                                                            </button>
+                                                            <div className="border-t border-[#E4E7EC]" />
+                                                            <button 
+                                                                onClick={() => handleDeleteAdmin(admin.id)} 
+                                                                className="w-full text-left px-4 py-2.5 text-xs text-red-600 hover:bg-red-50"
+                                                            >
+                                                                Delete Admin
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -344,6 +379,13 @@ const AdminManagementPage = () => {
                     onSubmit={handleFormSubmit}
                 />
             )}
+
+            <Toast
+                message={toast.message}
+                type={toast.type}
+                isVisible={toast.isVisible}
+                onClose={hideToast}
+            />
         </div>
     );
 };
