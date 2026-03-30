@@ -128,7 +128,7 @@ const AdminSubscriptionsPage = () => {
             </div>
 
             <div className="bg-white border border-[#E4E7EC] rounded-xl overflow-hidden">
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto scrollbar-hide">
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b border-[#E4E7EC]">
                             <tr>

@@ -71,7 +71,7 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
 
     return (
         <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-xl shadow-lg max-w-md w-full max-h-[90vh] flex flex-col">
                 <div className="flex items-center justify-between p-4 sm:p-6 border-b border-[#E4E7EC]">
                     <h2 className="text-lg sm:text-xl font-bold text-gray-900">
                         {admin ? "Edit Admin" : "Add New Admin"}
@@ -81,7 +81,7 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+                <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
                     <div>
                         <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                             Full Name
