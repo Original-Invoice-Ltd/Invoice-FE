@@ -161,8 +161,8 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                     </div>
 
                     {!admin && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                            <p className="text-xs text-blue-700">
+                        <div className="bg-[#E8F2FE] border border-[#B8DBFE] rounded-lg p-3">
+                            <p className="text-xs text-[#2F80ED]">
                                 A temporary password will be sent to the email address provided.
                             </p>
                         </div>
@@ -179,7 +179,7 @@ const AdminFormModal = ({ admin, onClose, onSubmit }: AdminFormModalProps) => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 text-sm"
+                            className="flex-1 px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] disabled:opacity-50 text-sm"
                         >
                             {loading ? "Saving..." : admin ? "Update Admin" : "Add Admin"}
                         </button>

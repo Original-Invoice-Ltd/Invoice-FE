@@ -95,7 +95,7 @@ const AdminUsersPage = () => {
     const getRoleColor = (role: string) => {
         switch (role) {
             case "SUPER_ADMIN": return "bg-purple-100 text-purple-700";
-            case "ADMIN": return "bg-blue-100 text-blue-700";
+            case "ADMIN": return "bg-[#E8F2FE] text-[#2F80ED]";
             default: return "bg-gray-100 text-gray-700";
         }
     };
@@ -112,7 +112,7 @@ const AdminUsersPage = () => {
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">User Management</h1>
                     <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage platform users and permissions</p>
                 </div>
-                <button onClick={handleExport} className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center justify-center gap-2">
+                <button onClick={handleExport} className="w-full sm:w-auto px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] flex items-center justify-center gap-2">
                     <Download size={18} />
                     Export Users
                 </button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Edit2, Trash2 } from "lucide-react";
+import { Plus, MoreVertical } from "lucide-react";
 import TaxFormModal from "@/components/admin/modals/TaxFormModal";
 import DeleteConfirmModal from "@/components/admin/modals/DeleteConfirmModal";
 import { AdminApi, TaxType, TaxRules } from "@/lib/adminApi";
@@ -121,7 +121,7 @@ const AdminTaxConfigPage = () => {
                                             </div>
                                         </td>
                                         <td className="hidden sm:table-cell px-6 py-4">
-                                            <span className="px-3 py-1 bg-[#E8F2FE] text-[#2F80ED] rounded-full text-xs font-semibold">{tax.category}</span>
+                                            <span className="px-3 py-1 bg-[#E8F2FE] text-[#2F80ED] rounded-full text-xs font-semibold">{tax.taxType}</span>
                                         </td>
                                         <td className="hidden md:table-cell px-6 py-4 text-sm font-medium text-gray-900">{tax.individualRate}%</td>
                                         <td className="hidden lg:table-cell px-6 py-4 text-sm font-medium text-gray-900">{tax.businessRate}%</td>
@@ -131,13 +131,25 @@ const AdminTaxConfigPage = () => {
                                             </span>
                                         </td>
                                         <td className="px-4 sm:px-6 py-4">
-                                            <div className="flex items-center gap-2">
-                                                <button onClick={() => { setEditingTax(tax); setShowModal(true); }} className="p-2 hover:bg-gray-100 rounded-lg">
-                                                    <Edit2 size={18} className="text-gray-600" />
+                                            <div className="relative group flex justify-start">
+                                                <button className="p-2 hover:bg-[#EBF5FF] rounded-lg transition-colors">
+                                                    <MoreVertical size={18} className="text-[#2F80ED]" />
                                                 </button>
-                                                <button onClick={() => { setDeletingTaxId(tax.id); setShowDeleteModal(true); }} className="p-2 hover:bg-gray-100 rounded-lg">
-                                                    <Trash2 size={18} className="text-red-600" />
-                                                </button>
+                                                <div className="hidden group-hover:block absolute right-0 mt-9 w-48 bg-white border border-[#E4E7EC] rounded-xl shadow-lg z-10 overflow-hidden">
+                                                    <button 
+                                                        onClick={() => { setEditingTax(tax); setShowModal(true); }} 
+                                                        className="w-full text-left px-4 py-2.5 text-xs text-[#2F80ED] font-medium hover:bg-[#EBF5FF]"
+                                                    >
+                                                        Edit Tax Type
+                                                    </button>
+                                                    <div className="border-t border-[#E4E7EC]" />
+                                                    <button 
+                                                        onClick={() => { setDeletingTaxId(tax.id); setShowDeleteModal(true); }} 
+                                                        className="w-full text-left px-4 py-2.5 text-xs text-red-600 hover:bg-red-50"
+                                                    >
+                                                        Delete Tax Type
+                                                    </button>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
