@@ -321,6 +321,14 @@ export class AdminApi {
         return ApiClient.put(`/api/admin/management/${id}`, data);
     }
 
+    static async disableAdmin(id: string): Promise<ApiResponse<any>> {
+        return ApiClient.put(`/api/admin/management/${id}/disable`);
+    }
+
+    static async enableAdmin(id: string): Promise<ApiResponse<any>> {
+        return ApiClient.put(`/api/admin/management/${id}/enable`);
+    }
+
     static async deleteAdmin(id: string): Promise<ApiResponse<any>> {
         return ApiClient.delete(`/api/admin/management/${id}`);
     }

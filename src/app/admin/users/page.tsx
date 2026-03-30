@@ -72,27 +72,24 @@ const AdminUsersPage = () => {
         fetchUsers();
     };
 
-    const handleExport = async () => {
-        const res = await AdminApi.exportUsers();
-        if (res.status === 200 && res.data) {
-            if (typeof res.data === "string" && res.data.startsWith("http")) {
-                window.open(res.data, "_blank");
-            }
-        } else {
-            // Fallback: download current page data as CSV
-            const rows = users.map(u => ({
-                fullName: u.fullName, email: u.email,
-                status: u.status, role: u.role,
-                plan: u.currentPlan ?? u.plan, invoiceCount: u.invoiceCount,
-                createdAt: u.createdAt ?? u.registeredDate ?? ""
-            }));
-            const headers = Object.keys(rows[0]);
-            const csv = [headers.join(","), ...rows.map(r => headers.map(h => `"${(r as any)[h] ?? ""}"`).join(","))].join("\n");
-            const blob = new Blob([csv], { type: "text/csv" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a"); a.href = url; a.download = "users.csv"; a.click();
-            URL.revokeObjectURL(url);
-        }
+    const handleExport = () => {
+        const rows = users.map(u => ({
+            fullName: u.fullName,
+            email: u.email,
+            status: u.status,
+            role: u.role,
+            plan: u.currentPlan ?? u.plan,
+            invoiceCount: u.invoiceCount,
+            createdAt: u.createdAt ?? u.registeredDate ?? ""
+        }));
+        if (!rows.length) return;
+        const headers = Object.keys(rows[0]);
+        const csv = [headers.join(","), ...rows.map(r => headers.map(h => `"${(r as any)[h] ?? ""}"`).join(","))].join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = "users.csv"; a.click();
+        URL.revokeObjectURL(url);
     };
 
     const getRoleColor = (role: string) => {

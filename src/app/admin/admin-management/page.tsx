@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Search, Plus, Edit2, Trash2, Clock, Download } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, Clock, Download, ToggleLeft, ToggleRight } from "lucide-react";
 import AdminFormModal from "@/components/admin/modals/AdminFormModal";
 import { AdminApi, AdminManagementUser, AuditLog } from "@/lib/adminApi";
 
@@ -93,6 +93,12 @@ const AdminManagementPage = () => {
         if (res.status === 200 || res.status === 204) {
             setAdmins(admins.filter(a => a.id !== id));
         }
+    };
+
+    const handleToggleStatus = async (admin: AdminManagementUser) => {
+        const isActive = ["ACTIVE", "VERIFIED"].includes(admin.status?.toUpperCase());
+        const res = isActive ? await AdminApi.disableAdmin(admin.id) : await AdminApi.enableAdmin(admin.id);
+        if (res.status === 200) await fetchAdmins();
     };
 
     const getRoleColor = (role: string) => role === "SUPER_ADMIN" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700";
@@ -226,10 +232,15 @@ const AdminManagementPage = () => {
                                                 <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">{admin.createdAt ? new Date(admin.createdAt).toLocaleDateString() : admin.createdDate ?? "—"}</td>
                                                 <td className="px-3 sm:px-6 py-4">
                                                     <div className="flex items-center gap-2">
-                                                        <button onClick={() => { setSelectedAdmin(admin); setShowFormModal(true); }} className="p-2 hover:bg-gray-100 rounded-lg">
+                                                        <button onClick={() => { setSelectedAdmin(admin); setShowFormModal(true); }} className="p-2 hover:bg-gray-100 rounded-lg" title="Edit">
                                                             <Edit2 size={18} className="text-gray-600" />
                                                         </button>
-                                                        <button onClick={() => handleDeleteAdmin(admin.id)} className="p-2 hover:bg-gray-100 rounded-lg">
+                                                        <button onClick={() => handleToggleStatus(admin)} className="p-2 hover:bg-gray-100 rounded-lg" title={["ACTIVE","VERIFIED"].includes(admin.status?.toUpperCase()) ? "Disable" : "Enable"}>
+                                                            {["ACTIVE","VERIFIED"].includes(admin.status?.toUpperCase())
+                                                                ? <ToggleRight size={18} className="text-green-600" />
+                                                                : <ToggleLeft size={18} className="text-gray-400" />}
+                                                        </button>
+                                                        <button onClick={() => handleDeleteAdmin(admin.id)} className="p-2 hover:bg-gray-100 rounded-lg" title="Delete">
                                                             <Trash2 size={18} className="text-red-600" />
                                                         </button>
                                                     </div>
