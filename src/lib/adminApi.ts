@@ -65,16 +65,19 @@ export interface TaxRules {
 
 export interface AdminOverviewStats {
     totalRevenue: number;
-    currentMonthRevenue: number;
-    revenueChange: number;
+    totalUsers: number;
+    activeUsers: number;
+    inactiveUsers: number;
+    totalSubscriptions: number;
     activeSubscriptions: number;
-    premiumCount: number;
-    essentialsCount: number;
-    subscriptionChange: number;
-    monthlyRecurringRevenue: number;
-    mrrChange: number;
+    freeSubscriptions: number;
+    essentialsSubscriptions: number;
+    premiumSubscriptions: number;
     totalInvoices: number;
-    invoiceChange: number;
+    revenueChange?: number;
+    subscriptionChange?: number;
+    userChange?: number;
+    invoiceChange?: number;
 }
 
 export interface AdminNotification {
