@@ -141,7 +141,7 @@ const AdminSystemConfigPage = () => {
                     </div>
                 </div>
             </div>
-
+{/* 
             <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
                 <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Invoice Generation Rules</h2>
                 <div className="space-y-4">
@@ -195,7 +195,7 @@ const AdminSystemConfigPage = () => {
                         <input type="password" name="paystackSecretKey" value={config.paystackSecretKey} onChange={handleChange} placeholder="sk_test_..." className="w-full px-4 bg-[#fafafa] py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             <div className="flex justify-end">
                 <button
