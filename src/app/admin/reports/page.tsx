@@ -4,6 +4,33 @@ import { useState } from "react";
 import { Download, FileText } from "lucide-react";
 import { AdminApi } from "@/lib/adminApi";
 
+const downloadCSV = (data: any, filename: string) => {
+    let rows: any[] = [];
+
+    if (Array.isArray(data)) {
+        rows = data;
+    } else if (typeof data === "object" && data !== null) {
+        // Try common wrapper keys
+        rows = data.content ?? data.data ?? data.records ?? data.items ?? [data];
+    }
+
+    if (!rows.length) return;
+
+    const headers = Object.keys(rows[0]);
+    const csv = [
+        headers.join(","),
+        ...rows.map(r => headers.map(h => `"${r[h] ?? ""}"`).join(","))
+    ].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${filename}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+};
+
 const AdminReportsPage = () => {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
@@ -11,68 +38,29 @@ const AdminReportsPage = () => {
     const [results, setResults] = useState<Record<string, any>>({});
 
     const dateReports = [
-        {
-            id: "revenue",
-            name: "Revenue Report",
-            description: "Collected vs invoiced revenue by period",
-            call: () => AdminApi.getRevenueReport(startDate, endDate),
-        },
-        {
-            id: "subscriptions",
-            name: "Subscription Report",
-            description: "Plan distribution, upgrades, downgrades, and churn",
-            call: () => AdminApi.getSubscriptionReport(startDate, endDate),
-        },
-        {
-            id: "user-activity",
-            name: "User Activity Report",
-            description: "Login frequency, invoice actions, and feature usage",
-            call: () => AdminApi.getUserActivityReport(startDate, endDate),
-        },
-        {
-            id: "invoice-statistics",
-            name: "Invoice Statistics Report",
-            description: "Volume, status breakdown, average value, and top creators",
-            call: () => AdminApi.getInvoiceStatisticsReport(startDate, endDate),
-        },
-        {
-            id: "tax-collection",
-            name: "Tax Collection Report",
-            description: "Tax amounts collected by type, user, and period",
-            call: () => AdminApi.getTaxCollectionReport(startDate, endDate),
-        },
+        { id: "revenue", name: "Revenue Report", filename: "revenue-report", description: "Collected vs invoiced revenue by period", call: () => AdminApi.getRevenueReport(startDate, endDate) },
+        { id: "subscriptions", name: "Subscription Report", filename: "subscription-report", description: "Plan distribution, upgrades, downgrades, and churn", call: () => AdminApi.getSubscriptionReport(startDate, endDate) },
+        { id: "user-activity", name: "User Activity Report", filename: "user-activity-report", description: "Login frequency, invoice actions, and feature usage", call: () => AdminApi.getUserActivityReport(startDate, endDate) },
+        { id: "invoice-statistics", name: "Invoice Statistics Report", filename: "invoice-statistics-report", description: "Volume, status breakdown, average value, and top creators", call: () => AdminApi.getInvoiceStatisticsReport(startDate, endDate) },
+        { id: "tax-collection", name: "Tax Collection Report", filename: "tax-collection-report", description: "Tax amounts collected by type, user, and period", call: () => AdminApi.getTaxCollectionReport(startDate, endDate) },
     ];
 
     const exportReports = [
-        {
-            id: "export-users",
-            name: "User List Export",
-            description: "All user records with profile, plan, and status",
-            call: () => AdminApi.exportUsers(),
-        },
-        {
-            id: "export-transactions",
-            name: "Transaction Data Export",
-            description: "Payment records, amounts, methods, and statuses",
-            call: () => AdminApi.exportTransactions(),
-        },
-        {
-            id: "export-invoices",
-            name: "Invoice Data Export",
-            description: "Full platform-wide invoice records",
-            call: () => AdminApi.exportInvoices(),
-        },
+        { id: "export-users", name: "User List Export", filename: "users-export", description: "All user records with profile, plan, and status", call: () => AdminApi.exportUsers() },
+        { id: "export-transactions", name: "Transaction Data Export", filename: "transactions-export", description: "Payment records, amounts, methods, and statuses", call: () => AdminApi.exportTransactions() },
+        { id: "export-invoices", name: "Invoice Data Export", filename: "invoices-export", description: "Full platform-wide invoice records", call: () => AdminApi.exportInvoices() },
     ];
 
-    const handleGenerate = async (id: string, call: () => Promise<any>) => {
+    const handleGenerate = async (id: string, filename: string, call: () => Promise<any>) => {
         setGenerating(id);
         try {
             const res = await call();
             if (res.status === 200 && res.data) {
-                setResults(prev => ({ ...prev, [id]: res.data }));
-                // If response is a download URL or blob, trigger download
+                setResults(prev => ({ ...prev, [id]: true }));
                 if (typeof res.data === "string" && res.data.startsWith("http")) {
                     window.open(res.data, "_blank");
+                } else {
+                    downloadCSV(res.data, filename);
                 }
             } else {
                 console.error(`[${id}] error:`, res.error);
@@ -118,7 +106,7 @@ const AdminReportsPage = () => {
                             <h3 className="text-sm font-semibold text-gray-800 mb-1">{report.name}</h3>
                             <p className="text-xs text-gray-500 mb-4">{report.description}</p>
                             <button
-                                onClick={() => handleGenerate(report.id, report.call)}
+                                onClick={() => handleGenerate(report.id, report.filename, report.call)}
                                 disabled={generating === report.id}
                                 className="w-full px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] flex items-center justify-center gap-2 text-sm disabled:opacity-50"
                             >
@@ -145,7 +133,7 @@ const AdminReportsPage = () => {
                             <h3 className="text-sm font-semibold text-gray-800 mb-1">{report.name}</h3>
                             <p className="text-xs text-gray-500 mb-4">{report.description}</p>
                             <button
-                                onClick={() => handleGenerate(report.id, report.call)}
+                                onClick={() => handleGenerate(report.id, report.filename, report.call)}
                                 disabled={generating === report.id}
                                 className="w-full px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
                             >

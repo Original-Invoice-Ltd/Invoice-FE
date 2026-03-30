@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Search, Filter, Eye, ChevronDown, Download } from "lucide-react";
+import { Search, Filter, MoreVertical, Download } from "lucide-react";
 import UserDetailModal from "@/components/admin/modals/UserDetailModal";
 import UserActionModal from "@/components/admin/modals/UserActionModal";
 import { AdminApi, AdminUser } from "@/lib/adminApi";
@@ -201,22 +201,20 @@ const AdminUsersPage = () => {
                                     <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-900">{user.invoiceCount}</td>
                                     <td className="hidden lg:table-cell px-6 py-4 text-xs text-gray-500">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : user.registeredDate ?? "—"}</td>
                                     <td className="px-3 sm:px-6 py-4">
-                                        <div className="flex items-center gap-1">
-                                            <button onClick={() => handleViewUser(user)} className="p-2 hover:bg-gray-100 rounded-lg" title="View">
-                                                <Eye size={16} className="text-gray-600" />
+                                        <div className="relative group flex justify-start">
+                                            <button className="p-2 hover:bg-[#EBF5FF] rounded-lg transition-colors">
+                                                <MoreVertical size={18} className="text-[#2F80ED]" />
                                             </button>
-                                            <div className="relative group">
-                                                <button className="p-2 hover:bg-gray-100 rounded-lg">
-                                                    <ChevronDown size={16} className="text-gray-600" />
+                                            <div className="hidden group-hover:block absolute right-0 mt-9 w-48 bg-white border border-[#E4E7EC] rounded-xl shadow-lg z-10 overflow-hidden">
+                                                <button onClick={() => handleViewUser(user)} className="w-full text-left px-4 py-2.5 text-xs text-[#2F80ED] font-medium hover:bg-[#EBF5FF]">View Details</button>
+                                                <div className="border-t border-[#E4E7EC]" />
+                                                <button onClick={() => handleAction(user, "role")} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">Change Role</button>
+                                                <button onClick={() => handleAction(user, "reset")} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">Reset Password</button>
+                                                <button onClick={() => handleAction(user, "deactivate")} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">
+                                                    {["ACTIVE","VERIFIED"].includes(user.status?.toUpperCase()) ? "Deactivate" : "Activate"}
                                                 </button>
-                                                <div className="hidden group-hover:block absolute right-0 mt-1 w-44 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-10">
-                                                    <button onClick={() => handleAction(user, "role")} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">Change Role</button>
-                                                    <button onClick={() => handleAction(user, "reset")} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">Reset Password</button>
-                                                    <button onClick={() => handleAction(user, "deactivate")} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">
-                                                        {["ACTIVE","VERIFIED"].includes(user.status?.toUpperCase()) ? "Deactivate" : "Activate"}
-                                                    </button>
-                                                    <button onClick={() => handleAction(user, "delete")} className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-gray-50">Delete Account</button>
-                                                </div>
+                                                <div className="border-t border-[#E4E7EC]" />
+                                                <button onClick={() => handleAction(user, "delete")} className="w-full text-left px-4 py-2.5 text-xs text-red-600 hover:bg-red-50">Delete Account</button>
                                             </div>
                                         </div>
                                     </td>
