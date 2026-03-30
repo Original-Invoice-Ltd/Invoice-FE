@@ -256,7 +256,7 @@ const AdminManagementPage = () => {
                                                         <button className="p-2 hover:bg-[#EBF5FF] rounded-lg transition-colors">
                                                             <MoreVertical size={18} className="text-[#2F80ED]" />
                                                         </button>
-                                                        <div className="hidden group-hover:block absolute right-0 mt-9 w-48 bg-white border border-[#E4E7EC] rounded-xl shadow-lg z-10 overflow-hidden">
+                                                        <div className="hidden group-hover:block absolute left-0 mt-9 w-48 bg-white border border-[#E4E7EC] rounded-xl shadow-lg z-50 overflow-hidden">
                                                             <button 
                                                                 onClick={() => { setSelectedAdmin(admin); setShowFormModal(true); }} 
                                                                 className="w-full text-left px-4 py-2.5 text-xs text-[#2F80ED] font-medium hover:bg-[#EBF5FF]"

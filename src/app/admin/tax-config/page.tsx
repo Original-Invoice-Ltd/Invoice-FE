@@ -116,15 +116,15 @@ const AdminTaxConfigPage = () => {
                                     <tr key={tax.id} className="hover:bg-gray-50">
                                         <td className="px-4 sm:px-6 py-4">
                                             <div>
-                                                <p className="font-medium text-gray-900 text-sm">{tax.name}</p>
-                                                <p className="text-xs text-gray-500">{tax.description}</p>
+                                                <p className="font-medium text-gray-900 text-sm">{tax.name || "—"}</p>
+                                                <p className="text-xs text-gray-500">{tax.description || "—"}</p>
                                             </div>
                                         </td>
                                         <td className="hidden sm:table-cell px-6 py-4">
-                                            <span className="px-3 py-1 bg-[#E8F2FE] text-[#2F80ED] rounded-full text-xs font-semibold">{tax.taxType}</span>
+                                            <span className="px-3 py-1 bg-[#E8F2FE] text-[#2F80ED] rounded-full text-xs font-semibold">{tax.taxType || "—"}</span>
                                         </td>
-                                        <td className="hidden md:table-cell px-6 py-4 text-sm font-medium text-gray-900">{tax.individualRate}%</td>
-                                        <td className="hidden lg:table-cell px-6 py-4 text-sm font-medium text-gray-900">{tax.businessRate}%</td>
+                                        <td className="hidden md:table-cell px-6 py-4 text-sm font-medium text-gray-900">{tax.individualRate != null ? `${tax.individualRate}%` : "—"}</td>
+                                        <td className="hidden lg:table-cell px-6 py-4 text-sm font-medium text-gray-900">{tax.businessRate != null ? `${tax.businessRate}%` : "—"}</td>
                                         <td className="hidden sm:table-cell px-6 py-4">
                                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${tax.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}>
                                                 {tax.isActive ? "Active" : "Inactive"}
@@ -140,14 +140,14 @@ const AdminTaxConfigPage = () => {
                                                         onClick={() => { setEditingTax(tax); setShowModal(true); }} 
                                                         className="w-full text-left px-4 py-2.5 text-xs text-[#2F80ED] font-medium hover:bg-[#EBF5FF]"
                                                     >
-                                                        Edit Tax Type
+                                                        Edit Tax
                                                     </button>
                                                     <div className="border-t border-[#E4E7EC]" />
                                                     <button 
                                                         onClick={() => { setDeletingTaxId(tax.id); setShowDeleteModal(true); }} 
                                                         className="w-full text-left px-4 py-2.5 text-xs text-red-600 hover:bg-red-50"
                                                     >
-                                                        Delete Tax Type
+                                                        Delete
                                                     </button>
                                                 </div>
                                             </div>
