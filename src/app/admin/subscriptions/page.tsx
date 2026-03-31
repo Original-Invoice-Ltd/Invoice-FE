@@ -30,9 +30,11 @@ const AdminSubscriptionsPage = () => {
             status: statusFilter !== "all" ? statusFilter : undefined,
         });
         if (res.status === 200 && res.data) {
-            setSubscriptions(res.data.content);
-            setTotalPages(res.data.totalPages);
-            setTotalElements(res.data.totalElements);
+            const data = res.data as any;
+            const list = Array.isArray(data) ? data : data.content ?? data.data ?? [];
+            setSubscriptions(list);
+            setTotalPages(data.totalPages ?? 1);
+            setTotalElements(data.totalElements ?? list.length);
         }
         setLoading(false);
     }, [currentPage, searchTerm, planFilter, statusFilter]);

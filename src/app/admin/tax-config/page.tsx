@@ -13,6 +13,14 @@ const AdminTaxConfigPage = () => {
     const [editingTax, setEditingTax] = useState<TaxType | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deletingTaxId, setDeletingTaxId] = useState<string | null>(null);
+    const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+    const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
+
+    const handleOpenDropdown = (id: string, e: React.MouseEvent<HTMLButtonElement>) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setDropdownPos({ top: rect.bottom + window.scrollY, right: window.innerWidth - rect.right });
+        setOpenDropdown(prev => prev === id ? null : id);
+    };
     const [taxRules, setTaxRules] = useState<TaxRules>({
         defaultIndividualTaxId: "",
         defaultBusinessTaxId: "",
@@ -131,26 +139,12 @@ const AdminTaxConfigPage = () => {
                                             </span>
                                         </td>
                                         <td className="px-4 sm:px-6 py-4">
-                                            <div className="relative group flex justify-start">
-                                                <button className="p-2 hover:bg-[#EBF5FF] rounded-lg transition-colors">
-                                                    <MoreVertical size={18} className="text-[#2F80ED]" />
-                                                </button>
-                                                <div className="hidden group-hover:block absolute right-0 mt-9 w-48 bg-white border border-[#E4E7EC] rounded-xl shadow-lg z-10 overflow-hidden">
-                                                    <button 
-                                                        onClick={() => { setEditingTax(tax); setShowModal(true); }} 
-                                                        className="w-full text-left px-4 py-2.5 text-xs text-[#2F80ED] font-medium hover:bg-[#EBF5FF]"
-                                                    >
-                                                        Edit Tax
-                                                    </button>
-                                                    <div className="border-t border-[#E4E7EC]" />
-                                                    <button 
-                                                        onClick={() => { setDeletingTaxId(tax.id); setShowDeleteModal(true); }} 
-                                                        className="w-full text-left px-4 py-2.5 text-xs text-red-600 hover:bg-red-50"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </div>
-                                            </div>
+                                            <button
+                                                onClick={(e) => handleOpenDropdown(tax.id, e)}
+                                                className="p-2 hover:bg-[#EBF5FF] rounded-lg transition-colors"
+                                            >
+                                                <MoreVertical size={18} className="text-[#2F80ED]" />
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
@@ -230,6 +224,36 @@ const AdminTaxConfigPage = () => {
                 message="Are you sure you want to delete"
                 itemName={taxTypes.find(t => t.id === deletingTaxId)?.name}
             />
+
+            {/* Fixed dropdown portal */}
+            {openDropdown && (() => {
+                const tax = taxTypes.find(t => t.id === openDropdown);
+                if (!tax) return null;
+                return (
+                    <>
+                        <div className="fixed inset-0 z-40" onClick={() => setOpenDropdown(null)} />
+                        <div
+                            className="fixed z-50 w-48 bg-white border border-[#E4E7EC] rounded-xl shadow-xl overflow-hidden"
+                            style={{ top: dropdownPos.top, right: dropdownPos.right }}
+                        >
+                            <button onClick={() => { setEditingTax(tax); setShowModal(true); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-[#2F80ED] font-medium hover:bg-[#EBF5FF]">Edit Tax</button>
+                            <div className="border-t border-[#E4E7EC]" />
+                            <button
+                                onClick={async () => {
+                                    const res = tax.isActive ? await AdminApi.disableTaxType(tax.id) : await AdminApi.enableTaxType(tax.id);
+                                    if (res.status === 200) await fetchTaxTypes();
+                                    setOpenDropdown(null);
+                                }}
+                                className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50"
+                            >
+                                {tax.isActive ? "Disable" : "Enable"}
+                            </button>
+                            <div className="border-t border-[#E4E7EC]" />
+                            <button onClick={() => { setDeletingTaxId(tax.id); setShowDeleteModal(true); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-red-600 hover:bg-red-50">Delete</button>
+                        </div>
+                    </>
+                );
+            })()}
         </div>
     );
 };
