@@ -84,7 +84,7 @@ const SubscriptionActionModal = ({ subscription, actionType, onClose }: Subscrip
                     <div className="bg-gray-50 p-4 rounded-lg">
                         <p className="text-sm text-gray-600">Current Plan</p>
                         <p className="text-lg font-semibold text-gray-900">{subscription.plan}</p>
-                        <p className="text-sm text-gray-500 mt-1">Expires: {subscription.expiryDate}</p>
+                        <p className="text-sm text-gray-500 mt-1">Expires: {subscription.expiryDate ?? "—"}</p>
                     </div>
 
                     {content.showPlanSelect && (
@@ -103,7 +103,9 @@ const SubscriptionActionModal = ({ subscription, actionType, onClose }: Subscrip
                             <label className="block text-sm font-medium text-gray-900 mb-2">Extend by (days)</label>
                             <input type="number" value={extendDays} onChange={(e) => setExtendDays(parseInt(e.target.value))} min="1" className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm" />
                             <p className="text-xs text-gray-500 mt-2">
-                                New expiry: {new Date(new Date(subscription.expiryDate).getTime() + extendDays * 86400000).toISOString().split("T")[0]}
+                                New expiry: {subscription.expiryDate && !isNaN(new Date(subscription.expiryDate).getTime())
+                                    ? new Date(new Date(subscription.expiryDate).getTime() + extendDays * 86400000).toISOString().split("T")[0]
+                                    : "—"}
                             </p>
                         </div>
                     )}

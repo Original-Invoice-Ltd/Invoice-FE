@@ -234,6 +234,14 @@ export class AdminApi {
         return ApiClient.delete(`/api/admin/tax-config/${id}`);
     }
 
+    static async disableTaxType(id: string): Promise<ApiResponse<any>> {
+        return ApiClient.put(`/api/admin/tax-config/${id}/disable`);
+    }
+
+    static async enableTaxType(id: string): Promise<ApiResponse<any>> {
+        return ApiClient.put(`/api/admin/tax-config/${id}/enable`);
+    }
+
     static async getTaxRules(): Promise<ApiResponse<TaxRules>> {
         return ApiClient.get("/api/admin/tax-config/rules");
     }
