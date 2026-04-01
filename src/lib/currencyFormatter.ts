@@ -44,8 +44,11 @@ export function formatCurrency(
 
   const formatLocale = locale || CURRENCY_LOCALES[currency];
 
+  // toLocaleString throws if minimumFractionDigits > maximumFractionDigits
+  const actualMinDigits = Math.min(minimumFractionDigits, maximumFractionDigits);
+
   const formattedNumber = numericAmount.toLocaleString(formatLocale, {
-    minimumFractionDigits,
+    minimumFractionDigits: actualMinDigits,
     maximumFractionDigits,
   });
 
