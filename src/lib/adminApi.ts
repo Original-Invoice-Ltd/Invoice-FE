@@ -49,12 +49,15 @@ export interface AdminSubscriptionListResponse {
 export interface TaxType {
     id: string;
     name: string;
-    category: "WHT" | "VAT" | "CONSUMPTION_TAX" | "EXCISE_TAX" | "CUSTOM";
-    baseRate?: number;
+    taxType: string;
+    baseTaxRate?: number;
     individualRate: number;
     businessRate: number;
-    isActive: boolean;
+    active: boolean;
+    isActive?: boolean;
     description: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface TaxRules {
@@ -235,11 +238,11 @@ export class AdminApi {
     }
 
     static async disableTaxType(id: string): Promise<ApiResponse<any>> {
-        return ApiClient.put(`/api/admin/tax-config/${id}/disable`);
+        return ApiClient.putNoBody(`/api/admin/tax-config/${id}/disable`);
     }
 
     static async enableTaxType(id: string): Promise<ApiResponse<any>> {
-        return ApiClient.put(`/api/admin/tax-config/${id}/enable`);
+        return ApiClient.putNoBody(`/api/admin/tax-config/${id}/enable`);
     }
 
     static async getTaxRules(): Promise<ApiResponse<TaxRules>> {
@@ -333,11 +336,11 @@ export class AdminApi {
     }
 
     static async disableAdmin(id: string): Promise<ApiResponse<any>> {
-        return ApiClient.put(`/api/admin/management/${id}/disable`);
+        return ApiClient.putNoBody(`/api/admin/management/${id}/disable`);
     }
 
     static async enableAdmin(id: string): Promise<ApiResponse<any>> {
-        return ApiClient.put(`/api/admin/management/${id}/enable`);
+        return ApiClient.putNoBody(`/api/admin/management/${id}/enable`);
     }
 
     static async deleteAdmin(id: string): Promise<ApiResponse<any>> {

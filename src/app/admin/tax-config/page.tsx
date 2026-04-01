@@ -143,13 +143,13 @@ const AdminTaxConfigPage = () => {
                                             </div>
                                         </td>
                                         <td className="hidden sm:table-cell px-6 py-4">
-                                            <span className="px-3 py-1 bg-[#E8F2FE] text-[#2F80ED] rounded-full text-xs font-semibold">{tax.category || "—"}</span>
+                                            <span className="px-3 py-1 bg-[#E8F2FE] text-[#2F80ED] rounded-full text-xs font-semibold">{tax.taxType || "—"}</span>
                                         </td>
                                         <td className="hidden md:table-cell px-6 py-4 text-sm font-medium text-gray-900">{tax.individualRate != null ? `${tax.individualRate}%` : "—"}</td>
                                         <td className="hidden lg:table-cell px-6 py-4 text-sm font-medium text-gray-900">{tax.businessRate != null ? `${tax.businessRate}%` : "—"}</td>
                                         <td className="hidden sm:table-cell px-6 py-4">
-                                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${tax.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}>
-                                                {tax.isActive ? "Active" : "Inactive"}
+                                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${(tax.active ?? tax.isActive) ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}>
+                                                {(tax.active ?? tax.isActive) ? "Active" : "Inactive"}
                                             </span>
                                         </td>
                                         <td className="px-4 sm:px-6 py-4">
@@ -256,11 +256,12 @@ const AdminTaxConfigPage = () => {
                             <div className="border-t border-[#E4E7EC]" />
                             <button
                                 onClick={async () => {
-                                    const action = tax.isActive ? "disable" : "enable";
-                                    console.log(`[TaxConfig] ${action} tax:`, { id: tax.id, name: tax.name, currentIsActive: tax.isActive });
-                                    const res = tax.isActive ? await AdminApi.disableTaxType(tax.id) : await AdminApi.enableTaxType(tax.id);
+                                    const isActive = tax.active ?? tax.isActive ?? false;
+                                    const action = isActive ? "disable" : "enable";
+                                    console.log(`[TaxConfig] ${action} tax:`, { id: tax.id, name: tax.name, active: tax.active, isActive: tax.isActive });
+                                    const res = isActive ? await AdminApi.disableTaxType(tax.id) : await AdminApi.enableTaxType(tax.id);
                                     console.log(`[TaxConfig] ${action} response:`, res.status, res.data ?? res.error);
-                                    if (res.status === 200) { await fetchTaxTypes(); showSuccess(`Tax type ${tax.isActive ? "disabled" : "enabled"}`); }
+                                    if (res.status === 200) { await fetchTaxTypes(); showSuccess(`Tax type ${isActive ? "disabled" : "enabled"}`); }
                                     else showError(res.error || "Action failed — backend error");
                                     setOpenDropdown(null);
                                 }}
