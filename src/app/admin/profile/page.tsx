@@ -22,7 +22,7 @@ const AdminProfilePage = () => {
         e.preventDefault();
         setProfileError("");
         setLoading(true);
-        const payload = { fullName, phone };
+        const payload = { fullName, phoneNumber: phone };
         console.log('[Profile] update payload:', payload);
         const res = await AdminApi.updateAdminProfile(payload);
         console.log('[Profile] update response:', res.status, res.data ?? res.error);
