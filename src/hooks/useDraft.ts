@@ -109,7 +109,7 @@ export const useDraft = () => {
             invoiceTaxRate: 0,
           };
           
-          console.log('Transformed draft data:', loadedDraftData);
+          // console.log('Transformed draft data:', loadedDraftData);
           setLastSavedDraft(loadedDraftData);
           setLoadedDraftData(loadedDraftData);
           return draftResponse;
@@ -280,8 +280,8 @@ export const useDraft = () => {
       };
 
       const formData = buildInvoiceFormData(invoiceData);
-      console.log("invoiceData before sending: ", invoiceData) 
-      console.log("formData before sending: ", formData) 
+      // console.log("invoiceData before sending: ", invoiceData) 
+      // console.log("formData before sending: ", formData) 
       const response = await ApiClient.saveDraft(formData);
 
       if (response.status === 200) {

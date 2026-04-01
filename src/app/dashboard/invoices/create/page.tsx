@@ -518,7 +518,6 @@ const CreateInvoicePage = () => {
             newFieldErrors.billToDueDate = "Due date is required";
         }
         else if (new Date(billTo.dueDate) < new Date(billTo.invoiceDate)) {
-            console.log(new Date(billTo.dueDate) < new Date(billTo.invoiceDate), " s")
             errors.billTo = "Due date must be on or after invoice date";
             newFieldErrors.billToDueDate = "Due date must be on or after invoice date";
         }

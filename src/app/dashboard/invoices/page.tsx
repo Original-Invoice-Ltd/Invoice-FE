@@ -69,7 +69,6 @@ const InvoicesPage = () => {
         try {
             setReceivedLoading(true);
             const response = await ApiClient.getReceivedInvoices();
-            console.log("Received invoices from invoice page: ", response.data);
             if (response.status === 200 && response.data) {
                 setReceivedInvoices(Array.isArray(response.data) ? response.data : []);
             }

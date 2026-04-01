@@ -245,7 +245,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewDetail }) => {
                             setActiveMenu(null);
                           }}
                           onViewReceipt={() => {
-                            console.log("View Receipt");
                             setActiveMenu(null);
                           }}
                           onUploadReceipt={() => {
@@ -304,7 +303,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewDetail }) => {
                           setActiveMenu(null);
                         }}
                         onViewReceipt={() => {
-                          console.log("View Receipt");
                           setActiveMenu(null);
                         }}
                         onUploadReceipt={() => {
