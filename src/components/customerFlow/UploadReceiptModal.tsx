@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { X, Upload as UploadIcon, Trash2, CheckCircle, XCircle } from "lucide-react";
 import { useReceiptUpload } from "@/hooks/useReceiptUpload";
+import { toast } from "@/lib/toast";
 
 interface UploadReceiptModalProps {
   isOpen: boolean;
@@ -206,12 +207,15 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
       
       if (response.status === 200) {
         setModalState("success");
+        toast.show({ type: 'success', message: 'Successfully marked as incomplete' });
         setTimeout(() => {
           onClose();
           window.location.reload();
         }, 1500);
       } else {
         setModalState("failed");
+        const errorMsg = response.error || (typeof response.data === 'string' ? response.data : 'Error marking invoice as incomplete');
+        toast.show({ type: 'error', message: errorMsg });
       }
     } catch (error) {
       console.error("Error marking invoice as incomplete:", error);

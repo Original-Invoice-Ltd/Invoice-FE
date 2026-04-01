@@ -203,6 +203,8 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                 }, 1500);
             } else {
                 setUploadState("failed");
+                const errorMsg = response.error || (typeof response.data === 'string' ? response.data : 'Error marking invoice as incomplete');
+                toast.show({ type: 'error', message: errorMsg });
             }
         } catch (error) {
             console.error("Error marking invoice as incomplete:", error);
