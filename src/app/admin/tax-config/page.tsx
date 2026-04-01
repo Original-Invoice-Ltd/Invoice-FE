@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { Plus, MoreVertical } from "lucide-react";
 import TaxFormModal from "@/components/admin/modals/TaxFormModal";
 import DeleteConfirmModal from "@/components/admin/modals/DeleteConfirmModal";
+import Toast from "@/components/ui/Toast";
+import { useToast } from "@/hooks/useToast";
 import { AdminApi, TaxType, TaxRules } from "@/lib/adminApi";
 
 const AdminTaxConfigPage = () => {
@@ -28,6 +30,7 @@ const AdminTaxConfigPage = () => {
     });
     const [savingRules, setSavingRules] = useState(false);
     const [rulesSaved, setRulesSaved] = useState(false);
+    const { toast, showSuccess, showError, hideToast } = useToast();
 
     const fetchTaxTypes = async () => {
         setLoading(true);
@@ -45,11 +48,13 @@ const AdminTaxConfigPage = () => {
     const handleSaveTax = async (tax: TaxType) => {
         if (editingTax) {
             const res = await AdminApi.updateTaxType(tax.id, tax);
-            if (res.status === 200) await fetchTaxTypes();
+            if (res.status === 200) { await fetchTaxTypes(); showSuccess("Tax type updated successfully"); }
+            else showError(res.error || "Failed to update tax type");
         } else {
             const { id, ...data } = tax;
             const res = await AdminApi.createTaxType(data);
-            if (res.status === 200 || res.status === 201) await fetchTaxTypes();
+            if (res.status === 200 || res.status === 201) { await fetchTaxTypes(); showSuccess("Tax type created successfully"); }
+            else showError(res.error || "Failed to create tax type");
         }
         setShowModal(false);
     };
@@ -59,6 +64,9 @@ const AdminTaxConfigPage = () => {
         const res = await AdminApi.deleteTaxType(deletingTaxId);
         if (res.status === 200 || res.status === 204) {
             setTaxTypes(taxTypes.filter(t => t.id !== deletingTaxId));
+            showSuccess("Tax type deleted");
+        } else {
+            showError(res.error || "Failed to delete tax type");
         }
         setDeletingTaxId(null);
         setShowDeleteModal(false);
@@ -68,8 +76,11 @@ const AdminTaxConfigPage = () => {
         setSavingRules(true);
         const res = await AdminApi.updateTaxRules(taxRules);
         if (res.status === 200) {
+            showSuccess("Tax rules saved successfully");
             setRulesSaved(true);
             setTimeout(() => setRulesSaved(false), 3000);
+        } else {
+            showError(res.error || "Failed to save tax rules");
         }
         setSavingRules(false);
     };
@@ -129,7 +140,7 @@ const AdminTaxConfigPage = () => {
                                             </div>
                                         </td>
                                         <td className="hidden sm:table-cell px-6 py-4">
-                                            <span className="px-3 py-1 bg-[#E8F2FE] text-[#2F80ED] rounded-full text-xs font-semibold">{tax.taxType || "—"}</span>
+                                            <span className="px-3 py-1 bg-[#E8F2FE] text-[#2F80ED] rounded-full text-xs font-semibold">{tax.category || "—"}</span>
                                         </td>
                                         <td className="hidden md:table-cell px-6 py-4 text-sm font-medium text-gray-900">{tax.individualRate != null ? `${tax.individualRate}%` : "—"}</td>
                                         <td className="hidden lg:table-cell px-6 py-4 text-sm font-medium text-gray-900">{tax.businessRate != null ? `${tax.businessRate}%` : "—"}</td>
@@ -225,6 +236,8 @@ const AdminTaxConfigPage = () => {
                 itemName={taxTypes.find(t => t.id === deletingTaxId)?.name}
             />
 
+            <Toast message={toast.message} type={toast.type} isVisible={toast.isVisible} onClose={hideToast} />
+
             {/* Fixed dropdown portal */}
             {openDropdown && (() => {
                 const tax = taxTypes.find(t => t.id === openDropdown);
@@ -241,7 +254,8 @@ const AdminTaxConfigPage = () => {
                             <button
                                 onClick={async () => {
                                     const res = tax.isActive ? await AdminApi.disableTaxType(tax.id) : await AdminApi.enableTaxType(tax.id);
-                                    if (res.status === 200) await fetchTaxTypes();
+                                    if (res.status === 200) { await fetchTaxTypes(); showSuccess(`Tax type ${tax.isActive ? "disabled" : "enabled"}`); }
+                                    else showError(res.error || "Action failed — backend error");
                                     setOpenDropdown(null);
                                 }}
                                 className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50"
