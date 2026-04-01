@@ -4,9 +4,12 @@ import { useState } from "react";
 import { Save, Lock, Mail, User, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { AdminApi } from "@/lib/adminApi";
+import Toast from "@/components/ui/Toast";
+import { useToast } from "@/hooks/useToast";
 
 const AdminProfilePage = () => {
     const { user, refreshUser } = useAuth();
+    const { toast, showSuccess, showError, hideToast } = useToast();
 
     const [fullName, setFullName] = useState(user?.fullName || "");
     const [phone, setPhone] = useState(user?.phone || "");
@@ -28,9 +31,11 @@ const AdminProfilePage = () => {
         console.log('[Profile] update response:', res.status, res.data ?? res.error);
         if (res.status === 200) {
             await refreshUser();
+            showSuccess("Profile updated successfully");
             setProfileSaved(true);
             setTimeout(() => setProfileSaved(false), 3000);
         } else {
+            showError(res.error || "Failed to update profile.");
             setProfileError(res.error || "Failed to update profile.");
         }
         setLoading(false);
@@ -51,10 +56,12 @@ const AdminProfilePage = () => {
         const res = await AdminApi.changeAdminPassword(pwPayload);
         console.log('[Profile] change password response:', res.status, res.data ?? res.error);
         if (res.status === 200) {
+            showSuccess("Password changed successfully");
             setPasswordSaved(true);
             setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
             setTimeout(() => setPasswordSaved(false), 3000);
         } else {
+            showError(res.error || "Failed to change password.");
             setPasswordError(res.error || "Failed to change password.");
         }
         setLoading(false);
@@ -201,6 +208,7 @@ const AdminProfilePage = () => {
                     </form>
                 </div>
             </div>
+            <Toast message={toast.message} type={toast.type} isVisible={toast.isVisible} onClose={hideToast} />
         </div>
     );
 };
