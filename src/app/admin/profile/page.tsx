@@ -22,7 +22,10 @@ const AdminProfilePage = () => {
         e.preventDefault();
         setProfileError("");
         setLoading(true);
-        const res = await AdminApi.updateAdminProfile({ fullName, phone });
+        const payload = { fullName, phone };
+        console.log('[Profile] update payload:', payload);
+        const res = await AdminApi.updateAdminProfile(payload);
+        console.log('[Profile] update response:', res.status, res.data ?? res.error);
         if (res.status === 200) {
             await refreshUser();
             setProfileSaved(true);
@@ -43,10 +46,10 @@ const AdminProfilePage = () => {
         if (passwords.newPassword !== passwords.confirmPassword) return setPasswordError("Passwords do not match");
 
         setLoading(true);
-        const res = await AdminApi.changeAdminPassword({
-            currentPassword: passwords.currentPassword,
-            newPassword: passwords.newPassword,
-        });
+        const pwPayload = { currentPassword: passwords.currentPassword, newPassword: passwords.newPassword };
+        console.log('[Profile] change password payload:', pwPayload);
+        const res = await AdminApi.changeAdminPassword(pwPayload);
+        console.log('[Profile] change password response:', res.status, res.data ?? res.error);
         if (res.status === 200) {
             setPasswordSaved(true);
             setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });

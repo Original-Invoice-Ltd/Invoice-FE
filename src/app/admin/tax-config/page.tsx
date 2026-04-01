@@ -38,7 +38,10 @@ const AdminTaxConfigPage = () => {
             AdminApi.getTaxTypes(),
             AdminApi.getTaxRules(),
         ]);
-        if (typesRes.status === 200 && typesRes.data) setTaxTypes(typesRes.data);
+        if (typesRes.status === 200 && typesRes.data) {
+            console.log('[TaxConfig] fetched tax types:', typesRes.data);
+            setTaxTypes(typesRes.data);
+        }
         if (rulesRes.status === 200 && rulesRes.data) setTaxRules(rulesRes.data);
         setLoading(false);
     };
@@ -253,7 +256,10 @@ const AdminTaxConfigPage = () => {
                             <div className="border-t border-[#E4E7EC]" />
                             <button
                                 onClick={async () => {
+                                    const action = tax.isActive ? "disable" : "enable";
+                                    console.log(`[TaxConfig] ${action} tax:`, { id: tax.id, name: tax.name, currentIsActive: tax.isActive });
                                     const res = tax.isActive ? await AdminApi.disableTaxType(tax.id) : await AdminApi.enableTaxType(tax.id);
+                                    console.log(`[TaxConfig] ${action} response:`, res.status, res.data ?? res.error);
                                     if (res.status === 200) { await fetchTaxTypes(); showSuccess(`Tax type ${tax.isActive ? "disabled" : "enabled"}`); }
                                     else showError(res.error || "Action failed — backend error");
                                     setOpenDropdown(null);
