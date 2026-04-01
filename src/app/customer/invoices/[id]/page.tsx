@@ -6,6 +6,7 @@ import { CustomerLayout } from "@/components/customerSection";
 import { UploadReceiptModal } from "@/components/modals";
 import { ApiClient } from "@/lib/api";
 import { Eye, X } from "lucide-react";
+import { formatCurrency as formatCurrencyUtil, CurrencyCode } from "@/lib/currencyFormatter";
 
 const InvoiceDetailPage = () => {
     const params = useParams();
@@ -50,7 +51,7 @@ const InvoiceDetailPage = () => {
     };
 
     const formatCurrency = (amount: number) => {
-        return ApiClient.formatCurrency(amount, '₦');
+        return formatCurrencyUtil(amount, { currency: (invoice?.currency || 'NGN') as CurrencyCode });
     };
 
     const formatDate = (dateString: string) => {

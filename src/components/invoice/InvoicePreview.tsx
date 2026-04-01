@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
 import dynamic from 'next/dynamic';
 import { useSubscription } from "@/hooks/useSubscription";
+import { formatCurrency as formatCurrencyUtil } from "@/lib/currencyFormatter";
 
 interface InvoiceItem {
     id: number;
@@ -221,7 +222,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
     };
 
     const formatCurrency = (amount: number) => {
-        return `${data.currency}${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        return formatCurrencyUtil(amount, { currency: data.currency });
     };
 
     const formatDate = (dateString: string) => {

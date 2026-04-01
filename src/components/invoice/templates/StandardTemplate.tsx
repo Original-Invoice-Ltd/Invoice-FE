@@ -66,7 +66,14 @@ const StandardTemplate = ({ data, isFreePlan = false }: StandardTemplateProps) =
     };
 
     const formatCurrency = (amount: number) => {
-        return `${data.currency}${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const symbols: { [key: string]: string } = {
+            'NGN': '₦',
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£'
+        };
+        const symbol = symbols[data.currency] || data.currency;
+        return `${symbol}${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     };
 
     const formatDate = (dateString: string) => {
