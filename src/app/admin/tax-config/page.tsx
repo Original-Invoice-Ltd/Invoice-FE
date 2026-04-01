@@ -267,7 +267,7 @@ const AdminTaxConfigPage = () => {
                                 }}
                                 className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50"
                             >
-                                {tax.isActive ? "Disable" : "Enable"}
+                                {(tax.active ?? tax.isActive) ? "Disable" : "Enable"}
                             </button>
                             <div className="border-t border-[#E4E7EC]" />
                             <button onClick={() => { setDeletingTaxId(tax.id); setShowDeleteModal(true); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-red-600 hover:bg-red-50">Delete</button>

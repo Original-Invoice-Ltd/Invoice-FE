@@ -368,7 +368,7 @@ export class AdminApi {
 
     static async updateAdminProfile(data: {
         fullName: string;
-        phone: string;
+        phoneNumber: string;
     }): Promise<ApiResponse<any>> {
         return ApiClient.put("/api/admin/profile", data);
     }
