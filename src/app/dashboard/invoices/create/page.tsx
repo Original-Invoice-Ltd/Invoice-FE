@@ -21,6 +21,7 @@ import { useDraft } from "@/hooks/useDraft";
 import { useTranslation } from "react-i18next";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { useSubscription } from "@/hooks/useSubscription";
+import { formatCurrency, CURRENCY_SYMBOLS, CurrencyCode } from "@/lib/currencyFormatter";
 
 const CreateInvoicePage = () => {
     const { t } = useTranslation();
@@ -346,6 +347,10 @@ const CreateInvoicePage = () => {
     const [vat, setVat] = useState(7.5);
     const [wht, setWht] = useState(5);
     const [invoiceTaxRate, setInvoiceTaxRate] = useState(7.5);
+
+    const getCurrencySymbol = (code: string) => {
+        return CURRENCY_SYMBOLS[code as CurrencyCode] || code;
+    };
 
     const hasFormChanges = () => {
         const hasBillFromChanges = billFrom.fullName.trim() !== "" ||
@@ -1564,8 +1569,8 @@ const CreateInvoicePage = () => {
                                                     <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] w-[150px] border-r border-[#E4E7EC]">Item Detail</th>
                                                     <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] w-[200px] border-r border-[#E4E7EC]">Description</th>
                                                     <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">Quantity</th>
-                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">Rate</th>
-                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">Amount</th>
+                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">Rate ({getCurrencySymbol(currency)})</th>
+                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">Amount ({getCurrencySymbol(currency)})</th>
                                                     <th className="w-10"></th>
                                                 </tr>
                                             </thead>
@@ -1686,7 +1691,7 @@ const CreateInvoicePage = () => {
                                                             </div>
                                                             <div className="flex-1">
                                                                 <p className="font-medium text-gray-900">{product.itemName}</p>
-                                                                <p className="text-sm text-gray-600">₦{product.rate?.toLocaleString() || 0}</p>
+                                                                <p className="text-sm text-gray-600">{getCurrencySymbol(currency)}{product.rate?.toLocaleString() || 0}</p>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -1904,7 +1909,10 @@ const CreateInvoicePage = () => {
                                     onChange={(e) => setCurrency(e.target.value)}
                                     className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg"
                                 >
-                                    <option value="NGN">NGN</option>
+                                    <option value="NGN">NGN (₦)</option>
+                                    <option value="USD">USD ($)</option>
+                                    <option value="EUR">EUR (€)</option>
+                                    <option value="GBP">GBP (£)</option>
                                 </select>
                             </div>
 
@@ -1932,7 +1940,7 @@ const CreateInvoicePage = () => {
                                 <div className="space-y-3">
                                     <div className="flex justify-between">
                                         <h3 className=" text-[16px] font-medium">Subtotal</h3>
-                                        <span className=" text-[18px] font-semibold">₦{calculateSubtotal().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        <span className=" text-[18px] font-semibold">{formatCurrency(calculateSubtotal(), { currency })}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <div className="flex items-center gap-2">
@@ -1958,19 +1966,19 @@ const CreateInvoicePage = () => {
                                                 </svg>
                                             </div>
                                         </div>
-                                        <span className=" text-[18px] font-semibold">₦{calculateTax().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        <span className=" text-[18px] font-semibold">{formatCurrency(calculateTax(), { currency })}</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className={`text-[#667085] text-[18px] ${!hasAccess('taxCompliance') ? 'opacity-50' : ''}`}>
                                             WHT (5%)
                                         </span>
                                         <span className={`text-[18px] font-semibold ${!hasAccess('taxCompliance') ? 'opacity-50' : ''}`}>
-                                            ₦{hasAccess('taxCompliance') ? calculateWht().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
+                                            {hasAccess('taxCompliance') ? formatCurrency(calculateWht(), { currency }) : formatCurrency(0, { currency })}
                                         </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-[18px] text-[#667085]">Total Due</span>
-                                        <span className=" text-[18px] font-semibold">₦{calculateTotal().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        <span className=" text-[18px] font-semibold">{formatCurrency(calculateTotal(), { currency })}</span>
                                     </div>
                                 </div>
                             </div>

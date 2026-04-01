@@ -8,6 +8,7 @@ import { ApiClient } from "@/lib/api";
 import { InvoiceResponse } from "@/types/invoice";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 import Image from "next/image";
+import { formatCurrency as formatCurrencyUtil, CurrencyCode } from "@/lib/currencyFormatter";
 
 const InvoiceEditPage = () => {
     const params = useParams();
@@ -32,8 +33,9 @@ const InvoiceEditPage = () => {
             const response = await ApiClient.getInvoiceById(invoiceId);
             
             if (response.status === 200 && response.data) {
-                setInvoice(response.data);
-                setEditedInvoice({ ...response.data });
+                const data = response.data as InvoiceResponse;
+                setInvoice(data);
+                setEditedInvoice({ ...data });
             } else {
                 setError(response.error || response.message || "Failed to fetch invoice");
             }
@@ -54,13 +56,7 @@ const InvoiceEditPage = () => {
     };
 
     const formatCurrency = (amount: number | null | undefined, currency: string = 'NGN') => {
-        const safeAmount = amount || 0;
-        return new Intl.NumberFormat('en-NG', {
-            style: 'currency',
-            currency: currency || 'NGN',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(safeAmount);
+        return formatCurrencyUtil(amount || 0, { currency: currency as CurrencyCode });
     };
 
     const handleSave = async () => {
