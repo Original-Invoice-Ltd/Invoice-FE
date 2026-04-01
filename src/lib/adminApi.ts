@@ -123,17 +123,19 @@ export interface SystemConfig {
     essentialsMaxLogos: number;
     premiumMaxInvoices: number;
     premiumMaxLogos: number;
-    essentialPrice: number;
-    premiumPrice: number;
-    invoicePrefix: string;
-    invoiceNumberFormat: string;
-    invoiceAutoIncrement: boolean;
-    paystackApiKey: string;
-    paystackSecretKey: string;
-    paystackMode: string;
-    emailNotifications: boolean;
-    smsNotifications: boolean;
-    inAppNotifications: boolean;
+    essentialsMonthlyPrice: number;
+    essentialsAnnualPrice: number;
+    premiumMonthlyPrice: number;
+    premiumAnnualPrice: number;
+    invoicePrefix?: string;
+    invoiceNumberFormat?: string;
+    invoiceAutoIncrement?: boolean;
+    paystackApiKey?: string;
+    paystackSecretKey?: string;
+    paystackMode?: string;
+    emailNotifications?: boolean;
+    smsNotifications?: boolean;
+    inAppNotifications?: boolean;
 }
 
 // ─── Admin API ────────────────────────────────────────────────────────────────

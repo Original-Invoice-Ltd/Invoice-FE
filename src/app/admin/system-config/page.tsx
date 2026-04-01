@@ -1,7 +1,10 @@
 "use client";
 
 import { Save, AlertCircle } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { AdminApi } from "@/lib/adminApi";
+import Toast from "@/components/ui/Toast";
+import { useToast } from "@/hooks/useToast";
 
 const AdminSystemConfigPage = () => {
     const [config, setConfig] = useState({
@@ -11,8 +14,10 @@ const AdminSystemConfigPage = () => {
         essentialsMaxLogos: 5,
         premiumMaxInvoices: 999,
         premiumMaxLogos: 999,
-        essentialPrice: 29,
-        premiumPrice: 99,
+        essentialsMonthlyPrice: 5000,
+        essentialsAnnualPrice: 50000,
+        premiumMonthlyPrice: 15000,
+        premiumAnnualPrice: 150000,
         invoicePrefix: "INV",
         invoiceNumberFormat: "sequential",
         invoiceAutoIncrement: true,
@@ -25,19 +30,37 @@ const AdminSystemConfigPage = () => {
     });
 
     const [saved, setSaved] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const { toast, showSuccess, showError, hideToast } = useToast();
+
+    useEffect(() => {
+        AdminApi.getSystemConfig().then(res => {
+            if (res.status === 200 && res.data) {
+                setConfig(prev => ({ ...prev, ...res.data }));
+            }
+        });
+    }, []);
+
+    const handleSave = async () => {
+        setSaving(true);
+        const res = await AdminApi.updateSystemConfig(config);
+        if (res.status === 200) {
+            showSuccess("Configuration saved successfully");
+            setSaved(true);
+            setTimeout(() => setSaved(false), 3000);
+        } else {
+            showError(res.error || "Failed to save configuration");
+        }
+        setSaving(false);
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
         setConfig(prev => ({
             ...prev,
-            [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : 
-                    ["freeMaxInvoices", "freeMaxLogos", "essentialsMaxInvoices", "essentialsMaxLogos", "premiumMaxInvoices", "premiumMaxLogos", "essentialPrice", "premiumPrice"].includes(name) ? parseInt(value) : value
+            [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked :
+                    ["freeMaxInvoices", "freeMaxLogos", "essentialsMaxInvoices", "essentialsMaxLogos", "premiumMaxInvoices", "premiumMaxLogos", "essentialsMonthlyPrice", "essentialsAnnualPrice", "premiumMonthlyPrice", "premiumAnnualPrice"].includes(name) ? parseInt(value) : value
         }));
-    };
-
-    const handleSave = () => {
-        setSaved(true);
-        setTimeout(() => setSaved(false), 3000);
     };
 
     return (
@@ -119,24 +142,36 @@ const AdminSystemConfigPage = () => {
             </div>
 
             <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Subscription Pricing</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                            Essentials Plan (Monthly)
-                        </label>
-                        <div className="flex items-center gap-2">
-                            <span className="text-lg font-semibold text-gray-900">$</span>
-                            <input type="number" name="essentialPrice" value={config.essentialPrice} onChange={handleChange} className="flex-1 px-4 py-2 bg-[#fafafa] border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Subscription Pricing (₦)</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="p-4 border border-[#E4E7EC] rounded-lg">
+                        <h3 className="font-semibold text-gray-900 mb-4 text-sm">Essentials Plan</h3>
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Monthly Price (₦)</label>
+                                <input type="number" name="essentialsMonthlyPrice" value={config.essentialsMonthlyPrice} onChange={handleChange}
+                                    className="w-full px-3 py-2 bg-[#fafafa] border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Annual Price (₦)</label>
+                                <input type="number" name="essentialsAnnualPrice" value={config.essentialsAnnualPrice} onChange={handleChange}
+                                    className="w-full px-3 py-2 bg-[#fafafa] border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                            Premium Plan (Monthly)
-                        </label>
-                        <div className="flex items-center gap-2">
-                            <span className="text-lg font-semibold text-gray-900">$</span>
-                            <input type="number" name="premiumPrice" value={config.premiumPrice} onChange={handleChange} className="flex-1 px-4 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                    <div className="p-4 border border-[#E4E7EC] rounded-lg">
+                        <h3 className="font-semibold text-gray-900 mb-4 text-sm">Premium Plan</h3>
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Monthly Price (₦)</label>
+                                <input type="number" name="premiumMonthlyPrice" value={config.premiumMonthlyPrice} onChange={handleChange}
+                                    className="w-full px-3 py-2 bg-[#fafafa] border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                            </div>
+                            <div>
+                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Annual Price (₦)</label>
+                                <input type="number" name="premiumAnnualPrice" value={config.premiumAnnualPrice} onChange={handleChange}
+                                    className="w-full px-3 py-2 bg-[#fafafa] border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -200,12 +235,14 @@ const AdminSystemConfigPage = () => {
             <div className="flex justify-end">
                 <button
                     onClick={handleSave}
-                    className="w-full sm:w-auto px-6 py-3 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] flex items-center justify-center gap-2 text-sm sm:text-base"
+                    disabled={saving}
+                    className="w-full sm:w-auto px-6 py-3 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] flex items-center justify-center gap-2 text-sm sm:text-base disabled:opacity-50"
                 >
                     <Save size={20} />
-                    Save Configuration
+                    {saving ? "Saving..." : "Save Configuration"}
                 </button>
             </div>
+            <Toast message={toast.message} type={toast.type} isVisible={toast.isVisible} onClose={hideToast} />
         </div>
     );
 };
