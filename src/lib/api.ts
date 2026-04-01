@@ -160,6 +160,19 @@ export class ApiClient {
     return this.request("PUT", endpoint, data);
   }
 
+  static async putNoBody(endpoint: string) {
+    try {
+      const response = await axiosInstance.request({
+        method: "PUT",
+        url: endpoint,
+        headers: { "Content-Type": undefined },
+      });
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error as AxiosError);
+    }
+  }
+
   static async patch(endpoint: string, data?: any) {
     return this.request("PATCH", endpoint, data);
   }
