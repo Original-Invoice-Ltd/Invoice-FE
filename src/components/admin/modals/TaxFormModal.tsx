@@ -2,17 +2,7 @@
 
 import { X } from "lucide-react";
 import { useState } from "react";
-
-interface TaxType {
-    id: string;
-    name: string;
-    category: "WHT" | "VAT" | "SALES_TAX" | "EXCISE_TAX" | "CUSTOM";
-    baseRate: number;
-    individualRate: number;
-    businessRate: number;
-    isActive: boolean;
-    description: string;
-}
+import type { TaxType } from "@/lib/adminApi";
 
 interface TaxFormModalProps {
     tax: TaxType | null;
@@ -26,7 +16,6 @@ const TaxFormModal = ({ tax, onClose, onSave }: TaxFormModalProps) => {
             id: "",
             name: "",
             category: "VAT",
-            baseRate: 0,
             individualRate: 0,
             businessRate: 0,
             isActive: true,
