@@ -40,6 +40,13 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
+    if (error.response?.status >= 500) {
+      console.error(
+        `[API Error] ${error.config?.method?.toUpperCase()} ${error.config?.url} → ${error.response.status}`,
+        '\nRequest payload:', error.config?.data,
+        '\nResponse body:', error.response.data,
+      );
+    }
     if (error.response?.status === 401) {
       // Skip redirect for certain API endpoints that may return 401 for empty data
       const skipRedirectEndpoints = [
