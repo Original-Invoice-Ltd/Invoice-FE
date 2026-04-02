@@ -21,7 +21,10 @@ const AdminNotificationsPage = () => {
         const fetchHistory = async () => {
             setLoadingHistory(true);
             const res = await AdminApi.getNotificationHistory();
-            if (res.status === 200 && res.data) setHistory(res.data);
+            if (res.status === 200 && res.data) {
+                const data = res.data as any;
+                setHistory(Array.isArray(data) ? data : data.content ?? data.data ?? []);
+            }
             setLoadingHistory(false);
         };
         fetchHistory();
@@ -49,7 +52,10 @@ const AdminNotificationsPage = () => {
             setTimeout(() => setSendSuccess(false), 3000);
             // Refresh history
             const histRes = await AdminApi.getNotificationHistory();
-            if (histRes.status === 200 && histRes.data) setHistory(histRes.data);
+            if (histRes.status === 200 && histRes.data) {
+                const data = histRes.data as any;
+                setHistory(Array.isArray(data) ? data : data.content ?? data.data ?? []);
+            }
         } else {
             setSendError(res.error || "Failed to send notification.");
         }
