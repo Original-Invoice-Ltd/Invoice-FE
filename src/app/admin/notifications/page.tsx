@@ -3,6 +3,8 @@
 import { Send, Clock, Users } from "lucide-react";
 import { useState, useEffect } from "react";
 import { AdminApi, AdminNotification } from "@/lib/adminApi";
+import Toast from "@/components/ui/Toast";
+import { useToast } from "@/hooks/useToast";
 
 const AdminNotificationsPage = () => {
     const [notificationType, setNotificationType] = useState("announcement");
@@ -16,6 +18,7 @@ const AdminNotificationsPage = () => {
     const [sendError, setSendError] = useState("");
     const [history, setHistory] = useState<AdminNotification[]>([]);
     const [loadingHistory, setLoadingHistory] = useState(true);
+    const { toast, showSuccess, showError, hideToast } = useToast();
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -46,6 +49,7 @@ const AdminNotificationsPage = () => {
             scheduledTime: scheduleType === "scheduled" ? scheduledTime : undefined,
         });
         if (res.status === 200 || res.status === 201) {
+            showSuccess("Notification sent successfully");
             setSendSuccess(true);
             setTitle("");
             setMessage("");
@@ -57,6 +61,7 @@ const AdminNotificationsPage = () => {
                 setHistory(Array.isArray(data) ? data : data.content ?? data.data ?? []);
             }
         } else {
+            showError(res.error || "Failed to send notification.");
             setSendError(res.error || "Failed to send notification.");
         }
         setSending(false);
@@ -191,7 +196,7 @@ const AdminNotificationsPage = () => {
                                             </div>
                                             <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-500">
                                                 <Clock size={14} />
-                                                {notif.sentAt}
+                                                {notif.sentAt ? new Date(notif.sentAt).toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
                                             </div>
                                         </div>
                                     </div>
@@ -204,6 +209,7 @@ const AdminNotificationsPage = () => {
                     </div>
                 )}
             </div>
+            <Toast message={toast.message} type={toast.type} isVisible={toast.isVisible} onClose={hideToast} />
         </div>
     );
 };
