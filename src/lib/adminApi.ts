@@ -310,6 +310,18 @@ export class AdminApi {
         return ApiClient.get("/api/admin/notifications/history");
     }
 
+    static async getMyNotifications(): Promise<ApiResponse<AdminNotification[]>> {
+        return ApiClient.get("/api/admin/notifications/my-notifications");
+    }
+
+    static async getUnreadNotifications(): Promise<ApiResponse<AdminNotification[]>> {
+        return ApiClient.get("/api/admin/notifications/my-notifications/unread");
+    }
+
+    static async markAllNotificationsRead(): Promise<ApiResponse<any>> {
+        return ApiClient.putNoBody("/api/admin/notifications/my-notifications/mark-all-read");
+    }
+
     // ── Admin Management ──────────────────────────────────────────────────────
 
     static async getAdmins(params?: {

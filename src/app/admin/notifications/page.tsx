@@ -144,7 +144,8 @@ const AdminNotificationsPage = () => {
                             type="datetime-local"
                             value={scheduledTime}
                             onChange={(e) => setScheduledTime(e.target.value)}
-                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm"
+                            disabled={scheduleType === "immediate"}
+                            className={`w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm ${scheduleType === "immediate" ? "opacity-40 cursor-not-allowed bg-gray-50" : ""}`}
                         />
                     </div>
                 </div>
