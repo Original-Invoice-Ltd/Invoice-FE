@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, Bell, User } from "lucide-react";
+import { Menu, Bell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthService } from "@/lib/auth";
 import { useState } from "react";
@@ -35,10 +35,9 @@ const AdminHeader = ({ onMenuClick, isSuperAdmin = false }: AdminHeaderProps) =>
             </div>
 
             <div className="flex items-center gap-3 sm:gap-6">
-                <button className="relative p-2 hover:bg-gray-100 rounded-lg" aria-label="Notifications">
+                <Link href="/admin/notifications" className="relative p-2 hover:bg-gray-100 rounded-lg" aria-label="Notifications">
                     <Bell size={22} className="text-gray-600" />
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
+                </Link>
 
                 <div className="relative">
                     <button
