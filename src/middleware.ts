@@ -8,15 +8,23 @@ export function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    // Check for auth cookie — the actual role validation happens client-side
-    // since the JWT is in an HTTP-only cookie we can't decode here without the secret
-    const authCookie =
-        request.cookies.get("accessToken") ??
-        request.cookies.get("access_token") ??
-        request.cookies.get("token") ??
-        request.cookies.get("JSESSIONID");
+    // Check for any auth cookie
+    const cookies = request.cookies;
+    const hasAuth =
+        cookies.has("accessToken") ||
+        cookies.has("access_token") ||
+        cookies.has("token") ||
+        cookies.has("JSESSIONID") ||
+        cookies.has("refreshToken") ||
+        cookies.has("refresh_token") ||
+        // Check any cookie that might contain auth
+        [...cookies.getAll()].some(c =>
+            c.name.toLowerCase().includes("token") ||
+            c.name.toLowerCase().includes("session") ||
+            c.name.toLowerCase().includes("auth")
+        );
 
-    if (!authCookie) {
+    if (!hasAuth) {
         const signInUrl = new URL("/signIn", request.url);
         signInUrl.searchParams.set("redirect", pathname);
         return NextResponse.redirect(signInUrl);

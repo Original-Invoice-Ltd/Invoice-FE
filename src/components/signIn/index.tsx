@@ -60,7 +60,17 @@ export default function SignIn() {
 
       if (response.status === 200) {
         showSuccess('Login successful!');
-        window.location.href = '/admin/overview';
+        // Parse roles from response — may come as ["[SUPER_ADMIN, USER]"]
+        let rawRoles: any[] = response.data?.roles ?? [];
+        if (rawRoles.length === 0) {
+          const userRes = await ApiClient.getCurrentUser();
+          rawRoles = userRes.data?.roles ?? [];
+        }
+        const roles = rawRoles.flat().join(',').replace(/[\[\]]/g, '').split(',').map((r: string) => r.trim()).filter(Boolean);
+        const isAdmin = roles.includes('SUPER_ADMIN') || roles.includes('ADMIN');
+        setTimeout(() => {
+          window.location.href = isAdmin ? '/admin/overview' : '/dashboard/overview';
+        }, 1000);
       } else {
         showError(response.error || 'Login failed. Please try again.');
       }
