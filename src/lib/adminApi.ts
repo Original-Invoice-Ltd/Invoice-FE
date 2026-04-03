@@ -368,7 +368,23 @@ export class AdminApi {
         return ApiClient.get("/api/admin/management/audit-logs", params);
     }
 
-    // ── System Config ─────────────────────────────────────────────────────────
+    // ── System Config / Plans ─────────────────────────────────────────────────
+
+    static async getPlans(): Promise<ApiResponse<any[]>> {
+        return ApiClient.get("/api/admin/system-config/plans");
+    }
+
+    static async createPlan(data: any): Promise<ApiResponse<any>> {
+        return ApiClient.post("/api/admin/system-config/plans", data);
+    }
+
+    static async updatePlan(id: string, data: any): Promise<ApiResponse<any>> {
+        return ApiClient.put(`/api/admin/system-config/plans/${id}`, data);
+    }
+
+    static async deletePlan(id: string): Promise<ApiResponse<any>> {
+        return ApiClient.delete(`/api/admin/system-config/plans/${id}`);
+    }
 
     static async getSystemConfig(): Promise<ApiResponse<SystemConfig>> {
         return ApiClient.get("/api/admin/system-config");
