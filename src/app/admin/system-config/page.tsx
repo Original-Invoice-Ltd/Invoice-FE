@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, AlertCircle, CheckCircle } from "lucide-react";
 import PlanFormModal, { Plan } from "@/components/admin/modals/PlanFormModal";
+import DeleteConfirmModal from "@/components/admin/modals/DeleteConfirmModal";
 import Toast from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
 import { AdminApi } from "@/lib/adminApi";
@@ -14,26 +15,18 @@ const AdminSystemConfigPage = () => {
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
+    const [deletingPlan, setDeletingPlan] = useState<Plan | null>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const { toast, showSuccess, showError, hideToast } = useToast();
 
     const fetchPlans = async () => {
         setLoading(true);
-        const res = await AdminApi.getSystemConfig();
+        const res = await AdminApi.getPlans();
         if (res.status === 200 && res.data) {
-            // Map system config to plans array if backend returns flat config
-            const d = res.data as any;
-            if (Array.isArray(d)) {
-                setPlans(d);
-            } else if (d.plans) {
-                setPlans(d.plans);
-            } else {
-                // Build from flat config fields
-                setPlans([
-                    { id: "free", name: "Free", description: "Basic plan", maxInvoices: d.freeMaxInvoices ?? 5, maxLogos: d.freeMaxLogos ?? 1, monthlyPrice: 0, annualPrice: 0, features: [], isActive: true },
-                    { id: "essentials", name: "Essentials", description: "For growing businesses", maxInvoices: d.essentialsMaxInvoices ?? 100, maxLogos: d.essentialsMaxLogos ?? 5, monthlyPrice: d.essentialsMonthlyPrice ?? 5000, annualPrice: d.essentialsAnnualPrice ?? 50000, features: [], isActive: true },
-                    { id: "premium", name: "Premium", description: "For large teams", maxInvoices: d.premiumMaxInvoices ?? 999, maxLogos: d.premiumMaxLogos ?? 999, monthlyPrice: d.premiumMonthlyPrice ?? 15000, annualPrice: d.premiumAnnualPrice ?? 150000, features: [], isActive: true },
-                ]);
-            }
+            const data = res.data as any;
+            setPlans(Array.isArray(data) ? data : data.content ?? data.data ?? []);
+        } else {
+            setPlans([]);
         }
         setLoading(false);
     };
@@ -42,22 +35,29 @@ const AdminSystemConfigPage = () => {
 
     const handleSave = async (plan: Plan) => {
         if (editingPlan?.id) {
-            const res = await AdminApi.updateSystemConfig({ ...plan } as any);
-            if (res.status === 200) { showSuccess("Plan updated successfully"); await fetchPlans(); }
+            const res = await AdminApi.updatePlan(editingPlan.id, plan);
+            if (res.status === 200) { showSuccess("Plan updated"); await fetchPlans(); }
             else showError(res.error || "Failed to update plan");
         } else {
-            const res = await AdminApi.updateSystemConfig({ ...plan } as any);
-            if (res.status === 200 || res.status === 201) { showSuccess("Plan created successfully"); await fetchPlans(); }
+            const res = await AdminApi.createPlan(plan);
+            if (res.status === 200 || res.status === 201) { showSuccess("Plan created"); await fetchPlans(); }
             else showError(res.error || "Failed to create plan");
         }
         setShowModal(false);
         setEditingPlan(null);
     };
 
-    const handleDelete = async (plan: Plan) => {
-        if (!confirm(`Delete "${plan.name}" plan?`)) return;
-        showSuccess(`"${plan.name}" plan removed`);
-        setPlans(prev => prev.filter(p => p.id !== plan.id));
+    const handleDeleteConfirm = async () => {
+        if (!deletingPlan?.id) return;
+        const res = await AdminApi.deletePlan(deletingPlan.id);
+        if (res.status === 200 || res.status === 204) {
+            showSuccess(`"${deletingPlan.name}" deleted`);
+            setPlans(prev => prev.filter(p => p.id !== deletingPlan.id));
+        } else {
+            showError(res.error || "Failed to delete plan");
+        }
+        setDeletingPlan(null);
+        setShowDeleteModal(false);
     };
 
     return (
@@ -97,6 +97,17 @@ const AdminSystemConfigPage = () => {
                         </div>
                     ))}
                 </div>
+            ) : plans.length === 0 ? (
+                <div className="bg-white border border-[#E4E7EC] rounded-xl p-12 text-center">
+                    <p className="text-gray-500 text-sm mb-4">No subscription plans configured yet.</p>
+                    <button
+                        onClick={() => { setEditingPlan(null); setShowModal(true); }}
+                        className="px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] text-sm inline-flex items-center gap-2"
+                    >
+                        <Plus size={16} />
+                        Create First Plan
+                    </button>
+                </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {plans.map((plan) => (
@@ -105,9 +116,9 @@ const AdminSystemConfigPage = () => {
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <h3 className="text-base font-bold text-gray-900">{plan.name}</h3>
-                                        {plan.isActive
-                                            ? <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Active</span>
-                                            : <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs font-semibold rounded-full">Inactive</span>}
+                                        <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${plan.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                                            {plan.isActive ? "Active" : "Inactive"}
+                                        </span>
                                     </div>
                                     {plan.description && <p className="text-xs text-gray-500 mt-1">{plan.description}</p>}
                                 </div>
@@ -115,7 +126,7 @@ const AdminSystemConfigPage = () => {
                                     <button onClick={() => { setEditingPlan(plan); setShowModal(true); }} className="p-1.5 hover:bg-[#EBF5FF] rounded-lg">
                                         <Edit2 size={15} className="text-[#2F80ED]" />
                                     </button>
-                                    <button onClick={() => handleDelete(plan)} className="p-1.5 hover:bg-red-50 rounded-lg">
+                                    <button onClick={() => { setDeletingPlan(plan); setShowDeleteModal(true); }} className="p-1.5 hover:bg-red-50 rounded-lg">
                                         <Trash2 size={15} className="text-red-500" />
                                     </button>
                                 </div>
@@ -124,11 +135,11 @@ const AdminSystemConfigPage = () => {
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="bg-gray-50 rounded-lg p-3">
                                     <p className="text-xs text-gray-500">Max Invoices</p>
-                                    <p className="text-lg font-bold text-gray-900">{plan.maxInvoices === 999 ? "∞" : plan.maxInvoices}</p>
+                                    <p className="text-lg font-bold text-gray-900">{plan.maxInvoices >= 999 ? "\u221E" : plan.maxInvoices}</p>
                                 </div>
                                 <div className="bg-gray-50 rounded-lg p-3">
                                     <p className="text-xs text-gray-500">Max Logos</p>
-                                    <p className="text-lg font-bold text-gray-900">{plan.maxLogos === 999 ? "∞" : plan.maxLogos}</p>
+                                    <p className="text-lg font-bold text-gray-900">{plan.maxLogos >= 999 ? "\u221E" : plan.maxLogos}</p>
                                 </div>
                             </div>
 
@@ -143,7 +154,7 @@ const AdminSystemConfigPage = () => {
                                 </div>
                             </div>
 
-                            {plan.features.length > 0 && (
+                            {plan.features?.length > 0 && (
                                 <div className="space-y-1.5">
                                     {plan.features.map((f, i) => (
                                         <div key={i} className="flex items-center gap-2 text-xs text-gray-600">
@@ -165,6 +176,15 @@ const AdminSystemConfigPage = () => {
                     onSave={handleSave}
                 />
             )}
+
+            <DeleteConfirmModal
+                isOpen={showDeleteModal}
+                onClose={() => { setShowDeleteModal(false); setDeletingPlan(null); }}
+                onConfirm={handleDeleteConfirm}
+                title="Delete Plan"
+                message="Are you sure you want to delete"
+                itemName={deletingPlan?.name}
+            />
 
             <Toast message={toast.message} type={toast.type} isVisible={toast.isVisible} onClose={hideToast} />
         </div>
