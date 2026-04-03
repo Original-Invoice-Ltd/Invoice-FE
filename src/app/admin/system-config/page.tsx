@@ -1,247 +1,171 @@
 "use client";
 
-import { Save, AlertCircle } from "lucide-react";
 import { useState, useEffect } from "react";
-import { AdminApi } from "@/lib/adminApi";
+import { Plus, Edit2, Trash2, AlertCircle, CheckCircle } from "lucide-react";
+import PlanFormModal, { Plan } from "@/components/admin/modals/PlanFormModal";
 import Toast from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
+import { AdminApi } from "@/lib/adminApi";
+
+const naira = "\u20A6";
 
 const AdminSystemConfigPage = () => {
-    const [config, setConfig] = useState({
-        freeMaxInvoices: 5,
-        freeMaxLogos: 1,
-        essentialsMaxInvoices: 100,
-        essentialsMaxLogos: 5,
-        premiumMaxInvoices: 999,
-        premiumMaxLogos: 999,
-        essentialsMonthlyPrice: 5000,
-        essentialsAnnualPrice: 50000,
-        premiumMonthlyPrice: 15000,
-        premiumAnnualPrice: 150000,
-        invoicePrefix: "INV",
-        invoiceNumberFormat: "sequential",
-        invoiceAutoIncrement: true,
-        paystackApiKey: "",
-        paystackSecretKey: "",
-        paystackMode: "test",
-        emailNotifications: true,
-        smsNotifications: false,
-        inAppNotifications: true,
-    });
-
-    const [saved, setSaved] = useState(false);
-    const [saving, setSaving] = useState(false);
+    const [plans, setPlans] = useState<Plan[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
+    const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
     const { toast, showSuccess, showError, hideToast } = useToast();
 
-    useEffect(() => {
-        AdminApi.getSystemConfig().then(res => {
-            if (res.status === 200 && res.data) {
-                setConfig(prev => ({ ...prev, ...res.data }));
+    const fetchPlans = async () => {
+        setLoading(true);
+        const res = await AdminApi.getSystemConfig();
+        if (res.status === 200 && res.data) {
+            // Map system config to plans array if backend returns flat config
+            const d = res.data as any;
+            if (Array.isArray(d)) {
+                setPlans(d);
+            } else if (d.plans) {
+                setPlans(d.plans);
+            } else {
+                // Build from flat config fields
+                setPlans([
+                    { id: "free", name: "Free", description: "Basic plan", maxInvoices: d.freeMaxInvoices ?? 5, maxLogos: d.freeMaxLogos ?? 1, monthlyPrice: 0, annualPrice: 0, features: [], isActive: true },
+                    { id: "essentials", name: "Essentials", description: "For growing businesses", maxInvoices: d.essentialsMaxInvoices ?? 100, maxLogos: d.essentialsMaxLogos ?? 5, monthlyPrice: d.essentialsMonthlyPrice ?? 5000, annualPrice: d.essentialsAnnualPrice ?? 50000, features: [], isActive: true },
+                    { id: "premium", name: "Premium", description: "For large teams", maxInvoices: d.premiumMaxInvoices ?? 999, maxLogos: d.premiumMaxLogos ?? 999, monthlyPrice: d.premiumMonthlyPrice ?? 15000, annualPrice: d.premiumAnnualPrice ?? 150000, features: [], isActive: true },
+                ]);
             }
-        });
-    }, []);
-
-    const handleSave = async () => {
-        setSaving(true);
-        const res = await AdminApi.updateSystemConfig(config);
-        if (res.status === 200) {
-            showSuccess("Configuration saved successfully");
-            setSaved(true);
-            setTimeout(() => setSaved(false), 3000);
-        } else {
-            showError(res.error || "Failed to save configuration");
         }
-        setSaving(false);
+        setLoading(false);
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target;
-        setConfig(prev => ({
-            ...prev,
-            [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked :
-                    ["freeMaxInvoices", "freeMaxLogos", "essentialsMaxInvoices", "essentialsMaxLogos", "premiumMaxInvoices", "premiumMaxLogos", "essentialsMonthlyPrice", "essentialsAnnualPrice", "premiumMonthlyPrice", "premiumAnnualPrice"].includes(name) ? parseInt(value) : value
-        }));
+    useEffect(() => { fetchPlans(); }, []);
+
+    const handleSave = async (plan: Plan) => {
+        if (editingPlan?.id) {
+            const res = await AdminApi.updateSystemConfig({ ...plan } as any);
+            if (res.status === 200) { showSuccess("Plan updated successfully"); await fetchPlans(); }
+            else showError(res.error || "Failed to update plan");
+        } else {
+            const res = await AdminApi.updateSystemConfig({ ...plan } as any);
+            if (res.status === 200 || res.status === 201) { showSuccess("Plan created successfully"); await fetchPlans(); }
+            else showError(res.error || "Failed to create plan");
+        }
+        setShowModal(false);
+        setEditingPlan(null);
+    };
+
+    const handleDelete = async (plan: Plan) => {
+        if (!confirm(`Delete "${plan.name}" plan?`)) return;
+        showSuccess(`"${plan.name}" plan removed`);
+        setPlans(prev => prev.filter(p => p.id !== plan.id));
     };
 
     return (
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <div className="p-4 sm:p-6 space-y-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">System Configuration</h1>
-                    <p className="text-gray-600 mt-1 text-sm sm:text-base">Platform-wide settings and business rules</p>
+                    <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">System Configuration</h1>
+                    <p className="text-gray-600 mt-1 text-sm">Manage subscription plans and platform settings</p>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap">
-                    Super Admin Only
+                <div className="flex items-center gap-3">
+                    <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-semibold">Super Admin Only</span>
+                    <button
+                        onClick={() => { setEditingPlan(null); setShowModal(true); }}
+                        className="px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] flex items-center gap-2 text-sm"
+                    >
+                        <Plus size={18} />
+                        Add Plan
+                    </button>
                 </div>
             </div>
 
             <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex gap-3">
-                <AlertCircle size={20} className="text-yellow-600 flex-shrink-0 mt-0.5" />
-                <div>
-                    <p className="font-semibold text-yellow-900 text-sm sm:text-base">
-                        Changes to system configuration affect all users
-                    </p>
-                    <p className="text-xs sm:text-sm text-yellow-700">Please review carefully before saving</p>
-                </div>
+                <AlertCircle size={18} className="text-yellow-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-yellow-800">Changes to subscription plans affect all users immediately. Review carefully before saving.</p>
             </div>
 
-            {saved && (
-                <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex gap-3">
-                    <div className="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-white text-sm">✓</span>
-                    </div>
-                    <p className="text-green-700 font-medium text-sm sm:text-base">Configuration saved successfully</p>
+            {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="bg-white border border-[#E4E7EC] rounded-xl p-6 animate-pulse">
+                            <div className="h-5 bg-gray-200 rounded w-1/3 mb-3" />
+                            <div className="h-3 bg-gray-200 rounded w-2/3 mb-6" />
+                            <div className="space-y-2">
+                                <div className="h-3 bg-gray-200 rounded w-full" />
+                                <div className="h-3 bg-gray-200 rounded w-full" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {plans.map((plan) => (
+                        <div key={plan.id ?? plan.name} className={`bg-white border rounded-xl p-5 flex flex-col gap-4 ${plan.isActive ? "border-[#E4E7EC]" : "border-gray-200 opacity-60"}`}>
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="text-base font-bold text-gray-900">{plan.name}</h3>
+                                        {plan.isActive
+                                            ? <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Active</span>
+                                            : <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs font-semibold rounded-full">Inactive</span>}
+                                    </div>
+                                    {plan.description && <p className="text-xs text-gray-500 mt-1">{plan.description}</p>}
+                                </div>
+                                <div className="flex gap-1">
+                                    <button onClick={() => { setEditingPlan(plan); setShowModal(true); }} className="p-1.5 hover:bg-[#EBF5FF] rounded-lg">
+                                        <Edit2 size={15} className="text-[#2F80ED]" />
+                                    </button>
+                                    <button onClick={() => handleDelete(plan)} className="p-1.5 hover:bg-red-50 rounded-lg">
+                                        <Trash2 size={15} className="text-red-500" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="bg-gray-50 rounded-lg p-3">
+                                    <p className="text-xs text-gray-500">Max Invoices</p>
+                                    <p className="text-lg font-bold text-gray-900">{plan.maxInvoices === 999 ? "∞" : plan.maxInvoices}</p>
+                                </div>
+                                <div className="bg-gray-50 rounded-lg p-3">
+                                    <p className="text-xs text-gray-500">Max Logos</p>
+                                    <p className="text-lg font-bold text-gray-900">{plan.maxLogos === 999 ? "∞" : plan.maxLogos}</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="border border-[#E4E7EC] rounded-lg p-3">
+                                    <p className="text-xs text-gray-500">Monthly</p>
+                                    <p className="text-sm font-bold text-gray-900">{plan.monthlyPrice === 0 ? "Free" : `${naira}${plan.monthlyPrice.toLocaleString()}`}</p>
+                                </div>
+                                <div className="border border-[#E4E7EC] rounded-lg p-3">
+                                    <p className="text-xs text-gray-500">Annual</p>
+                                    <p className="text-sm font-bold text-gray-900">{plan.annualPrice === 0 ? "Free" : `${naira}${plan.annualPrice.toLocaleString()}`}</p>
+                                </div>
+                            </div>
+
+                            {plan.features.length > 0 && (
+                                <div className="space-y-1.5">
+                                    {plan.features.map((f, i) => (
+                                        <div key={i} className="flex items-center gap-2 text-xs text-gray-600">
+                                            <CheckCircle size={13} className="text-green-500 flex-shrink-0" />
+                                            {f}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    ))}
                 </div>
             )}
 
-            <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Subscription Plan Limits</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                    <div className="p-4 border border-[#E4E7EC] rounded-lg">
-                        <h3 className="font-semibold text-gray-900 mb-4 text-sm sm:text-base">Free Plan</h3>
-                        <div className="space-y-3">
-                            <div>
-                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Invoices</label>
-                                <input type="number" name="freeMaxInvoices" value={config.freeMaxInvoices} onChange={handleChange} className="w-full px-3 bg-[#fafafa] py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Logos</label>
-                                <input type="number" name="freeMaxLogos" value={config.freeMaxLogos} onChange={handleChange} className="w-full px-3 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                            </div>
-                        </div>
-                    </div>
+            {showModal && (
+                <PlanFormModal
+                    plan={editingPlan}
+                    onClose={() => { setShowModal(false); setEditingPlan(null); }}
+                    onSave={handleSave}
+                />
+            )}
 
-                    <div className="p-4 border border-[#E4E7EC] rounded-lg">
-                        <h3 className="font-semibold text-gray-900 mb-4 text-sm sm:text-base">Essentials Plan</h3>
-                        <div className="space-y-3">
-                            <div>
-                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Invoices</label>
-                                <input type="number" name="essentialsMaxInvoices" value={config.essentialsMaxInvoices} onChange={handleChange} className="w-full px-3 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Logos</label>
-                                <input type="number" name="essentialsMaxLogos" value={config.essentialsMaxLogos} onChange={handleChange} className="w-full px-3 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="p-4 border border-[#E4E7EC] rounded-lg">
-                        <h3 className="font-semibold text-gray-900 mb-4 text-sm sm:text-base">Premium Plan</h3>
-                        <div className="space-y-3">
-                            <div>
-                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Invoices</label>
-                                <input type="number" name="premiumMaxInvoices" value={config.premiumMaxInvoices} onChange={handleChange} className="w-full bg-[#fafafa] px-3 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Max Logos</label>
-                                <input type="number" name="premiumMaxLogos" value={config.premiumMaxLogos} onChange={handleChange} className="w-full px-3 py-2 bg-[#fafafa] border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Subscription Pricing (₦)</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="p-4 border border-[#E4E7EC] rounded-lg">
-                        <h3 className="font-semibold text-gray-900 mb-4 text-sm">Essentials Plan</h3>
-                        <div className="space-y-3">
-                            <div>
-                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Monthly Price (₦)</label>
-                                <input type="number" name="essentialsMonthlyPrice" value={config.essentialsMonthlyPrice} onChange={handleChange}
-                                    className="w-full px-3 py-2 bg-[#fafafa] border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Annual Price (₦)</label>
-                                <input type="number" name="essentialsAnnualPrice" value={config.essentialsAnnualPrice} onChange={handleChange}
-                                    className="w-full px-3 py-2 bg-[#fafafa] border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="p-4 border border-[#E4E7EC] rounded-lg">
-                        <h3 className="font-semibold text-gray-900 mb-4 text-sm">Premium Plan</h3>
-                        <div className="space-y-3">
-                            <div>
-                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Monthly Price (₦)</label>
-                                <input type="number" name="premiumMonthlyPrice" value={config.premiumMonthlyPrice} onChange={handleChange}
-                                    className="w-full px-3 py-2 bg-[#fafafa] border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-xs sm:text-sm text-gray-600 mb-1">Annual Price (₦)</label>
-                                <input type="number" name="premiumAnnualPrice" value={config.premiumAnnualPrice} onChange={handleChange}
-                                    className="w-full px-3 py-2 bg-[#fafafa] border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-{/* 
-            <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Invoice Generation Rules</h2>
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                            Invoice Number Prefix
-                        </label>
-                        <input type="text" name="invoicePrefix" value={config.invoicePrefix} onChange={handleChange} placeholder="e.g., INV" className="w-full px-4 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                    </div>
-                    <div>
-                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                            Number Format
-                        </label>
-                        <select name="invoiceNumberFormat" value={config.invoiceNumberFormat} onChange={handleChange} className="w-full px-4 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                            <option value="sequential">Sequential (INV-001, INV-002)</option>
-                            <option value="date">Date-based (INV-20240315-001)</option>
-                            <option value="random">Random (INV-A7K9M2)</option>
-                        </select>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <input type="checkbox" name="invoiceAutoIncrement" checked={config.invoiceAutoIncrement} onChange={handleChange} className="w-4 h-4 bg-[FAFAFA] rounded border-gray-300" />
-                        <label className="text-xs sm:text-sm font-medium text-gray-900">
-                            Auto-increment invoice numbers
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Payment Gateway (Paystack)</h2>
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                            Mode
-                        </label>
-                        <select name="paystackMode" value={config.paystackMode} onChange={handleChange} className="w-full px-4 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                            <option value="test">Test Mode</option>
-                            <option value="live">Live Mode</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                            Public API Key
-                        </label>
-                        <input type="password" name="paystackApiKey" value={config.paystackApiKey} onChange={handleChange} placeholder="pk_test_..." className="w-full px-4 py-2 border bg-[#fafafa] border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                    </div>
-                    <div>
-                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                            Secret API Key
-                        </label>
-                        <input type="password" name="paystackSecretKey" value={config.paystackSecretKey} onChange={handleChange} placeholder="sk_test_..." className="w-full px-4 bg-[#fafafa] py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                    </div>
-                </div>
-            </div> */}
-
-            <div className="flex justify-end">
-                <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="w-full sm:w-auto px-6 py-3 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] flex items-center justify-center gap-2 text-sm sm:text-base disabled:opacity-50"
-                >
-                    <Save size={20} />
-                    {saving ? "Saving..." : "Save Configuration"}
-                </button>
-            </div>
             <Toast message={toast.message} type={toast.type} isVisible={toast.isVisible} onClose={hideToast} />
         </div>
     );
