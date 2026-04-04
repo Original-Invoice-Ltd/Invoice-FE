@@ -364,8 +364,21 @@ export class AdminApi {
     static async getAuditLogs(params?: {
         page?: number;
         size?: number;
+        action?: string;
+        adminId?: string;
+        targetUserId?: string;
+        startDate?: string;
+        endDate?: string;
     }): Promise<ApiResponse<AuditLog[]>> {
-        return ApiClient.get("/api/admin/management/audit-logs", params);
+        return ApiClient.get("/api/admin/audit-logs", params);
+    }
+
+    static async getAuditLogActions(): Promise<ApiResponse<string[]>> {
+        return ApiClient.get("/api/admin/audit-logs/actions");
+    }
+
+    static async getAuditLogStats(): Promise<ApiResponse<any>> {
+        return ApiClient.get("/api/admin/audit-logs/stats");
     }
 
     // ── System Config / Plans ─────────────────────────────────────────────────

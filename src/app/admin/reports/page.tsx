@@ -46,15 +46,42 @@ const AdminReportsPage = () => {
     ];
 
     const exportReports = [
-        { id: "export-users", name: "User List Export", filename: "users-export", description: "All user records with profile, plan, and status", call: () => AdminApi.exportUsers() },
-        { id: "export-transactions", name: "Transaction Data Export", filename: "transactions-export", description: "Payment records, amounts, methods, and statuses", call: () => AdminApi.exportTransactions() },
-        { id: "export-invoices", name: "Invoice Data Export", filename: "invoices-export", description: "Full platform-wide invoice records", call: () => AdminApi.exportInvoices() },
+        {
+            id: "export-users",
+            name: "User List Export",
+            filename: "users-export",
+            description: "All user records with profile, plan, and status",
+            call: async () => {
+                const res = await AdminApi.exportUsers();
+                if (res.status === 200 && res.data) return res;
+                // Fallback: fetch from users endpoint
+                return AdminApi.getUsers({ page: 0, size: 1000 });
+            }
+        },
+        {
+            id: "export-transactions",
+            name: "Transaction Data Export",
+            filename: "transactions-export",
+            description: "Payment records, amounts, methods, and statuses",
+            call: () => AdminApi.exportTransactions()
+        },
+        {
+            id: "export-invoices",
+            name: "Invoice Data Export",
+            filename: "invoices-export",
+            description: "Full platform-wide invoice records",
+            call: () => AdminApi.exportInvoices()
+        },
     ];
+
+    const [error, setError] = useState<string | null>(null);
 
     const handleGenerate = async (id: string, filename: string, call: () => Promise<any>) => {
         setGenerating(id);
+        setError(null);
         try {
             const res = await call();
+            console.log(`[Report ${id}] status:`, res.status, '| data:', res.data, '| error:', res.error);
             if (res.status === 200 && res.data) {
                 setResults(prev => ({ ...prev, [id]: true }));
                 if (typeof res.data === "string" && res.data.startsWith("http")) {
@@ -63,8 +90,10 @@ const AdminReportsPage = () => {
                     downloadCSV(res.data, filename);
                 }
             } else {
-                console.error(`[${id}] error:`, res.error);
+                setError(`${filename}: ${res.error || "No data returned from server"}`);
             }
+        } catch (e) {
+            setError(`${filename}: Unexpected error`);
         } finally {
             setGenerating(null);
         }
@@ -76,6 +105,12 @@ const AdminReportsPage = () => {
                 <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Reports & Export</h1>
                 <p className="text-gray-600 mt-1 text-sm">Generate and export platform data</p>
             </div>
+
+            {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <p className="text-sm text-red-700">{error}</p>
+                </div>
+            )}
 
             {/* Date filters */}
             <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
