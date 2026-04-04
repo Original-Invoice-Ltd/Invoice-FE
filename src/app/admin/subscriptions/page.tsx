@@ -31,10 +31,19 @@ const AdminSubscriptionsPage = () => {
         });
         if (res.status === 200 && res.data) {
             const data = res.data as any;
-            const list = Array.isArray(data) ? data : data.content ?? data.data ?? [];
-            setSubscriptions(list);
-            setTotalPages(data.totalPages ?? 1);
-            setTotalElements(data.totalElements ?? list.length);
+            const list: AdminSubscription[] = Array.isArray(data) ? data : data.content ?? data.data ?? [];
+            // Client-side filter fallback
+            const filtered = list.filter(s => {
+                const matchSearch = !searchTerm ||
+                    s.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    s.userEmail?.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchPlan = planFilter === "all" || s.plan?.toUpperCase() === planFilter.toUpperCase();
+                const matchStatus = statusFilter === "all" || s.status?.toLowerCase() === statusFilter.toLowerCase();
+                return matchSearch && matchPlan && matchStatus;
+            });
+            setSubscriptions(filtered);
+            setTotalPages(data.totalPages ?? Math.ceil(filtered.length / itemsPerPage) || 1);
+            setTotalElements(data.totalElements ?? filtered.length);
         }
         setLoading(false);
     }, [currentPage, searchTerm, planFilter, statusFilter]);
@@ -53,11 +62,12 @@ const AdminSubscriptionsPage = () => {
     };
 
     const getStatusColor = (status: string) => {
-        switch (status) {
-            case "active": return "bg-green-100 text-green-700";
-            case "expired": return "bg-red-100 text-red-700";
-            default: return "bg-gray-100 text-gray-700";
-        }
+        const s = status?.toUpperCase();
+        if (s === "ACTIVE") return "bg-green-100 text-green-700";
+        if (s === "EXPIRED") return "bg-red-100 text-red-700";
+        if (s === "CANCELLED") return "bg-orange-100 text-orange-700";
+        return "bg-gray-100 text-gray-700";
+    };
     };
 
     const isExpiringSoon = (days: number) => days <= 7 && days > 0;

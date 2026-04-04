@@ -28,6 +28,10 @@ const AdminManagementPage = () => {
     const [roleFilter, setRoleFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
     const [auditSearch, setAuditSearch] = useState("");
+    const [auditActionFilter, setAuditActionFilter] = useState("all");
+    const [auditStartDate, setAuditStartDate] = useState("");
+    const [auditEndDate, setAuditEndDate] = useState("");
+    const [auditActions, setAuditActions] = useState<string[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [showFormModal, setShowFormModal] = useState(false);
     const [selectedAdmin, setSelectedAdmin] = useState<AdminManagementUser | null>(null);
@@ -66,17 +70,27 @@ const AdminManagementPage = () => {
     }, [fetchAdmins, searchTerm]);
 
     useEffect(() => {
-        if (activeTab === "audit" && auditLogs.length === 0) {
+        if (activeTab === "audit") {
             setLoadingAudit(true);
-            AdminApi.getAuditLogs().then((res) => {
-                if (res.status === 200 && res.data) {
-                    const data = res.data as any;
+            Promise.all([
+                AdminApi.getAuditLogs({
+                    action: auditActionFilter !== "all" ? auditActionFilter : undefined,
+                    startDate: auditStartDate || undefined,
+                    endDate: auditEndDate || undefined,
+                }),
+                AdminApi.getAuditLogActions(),
+            ]).then(([logsRes, actionsRes]) => {
+                if (logsRes.status === 200 && logsRes.data) {
+                    const data = logsRes.data as any;
                     setAuditLogs(Array.isArray(data) ? data : data.content ?? data.data ?? []);
+                }
+                if (actionsRes.status === 200 && actionsRes.data) {
+                    setAuditActions(Array.isArray(actionsRes.data) ? actionsRes.data : []);
                 }
                 setLoadingAudit(false);
             });
         }
-    }, [activeTab, auditLogs.length]);
+    }, [activeTab, auditActionFilter, auditStartDate, auditEndDate]);
 
     const handleFormSubmit = async (data: Pick<AdminManagementUser, "id" | "email" | "fullName" | "role" | "status">) => {
         if (selectedAdmin) {
@@ -298,21 +312,38 @@ const AdminManagementPage = () => {
 
             {activeTab === "audit" && (
                 <>
-                    <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-                        <div className="relative flex-1 w-full sm:max-w-sm">
-                            <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder="Search audit logs..."
-                                value={auditSearch}
-                                onChange={(e) => setAuditSearch(e.target.value)}
-                                className="w-full pl-9 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm"
-                            />
+                    <div className="flex flex-col gap-3">
+                        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+                            <div className="relative flex-1 w-full sm:max-w-sm">
+                                <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
+                                <input type="text" placeholder="Search audit logs..." value={auditSearch}
+                                    onChange={(e) => setAuditSearch(e.target.value)}
+                                    className="w-full pl-9 pr-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm" />
+                            </div>
+                            <button onClick={handleDownloadAudit} className="w-full sm:w-auto px-4 py-2 border border-[#E4E7EC] rounded-lg font-medium hover:bg-gray-50 flex items-center justify-center gap-2 text-sm">
+                                <Download size={18} />
+                                Download CSV
+                            </button>
                         </div>
-                        <button onClick={handleDownloadAudit} className="w-full sm:w-auto px-4 py-2 border border-[#E4E7EC] rounded-lg font-medium hover:bg-gray-50 flex items-center justify-center gap-2 text-sm">
-                            <Download size={18} />
-                            Download CSV
-                        </button>
+                        <div className="flex flex-wrap gap-3">
+                            <select value={auditActionFilter} onChange={e => setAuditActionFilter(e.target.value)}
+                                className="px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
+                                <option value="all">All Actions</option>
+                                {auditActions.map(a => <option key={a} value={a}>{a}</option>)}
+                            </select>
+                            <input type="date" value={auditStartDate} onChange={e => setAuditStartDate(e.target.value)}
+                                placeholder="Start date"
+                                className="px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                            <input type="date" value={auditEndDate} onChange={e => setAuditEndDate(e.target.value)}
+                                placeholder="End date"
+                                className="px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                            {(auditActionFilter !== "all" || auditStartDate || auditEndDate) && (
+                                <button onClick={() => { setAuditActionFilter("all"); setAuditStartDate(""); setAuditEndDate(""); }}
+                                    className="px-3 py-2 text-xs text-gray-500 hover:text-gray-700 border border-[#E4E7EC] rounded-lg">
+                                    Clear filters
+                                </button>
+                            )}
+                        </div>
                     </div>
                 <div className="bg-white border border-[#E4E7EC] rounded-xl overflow-hidden">
                     <div className="overflow-x-auto">

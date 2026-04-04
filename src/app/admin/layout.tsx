@@ -55,7 +55,7 @@ export default function AdminLayout({
                     isSuperAdmin={isSuperAdmin}
                 />
 
-                <main className="flex-1 overflow-auto scrollbar-hide">
+                <main className="flex-1 overflow-auto scrollbar-hide pb-32">
                     {children}
                 </main>
             </div>

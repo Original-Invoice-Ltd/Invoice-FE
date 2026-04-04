@@ -43,9 +43,19 @@ const AdminUsersPage = () => {
             plan: planFilter !== "all" ? planFilter : undefined,
         });
         if (res.data) {
-            setUsers(res.data.content);
-            setTotalPages(res.data.totalPages);
-            setTotalElements(res.data.totalElements);
+            const data = res.data as any;
+            const list: AdminUser[] = Array.isArray(data) ? data : data.content ?? data.data ?? [];
+            // Client-side filter as fallback in case backend ignores params
+            const filtered = list.filter(u => {
+                const matchSearch = !searchTerm || u.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || u.email?.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchStatus = statusFilter === "all" || u.status?.toUpperCase() === statusFilter.toUpperCase();
+                const matchRole = roleFilter === "all" || u.role?.toUpperCase() === roleFilter.toUpperCase();
+                const matchPlan = planFilter === "all" || (u.currentPlan ?? u.plan)?.toUpperCase() === planFilter.toUpperCase();
+                return matchSearch && matchStatus && matchRole && matchPlan;
+            });
+            setUsers(filtered);
+            setTotalPages(data.totalPages ?? Math.ceil(filtered.length / PAGE_SIZE) || 1);
+            setTotalElements(data.totalElements ?? filtered.length);
         }
         setLoading(false);
     }, [currentPage, searchTerm, statusFilter, roleFilter, planFilter]);
@@ -256,7 +266,6 @@ const AdminUsersPage = () => {
                             <button onClick={() => { handleViewUser(user); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-[#2F80ED] font-medium hover:bg-[#EBF5FF]">View Details</button>
                             <div className="border-t border-[#E4E7EC]" />
                             <button onClick={() => { handleAction(user, "role"); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">Change Role</button>
-                            <button onClick={() => { handleAction(user, "reset"); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">Reset Password</button>
                             <button onClick={() => { handleAction(user, "deactivate"); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">
                                 {["ACTIVE","VERIFIED"].includes(user.status?.toUpperCase()) ? "Deactivate" : "Activate"}
                             </button>
