@@ -12,24 +12,30 @@ interface AdminSidebarProps {
     isSuperAdmin?: boolean;
 }
 
+
 const AdminSidebar = ({ isOpen = true, onClose, isSuperAdmin = true }: AdminSidebarProps) => {
     const pathname = usePathname();
 
     const menuItems = [
-        { label: "Dashboard", href: "/admin/overview", icon: (isActive: boolean) => <BarChart3 size={22} color={isActive ? "white" : "#333436"} /> },
-        { label: "Users", href: "/admin/users", icon: (isActive: boolean) => <Users size={22} color={isActive ? "white" : "#333436"} /> },
-        { label: "Tax Configuration", href: "/admin/tax-config", icon: (isActive: boolean) => <Percent size={22} color={isActive ? "white" : "#333436"} /> },
-        { label: "Subscriptions", href: "/admin/subscriptions", icon: (isActive: boolean) => <CreditCard size={22} color={isActive ? "white" : "#333436"} /> },
-        { label: "Reports", href: "/admin/reports", icon: (isActive: boolean) => <FileText size={22} color={isActive ? "white" : "#333436"} /> },
-        { label: "Notifications", href: "/admin/notifications", icon: (isActive: boolean) => <Bell size={22} color={isActive ? "white" : "#333436"} /> },
+        { label: "Dashboard", href: "/admin/overview", icon: (isActive: boolean) => <BarChart3 size={22} color={isActive ? "white" : "#667085"} /> },
+        { label: "Users", href: "/admin/users", icon: (isActive: boolean) => <Users size={22} color={isActive ? "white" : "#667085"} /> },
+        { label: "Tax Configuration", href: "/admin/tax-config", icon: (isActive: boolean) => <Percent size={22} color={isActive ? "white" : "#667085"} /> },
+        { label: "Subscriptions", href: "/admin/subscriptions", icon: (isActive: boolean) => <CreditCard size={22} color={isActive ? "white" : "#667085"} /> },
+        { label: "Reports", href: "/admin/reports", icon: (isActive: boolean) => <FileText size={22} color={isActive ? "white" : "#667085"} /> },
+        { label: "Notifications", href: "/admin/notifications", icon: (isActive: boolean) => <Bell size={22} color={isActive ? "white" : "#667085"} /> },
     ];
 
     const superAdminItems = [
-        { label: "System Config", href: "/admin/system-config", icon: (isActive: boolean) => <Settings size={22} color={isActive ? "white" : "#333436"} /> },
-        { label: "Admin Management", href: "/admin/admin-management", icon: (isActive: boolean) => <Users size={22} color={isActive ? "white" : "#333436"} /> },
+        { label: "System Config", href: "/admin/system-config", icon: (isActive: boolean) => <Settings size={22} color={isActive ? "white" : "#667085"} /> },
+        { label: "Admin Management", href: "/admin/admin-management", icon: (isActive: boolean) => <Users size={22} color={isActive ? "white" : "#667085"} /> },
     ];
 
-    const isActive = (href: string) => pathname === href;
+    const isActive = (href: string) => {
+        if (href === "/admin/overview") {
+            return pathname === "/admin/overview" || pathname === "/admin";
+        }
+        return pathname?.startsWith(href);
+    };
 
     const handleLogout = async () => {
         await AuthService.logout();
@@ -37,51 +43,111 @@ const AdminSidebar = ({ isOpen = true, onClose, isSuperAdmin = true }: AdminSide
 
 
     return (
-        <div className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white border-r border-[#E4E7EC] transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-            <div className="flex flex-col h-full">
-                <div className="p-6 border-b border-[#E4E7EC]">
-                    <Link href="/admin/overview" className="flex items-center gap-2">
-                        <Image src="/assets/header logo.svg" alt="Logo" width={32} height={32} />
-                        <span className="font-bold text-lg">Admin</span>
-                    </Link>
+        <>
+            {/* Mobile Overlay */}
+            {isOpen && (
+                <div
+                    className="fixed inset-0 bg-transparent z-40 lg:hidden"
+                    onClick={onClose}
+                />
+            )}
+
+            {/* Sidebar */}
+            <div className={`
+                fixed lg:relative inset-y-0 left-0 z-50
+                h-screen w-[268px] 
+                bg-white border-r border-[#E4E7EC] 
+                flex flex-col
+                px-[16px] pt-[24px] pb-[32px]
+                transition-all duration-300 ease-in-out
+                ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            `}>
+                {/* Logo */}
+                <div className="flex items-center justify-between mb-[15px]">
+                    <Image 
+                        src="/assets/header logo.svg" 
+                        height={40} 
+                        width={106} 
+                        className="h-[40px] w-[106px]" 
+                        alt="logo" 
+                    />
                 </div>
 
-                <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-                    {menuItems.map((item) => {
-                        const active = isActive(item.href);
-                        return (
-                            <Link key={item.href} href={item.href} onClick={onClose} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${active ? 'bg-[#2F80ED] text-white' : 'text-gray-700 hover:bg-gray-100'}`}>
-                                {item.icon(active)}
-                                <span className="font-medium">{item.label}</span>
-                            </Link>
-                        );
-                    })}
+                {/* Scrollable Menu Area */}
+                <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide">
+                    <div className="flex flex-col gap-[5px]">
+                        {/* Main Menu Items */}
+                        {menuItems.map((item) => {
+                            const active = isActive(item.href);
+                            return (
+                                <Link
+                                    key={item.label}
+                                    href={item.href}
+                                    className={`
+                                        flex items-center gap-[12px] px-[12px] py-[10px] rounded-[8px]
+                                        transition-colors duration-200
+                                        ${active
+                                            ? 'bg-[#2F80ED] text-white'
+                                            : 'text-[#667085] hover:bg-gray-100'
+                                        }
+                                    `}
+                                    onClick={onClose}
+                                >
+                                    {item.icon(active)}
+                                    <span className="text-[14px] font-medium">{item.label}</span>
+                                </Link>
+                            );
+                        })}
 
-                    {isSuperAdmin && (
-                        <>
-                            <div className="my-4 border-t border-[#E4E7EC]"></div>
-                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">Super Admin</div>
-                            {superAdminItems.map((item) => {
-                                const active = isActive(item.href);
-                                return (
-                                    <Link key={item.href} href={item.href} onClick={onClose} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${active ? 'bg-[#2F80ED] text-white' : 'text-gray-700 hover:bg-gray-100'}`}>
-                                        {item.icon(active)}
-                                        <span className="font-medium">{item.label}</span>
-                                    </Link>
-                                );
-                            })}
-                        </>
-                    )}
-                </nav>
+                        {/* Super Admin Section */}
+                        {isSuperAdmin && (
+                            <>
+                        <div className="border-t border-gray-200"></div>
+                                <div className="mt-[10px]  mb-[5px]">
+                                    <div className="px-[12px] py-[8px] text-[12px] font-semibold text-[#98A2B3] uppercase tracking-wide">
+                                        Super Admin
+                                    </div>
+                                </div>
+                                {superAdminItems.map((item) => {
+                                    const active = isActive(item.href);
+                                    return (
+                                        <Link
+                                            key={item.label}
+                                            href={item.href}
+                                            className={`
+                                                flex items-center gap-[12px] px-[12px] py-[10px] rounded-[8px]
+                                                transition-colors duration-200
+                                                ${active
+                                                    ? 'bg-[#2F80ED] text-white'
+                                                    : 'text-[#667085] hover:bg-gray-100'
+                                                }
+                                            `}
+                                            onClick={onClose}
+                                        >
+                                            {item.icon(active)}
+                                            <span className="text-[14px] font-medium">{item.label}</span>
+                                        </Link>
+                                    );
+                                })}
+                            </>
+                        )}
+                    </div>
+                </div>
 
-                <div className="p-4 border-t border-[#E4E7EC]">
-                    <button onClick={handleLogout} className="flex items-center gap-3 w-full px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-                        <LogOut size={22} />
-                        <span className="font-medium">Logout</span>
+                {/* Bottom Logout Button */}
+                <div className="mt-[10px] mb-[-5px]">
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-[12px] px-[12px] 
+                        py-[6px] rounded-[8px] text-[#667085] 
+                        hover:bg-gray-100 transition-colors duration-200 w-full text-left"
+                    >
+                        <LogOut size={20} />
+                        <span className="text-[14px] font-medium">Logout</span>
                     </button>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

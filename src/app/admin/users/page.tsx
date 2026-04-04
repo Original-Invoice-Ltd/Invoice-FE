@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Search, Filter, Eye, ChevronDown, Download } from "lucide-react";
+import { Search, Filter, MoreVertical, Download } from "lucide-react";
 import UserDetailModal from "@/components/admin/modals/UserDetailModal";
 import UserActionModal from "@/components/admin/modals/UserActionModal";
 import { AdminApi, AdminUser } from "@/lib/adminApi";
@@ -72,14 +72,30 @@ const AdminUsersPage = () => {
         fetchUsers();
     };
 
-    const handleExport = async () => {
-        await AdminApi.exportUsers();
+    const handleExport = () => {
+        const rows = users.map(u => ({
+            fullName: u.fullName,
+            email: u.email,
+            status: u.status,
+            role: u.role,
+            plan: u.currentPlan ?? u.plan,
+            invoiceCount: u.invoiceCount,
+            createdAt: u.createdAt ?? u.registeredDate ?? ""
+        }));
+        if (!rows.length) return;
+        const headers = Object.keys(rows[0]);
+        const csv = [headers.join(","), ...rows.map(r => headers.map(h => `"${(r as any)[h] ?? ""}"`).join(","))].join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = "users.csv"; a.click();
+        URL.revokeObjectURL(url);
     };
 
     const getRoleColor = (role: string) => {
         switch (role) {
             case "SUPER_ADMIN": return "bg-purple-100 text-purple-700";
-            case "ADMIN": return "bg-blue-100 text-blue-700";
+            case "ADMIN": return "bg-[#E8F2FE] text-[#2F80ED]";
             default: return "bg-gray-100 text-gray-700";
         }
     };
@@ -96,7 +112,7 @@ const AdminUsersPage = () => {
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">User Management</h1>
                     <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage platform users and permissions</p>
                 </div>
-                <button onClick={handleExport} className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center justify-center gap-2">
+                <button onClick={handleExport} className="w-full sm:w-auto px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] flex items-center justify-center gap-2">
                     <Download size={18} />
                     Export Users
                 </button>
@@ -183,24 +199,22 @@ const AdminUsersPage = () => {
                                     </td>
                                     <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-900">{user.plan}</td>
                                     <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-900">{user.invoiceCount}</td>
-                                    <td className="hidden lg:table-cell px-6 py-4 text-xs text-gray-500">{user.registeredDate}</td>
+                                    <td className="hidden lg:table-cell px-6 py-4 text-xs text-gray-500">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : user.registeredDate ?? "—"}</td>
                                     <td className="px-3 sm:px-6 py-4">
-                                        <div className="flex items-center gap-1">
-                                            <button onClick={() => handleViewUser(user)} className="p-2 hover:bg-gray-100 rounded-lg" title="View">
-                                                <Eye size={16} className="text-gray-600" />
+                                        <div className="relative group flex justify-start">
+                                            <button className="p-2 hover:bg-[#EBF5FF] rounded-lg transition-colors">
+                                                <MoreVertical size={18} className="text-[#2F80ED]" />
                                             </button>
-                                            <div className="relative group">
-                                                <button className="p-2 hover:bg-gray-100 rounded-lg">
-                                                    <ChevronDown size={16} className="text-gray-600" />
+                                            <div className="hidden group-hover:block absolute right-0 mt-9 w-48 bg-white border border-[#E4E7EC] rounded-xl shadow-lg z-10 overflow-hidden">
+                                                <button onClick={() => handleViewUser(user)} className="w-full text-left px-4 py-2.5 text-xs text-[#2F80ED] font-medium hover:bg-[#EBF5FF]">View Details</button>
+                                                <div className="border-t border-[#E4E7EC]" />
+                                                <button onClick={() => handleAction(user, "role")} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">Change Role</button>
+                                                <button onClick={() => handleAction(user, "reset")} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">Reset Password</button>
+                                                <button onClick={() => handleAction(user, "deactivate")} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">
+                                                    {["ACTIVE","VERIFIED"].includes(user.status?.toUpperCase()) ? "Deactivate" : "Activate"}
                                                 </button>
-                                                <div className="hidden group-hover:block absolute right-0 mt-1 w-44 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-10">
-                                                    <button onClick={() => handleAction(user, "role")} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">Change Role</button>
-                                                    <button onClick={() => handleAction(user, "reset")} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">Reset Password</button>
-                                                    <button onClick={() => handleAction(user, "deactivate")} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">
-                                                        {user.status === "active" ? "Deactivate" : "Activate"}
-                                                    </button>
-                                                    <button onClick={() => handleAction(user, "delete")} className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-gray-50">Delete Account</button>
-                                                </div>
+                                                <div className="border-t border-[#E4E7EC]" />
+                                                <button onClick={() => handleAction(user, "delete")} className="w-full text-left px-4 py-2.5 text-xs text-red-600 hover:bg-red-50">Delete Account</button>
                                             </div>
                                         </div>
                                     </td>

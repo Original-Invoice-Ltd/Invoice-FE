@@ -1,4 +1,4 @@
-"use client";
+﻿﻿"use client";
 
 import { useState, useEffect } from "react";
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
@@ -7,6 +7,8 @@ import { AdminApi } from "@/lib/adminApi";
 
 const AdminOverviewPage = () => {
     const [dateRange, setDateRange] = useState("monthly");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
     const [stats, setStats] = useState<any>(null);
     const [paymentTrends, setPaymentTrends] = useState<any[]>([]);
     const [invoiceStatus, setInvoiceStatus] = useState<any[]>([]);
@@ -17,19 +19,23 @@ const AdminOverviewPage = () => {
         const fetchData = async () => {
             setLoading(true);
             const [statsRes, trendsRes, invoiceRes, subRes] = await Promise.all([
-                AdminApi.getOverviewStats(),
+                AdminApi.getOverviewStats(startDate || undefined, endDate || undefined),
                 AdminApi.getPaymentTrends(dateRange),
                 AdminApi.getInvoiceStatusBreakdown(),
                 AdminApi.getSubscriptionDistribution(),
             ]);
             if (statsRes.data) setStats(statsRes.data);
-            if (trendsRes.data) setPaymentTrends(trendsRes.data);
-            if (invoiceRes.data) setInvoiceStatus(invoiceRes.data);
-            if (subRes.data) setSubscriptionDist(subRes.data);
+            if (trendsRes.data) setPaymentTrends(Array.isArray(trendsRes.data) ? trendsRes.data : []);
+            if (invoiceRes.data) setInvoiceStatus(Array.isArray(invoiceRes.data) ? invoiceRes.data : []);
+            if (subRes.data) setSubscriptionDist(Array.isArray(subRes.data) ? subRes.data : []);
             setLoading(false);
         };
         fetchData();
-    }, [dateRange]);
+    }, [dateRange, startDate, endDate]);
+
+    const naira = "\u20A6";
+    const fmt = (val: any) => `${naira}${(Number(val) || 0).toLocaleString()}`;
+    const pct = (val: any) => (val != null ? `+${val}%` : "\u2014");
 
     const fallbackTrends = [
         { month: "Jan", revenue: 45000, invoices: 320 },
@@ -55,30 +61,30 @@ const AdminOverviewPage = () => {
     const kpiCards = [
         {
             title: "Total Platform Revenue",
-            value: stats ? `$${stats.totalRevenue?.toLocaleString()}` : "$0",
-            subtext: `Current Month: $${stats?.currentMonthRevenue?.toLocaleString() ?? 0}`,
-            change: stats ? `+${stats.revenueChange}%` : "—",
+            value: fmt(stats?.totalRevenue ?? stats?.total_revenue),
+            subtext: `Current Month: ${fmt(stats?.currentMonthRevenue ?? stats?.current_month_revenue)}`,
+            change: pct(stats?.revenueChange ?? stats?.revenue_change),
             icon: CreditCard,
         },
         {
             title: "Active Subscriptions",
-            value: stats?.activeSubscriptions?.toLocaleString() ?? "0",
-            subtext: `Premium: ${stats?.premiumCount ?? 0} | Essentials: ${stats?.essentialsCount ?? 0}`,
-            change: stats ? `+${stats.subscriptionChange}%` : "—",
+            value: (stats?.activeSubscriptions ?? stats?.active_subscriptions ?? 0).toLocaleString(),
+            subtext: `Premium: ${stats?.premiumCount ?? stats?.premium_count ?? 0} | Essentials: ${stats?.essentialsCount ?? stats?.essentials_count ?? 0}`,
+            change: pct(stats?.subscriptionChange ?? stats?.subscription_change),
             icon: Users,
         },
         {
             title: "Monthly Recurring Revenue",
-            value: stats ? `$${stats.monthlyRecurringRevenue?.toLocaleString()}` : "$0",
+            value: fmt(stats?.monthlyRecurringRevenue ?? stats?.mrr ?? stats?.monthly_recurring_revenue),
             subtext: "From paid subscriptions",
-            change: stats ? `+${stats.mrrChange}%` : "—",
+            change: pct(stats?.mrrChange ?? stats?.mrr_change ?? stats?.revenueChange),
             icon: TrendingUp,
         },
         {
             title: "Total Invoices Created",
-            value: stats?.totalInvoices?.toLocaleString() ?? "0",
+            value: (stats?.totalInvoices ?? stats?.total_invoices ?? 0).toLocaleString(),
             subtext: "This month",
-            change: stats ? `+${stats.invoiceChange}%` : "—",
+            change: pct(stats?.invoiceChange ?? stats?.invoice_change),
             icon: FileText,
         },
     ];
@@ -94,16 +100,19 @@ const AdminOverviewPage = () => {
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
                     <p className="text-gray-600 mt-1 text-sm sm:text-base">Platform overview and key metrics</p>
                 </div>
-                <select
-                    value={dateRange}
-                    onChange={(e) => setDateRange(e.target.value)}
-                    className="w-full sm:w-auto px-4 py-2 border border-[#E4E7EC] rounded-lg text-sm font-medium"
-                >
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="yearly">Yearly</option>
-                </select>
+                <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
+                        className="px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                    <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
+                        className="px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                    <select value={dateRange} onChange={(e) => setDateRange(e.target.value)}
+                        className="px-4 py-2 border border-[#E4E7EC] rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#2F80ED]">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </div>
             </div>
 
             {loading ? (

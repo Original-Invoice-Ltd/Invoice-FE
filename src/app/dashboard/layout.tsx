@@ -10,6 +10,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useTranslation } from 'react-i18next';
 
 
+// COMMENTED OUT FOR TESTING - Authentication check disabled
 export default function DashboardLayout({
     children,
 }: {

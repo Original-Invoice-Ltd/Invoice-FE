@@ -6,11 +6,15 @@ interface User {
     id: string;
     email: string;
     fullName: string;
-    status: "active" | "inactive";
-    role: "USER" | "ADMIN" | "SUPER_ADMIN";
-    plan: "FREE" | "ESSENTIALS" | "PREMIUM";
+    status: string;
+    role: string;
+    plan: string;
+    currentPlan?: string;
     invoiceCount: number;
-    registeredDate: string;
+    registeredDate?: string;
+    createdAt?: string;
+    lastLogin?: string;
+    phone?: string;
 }
 
 interface UserDetailModalProps {
@@ -20,7 +24,7 @@ interface UserDetailModalProps {
 
 const UserDetailModal = ({ user, onClose }: UserDetailModalProps) => {
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
             <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[98vh] flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-4 border-b border-[#E4E7EC] flex-shrink-0">
                     <h2 className="text-lg font-bold text-gray-900">User Details</h2>
@@ -76,7 +80,7 @@ const UserDetailModal = ({ user, onClose }: UserDetailModalProps) => {
                             </div>
                             <div>
                                 <label className="text-xs text-gray-600">Status</label>
-                                <p className={`text-xs font-medium mt-0.5 px-2 py-1 rounded-full w-fit ${user.status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                                <p className={`text-xs font-medium mt-0.5 px-2 py-1 rounded-full w-fit ${["ACTIVE","VERIFIED"].includes(user.status?.toUpperCase()) ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
                                     {user.status}
                                 </p>
                             </div>
@@ -92,13 +96,13 @@ const UserDetailModal = ({ user, onClose }: UserDetailModalProps) => {
                         <div className="grid grid-cols-2 gap-3">
                             <div>
                                 <label className="text-xs text-gray-600">Plan</label>
-                                <p className="text-sm text-gray-900 font-medium mt-0.5">{user.plan}</p>
+                                <p className="text-sm text-gray-900 font-medium mt-0.5">{user.currentPlan ?? user.plan}</p>
                             </div>
                             <div>
                                 <label className="text-xs text-gray-600">Registered Date</label>
                                 <div className="flex items-center gap-1.5 mt-0.5">
                                     <Calendar size={14} className="text-gray-400 flex-shrink-0" />
-                                    <p className="text-sm text-gray-900 font-medium">{user.registeredDate}</p>
+                                    <p className="text-sm text-gray-900 font-medium">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : user.registeredDate ?? "—"}</p>
                                 </div>
                             </div>
                         </div>
