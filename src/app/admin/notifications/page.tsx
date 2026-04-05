@@ -196,7 +196,14 @@ const AdminNotificationsPage = () => {
                                             </div>
                                             <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-500">
                                                 <Clock size={14} />
-                                                {notif.sentAt ? new Date(notif.sentAt).toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
+                                                {(() => {
+                                                    const dateStr = notif.sentAt ?? notif.scheduledTime ?? notif.createdAt;
+                                                    if (!dateStr) return "—";
+                                                    return new Date(dateStr).toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+                                                })()}
+                                                {notif.status === "scheduled" && notif.scheduledTime && (
+                                                    <span className="ml-1 text-yellow-600">(scheduled)</span>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

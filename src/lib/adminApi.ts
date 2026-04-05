@@ -88,9 +88,11 @@ export interface AdminNotification {
     title: string;
     message: string;
     audience: string;
-    sentAt: string;
+    sentAt: string | null;
+    scheduledTime?: string | null;
     status: "sent" | "scheduled" | "draft";
     type: string;
+    createdAt?: string;
 }
 
 export interface AdminManagementUser {
