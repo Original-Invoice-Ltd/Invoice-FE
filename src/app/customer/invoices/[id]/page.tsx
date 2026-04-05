@@ -145,11 +145,6 @@ const InvoiceDetailPage = () => {
                                         {invoice.status}
                                     </span>
                                 </div>
-                            )}
-                            <div className={`${!invoice.logoUrl ? 'sm:ml-auto' : ''}`}>
-                                <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(invoice.status || 'UNPAID')}`}>
-                                    {invoice.status || 'UNPAID'}
-                                </span>
                             </div>
                         </div>
 
@@ -225,56 +220,55 @@ const InvoiceDetailPage = () => {
                                         <th className="text-right py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD] w-20">Qty</th>
                                         <th className="text-right py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD] w-32">Rate</th>
                                         <th className="text-right py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD] w-32">Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {invoice.items?.map((item: any, index: number) => (
-                                            <tr key={item.id || index}>
-                                                <td className="py-3 px-4 text-sm text-[#101828] border border-[#D0D5DD]">{index + 1}</td>
-                                                <td className="py-3 px-4 text-sm text-[#101828] border border-[#D0D5DD]">
-                                                    <div className="font-medium">{item.itemName}</div>
-                                                    {item.description && (
-                                                        <div className="mt-1">
-                                                            {/* Desktop: Show full description */}
-                                                            <div className="hidden md:block text-xs text-[#667085]">
-                                                                {item.description}
-                                                            </div>
-                                                            {/* Mobile: Show truncated with eye button if long */}
-                                                            <div className="md:hidden">
-                                                                {item.description.length > 50 ? (
-                                                                    <div className="flex items-start gap-2">
-                                                                        <span className="text-xs text-[#667085] line-clamp-1 flex-1">
-                                                                            {item.description}
-                                                                        </span>
-                                                                        <button
-                                                                            onClick={() => setSelectedDescription(item.description || null)}
-                                                                            className="flex-shrink-0 p-1 hover:bg-gray-100 rounded transition-colors"
-                                                                            title="View full description"
-                                                                        >
-                                                                            <Eye size={14} className="text-[#2F80ED]" />
-                                                                        </button>
-                                                                    </div>
-                                                                ) : (
-                                                                    <span className="text-xs text-[#667085]">
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {invoice.items?.map((item: any, index: number) => (
+                                        <tr key={item.id || index}>
+                                            <td className="py-3 px-4 text-sm text-[#101828] border border-[#D0D5DD]">{index + 1}</td>
+                                            <td className="py-3 px-4 text-sm text-[#101828] border border-[#D0D5DD]">
+                                                <div className="font-medium">{item.itemName}</div>
+                                                {item.description && (
+                                                    <div className="mt-1">
+                                                        {/* Desktop: Show full description */}
+                                                        <div className="hidden md:block text-xs text-[#667085]">
+                                                            {item.description}
+                                                        </div>
+                                                        {/* Mobile: Show truncated with eye button if long */}
+                                                        <div className="md:hidden">
+                                                            {item.description.length > 50 ? (
+                                                                <div className="flex items-start gap-2">
+                                                                    <span className="text-xs text-[#667085] line-clamp-1 flex-1">
                                                                         {item.description}
                                                                     </span>
-                                                                )}
-                                                            </div>
+                                                                    <button
+                                                                        onClick={() => setSelectedDescription(item.description || null)}
+                                                                        className="flex-shrink-0 p-1 hover:bg-gray-100 rounded transition-colors"
+                                                                        title="View full description"
+                                                                    >
+                                                                        <Eye size={14} className="text-[#2F80ED]" />
+                                                                    </button>
+                                                                </div>
+                                                            ) : (
+                                                                <span className="text-xs text-[#667085]">
+                                                                    {item.description}
+                                                                </span>
+                                                            )}
                                                         </div>
-                                                    )}
-                                                </td>
-                                                <td className="py-3 px-4 text-sm text-[#101828] text-right border border-[#D0D5DD]">{item.quantity}</td>
-                                                <td className="py-3 px-4 text-sm text-[#101828] text-right border border-[#D0D5DD]">
-                                                    {formatCurrency(item.rate)}
-                                                </td>
-                                                <td className="py-3 px-4 text-sm font-medium text-[#101828] text-right border border-[#D0D5DD]">
-                                                    {formatCurrency(item.amount)}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="py-3 px-4 text-sm text-[#101828] text-right border border-[#D0D5DD]">{item.quantity}</td>
+                                            <td className="py-3 px-4 text-sm text-[#101828] text-right border border-[#D0D5DD]">
+                                                {formatCurrency(item.rate)}
+                                            </td>
+                                            <td className="py-3 px-4 text-sm font-medium text-[#101828] text-right border border-[#D0D5DD]">
+                                                {formatCurrency(item.amount)}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
 
                         {/* Totals Section - Right Aligned */}
