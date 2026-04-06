@@ -126,10 +126,10 @@ const PlanFormModal = ({ plan, onClose, onSave }: PlanFormModalProps) => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <input type="checkbox" name="isActive" checked={form.isActive}
-                            onChange={e => setForm(prev => ({ ...prev, isActive: e.target.checked }))}
+                        <input type="checkbox" id="isActive" checked={form.isActive ?? true}
+                            onChange={e => setForm(prev => ({ ...prev, isActive: e.target.checked, active: e.target.checked }))}
                             className="w-4 h-4 rounded border-gray-300 accent-[#2F80ED]" />
-                        <label className="text-sm font-medium text-gray-900">Active</label>
+                        <label htmlFor="isActive" className="text-sm font-medium text-gray-900 cursor-pointer">Active</label>
                     </div>
                 </div>
 
