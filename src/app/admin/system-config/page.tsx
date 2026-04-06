@@ -34,12 +34,13 @@ const AdminSystemConfigPage = () => {
     useEffect(() => { fetchPlans(); }, []);
 
     const handleSave = async (plan: Plan) => {
+        console.log('[Plan] saving payload:', JSON.stringify(plan, null, 2));
         if (editingPlan?.id) {
-            const res = await AdminApi.updatePlan(editingPlan.id, plan);
+            const res = await AdminApi.updatePlan(editingPlan.id, { ...plan, active: plan.isActive });
             if (res.status === 200) { showSuccess("Plan updated"); await fetchPlans(); }
             else showError(res.error || "Failed to update plan");
         } else {
-            const res = await AdminApi.createPlan(plan);
+            const res = await AdminApi.createPlan({ ...plan, active: plan.isActive });
             if (res.status === 200 || res.status === 201) { showSuccess("Plan created"); await fetchPlans(); }
             else showError(res.error || "Failed to create plan");
         }
