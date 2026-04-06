@@ -211,6 +211,10 @@ export class AdminApi {
         return ApiClient.patch(`/api/admin/subscriptions/${id}/upgrade`, { plan });
     }
 
+    static async activateSubscription(id: string): Promise<ApiResponse<any>> {
+        return ApiClient.putNoBody(`/api/admin/subscriptions/${id}/activate`);
+    }
+
     static async downgradeSubscription(id: string, plan: string): Promise<ApiResponse<any>> {
         return ApiClient.patch(`/api/admin/subscriptions/${id}/downgrade`, { plan });
     }

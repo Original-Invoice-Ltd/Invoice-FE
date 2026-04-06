@@ -13,6 +13,7 @@ export interface Plan {
     annualPrice: number;
     features: string[];
     isActive: boolean;
+    active?: boolean;
 }
 
 interface PlanFormModalProps {
@@ -22,15 +23,17 @@ interface PlanFormModalProps {
 }
 
 const PlanFormModal = ({ plan, onClose, onSave }: PlanFormModalProps) => {
-    const [form, setForm] = useState<Plan>(plan || {
-        name: "",
-        description: "",
-        maxInvoices: 0,
-        maxLogos: 1,
-        monthlyPrice: 0,
-        annualPrice: 0,
-        features: [],
-        isActive: true,
+    const [form, setForm] = useState<Plan>(() => {
+        if (!plan) return {
+            name: "", description: "", maxInvoices: 0, maxLogos: 1,
+            monthlyPrice: 0, annualPrice: 0, features: [], isActive: true,
+        };
+        const p = plan as any;
+        return {
+            ...plan,
+            features: Array.isArray(plan.features) ? plan.features : [],
+            isActive: p.isActive ?? p.active ?? true,
+        };
     });
     const [newFeature, setNewFeature] = useState("");
 
