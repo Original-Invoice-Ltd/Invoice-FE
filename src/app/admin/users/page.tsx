@@ -54,7 +54,7 @@ const AdminUsersPage = () => {
                 return matchSearch && matchStatus && matchRole && matchPlan;
             });
             setUsers(filtered);
-            setTotalPages(data.totalPages ?? Math.ceil(filtered.length / PAGE_SIZE) || 1);
+            setTotalPages((data.totalPages ?? Math.ceil(filtered.length / PAGE_SIZE)) || 1);
             setTotalElements(data.totalElements ?? filtered.length);
         }
         setLoading(false);

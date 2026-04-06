@@ -42,7 +42,7 @@ const AdminSubscriptionsPage = () => {
                 return matchSearch && matchPlan && matchStatus;
             });
             setSubscriptions(filtered);
-            setTotalPages(data.totalPages ?? Math.ceil(filtered.length / itemsPerPage) || 1);
+            setTotalPages((data.totalPages ?? Math.ceil(filtered.length / itemsPerPage)) || 1);
             setTotalElements(data.totalElements ?? filtered.length);
         }
         setLoading(false);
