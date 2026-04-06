@@ -88,9 +88,11 @@ export interface AdminNotification {
     title: string;
     message: string;
     audience: string;
-    sentAt: string;
+    sentAt: string | null;
+    scheduledTime?: string | null;
     status: "sent" | "scheduled" | "draft";
     type: string;
+    createdAt?: string;
 }
 
 export interface AdminManagementUser {
@@ -207,6 +209,10 @@ export class AdminApi {
 
     static async upgradeSubscription(id: string, plan: string): Promise<ApiResponse<any>> {
         return ApiClient.patch(`/api/admin/subscriptions/${id}/upgrade`, { plan });
+    }
+
+    static async activateSubscription(id: string): Promise<ApiResponse<any>> {
+        return ApiClient.putNoBody(`/api/admin/subscriptions/${id}/activate`);
     }
 
     static async downgradeSubscription(id: string, plan: string): Promise<ApiResponse<any>> {

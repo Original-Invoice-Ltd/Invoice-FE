@@ -193,7 +193,13 @@ const AdminSubscriptionsPage = () => {
                                             </span>
                                         </td>
                                         <td className="px-4 sm:px-6 py-4">
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                {!["ACTIVE"].includes(sub.status?.toUpperCase()) && (
+                                                    <button onClick={async () => {
+                                                        const res = await AdminApi.activateSubscription(sub.id);
+                                                        if (res.status === 200) await fetchSubscriptions();
+                                                    }} className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-green-600 text-white rounded hover:bg-green-700">Activate</button>
+                                                )}
                                                 <button onClick={() => handleAction(sub, "upgrade")} className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-[#E8F2FE] text-[#2F80ED] rounded hover:bg-[#D4E7FC]">Upgrade</button>
                                                 <button onClick={() => handleAction(sub, "extend")} className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-green-100 text-green-700 rounded hover:bg-green-200">Extend</button>
                                             </div>
