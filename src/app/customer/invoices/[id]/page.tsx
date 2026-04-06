@@ -141,12 +141,11 @@ const InvoiceDetailPage = () => {
                                 <h1 className="text-xl md:text-[28px] text-gray-900 mb-2">INVOICE</h1>
                                 <p className="text-gray-600 mb-1">#{invoice.invoiceId}</p>
                                 <div className="mb-2">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(invoice.status)}`}>
-                                        {invoice.status}
+                                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(invoice.status || 'UNPAID')}`}>
+                                        {invoice.status || 'UNPAID'}
                                     </span>
                                 </div>
                             </div>
-                        </div>
 
                         {/* Main Content Section */}
                         <div className="mb-8">
