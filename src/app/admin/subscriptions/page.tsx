@@ -68,7 +68,6 @@ const AdminSubscriptionsPage = () => {
         if (s === "CANCELLED") return "bg-orange-100 text-orange-700";
         return "bg-gray-100 text-gray-700";
     };
-    };
 
     const isExpiringSoon = (days: number) => days <= 7 && days > 0;
 
