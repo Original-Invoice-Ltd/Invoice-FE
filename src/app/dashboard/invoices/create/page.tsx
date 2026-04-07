@@ -51,6 +51,9 @@ const CreateInvoicePage = () => {
     const [isLoadingClients, setIsLoadingClients] = useState(false);
     const [clientsLoaded, setClientsLoaded] = useState(false);
     const [isSavingClient, setIsSavingClient] = useState(false);
+    const [availableTaxes, setAvailableTaxes] = useState<any[]>([]);
+    const [selectedVatId, setSelectedVatId] = useState<string | null>(null);
+    const [selectedWhtId, setSelectedWhtId] = useState<string | null>(null);
 
     // New client form state
     const [newClientForm, setNewClientForm] = useState({
@@ -428,21 +431,33 @@ const CreateInvoicePage = () => {
         return items.reduce((sum, item) => sum + item.amount, 0);
     };
 
+    function getApplicableRate(tax: any, customerType: "INDIVIDUAL" | "BUSINESS") {
+        return customerType === "BUSINESS" ? tax.businessRate : tax.individualRate;
+    }
+
     const calculateTax = () => {
         const subtotal = calculateSubtotal();
-        return subtotal * invoiceTaxRate / 100;
-    };
-    const calculateWht = () => {
-        const subtotal = calculateSubtotal();
-        return subtotal * 5 / 100;
+        const selectedClient = clients.find(c => c.id === selectedClientId) as any;
+        const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
+        const selectedVat = availableTaxes.find(t => t.id === selectedVatId);
+        const vatRate = selectedVat ? getApplicableRate(selectedVat, customerType) : 0;
+        return subtotal * (vatRate / 100);
     };
 
+    const calculateWht = () => {
+        const subtotal = calculateSubtotal();
+        const selectedClient = clients.find(c => c.id === selectedClientId) as any;
+        const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
+        const selectedWht = availableTaxes.find(t => t.id === selectedWhtId);
+        const whtRate = selectedWht ? getApplicableRate(selectedWht, customerType) : 0;
+        return subtotal * (whtRate / 100);
+    };
 
     const calculateTotal = () => {
         const subtotal = calculateSubtotal();
         const tax = hasAccess('taxCompliance') ? calculateTax() : 0;
         const wht = hasAccess('taxCompliance') ? calculateWht() : 0;
-        return subtotal + tax + wht;
+        return subtotal + tax - wht;
     };
 
     // const isFormValid = () => {
@@ -621,7 +636,9 @@ const CreateInvoicePage = () => {
             vat,
             wht,
             selectedClientId,
-            invoiceTaxRate
+            invoiceTaxRate,
+            selectedVatId,
+            selectedWhtId
         };
 
         const result = await saveDraft(draftData);
@@ -633,6 +650,21 @@ const CreateInvoicePage = () => {
             showError(result.error || 'Failed to save draft');
         }
     };
+
+    useEffect(() => {
+        const fetchTaxes = async () => {
+            try {
+                const response = await (ApiClient as any).getTaxTypes ? (ApiClient as any).getTaxTypes() : ApiClient.get("/api/admin/tax-config");
+                const res = await response;
+                if (res.status === 200) {
+                    setAvailableTaxes(res.data || []);
+                }
+            } catch (error) {
+                // fail silently
+            }
+        };
+        fetchTaxes();
+    }, []);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -955,6 +987,7 @@ const CreateInvoicePage = () => {
                     rate: item.rate,
                     amount: item.amount,
                 })),
+                taxIds: [selectedVatId, selectedWhtId].filter((id): id is string => id !== null),
                 note: customerNote,
                 termsAndConditions: termsAndConditions,
                 signature: signatureFile,
@@ -1943,34 +1976,44 @@ const CreateInvoicePage = () => {
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[#667085] text-[18px]">Tax</span>
-                                            <div className="relative inline-flex items-center">
-                                                <select
-                                                    value={invoiceTaxRate}
-                                                    onChange={(e) => setInvoiceTaxRate(parseFloat(e.target.value))}
-                                                    disabled={!hasAccess('taxCompliance')}
-                                                    className={`appearance-none bg-transparent text-[14px] text-[#667085] pr-6 focus:outline-none ${hasAccess('taxCompliance') ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
-                                                        }`}
-                                                    title={!hasAccess('taxCompliance') ? getFeatureUpgradeMessage('taxCompliance') : ''}
-                                                >
-                                                    <option value="0">0%</option>
-                                                    <option value="5">5%</option>
-                                                    <option value="7.5">7.5%</option>
-                                                    <option value="10">10%</option>
-                                                    <option value="15">15%</option>
-                                                    <option value="20">20%</option>
-                                                </select>
-                                                <svg className="absolute right-0 pointer-events-none" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                                </svg>
-                                            </div>
+                                            <span className="text-[#667085] text-[18px]">VAT</span>
+                                            <select
+                                                value={selectedVatId || ""}
+                                                onChange={(e) => setSelectedVatId(e.target.value || null)}
+                                                className="border-none bg-transparent text-blue-600 focus:ring-0 p-0 text-[18px] font-medium"
+                                                disabled={!hasAccess('taxCompliance')}
+                                            >
+                                                <option value="">No VAT</option>
+                                                {availableTaxes.filter(t => t.type === "VAT").map(tax => {
+                                                    const selectedClient = clients.find(c => c.id === selectedClientId) as any;
+                                                    const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
+                                                    const rate = getApplicableRate(tax, customerType);
+                                                    return <option key={tax.id} value={tax.id}>{tax.name} ({rate}%)</option>
+                                                })}
+                                            </select>
                                         </div>
                                         <span className=" text-[18px] font-semibold">{formatCurrency(calculateTax(), { currency })}</span>
                                     </div>
-                                    <div className="flex justify-between">
-                                        <span className={`text-[#667085] text-[18px] ${!hasAccess('taxCompliance') ? 'opacity-50' : ''}`}>
-                                            WHT (5%)
-                                        </span>
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex items-center gap-2">
+                                            <span className={`text-[#667085] text-[18px] ${!hasAccess('taxCompliance') ? 'opacity-50' : ''}`}>
+                                                WHT
+                                            </span>
+                                            <select
+                                                value={selectedWhtId || ""}
+                                                onChange={(e) => setSelectedWhtId(e.target.value || null)}
+                                                className="border-none bg-transparent text-red-600 focus:ring-0 p-0 text-[18px] font-medium"
+                                                disabled={!hasAccess('taxCompliance')}
+                                            >
+                                                <option value="">No WHT</option>
+                                                {availableTaxes.filter(t => t.type === "WHT").map(tax => {
+                                                    const selectedClient = clients.find(c => c.id === selectedClientId) as any;
+                                                    const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
+                                                    const rate = getApplicableRate(tax, customerType);
+                                                    return <option key={tax.id} value={tax.id}>{tax.name} ({rate}%)</option>
+                                                })}
+                                            </select>
+                                        </div>
                                         <span className={`text-[18px] font-semibold ${!hasAccess('taxCompliance') ? 'opacity-50' : ''}`}>
                                             {hasAccess('taxCompliance') ? formatCurrency(calculateWht(), { currency }) : formatCurrency(0, { currency })}
                                         </span>

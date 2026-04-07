@@ -44,6 +44,8 @@ export interface DraftData {
   wht: number;
   selectedClientId: string;
   invoiceTaxRate: number;
+  selectedVatId?: string | null;
+  selectedWhtId?: string | null;
 }
 
 export const useDraft = () => {
@@ -107,6 +109,8 @@ export const useDraft = () => {
             wht: 0,
             selectedClientId: draftResponse.billTo?.id || '',
             invoiceTaxRate: 0,
+            selectedVatId: (draftResponse as any).selectedVatId || null,
+            selectedWhtId: (draftResponse as any).selectedWhtId || null,
           };
           
           // console.log('Transformed draft data:', loadedDraftData);
@@ -147,7 +151,9 @@ export const useDraft = () => {
       data1.vat !== data2.vat ||
       data1.wht !== data2.wht ||
       data1.selectedClientId !== data2.selectedClientId ||
-      data1.invoiceTaxRate !== data2.invoiceTaxRate
+      data1.invoiceTaxRate !== data2.invoiceTaxRate ||
+      data1.selectedVatId !== data2.selectedVatId ||
+      data1.selectedWhtId !== data2.selectedWhtId
     ) {
       return false;
     }
