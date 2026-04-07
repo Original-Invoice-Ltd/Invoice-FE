@@ -1,6 +1,6 @@
-import { ApiClient, ApiResponse } from "./api";
+﻿import { ApiClient, ApiResponse } from "./api";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface AdminUser {
     id: string;
@@ -120,6 +120,8 @@ export interface ContactMessage {
     status: "NEW" | "READ" | "RESPONDED";
     createdAt: string;
 }
+
+export interface AuditLog {
     id: string;
     admin: string;
     action: string;
@@ -162,29 +164,29 @@ export interface SystemConfig {
     inAppNotifications?: boolean;
 }
 
-// ─── Admin API ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Admin API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export class AdminApi {
 
-    // ── Overview ──────────────────────────────────────────────────────────────
+    // â”€â”€ Overview â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    static async getOverviewStats(startDate?: string, endDate?: string): Promise<ApiResponse<AdminOverviewStats>> {
+    static async getOverviewStats(startDate?: string, endDate?: string): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/overview/stats", { startDate, endDate });
     }
 
-    static async getPaymentTrends(period: string): Promise<ApiResponse<any[]>> {
+    static async getPaymentTrends(period: string): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/overview/payment-trends", { period });
     }
 
-    static async getInvoiceStatusBreakdown(): Promise<ApiResponse<any[]>> {
+    static async getInvoiceStatusBreakdown(): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/overview/invoice-status");
     }
 
-    static async getSubscriptionDistribution(): Promise<ApiResponse<any[]>> {
+    static async getSubscriptionDistribution(): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/overview/subscription-distribution");
     }
 
-    // ── Users ─────────────────────────────────────────────────────────────────
+    // â”€â”€ Users â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     static async getUsers(params: {
         page?: number;
@@ -193,11 +195,11 @@ export class AdminApi {
         status?: string;
         role?: string;
         plan?: string;
-    }): Promise<ApiResponse<AdminUserListResponse>> {
+    }): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/users", params);
     }
 
-    static async getUserById(id: string): Promise<ApiResponse<AdminUser>> {
+    static async getUserById(id: string): Promise<ApiResponse<any>> {
         return ApiClient.get(`/api/admin/users/${id}`);
     }
 
@@ -217,7 +219,7 @@ export class AdminApi {
         return ApiClient.delete(`/api/admin/users/${id}`);
     }
 
-    // ── Subscriptions ─────────────────────────────────────────────────────────
+    // â”€â”€ Subscriptions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     static async getSubscriptions(params: {
         page?: number;
@@ -225,7 +227,7 @@ export class AdminApi {
         search?: string;
         plan?: string;
         status?: string;
-    }): Promise<ApiResponse<AdminSubscriptionListResponse>> {
+    }): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/subscriptions", params);
     }
 
@@ -249,17 +251,17 @@ export class AdminApi {
         return ApiClient.patch(`/api/admin/subscriptions/${id}/cancel`, { reason });
     }
 
-    // ── Tax Config ────────────────────────────────────────────────────────────
+    // â”€â”€ Tax Config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    static async getTaxTypes(): Promise<ApiResponse<TaxType[]>> {
+    static async getTaxTypes(): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/tax-config");
     }
 
-    static async createTaxType(data: Omit<TaxType, "id">): Promise<ApiResponse<TaxType>> {
+    static async createTaxType(data: Omit<TaxType, "id">): Promise<ApiResponse<any>> {
         return ApiClient.post("/api/admin/tax-config", data);
     }
 
-    static async updateTaxType(id: string, data: Partial<TaxType>): Promise<ApiResponse<TaxType>> {
+    static async updateTaxType(id: string, data: Partial<TaxType>): Promise<ApiResponse<any>> {
         return ApiClient.put(`/api/admin/tax-config/${id}`, data);
     }
 
@@ -275,15 +277,15 @@ export class AdminApi {
         return ApiClient.putNoBody(`/api/admin/tax-config/${id}/enable`);
     }
 
-    static async getTaxRules(): Promise<ApiResponse<TaxRules>> {
+    static async getTaxRules(): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/tax-config/rules");
     }
 
-    static async updateTaxRules(data: TaxRules): Promise<ApiResponse<TaxRules>> {
+    static async updateTaxRules(data: TaxRules): Promise<ApiResponse<any>> {
         return ApiClient.put("/api/admin/tax-config/rules", data);
     }
 
-    // ── Reports ───────────────────────────────────────────────────────────────
+    // â”€â”€ Reports â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     static async getRevenueReport(startDate: string, endDate: string): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/reports/revenue", { startDate, endDate });
@@ -317,11 +319,11 @@ export class AdminApi {
         return ApiClient.get("/api/admin/reports/export/invoices");
     }
 
-    static async getRecentExports(): Promise<ApiResponse<any[]>> {
+    static async getRecentExports(): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/reports/recent");
     }
 
-    // ── Notifications ─────────────────────────────────────────────────────────
+    // â”€â”€ Notifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     static async sendNotification(data: {
         type: string;
@@ -334,15 +336,15 @@ export class AdminApi {
         return ApiClient.post("/api/admin/notifications/send", data);
     }
 
-    static async getNotificationHistory(): Promise<ApiResponse<AdminNotification[]>> {
+    static async getNotificationHistory(): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/notifications/history");
     }
 
-    static async getMyNotifications(): Promise<ApiResponse<AdminNotification[]>> {
+    static async getMyNotifications(): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/notifications/my-notifications");
     }
 
-    static async getUnreadNotifications(): Promise<ApiResponse<AdminNotification[]>> {
+    static async getUnreadNotifications(): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/notifications/my-notifications/unread");
     }
 
@@ -350,13 +352,13 @@ export class AdminApi {
         return ApiClient.putNoBody("/api/admin/notifications/my-notifications/mark-all-read");
     }
 
-    // ── Admin Management ──────────────────────────────────────────────────────
+    // â”€â”€ Admin Management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     static async getAdmins(params?: {
         search?: string;
         role?: string;
         status?: string;
-    }): Promise<ApiResponse<AdminManagementUser[]>> {
+    }): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/management", params);
     }
 
@@ -365,7 +367,7 @@ export class AdminApi {
         fullName: string;
         role: string;
         status: string;
-    }): Promise<ApiResponse<AdminManagementUser>> {
+    }): Promise<ApiResponse<any>> {
         return ApiClient.post("/api/admin/management", data);
     }
 
@@ -373,7 +375,7 @@ export class AdminApi {
         fullName?: string;
         role?: string;
         status?: string;
-    }): Promise<ApiResponse<AdminManagementUser>> {
+    }): Promise<ApiResponse<any>> {
         return ApiClient.put(`/api/admin/management/${id}`, data);
     }
 
@@ -397,11 +399,11 @@ export class AdminApi {
         targetUserId?: string;
         startDate?: string;
         endDate?: string;
-    }): Promise<ApiResponse<AuditLog[]>> {
+    }): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/audit-logs", params);
     }
 
-    static async getAuditLogActions(): Promise<ApiResponse<string[]>> {
+    static async getAuditLogActions(): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/audit-logs/actions");
     }
 
@@ -409,9 +411,9 @@ export class AdminApi {
         return ApiClient.get("/api/admin/audit-logs/stats");
     }
 
-    // ── System Config / Plans ─────────────────────────────────────────────────
+    // â”€â”€ System Config / Plans â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    static async getPlans(): Promise<ApiResponse<any[]>> {
+    static async getPlans(): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/system-config/plans");
     }
 
@@ -427,15 +429,15 @@ export class AdminApi {
         return ApiClient.delete(`/api/admin/system-config/plans/${id}`);
     }
 
-    static async getSystemConfig(): Promise<ApiResponse<SystemConfig>> {
+    static async getSystemConfig(): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/system-config");
     }
 
-    static async updateSystemConfig(data: Partial<SystemConfig>): Promise<ApiResponse<SystemConfig>> {
+    static async updateSystemConfig(data: Partial<SystemConfig>): Promise<ApiResponse<any>> {
         return ApiClient.put("/api/admin/system-config", data);
     }
 
-    // ── Contact Messages ──────────────────────────────────────────────────────
+    // â”€â”€ Contact Messages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     static async getContactMessages(params?: {
         name?: string;
@@ -454,7 +456,7 @@ export class AdminApi {
     }
 
     static async updateContactStatus(id: number, status: "NEW" | "READ" | "RESPONDED"): Promise<ApiResponse<any>> {
-        return ApiClient.patch(`/api/admin/contact/${id}/status`, undefined, { status });
+        return ApiClient.patch(`/api/admin/contact/${id}/status?status=${status}`);
     }
 
     static async updateAdminProfile(data: {
@@ -469,9 +471,5 @@ export class AdminApi {
         newPassword: string;
     }): Promise<ApiResponse<any>> {
         return ApiClient.post("/api/admin/profile/change-password", data);
-    }
-
-    static async updateContactStatus(id: number, status: "NEW" | "READ" | "RESPONDED"): Promise<ApiResponse<any>> {
-        return ApiClient.patch(`/api/admin/contact/${id}/status?status=${status}`);
     }
 }
