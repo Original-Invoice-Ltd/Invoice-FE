@@ -3,8 +3,9 @@
 import { Menu, Bell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthService } from "@/lib/auth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { AdminApi, ContactMessage } from "@/lib/adminApi";
 
 interface AdminHeaderProps {
     onMenuClick: () => void;
@@ -14,6 +15,26 @@ interface AdminHeaderProps {
 const AdminHeader = ({ onMenuClick, isSuperAdmin = false }: AdminHeaderProps) => {
     const { user } = useAuth();
     const [showUserMenu, setShowUserMenu] = useState(false);
+    const [showBell, setShowBell] = useState(false);
+    const [messages, setMessages] = useState<ContactMessage[]>([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    useEffect(() => {
+        AdminApi.getContactMessages({ status: "NEW", size: 5 }).then(res => {
+            if (res.status === 200 && res.data) {
+                const d = res.data as any;
+                const list: ContactMessage[] = d.data?.content ?? d.content ?? d.data ?? [];
+                setMessages(list.slice(0, 5));
+                setUnreadCount(d.data?.totalItems ?? d.totalElements ?? list.length);
+            }
+        });
+    }, []);
+
+    const handleMarkRead = async (msg: ContactMessage) => {
+        await AdminApi.updateContactStatus(msg.id, "READ");
+        setMessages(prev => prev.filter(m => m.id !== msg.id));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+    };
 
     const handleLogout = async () => {
         await AuthService.logout();
@@ -35,9 +56,51 @@ const AdminHeader = ({ onMenuClick, isSuperAdmin = false }: AdminHeaderProps) =>
             </div>
 
             <div className="flex items-center gap-3 sm:gap-6">
-                <Link href="/admin/notifications" className="relative p-2 hover:bg-gray-100 rounded-lg" aria-label="Notifications">
-                    <Bell size={22} className="text-gray-600" />
-                </Link>
+                <div className="relative">
+                    <button onClick={() => setShowBell(!showBell)} className="relative p-2 hover:bg-gray-100 rounded-lg" aria-label="Notifications">
+                        <Bell size={22} className="text-gray-600" />
+                        {unreadCount > 0 && (
+                            <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-[9px] font-bold">
+                                {unreadCount > 9 ? "9+" : unreadCount}
+                            </span>
+                        )}
+                    </button>
+                    {showBell && (
+                        <>
+                            <div className="fixed inset-0 z-40" onClick={() => setShowBell(false)} />
+                            <div className="absolute right-0 mt-2 w-80 bg-white border border-[#E4E7EC] rounded-xl shadow-lg z-50">
+                                <div className="flex items-start justify-between px-4 py-3 border-b border-[#E4E7EC]">
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-900">User Feedback</p>
+                                        <p className="text-xs text-gray-500 mt-0.5">Messages from the contact form</p>
+                                    </div>
+                                    <button onClick={() => setShowBell(false)} className="p-1 hover:bg-gray-100 rounded-lg text-gray-400">✕</button>
+                                </div>
+                                <div className="max-h-80 overflow-y-auto divide-y divide-[#E4E7EC]">
+                                    {messages.length === 0 ? (
+                                        <p className="text-sm text-gray-500 text-center py-8">No new messages</p>
+                                    ) : messages.map(msg => (
+                                        <div key={msg.id} className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50">
+                                            <div className="w-8 h-8 bg-[#EBF5FF] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                                <Bell size={14} className="text-[#2F80ED]" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-semibold text-gray-900 truncate">{msg.fullName}</p>
+                                                <p className="text-xs text-gray-600 truncate">{msg.subject}</p>
+                                                <p className="text-xs text-gray-400 mt-0.5">
+                                                    {new Date(msg.createdAt).toLocaleString("en-GB", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                                                </p>
+                                            </div>
+                                            <button onClick={() => handleMarkRead(msg)} className="text-[#2F80ED] flex-shrink-0 mt-1" title="Mark as read">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
 
                 <div className="relative">
                     <button

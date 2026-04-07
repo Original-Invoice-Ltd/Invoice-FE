@@ -109,13 +109,35 @@ export interface AdminManagementUser {
     createdDate?: string;
 }
 
-export interface AuditLog {
+export interface ContactMessage {
+    id: number;
+    fullName: string;
+    email: string;
+    phone?: string;
+    subject: string;
+    message: string;
+    agreeToComms: boolean;
+    status: "NEW" | "READ" | "RESPONDED";
+    createdAt: string;
+}
     id: string;
     admin: string;
     action: string;
     target: string;
     timestamp: string;
     details: string;
+}
+
+export interface ContactMessage {
+    id: number;
+    fullName: string;
+    email: string;
+    phone?: string;
+    subject: string;
+    message: string;
+    agreeToComms: boolean;
+    status: "NEW" | "READ" | "RESPONDED";
+    createdAt: string;
 }
 
 export interface SystemConfig {
@@ -413,7 +435,27 @@ export class AdminApi {
         return ApiClient.put("/api/admin/system-config", data);
     }
 
-    // ── Profile ───────────────────────────────────────────────────────────────
+    // ── Contact Messages ──────────────────────────────────────────────────────
+
+    static async getContactMessages(params?: {
+        name?: string;
+        email?: string;
+        status?: string;
+        startDate?: string;
+        endDate?: string;
+        page?: number;
+        size?: number;
+    }): Promise<ApiResponse<any>> {
+        return ApiClient.get("/api/admin/contact", params);
+    }
+
+    static async getContactMessage(id: number): Promise<ApiResponse<any>> {
+        return ApiClient.get(`/api/admin/contact/${id}`);
+    }
+
+    static async updateContactStatus(id: number, status: "NEW" | "READ" | "RESPONDED"): Promise<ApiResponse<any>> {
+        return ApiClient.patch(`/api/admin/contact/${id}/status`, undefined, { status });
+    }
 
     static async updateAdminProfile(data: {
         fullName: string;
@@ -427,5 +469,9 @@ export class AdminApi {
         newPassword: string;
     }): Promise<ApiResponse<any>> {
         return ApiClient.post("/api/admin/profile/change-password", data);
+    }
+
+    static async updateContactStatus(id: number, status: "NEW" | "READ" | "RESPONDED"): Promise<ApiResponse<any>> {
+        return ApiClient.patch(`/api/admin/contact/${id}/status?status=${status}`);
     }
 }
