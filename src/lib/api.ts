@@ -173,8 +173,8 @@ export class ApiClient {
     }
   }
 
-  static async patch(endpoint: string, data?: any) {
-    return this.request("PATCH", endpoint, data);
+  static async patch(endpoint: string, data?: any, params?: any) {
+    return this.request("PATCH", endpoint, data, params);
   }
 
   static async delete(endpoint: string, params?: any) {
