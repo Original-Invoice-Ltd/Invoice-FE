@@ -50,12 +50,27 @@ const AdminReportsPage = () => {
             id: "export-users",
             name: "User List Export",
             filename: "users-export",
-            description: "All user records with profile, plan, and status",
+            description: "All user records with profile, plan, status and invoice stats",
             call: async () => {
-                const res = await AdminApi.exportUsers();
-                if (res.status === 200 && res.data) return res;
-                // Fallback: fetch from users endpoint
-                return AdminApi.getUsers({ page: 0, size: 1000 });
+                // Fetch all users with a large page size
+                const res = await AdminApi.getUsers({ page: 0, size: 1000 });
+                if (res.status === 200 && res.data) {
+                    const data = res.data as any;
+                    const list = Array.isArray(data) ? data : data.content ?? data.data ?? [];
+                    // Map to enriched export rows
+                    const rows = list.map((u: any) => ({
+                        fullName: u.fullName ?? "",
+                        email: u.email ?? "",
+                        phone: u.phone ?? "",
+                        status: u.status ?? "",
+                        role: u.role ?? "",
+                        plan: u.currentPlan ?? u.plan ?? "",
+                        invoiceCount: u.invoiceCount ?? 0,
+                        registeredDate: u.createdAt ? new Date(u.createdAt).toLocaleDateString() : u.registeredDate ?? "",
+                    }));
+                    return { status: 200, data: rows };
+                }
+                return res;
             }
         },
         {
@@ -63,14 +78,36 @@ const AdminReportsPage = () => {
             name: "Transaction Data Export",
             filename: "transactions-export",
             description: "Payment records, amounts, methods, and statuses",
-            call: () => AdminApi.exportTransactions()
+            call: async () => {
+                const res = await AdminApi.exportTransactions();
+                console.log('[export-transactions] status:', res.status, '| data:', res.data, '| error:', res.error);
+                return res;
+            }
         },
         {
             id: "export-invoices",
             name: "Invoice Data Export",
             filename: "invoices-export",
             description: "Full platform-wide invoice records",
-            call: () => AdminApi.exportInvoices()
+            call: async () => {
+                const res = await AdminApi.exportInvoices();
+                if (res.status === 200 && res.data) return res;
+                // Fallback: fetch users and build invoice summary per user
+                const usersRes = await AdminApi.getUsers({ page: 0, size: 1000 });
+                if (usersRes.status === 200 && usersRes.data) {
+                    const data = usersRes.data as any;
+                    const list = Array.isArray(data) ? data : data.content ?? data.data ?? [];
+                    const rows = list.map((u: any) => ({
+                        fullName: u.fullName ?? "",
+                        email: u.email ?? "",
+                        plan: u.currentPlan ?? u.plan ?? "",
+                        totalInvoices: u.invoiceCount ?? 0,
+                        isPremium: (u.currentPlan ?? u.plan ?? "").toUpperCase() === "PREMIUM" ? "Yes" : "No",
+                    }));
+                    return { status: 200, data: rows };
+                }
+                return res;
+            }
         },
     ];
 
