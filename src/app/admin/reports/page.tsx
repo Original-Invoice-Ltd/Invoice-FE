@@ -138,6 +138,17 @@ const AdminReportsPage = () => {
                 setResults(prev => ({ ...prev, [id]: true }));
                 if (typeof res.data === "string" && res.data.startsWith("http")) {
                     window.open(res.data, "_blank");
+                } else if (typeof res.data === "string") {
+                    // Backend returned raw CSV text — download directly
+                    const blob = new Blob([res.data], { type: "text/csv;charset=utf-8;" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `${filename}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
                 } else {
                     downloadCSV(res.data, filename);
                 }
