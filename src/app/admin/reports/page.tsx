@@ -10,16 +10,29 @@ const downloadCSV = (data: any, filename: string) => {
     if (Array.isArray(data)) {
         rows = data;
     } else if (typeof data === "object" && data !== null) {
-        // Try common wrapper keys
-        rows = data.content ?? data.data ?? data.records ?? data.items ?? [data];
+        rows = data.content ?? data.data ?? data.records ?? data.items ?? data.transactions ?? data.invoices ?? [data];
     }
 
-    if (!rows.length) return;
+    // If still no rows or rows are not objects, wrap primitive data
+    if (!rows.length) {
+        console.warn(`[${filename}] No rows to export, data:`, data);
+        return;
+    }
 
-    const headers = Object.keys(rows[0]);
+    // Flatten nested objects
+    const flatRows = rows.map(r => {
+        if (typeof r !== "object" || r === null) return { value: r };
+        const flat: any = {};
+        Object.entries(r).forEach(([k, v]) => {
+            flat[k] = typeof v === "object" && v !== null ? JSON.stringify(v) : v ?? "";
+        });
+        return flat;
+    });
+
+    const headers = Object.keys(flatRows[0]);
     const csv = [
         headers.join(","),
-        ...rows.map(r => headers.map(h => `"${r[h] ?? ""}"`).join(","))
+        ...flatRows.map(r => headers.map(h => `"${String(r[h] ?? "").replace(/"/g, '""')}"`).join(","))
     ].join("\n");
 
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -27,7 +40,9 @@ const downloadCSV = (data: any, filename: string) => {
     const a = document.createElement("a");
     a.href = url;
     a.download = `${filename}.csv`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
 };
 
@@ -118,7 +133,7 @@ const AdminReportsPage = () => {
         setError(null);
         try {
             const res = await call();
-            console.log(`[Report ${id}] status:`, res.status, '| data:', res.data, '| error:', res.error);
+            console.log(`[Report ${id}] status:`, res.status, '| data type:', typeof res.data, '| data:', res.data, '| error:', res.error);
             if (res.status === 200 && res.data) {
                 setResults(prev => ({ ...prev, [id]: true }));
                 if (typeof res.data === "string" && res.data.startsWith("http")) {
