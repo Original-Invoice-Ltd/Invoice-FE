@@ -32,7 +32,7 @@ const CustomerInvoicesPage = () => {
     };
 
     const getDropdownOptions = (status: string) => {
-        return ApiClient.getDropdownOptions(status);
+        return ApiClient.getDropdownOptions(status, 'customer');
     };
 
     const handleDropdownAction = (action: string, invoiceId: string) => {
@@ -44,11 +44,9 @@ const CustomerInvoicesPage = () => {
                 router.push(`/customer/invoices/${invoiceId}`);
                 break;
             case 'receipt':
-                // View existing receipt
-                console.log('View receipt for invoice:', invoiceId);
+                router.push(`/customer/receipt/${invoiceId}`);
                 break;
             case 'upload':
-                // Open upload modal with invoice ID
                 setSelectedInvoiceId(invoiceId);
                 setIsUploadModalOpen(true);
                 break;

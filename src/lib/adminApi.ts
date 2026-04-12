@@ -47,14 +47,12 @@ export interface AdminSubscriptionListResponse {
 }
 
 export interface TaxType {
-    id: string;
-    name: string;
-    category: "WHT" | "VAT" | "CONSUMPTION_TAX" | "EXCISE_TAX" | "CUSTOM";
-    baseRate?: number;
-    individualRate: number;
-    businessRate: number;
-    isActive: boolean;
-    description: string;
+  id: string;
+  name: string;
+  type: string; // MUST match uppercase enum
+  individualRate: number;
+  businessRate: number;
+  baseTaxRate: number;
 }
 
 export interface TaxRules {
