@@ -60,6 +60,7 @@ axiosInstance.interceptors.response.use(
 
     if (error.response?.status === 401) {
       // Skip redirect for certain API endpoints that may return 401 for empty data
+      // Skip redirect for certain API endpoints that may return 401 for empty data
       const skipRedirectEndpoints = [
         "/api/product/",
         "/api/client/",
