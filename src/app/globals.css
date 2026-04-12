@@ -29,3 +29,53 @@ html, body {
   scrollbar-width: none;  /* Firefox */
 }
 
+
+/* Custom Date Input Styling */
+.custom-date-input::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.custom-date-input {
+  color-scheme: light;
+  color: transparent;
+}
+
+.custom-date-input:focus {
+  color: #101828;
+}
+
+.custom-date-input::-webkit-datetime-edit {
+  padding: 0;
+}
+
+.custom-date-input::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+.custom-date-input::-webkit-datetime-edit-text {
+  color: #667085;
+  padding: 0 2px;
+}
+
+.custom-date-input::-webkit-datetime-edit-month-field,
+.custom-date-input::-webkit-datetime-edit-day-field,
+.custom-date-input::-webkit-datetime-edit-year-field {
+  color: #101828;
+  padding: 0 2px;
+}
+
+/* Show date value when it has a value */
+.custom-date-input:not([value=""]) {
+  color: #101828;
+}
+
+.custom-date-input:focus {
+  outline: none;
+  border-color: #2F80ED;
+}

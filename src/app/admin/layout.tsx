@@ -18,28 +18,26 @@ export default function AdminLayout({
 
     const rawRoles = user?.roles ?? [];
     const roles = parseRoles(rawRoles);
-    // TEMPORARILY HARDCODED FOR TESTING - Set to true to see Super Admin section
-    const isSuperAdmin = true; // roles.includes("SUPER_ADMIN");
+    const isSuperAdmin = roles.includes("SUPER_ADMIN");
     const isAdminUser = isSuperAdmin || roles.includes("ADMIN");
 
-    // COMMENTED OUT FOR TESTING - Authentication check disabled
-    // useEffect(() => {
-    //     if (!loading && !user) {
-    //         router.push("/signIn");
-    //     }
-    // }, [user, loading, router]);
+    useEffect(() => {
+        if (!loading && !user) {
+            router.push("/signIn");
+        }
+    }, [user, loading, router]);
 
-    // if (loading) {
-    //     return (
-    //         <div className="flex items-center justify-center h-screen bg-[#F9FAFB]">
-    //             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-    //         </div>
-    //     );
-    // }
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen bg-[#F9FAFB]">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
 
-    // if (!user) {
-    //     return null;
-    // }
+    if (!user) {
+        return null;
+    }
 
     return (
         <div className="flex h-screen overflow-hidden bg-[#F9FAFB] font-['Inter_Tight']">
