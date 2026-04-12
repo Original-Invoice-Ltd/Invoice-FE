@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Download, Eye, X } from "lucide-react";
+import { ArrowLeft, Eye, X, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { ApiClient } from "@/lib/api";
 import { InvoiceResponse } from "@/types/invoice";
 import { useTranslation } from "react-i18next";
+import { UploadReceiptModal } from "@/components/modals";
+import { formatCurrency as formatCurrencyUtil, CurrencyCode } from "@/lib/currencyFormatter";
 
 const InvoiceViewPage = () => {
     const params = useParams();
@@ -16,6 +18,8 @@ const InvoiceViewPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedDescription, setSelectedDescription] = useState<string | null>(null);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
     useEffect(() => {
         if (params.id) {
@@ -50,13 +54,18 @@ const InvoiceViewPage = () => {
     };
 
     const formatCurrency = (amount: number | null | undefined, currency: string = 'NGN') => {
-        const safeAmount = amount || 0;
-        return new Intl.NumberFormat('en-NG', {
-            style: 'currency',
-            currency: currency || 'NGN',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(safeAmount);
+        return formatCurrencyUtil(amount || 0, { currency: currency as CurrencyCode });
+    };
+
+    const handleMarkAsPaid = async () => {
+        const { toast } = await import("@/lib/toast");
+        const response = await ApiClient.markInvoiceAsPaid(params.id as string);
+        if (response.status === 200) {
+            toast.show({ type: 'success', message: 'Successfully marked as paid' });
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        }
     };
 
     if (loading) {
@@ -89,7 +98,6 @@ const InvoiceViewPage = () => {
 
     return (
         <div className="max-w-7xl mx-auto mb-[200px]">
-            {/* Header */}
             <div className="flex items-center justify-between mb-6 px-6">
                 <div className="flex items-center gap-4">
                     <Link
@@ -106,34 +114,49 @@ const InvoiceViewPage = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    {/* <button className="flex items-center gap-2 px-4 py-2 border border-[#D0D5DD] text-[#344054] rounded-lg hover:bg-[#F9FAFB] transition-colors">
-                        <Send size={16} />
-                        {t('send_invoice')}
-                    </button> */}
-                    <button
-                        onClick={() => {
-                            
-                        }}
-                        className="flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors">
-                        <Download size={16} />
-                        {t('mark_as_paid')}
-                    </button>
+                    <div className="relative">
+                        <button
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
+                        >
+                            Mark
+                            <ChevronDown size={16} />
+                        </button>
+                        
+                        {isDropdownOpen && (
+                            <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                                <div className="py-1">
+                                    <button
+                                        onClick={() => {
+                                            setIsDropdownOpen(false);
+                                            handleMarkAsPaid();
+                                        }}
+                                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                    >
+                                        Mark as Paid
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setIsDropdownOpen(false);
+                                            setIsUploadModalOpen(true);
+                                        }}
+                                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                    >
+                                        Mark as Incomplete
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
-            {/* Invoice Preview */}
             <div className="bg-white rounded-lg border border-[#E4E7EC] overflow-hidden mx-6">
                 <div className="relative">
-                    {/* Removed status watermarks */}
-                    
-                    {/* Invoice Content */}
                     <div className="relative z-0 p-4 sm:p-6 md:p-8 bg-white">
-                        {/* Top Section: Bill From/To and Invoice Details */}
                         <div className="mb-8">
-                            {/* Bill From and Bill To Section - Side by Side with Space Between */}
                             <div className="flex flex-col md:flex-row justify-between gap-6 mb-6">
-                                {/* Bill From */}
-                                <div className="flex-1">
+                                    <div className="flex-1">
                                     <h3 className="text-sm font-semibold text-[#101828] mb-3">Bill From</h3>
                                     <div className="space-y-1">
                                         <p className="text-sm font-medium text-[#101828]">{invoice.billFrom?.fullName}</p>
@@ -147,25 +170,29 @@ const InvoiceViewPage = () => {
                                     </div>
                                 </div>
 
-                                {/* Bill To */}
                                 <div className="flex-1 md:text-right">
                                     <h3 className="text-sm font-semibold text-[#101828] mb-3">Bill To</h3>
                                     <div className="space-y-1">
-                                        <p className="text-sm font-medium text-[#101828]">
-                                            {invoice.billTo?.businessName || invoice.billTo?.fullName}
-                                        </p>
-                                        {invoice.billTo?.country && (
-                                            <p className="text-sm text-[#667085]">{invoice.billTo.country}</p>
-                                        )}
-                                        <p className="text-sm text-[#667085]">{invoice.billTo?.email}</p>
-                                        {invoice.billTo?.phone && (
-                                            <p className="text-sm text-[#667085]">{invoice.billTo.phone}</p>
+                                        {invoice.billTo ? (
+                                            <>
+                                                <p className="text-sm font-medium text-[#101828]">
+                                                    {invoice.billTo.businessName || invoice.billTo.fullName}
+                                                </p>
+                                                {invoice.billTo.country && (
+                                                    <p className="text-sm text-[#667085]">{invoice.billTo.country}</p>
+                                                )}
+                                                <p className="text-sm text-[#667085]">{invoice.billTo.email}</p>
+                                                {invoice.billTo.phone && (
+                                                    <p className="text-sm text-[#667085]">{invoice.billTo.phone}</p>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <p className="text-sm text-[#667085]">You (Received Invoice)</p>
                                         )}
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Invoice Details - Full Width with Space Between */}
                             <div className="w-full">
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center">
@@ -188,11 +215,10 @@ const InvoiceViewPage = () => {
                             </div>
                         </div>
 
-                        {/* Items Table */}
                         <div className="mb-8 overflow-x-auto">
                             <table className="w-full border-collapse">
                                 <thead>
-                                    <tr style={{ backgroundColor: invoice.color ? `${invoice.color}20` : '#EBF5FF' }}>
+                                    <tr style={{ backgroundColor: invoice.invoiceColor ? `${invoice.invoiceColor}20` : '#EBF5FF' }}>
                                         <th className="text-left py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD] w-12">#</th>
                                         <th className="text-left py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD]">Item Detail</th>
                                         <th className="text-right py-3 px-4 text-sm font-medium text-[#101828] border border-[#D0D5DD] w-20">Qty</th>
@@ -208,11 +234,9 @@ const InvoiceViewPage = () => {
                                                 <div className="font-medium">{item.itemName}</div>
                                                 {item.description && (
                                                     <div className="mt-1">
-                                                        {/* Desktop: Show full description */}
                                                         <div className="hidden md:block text-xs text-[#667085]">
                                                             {item.description}
                                                         </div>
-                                                        {/* Mobile: Show truncated with eye button if long */}
                                                         <div className="md:hidden">
                                                             {item.description.length > 50 ? (
                                                                 <div className="flex items-start gap-2">
@@ -249,7 +273,6 @@ const InvoiceViewPage = () => {
                             </table>
                         </div>
 
-                        {/* Totals Section - Right Aligned */}
                         <div className="flex justify-end mb-8">
                             <div className="w-full md:w-80">
                                 <div className="space-y-2">
@@ -287,7 +310,6 @@ const InvoiceViewPage = () => {
                             </div>
                         </div>
 
-                        {/* Signature */}
                         {invoice.signatureUrl && (
                             <div className="mb-8">
                                 <div className="text-[14px] font-medium text-[#101828] mb-2">{t('signature_label')}</div>
@@ -299,7 +321,6 @@ const InvoiceViewPage = () => {
                             </div>
                         )}
 
-                        {/* Notes and Terms */}
                         {(invoice.note || invoice.termsAndConditions || invoice.paymentTerms) && (
                             <div className="space-y-6">
                                 {invoice.note && (
@@ -332,7 +353,6 @@ const InvoiceViewPage = () => {
                 </div>
             </div>
 
-            {/* Description Modal */}
             {selectedDescription && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg w-full max-w-md mx-4 p-6">
@@ -358,6 +378,22 @@ const InvoiceViewPage = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            <UploadReceiptModal
+                isOpen={isUploadModalOpen}
+                onClose={() => setIsUploadModalOpen(false)}
+                invoiceId={params.id as string}
+                mode="incomplete"
+                invoiceTotalDue={invoice?.totalDue}
+                isDashboardUser={true}
+            />
+
+            {isDropdownOpen && (
+                <div
+                    className="fixed inset-0 z-0"
+                    onClick={() => setIsDropdownOpen(false)}
+                />
             )}
         </div>
     );
