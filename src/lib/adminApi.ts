@@ -6,11 +6,14 @@ export interface AdminUser {
     id: string;
     email: string;
     fullName: string;
-    status: "active" | "inactive";
-    role: "USER" | "ADMIN" | "SUPER_ADMIN";
-    plan: "FREE" | "ESSENTIALS" | "PREMIUM";
+    status: string;
+    role: string;
+    roles?: string[];
+    plan: string;
+    currentPlan?: string;
     invoiceCount: number;
-    registeredDate: string;
+    registeredDate?: string;
+    createdAt?: string;
     lastLogin?: string;
     phone?: string;
 }
@@ -86,10 +89,14 @@ export interface AdminManagementUser {
     id: string;
     email: string;
     fullName: string;
-    role: "ADMIN" | "SUPER_ADMIN";
-    status: "active" | "inactive";
-    lastLogin: string;
-    createdDate: string;
+    role: string;
+    roles?: string[];
+    status: string;
+    isVerified?: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+    lastLogin?: string;
+    createdDate?: string;
 }
 
 export interface AuditLog {
@@ -127,8 +134,8 @@ export class AdminApi {
 
     // ── Overview ──────────────────────────────────────────────────────────────
 
-    static async getOverviewStats(): Promise<ApiResponse<AdminOverviewStats>> {
-        return ApiClient.get("/api/admin/overview/stats");
+    static async getOverviewStats(startDate?: string, endDate?: string): Promise<ApiResponse<AdminOverviewStats>> {
+        return ApiClient.get("/api/admin/overview/stats", { startDate, endDate });
     }
 
     static async getPaymentTrends(period: string): Promise<ApiResponse<any[]>> {
@@ -174,10 +181,6 @@ export class AdminApi {
 
     static async deleteUser(id: string): Promise<ApiResponse<any>> {
         return ApiClient.delete(`/api/admin/users/${id}`);
-    }
-
-    static async exportUsers(): Promise<ApiResponse<any>> {
-        return ApiClient.get("/api/admin/users/export");
     }
 
     // ── Subscriptions ─────────────────────────────────────────────────────────
@@ -236,13 +239,36 @@ export class AdminApi {
 
     // ── Reports ───────────────────────────────────────────────────────────────
 
-    static async generateReport(params: {
-        reportId: string;
-        startDate: string;
-        endDate: string;
-        format: string;
-    }): Promise<ApiResponse<any>> {
-        return ApiClient.post("/api/admin/reports/generate", params);
+    static async getRevenueReport(startDate: string, endDate: string): Promise<ApiResponse<any>> {
+        return ApiClient.get("/api/admin/reports/revenue", { startDate, endDate });
+    }
+
+    static async getSubscriptionReport(startDate: string, endDate: string): Promise<ApiResponse<any>> {
+        return ApiClient.get("/api/admin/reports/subscriptions", { startDate, endDate });
+    }
+
+    static async getUserActivityReport(startDate: string, endDate: string): Promise<ApiResponse<any>> {
+        return ApiClient.get("/api/admin/reports/user-activity", { startDate, endDate });
+    }
+
+    static async getInvoiceStatisticsReport(startDate: string, endDate: string): Promise<ApiResponse<any>> {
+        return ApiClient.get("/api/admin/reports/invoice-statistics", { startDate, endDate });
+    }
+
+    static async getTaxCollectionReport(startDate: string, endDate: string): Promise<ApiResponse<any>> {
+        return ApiClient.get("/api/admin/reports/tax-collection", { startDate, endDate });
+    }
+
+    static async exportUsers(): Promise<ApiResponse<any>> {
+        return ApiClient.get("/api/admin/reports/export/users");
+    }
+
+    static async exportTransactions(): Promise<ApiResponse<any>> {
+        return ApiClient.get("/api/admin/reports/export/transactions");
+    }
+
+    static async exportInvoices(): Promise<ApiResponse<any>> {
+        return ApiClient.get("/api/admin/reports/export/invoices");
     }
 
     static async getRecentExports(): Promise<ApiResponse<any[]>> {
@@ -291,6 +317,14 @@ export class AdminApi {
         status?: string;
     }): Promise<ApiResponse<AdminManagementUser>> {
         return ApiClient.put(`/api/admin/management/${id}`, data);
+    }
+
+    static async disableAdmin(id: string): Promise<ApiResponse<any>> {
+        return ApiClient.put(`/api/admin/management/${id}/disable`);
+    }
+
+    static async enableAdmin(id: string): Promise<ApiResponse<any>> {
+        return ApiClient.put(`/api/admin/management/${id}/enable`);
     }
 
     static async deleteAdmin(id: string): Promise<ApiResponse<any>> {

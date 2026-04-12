@@ -8,11 +8,13 @@ interface User {
     id: string;
     email: string;
     fullName: string;
-    status: "active" | "inactive";
-    role: "USER" | "ADMIN" | "SUPER_ADMIN";
-    plan: "FREE" | "ESSENTIALS" | "PREMIUM";
+    status: string;
+    role: string;
+    plan: string;
+    currentPlan?: string;
     invoiceCount: number;
-    registeredDate: string;
+    registeredDate?: string;
+    createdAt?: string;
 }
 
 interface UserActionModalProps {
@@ -49,14 +51,15 @@ const UserActionModal = ({ user, actionType, onClose }: UserActionModalProps) =>
         }
     };
 
+    const isActive = ["ACTIVE", "VERIFIED"].includes(user.status?.toUpperCase());
     const configs = {
         deactivate: {
-            title: user.status === "active" ? "Deactivate User" : "Activate User",
-            description: user.status === "active"
+            title: isActive ? "Deactivate User" : "Activate User",
+            description: isActive
                 ? `Deactivating ${user.fullName} will remove their account access.`
                 : `Activating ${user.fullName} will restore their account access.`,
-            buttonText: user.status === "active" ? "Deactivate" : "Activate",
-            isDangerous: user.status === "active",
+            buttonText: isActive ? "Deactivate" : "Activate",
+            isDangerous: isActive,
         },
         role: {
             title: "Change User Role",
@@ -81,7 +84,7 @@ const UserActionModal = ({ user, actionType, onClose }: UserActionModalProps) =>
     const config = configs[actionType];
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
             <div className="bg-white rounded-xl shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-4 sm:p-6 border-b border-[#E4E7EC]">
                     <h2 className="text-lg font-bold text-gray-900">{config.title}</h2>
@@ -142,7 +145,7 @@ const UserActionModal = ({ user, actionType, onClose }: UserActionModalProps) =>
                     <button
                         onClick={handleConfirm}
                         disabled={loading}
-                        className={`flex-1 px-4 py-2 rounded-lg font-medium text-white text-sm disabled:opacity-50 ${config.isDangerous ? "bg-red-600 hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"}`}
+                        className={`flex-1 px-4 py-2 rounded-lg font-medium text-white text-sm disabled:opacity-50 ${config.isDangerous ? "bg-red-600 hover:bg-red-700" : "bg-[#2F80ED] hover:bg-[#2868C7]"}`}
                     >
                         {loading ? "Processing..." : config.buttonText}
                     </button>

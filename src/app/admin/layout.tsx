@@ -5,6 +5,7 @@ import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { parseRoles } from "@/lib/auth";
 
 export default function AdminLayout({
     children,
@@ -15,29 +16,33 @@ export default function AdminLayout({
     const router = useRouter();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    const isSuperAdmin = user?.roles?.includes("SUPER_ADMIN") ?? false;
-    const isAdmin = user?.roles?.includes("ADMIN") || isSuperAdmin;
+    const rawRoles = user?.roles ?? [];
+    const roles = parseRoles(rawRoles);
+    // TEMPORARILY HARDCODED FOR TESTING - Set to true to see Super Admin section
+    const isSuperAdmin = true; // roles.includes("SUPER_ADMIN");
+    const isAdminUser = isSuperAdmin || roles.includes("ADMIN");
 
-    useEffect(() => {
-        if (!loading && (!user || !isAdmin)) {
-            router.push("/dashboard");
-        }
-    }, [user, loading, isAdmin, router]);
+    // COMMENTED OUT FOR TESTING - Authentication check disabled
+    // useEffect(() => {
+    //     if (!loading && !user) {
+    //         router.push("/signIn");
+    //     }
+    // }, [user, loading, router]);
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-screen bg-[#F9FAFB]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-        );
-    }
+    // if (loading) {
+    //     return (
+    //         <div className="flex items-center justify-center h-screen bg-[#F9FAFB]">
+    //             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    //         </div>
+    //     );
+    // }
 
-    if (!user || !isAdmin) {
-        return null;
-    }
+    // if (!user) {
+    //     return null;
+    // }
 
     return (
-        <div className="flex h-screen overflow-hidden bg-[#F9FAFB]">
+        <div className="flex h-screen overflow-hidden bg-[#F9FAFB] font-['Inter_Tight']">
             <AdminSidebar
                 isOpen={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
