@@ -32,6 +32,7 @@ export default function AdminLayout({
         );
     }
 
+    
     if (!user || !isAdmin) {
         return null;
     }
