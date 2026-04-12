@@ -1098,7 +1098,7 @@ export class ApiClient {
     return baseOptions;
   }
   
-  static isValidPhone = (phone: string) => {
+git  static isValidPhone = (phone: string) => {
     return /^\+\d{7,15}$/.test(phone);
   };
 
