@@ -426,7 +426,7 @@ const  Home =()=> {
                 </div>
             </div>
 
-            {/* FAQ Section */}
+            {/* FAQ Section*/}
             <FAQ/>
             {/* Testimonials Section */}
             <Testimonials/>
