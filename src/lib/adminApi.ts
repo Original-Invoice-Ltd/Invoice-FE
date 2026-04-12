@@ -47,17 +47,12 @@ export interface AdminSubscriptionListResponse {
 }
 
 export interface TaxType {
-    id: string;
-    name: string;
-    taxType: string;
-    baseTaxRate?: number;
-    individualRate: number;
-    businessRate: number;
-    active: boolean;
-    isActive?: boolean;
-    description: string;
-    createdAt?: string;
-    updatedAt?: string;
+  id: string;
+  name: string;
+  type: string; // MUST match uppercase enum
+  individualRate: number;
+  businessRate: number;
+  baseTaxRate: number;
 }
 
 export interface TaxRules {

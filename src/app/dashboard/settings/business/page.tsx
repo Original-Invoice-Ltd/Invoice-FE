@@ -120,12 +120,10 @@ const BusinessProfilePage = () => {
       
       // Fallback to single profile API if getAllBusinessProfiles returns empty or fails
       const response = await ApiClient.getBusinessProfile();
-      console.log("Full API response:", response);
 
       if (response.status === 200 && response.data) {
         const apiResponse = response.data as ApiResponse<BusinessProfileDto>;
         const data = apiResponse.data;
-        console.log("Business profile data:", data);
 
         if (data) {
           // Treat single profile as array with one item
@@ -216,7 +214,6 @@ const BusinessProfilePage = () => {
   const uploadLogo = async (profileId: string, file: File): Promise<string | null> => {
     try {
       const response = await ApiClient.uploadBusinessLogo(profileId, file);
-      console.log("Logo upload response:", response);
 
       if (response.status === 200 && response.data) {
         // Try both possible response structures

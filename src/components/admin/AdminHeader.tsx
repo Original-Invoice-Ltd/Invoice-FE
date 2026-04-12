@@ -12,6 +12,8 @@ interface AdminHeaderProps {
     isSuperAdmin?: boolean;
 }
 
+
+
 const AdminHeader = ({ onMenuClick, isSuperAdmin = false }: AdminHeaderProps) => {
     const { user } = useAuth();
     const [showUserMenu, setShowUserMenu] = useState(false);

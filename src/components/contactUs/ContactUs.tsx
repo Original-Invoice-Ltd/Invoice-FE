@@ -16,6 +16,8 @@ export default function ContactUs() {
   });
   
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   
   const subjectOptions = [
     'General Inquiry',
@@ -25,9 +27,41 @@ export default function ContactUs() {
     'Feedback'
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement form submission
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setSubmitStatus({ type: 'success', message: data.message || 'Your message has been sent successfully!' });
+        // Reset form
+        setFormData({
+          fullName: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: '',
+          agreeToComms: false
+        });
+      } else {
+        setSubmitStatus({ type: 'error', message: data.message || 'Failed to send message. Please try again.' });
+      }
+    } catch (error) {
+      setSubmitStatus({ type: 'error', message: 'An error occurred. Please try again later.' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -86,6 +120,16 @@ export default function ContactUs() {
           <div className="flex flex-col lg:flex-row gap-[40px] lg:gap-[60px] xl:gap-[100px] items-start">
             {/* Left Side - Form */}
             <div className="w-full lg:w-[600px] bg-white rounded-[16px] p-[24px] md:p-[32px] lg:p-[40px] shadow-sm">
+              {submitStatus && (
+                <div className={`mb-[24px] p-[16px] rounded-[8px] ${
+                  submitStatus.type === 'success' 
+                    ? 'bg-green-50 border border-green-200 text-green-800' 
+                    : 'bg-red-50 border border-red-200 text-red-800'
+                }`}>
+                  <p className="text-[14px]">{submitStatus.message}</p>
+                </div>
+              )}
+              
               <form onSubmit={handleSubmit}>
                 <div className="mb-[12px]">
                   <label className="block text-[14px] font-medium text-[#000] mb-[8px]">
@@ -202,9 +246,10 @@ export default function ContactUs() {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#2F80ED] text-white py-[14px] rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB]"
+                  disabled={isSubmitting}
+                  className="w-full bg-[#2F80ED] text-white py-[14px] rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Send Message
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
             </div>

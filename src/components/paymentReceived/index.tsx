@@ -109,7 +109,7 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
         }
       } catch (error) {
         showError('Failed to mark invoice as paid');
-        console.log("Error marking invoice as paid: ", error)
+        // console.log("Error marking invoice as paid: ", error)
       }
     }
   };
@@ -135,11 +135,11 @@ const PaymentReceived = ({ onCreateInvoice }: PaymentReceivedProps) => {
 
   const handleViewReceipt = async (payment: Payment) => {
     try {
-      console.log('Viewing receipt for payment:', payment);
-      console.log('Invoice ID being sent:', payment.id);
+      // console.log('Viewing receipt for payment:', payment);
+      // console.log('Invoice ID being sent:', payment.id);
 
       const response = await ApiClient.getPaymentEvidenceUrl(payment.id);
-      console.log('Receipt API response:', response);
+      // console.log('Receipt API response:', response);
 
       if (response.status === 200 && response.data) {
         // The API returns the URL in response.data.data.paymentEvidenceUrl

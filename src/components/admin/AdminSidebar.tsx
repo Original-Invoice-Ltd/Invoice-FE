@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Settings, BarChart3, CreditCard, FileText, Bell, LogOut, Percent } from "lucide-react";
+import { Users, Settings, BarChart3, CreditCard, FileText, Bell, LogOut, Percent, MessageSquare } from "lucide-react";
 import { AuthService } from '@/lib/auth';
 
 interface AdminSidebarProps {
@@ -19,6 +19,7 @@ const AdminSidebar = ({ isOpen = true, onClose, isSuperAdmin = true }: AdminSide
     const menuItems = [
         { label: "Dashboard", href: "/admin/overview", icon: (isActive: boolean) => <BarChart3 size={22} color={isActive ? "white" : "#667085"} /> },
         { label: "Users", href: "/admin/users", icon: (isActive: boolean) => <Users size={22} color={isActive ? "white" : "#667085"} /> },
+        { label: "Contact Messages", href: "/admin/contact-messages", icon: (isActive: boolean) => <MessageSquare size={22} color={isActive ? "white" : "#667085"} /> },
         { label: "Tax Configuration", href: "/admin/tax-config", icon: (isActive: boolean) => <Percent size={22} color={isActive ? "white" : "#667085"} /> },
         { label: "Subscriptions", href: "/admin/subscriptions", icon: (isActive: boolean) => <CreditCard size={22} color={isActive ? "white" : "#667085"} /> },
         { label: "Reports", href: "/admin/reports", icon: (isActive: boolean) => <FileText size={22} color={isActive ? "white" : "#667085"} /> },
