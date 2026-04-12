@@ -654,7 +654,7 @@ const CreateInvoicePage = () => {
     useEffect(() => {
         const fetchTaxes = async () => {
             try {
-                const response = await (ApiClient as any).getTaxTypes ? (ApiClient as any).getTaxTypes() : ApiClient.get("/api/admin/tax-config");
+                const response = await (ApiClient as any).getTaxTypes ? (ApiClient as any).getTaxTypes() : ApiClient.get("/api/tax-config");
                 const res = await response;
                 if (res.status === 200) {
                     setAvailableTaxes(res.data || []);
