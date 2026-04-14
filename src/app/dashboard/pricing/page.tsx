@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -28,9 +28,10 @@ const DashboardPricingPageContent = () => {
   const { toast, showError, hideToast } = useToast();
   const { subscription: currentSubscription, loading: loadingSubscription } = useSubscription();
   const [plans, setPlans] = useState<any[]>([]);
+  const [plansLoading, setPlansLoading] = useState(true);
 
   useEffect(() => {
-    ApiClient.get("/api/subscriptions/plans").then(res => {
+    ApiClient.get("/api/admin/system-config/plans").then(res => {
       console.log('[Pricing] API response:', res.status, res.data, res.error);
       if (res.status === 200 && res.data) {
         const data = res.data as any;
@@ -38,8 +39,10 @@ const DashboardPricingPageContent = () => {
         console.log('[Pricing] plans from API:', list);
         setPlans(list);
       }
+      setPlansLoading(false);
     }).catch(err => {
       console.error('[Pricing] API error:', err);
+      setPlansLoading(false);
     });
   }, []);
 
@@ -56,9 +59,9 @@ const DashboardPricingPageContent = () => {
         yearly: plan.annualPrice ?? plan.annual_price ?? plan.priceYearly ?? plan.yearlyPrice ?? 0
       };
     }
-    // Fallback defaults
-    if (planName === "ESSENTIALS") return { monthly: 24000, yearly: Math.round(24000 * 12 * 0.9) };
-    if (planName === "PREMIUM") return { monthly: 120000, yearly: Math.round(120000 * 12 * 0.9) };
+    // Fallback defaults commented out — must come from API
+    // if (planName === "ESSENTIALS") return { monthly: 24000, yearly: Math.round(24000 * 12 * 0.9) };
+    // if (planName === "PREMIUM") return { monthly: 120000, yearly: Math.round(120000 * 12 * 0.9) };
     return { monthly: 0, yearly: 0 };
   };
   useEffect(() => {
@@ -69,10 +72,10 @@ const DashboardPricingPageContent = () => {
   }, [searchParams]);
 
   // Plan pricing - fetched from API, with fallback defaults
-  const planPricing = {
+  const planPricing = useMemo(() => ({
     essentials: getPlanPricing("ESSENTIALS"),
     premium: getPlanPricing("PREMIUM"),
-  };
+  }), [plans, billingCycle]);
 
   const formatPrice = (amount: number) => {
     return `₦${amount.toLocaleString()}`;
@@ -258,180 +261,91 @@ const DashboardPricingPageContent = () => {
 
       {/* Pricing Cards */}
       <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Free Plan */}
-          <div className="bg-white rounded-lg border border-[#E4E7EC] p-6 relative">
-            {isCurrentPlan("FREE") && (
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <span className="bg-[#2F80ED] text-white px-3 py-1 rounded-full text-sm font-medium">
-                  {t("current_plan_label")}
-                </span>
-              </div>
-            )}
-            
-            <div className="text-center mb-6">
-              <h3 className="text-[24px] font-semibold text-[#101828] mb-2">{t("free")}</h3>
-              <div className="text-[36px] font-bold text-[#101828] mb-1">₦0</div>
-              <p className="text-[#667085]">{t("perfect_getting_started")}</p>
-            </div>
-
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-start gap-3">
-                <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">{t("three_invoices_per_month")}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">{t("basic_invoice_templates_text")}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">{t("email_whatsapp_sharing_text")}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">{t("payment_tracking_text")}</span>
-              </li>
-            </ul>
-
-            <button
-              disabled={isCurrentPlan("FREE")}
-              className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-                isCurrentPlan("FREE")
-                  ? "bg-[#F9FAFB] text-[#667085] border border-[#E4E7EC] cursor-not-allowed"
-                  : "bg-[#F9FAFB] text-[#344054] border border-[#E4E7EC] hover:bg-[#F2F4F7]"
-              }`}
-            >
-              {isCurrentPlan("FREE") ? t("current_plan_label") : t("downgrade_to_free")}
-            </button>
+        {plansLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED]"></div>
           </div>
-
-          {/* Essentials Plan */}
-          <div className="bg-white rounded-lg border border-[#E4E7EC] p-6 relative">
-            {isCurrentPlan("ESSENTIALS") && (
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <span className="bg-[#2F80ED] text-white px-3 py-1 rounded-full text-sm font-medium">
-                  {t("current_plan_label")}
-                </span>
-              </div>
-            )}
-            
-            <div className="text-center mb-6">
-              <h3 className="text-[24px] font-semibold text-[#101828] mb-2">{t("essentials")}</h3>
-              <div className="text-[36px] font-bold text-[#101828] mb-1">
-                {formatPrice(planPricing.essentials[billingCycle])}
-              </div>
-              <p className="text-[#667085]">
-                {billingCycle === 'monthly' ? (t("per_month") || "per month") : (t("per_year_text") || "per year")}
-              </p>
-              {billingCycle === 'yearly' && (
-                <p className="text-xs text-[#10B981] mt-1">
-                  {t("save") || "Save"} {formatPrice(getYearlyDiscount(planPricing.essentials.monthly, planPricing.essentials.yearly).savings)} {t("annually") || "annually"}
-                </p>
-              )}
-            </div>
-
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-start gap-3">
-                <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">{t("ten_invoices_per_month")}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">{t("custom_logo_upload")}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">{t("advanced_templates")}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">{t("priority_support")}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">{t("tax_compliance_tools")}</span>
-              </li>
-            </ul>
-
-            <button
-              onClick={() => handleSubscribe("ESSENTIALS")}
-              disabled={isCurrentPlan("ESSENTIALS") || isLoading === "ESSENTIALS"}
-              className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-                isCurrentPlan("ESSENTIALS")
-                  ? "bg-[#F9FAFB] text-[#667085] border border-[#E4E7EC] cursor-not-allowed"
-                  : "bg-[#2F80ED] text-white hover:bg-[#1E6FCC] disabled:opacity-50 disabled:cursor-not-allowed"
-              }`}
-            >
-              {getButtonText("ESSENTIALS")}
-            </button>
+        ) : plans.length === 0 ? (
+          <div className="text-center py-16 bg-white rounded-lg border border-[#E4E7EC]">
+            <p className="text-[#667085] text-lg font-medium">No plans available</p>
+            <p className="text-[#98A2B3] text-sm mt-2">Please check back later or contact support.</p>
           </div>
+        ) : (
+        <div className={`grid grid-cols-1 md:grid-cols-${Math.min(plans.length, 3)} gap-8`}>
+          {plans.map((plan) => {
+            const planKey = plan.name?.toUpperCase();
+            const isFree = plan.monthlyPrice === 0 && plan.annualPrice === 0;
+            const price = billingCycle === 'monthly' ? plan.monthlyPrice : plan.annualPrice;
+            const monthlySavings = plan.monthlyPrice * 12 - plan.annualPrice;
+            const isCurrent = isCurrentPlan(planKey);
+            const features: string[] = Array.isArray(plan.features) ? plan.features : [];
 
-          {/* Premium Plan */}
-          <div className="bg-white rounded-lg border border-[#E4E7EC] p-6 relative">
-            {isCurrentPlan("PREMIUM") && (
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <span className="bg-[#2F80ED] text-white px-3 py-1 rounded-full text-sm font-medium">
-                  {t("current_plan_label")}
-                </span>
+            return (
+              <div key={plan.id ?? plan.name} className="bg-white rounded-lg border border-[#E4E7EC] p-6 relative">
+                {isCurrent && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-[#2F80ED] text-white px-3 py-1 rounded-full text-sm font-medium">
+                      {t("current_plan_label")}
+                    </span>
+                  </div>
+                )}
+
+                <div className="text-center mb-6">
+                  <h3 className="text-[24px] font-semibold text-[#101828] mb-2">{plan.name}</h3>
+                  <div className="text-[36px] font-bold text-[#101828] mb-1">
+                    {isFree ? "₦0" : formatPrice(price ?? 0)}
+                  </div>
+                  {!isFree && (
+                    <p className="text-[#667085]">
+                      {billingCycle === 'monthly' ? (t("per_month") || "per month") : (t("per_year_text") || "per year")}
+                    </p>
+                  )}
+                  {!isFree && billingCycle === 'yearly' && monthlySavings > 0 && (
+                    <p className="text-xs text-[#10B981] mt-1">
+                      {t("save") || "Save"} {formatPrice(monthlySavings)} {t("annually") || "annually"}
+                    </p>
+                  )}
+                  {plan.description && <p className="text-[#667085] text-sm mt-1">{plan.description}</p>}
+                </div>
+
+                {features.length > 0 && (
+                  <ul className="space-y-3 mb-8">
+                    {features.map((f, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
+                        <span className="text-[#344054]">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                <div className="grid grid-cols-2 gap-2 mb-6 text-xs text-[#667085]">
+                  <div className="bg-[#F9FAFB] rounded p-2 text-center">
+                    <p className="font-semibold text-[#344054]">{plan.maxInvoices >= 999 ? "∞" : plan.maxInvoices}</p>
+                    <p>Max Invoices</p>
+                  </div>
+                  <div className="bg-[#F9FAFB] rounded p-2 text-center">
+                    <p className="font-semibold text-[#344054]">{plan.maxLogos >= 999 ? "∞" : plan.maxLogos}</p>
+                    <p>Max Logos</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => !isFree && !isCurrent && handleSubscribe(planKey as "ESSENTIALS" | "PREMIUM")}
+                  disabled={isCurrent || isLoading === planKey || isFree}
+                  className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
+                    isCurrent || isFree
+                      ? "bg-[#F9FAFB] text-[#667085] border border-[#E4E7EC] cursor-not-allowed"
+                      : "bg-[#2F80ED] text-white hover:bg-[#1E6FCC] disabled:opacity-50 disabled:cursor-not-allowed"
+                  }`}
+                >
+                  {isCurrent ? t("current_plan_label") : isFree ? t("free") : isLoading === planKey ? t("processing") : `Upgrade to ${plan.name}`}
+                </button>
               </div>
-            )}
-            
-            <div className="text-center mb-6">
-              <h3 className="text-[24px] font-semibold text-[#101828] mb-2">{t("premium")}</h3>
-              <div className="text-[36px] font-bold text-[#101828] mb-1">
-                {formatPrice(planPricing.premium[billingCycle])}
-              </div>
-              <p className="text-[#667085]">
-                {billingCycle === 'monthly' ? (t("per_month") || "per month") : (t("per_year_text") || "per year")}
-              </p>
-              {billingCycle === 'yearly' && (
-                <p className="text-xs text-[#10B981] mt-1">
-                  {t("save") || "Save"} {formatPrice(getYearlyDiscount(planPricing.premium.monthly, planPricing.premium.yearly).savings)} {t("annually") || "annually"}
-                </p>
-              )}
-            </div>
-
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-start gap-3">
-                <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">{t("unlimited_invoices_text_short")}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">{t("multiple_custom_logos_text")}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">{t("premium_templates_text")}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">{t("priority_support_24_7")}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">{t("advanced_analytics")}</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                <span className="text-[#344054]">{t("multiple_company_profiles_text")}</span>
-              </li>
-            </ul>
-
-            <button
-              onClick={() => handleSubscribe("PREMIUM")}
-              disabled={isCurrentPlan("PREMIUM") || isLoading === "PREMIUM"}
-              className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-                isCurrentPlan("PREMIUM")
-                  ? "bg-[#F9FAFB] text-[#667085] border border-[#E4E7EC] cursor-not-allowed"
-                  : "bg-[#2F80ED] text-white hover:bg-[#1E6FCC] disabled:opacity-50 disabled:cursor-not-allowed"
-              }`}
-            >
-              {getButtonText("PREMIUM")}
-            </button>
-          </div>
+            );
+          })}
         </div>
+        )}
       </div>
     </div>
   );
