@@ -44,8 +44,11 @@ export function formatCurrency(
 
   const formatLocale = locale || CURRENCY_LOCALES[currency];
 
+  // toLocaleString throws if minimumFractionDigits > maximumFractionDigits
+  const actualMinDigits = Math.min(minimumFractionDigits, maximumFractionDigits);
+
   const formattedNumber = numericAmount.toLocaleString(formatLocale, {
-    minimumFractionDigits,
+    minimumFractionDigits: actualMinDigits,
     maximumFractionDigits,
   });
 
@@ -73,14 +76,14 @@ export function parseCurrency(currencyString: string): number {
   return parseFloat(cleaned) || 0;
 }
 
-export function formatInvoicePrice(amount: number | string): string {
+export function formatInvoicePrice(amount: number | string, currency: CurrencyCode = 'NGN'): string {
   return formatCurrency(amount, {
-    currency: 'NGN',
+    currency,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
 }
 
-export function formatChartPrice(amount: number): string {
-  return formatCurrencyCompact(amount, { currency: 'NGN' });
+export function formatChartPrice(amount: number, currency: CurrencyCode = 'NGN'): string {
+  return formatCurrencyCompact(amount, { currency });
 }

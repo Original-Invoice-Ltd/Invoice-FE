@@ -8,6 +8,7 @@ import { ApiClient } from "@/lib/api";
 import { InvoiceResponse } from "@/types/invoice";
 import { useTranslation } from "react-i18next";
 import { UploadReceiptModal } from "@/components/modals";
+import { formatCurrency as formatCurrencyUtil, CurrencyCode } from "@/lib/currencyFormatter";
 
 const InvoiceViewPage = () => {
     const params = useParams();
@@ -53,19 +54,17 @@ const InvoiceViewPage = () => {
     };
 
     const formatCurrency = (amount: number | null | undefined, currency: string = 'NGN') => {
-        const safeAmount = amount || 0;
-        return new Intl.NumberFormat('en-NG', {
-            style: 'currency',
-            currency: currency || 'NGN',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(safeAmount);
+        return formatCurrencyUtil(amount || 0, { currency: currency as CurrencyCode });
     };
 
     const handleMarkAsPaid = async () => {
+        const { toast } = await import("@/lib/toast");
         const response = await ApiClient.markInvoiceAsPaid(params.id as string);
         if (response.status === 200) {
-            window.location.reload();
+            toast.show({ type: 'success', message: 'Successfully marked as paid' });
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         }
     };
 
@@ -387,6 +386,7 @@ const InvoiceViewPage = () => {
                 invoiceId={params.id as string}
                 mode="incomplete"
                 invoiceTotalDue={invoice?.totalDue}
+                isDashboardUser={true}
             />
 
             {isDropdownOpen && (
