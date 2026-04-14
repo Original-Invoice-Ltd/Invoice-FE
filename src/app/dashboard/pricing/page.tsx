@@ -9,6 +9,7 @@ import Toast from '@/components/ui/Toast';
 import { useToast } from '@/hooks/useToast';
 import { useTranslation } from "react-i18next";
 import { useSubscription } from '@/hooks/useSubscription';
+import { ApiClient } from '@/lib/api';
 
 export interface CurrentSubscription {
   plan: string;
@@ -26,8 +27,26 @@ const DashboardPricingPageContent = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const { toast, showError, hideToast } = useToast();
   const { subscription: currentSubscription, loading: loadingSubscription } = useSubscription();
+  const [plans, setPlans] = useState<any[]>([]);
 
-  // Update billing cycle from URL params after component mounts
+  useEffect(() => {
+    ApiClient.get("/api/admin/system-config/plans").then(res => {
+      if (res.status === 200 && res.data) {
+        const data = res.data as any;
+        const list = Array.isArray(data) ? data : data.content ?? data.data ?? [];
+        setPlans(list);
+      }
+    });
+  }, []);
+
+  const getPlanPricing = (planName: string) => {
+    const plan = plans.find(p => p.name?.toUpperCase() === planName.toUpperCase());
+    if (plan) return { monthly: plan.monthlyPrice ?? 0, yearly: plan.annualPrice ?? 0 };
+    // Fallback defaults
+    if (planName === "ESSENTIALS") return { monthly: 24000, yearly: Math.round(24000 * 12 * 0.9) };
+    if (planName === "PREMIUM") return { monthly: 120000, yearly: Math.round(120000 * 12 * 0.9) };
+    return { monthly: 0, yearly: 0 };
+  };
   useEffect(() => {
     const urlBillingCycle = searchParams?.get('billingCycle') as 'monthly' | 'yearly';
     if (urlBillingCycle && (urlBillingCycle === 'monthly' || urlBillingCycle === 'yearly')) {
@@ -35,16 +54,10 @@ const DashboardPricingPageContent = () => {
     }
   }, [searchParams]);
 
-  // Plan pricing configuration - Monthly prices first, yearly with 10% discount
+  // Plan pricing - fetched from API, with fallback defaults
   const planPricing = {
-    essentials: {
-      monthly: 24000,
-      yearly: Math.round(24000 * 12 * 0.9) // 10% discount on yearly
-    },
-    premium: {
-      monthly: 120000,
-      yearly: Math.round(120000 * 12 * 0.9) // 10% discount on yearly
-    }
+    essentials: getPlanPricing("ESSENTIALS"),
+    premium: getPlanPricing("PREMIUM"),
   };
 
   const formatPrice = (amount: number) => {
