@@ -31,7 +31,7 @@ const DashboardPricingPageContent = () => {
   const [plansLoading, setPlansLoading] = useState(true);
 
   useEffect(() => {
-    ApiClient.get("/api/admin/system-config/plans").then(res => {
+    ApiClient.get("/api/admin/system-config/plans/public").then(res => {
       console.log('[Pricing] API response:', res.status, res.data, res.error);
       if (res.status === 200 && res.data) {
         const data = res.data as any;
