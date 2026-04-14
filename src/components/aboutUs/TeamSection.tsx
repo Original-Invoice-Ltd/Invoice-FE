@@ -5,9 +5,10 @@ interface TeamMemberProps {
   imageSrc: string;
   name: string;
   role: string;
+  contact: string;
 }
 
-const TeamMemberCard: React.FC<TeamMemberProps> = ({ imageSrc, name, role }) => {
+const TeamMemberCard: React.FC<TeamMemberProps> = ({ imageSrc, name, role, contact }) => {
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
       <div className="relative h-80 w-full">
@@ -21,7 +22,17 @@ const TeamMemberCard: React.FC<TeamMemberProps> = ({ imageSrc, name, role }) => 
       </div>
       <div className="p-6 text-center">
         <h3 className="text-xl font-bold text-gray-900 mb-1">{name}</h3>
-        <p className="text-gray-600">{role}</p>
+        <p className="text-gray-600 mb-2">{role}</p>
+        <a 
+          href={`mailto:${contact}`}
+          className="text-sm text-[#2F80ED] hover:underline inline-flex items-center gap-1"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.66667 2.66666H13.3333C14.0667 2.66666 14.6667 3.26666 14.6667 4V12C14.6667 12.7333 14.0667 13.3333 13.3333 13.3333H2.66667C1.93333 13.3333 1.33333 12.7333 1.33333 12V4C1.33333 3.26666 1.93333 2.66666 2.66667 2.66666Z" stroke="#2F80ED" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M14.6667 4L8 8.66667L1.33333 4" stroke="#2F80ED" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          {contact}
+        </a>
       </div>
     </div>
   );
@@ -96,17 +107,20 @@ const TeamSection: React.FC = () => {
             <TeamMemberCard
               imageSrc="/assets/sunny1.png"
               name="Sunny Segun-Tomoh"
-              role="Creative Director"
+              role="Co-founder"
+              contact="Sunny@originalinvoice.com"
             />
             <TeamMemberCard
               imageSrc="/assets/sunny2.png"
               name="James Ishaku"
-              role="Creative Director"
+              role="Co-founder"
+              contact="Admin@originalinvoice.com"
             />
             <TeamMemberCard
               imageSrc="/assets/sunny3.png"
-              name="Sunny Segun-Tomoh"
-              role="Creative Director"
+              name="Onefuwa Lawrence Okomayin"
+              role="Partner"
+              contact="Admin@originalinvoice.com"
             />
           </div>
         </div>
