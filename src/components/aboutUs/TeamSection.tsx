@@ -6,18 +6,19 @@ interface TeamMemberProps {
   name: string;
   role: string;
   contact: string;
+  isLogo?: boolean;
 }
 
-const TeamMemberCard: React.FC<TeamMemberProps> = ({ imageSrc, name, role, contact }) => {
+const TeamMemberCard: React.FC<TeamMemberProps> = ({ imageSrc, name, role, contact, isLogo = false }) => {
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
-      <div className="relative h-80 w-full">
+      <div className={`relative h-80 w-full ${isLogo ? 'bg-gray-50 flex items-center justify-center p-8' : ''}`}>
         <Image
           src={imageSrc}
           alt={name}
           width={320}
           height={320}
-          className="object-cover w-full h-full"
+          className={`${isLogo ? 'object-contain w-full h-full' : 'object-cover w-full h-full'}`}
         />
       </div>
       <div className="p-6 text-center">
@@ -105,19 +106,20 @@ const TeamSection: React.FC = () => {
           {/* Team Grid — now responsive without overflow */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
             <TeamMemberCard
-              imageSrc="/assets/sunny1.png"
+              imageSrc="/assets/header logo.svg"
               name="Sunny Segun-Tomoh"
               role="Co-founder"
               contact="Sunny@originalinvoice.com"
+              isLogo={true}
             />
             <TeamMemberCard
-              imageSrc="/assets/sunny2.png"
+              imageSrc="/assets/images/jamesIshaku.jpeg"
               name="James Ishaku"
               role="Co-founder"
               contact="Admin@originalinvoice.com"
             />
             <TeamMemberCard
-              imageSrc="/assets/sunny3.png"
+              imageSrc="/assets/images/lawrence.jpeg"
               name="Onefuwa Lawrence Okomayin"
               role="Partner"
               contact="Admin@originalinvoice.com"
