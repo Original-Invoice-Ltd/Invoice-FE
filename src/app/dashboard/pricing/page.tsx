@@ -34,14 +34,25 @@ const DashboardPricingPageContent = () => {
       if (res.status === 200 && res.data) {
         const data = res.data as any;
         const list = Array.isArray(data) ? data : data.content ?? data.data ?? [];
+        console.log('[Pricing] plans from API:', list);
         setPlans(list);
       }
     });
   }, []);
 
   const getPlanPricing = (planName: string) => {
-    const plan = plans.find(p => p.name?.toUpperCase() === planName.toUpperCase());
-    if (plan) return { monthly: plan.monthlyPrice ?? 0, yearly: plan.annualPrice ?? 0 };
+    const plan = plans.find(p =>
+      p.name?.toUpperCase() === planName.toUpperCase() ||
+      p.planName?.toUpperCase() === planName.toUpperCase() ||
+      p.type?.toUpperCase() === planName.toUpperCase()
+    );
+    if (plan) {
+      console.log(`[Pricing] found plan for ${planName}:`, plan);
+      return {
+        monthly: plan.monthlyPrice ?? plan.monthly_price ?? plan.priceMonthly ?? 0,
+        yearly: plan.annualPrice ?? plan.annual_price ?? plan.priceYearly ?? plan.yearlyPrice ?? 0
+      };
+    }
     // Fallback defaults
     if (planName === "ESSENTIALS") return { monthly: 24000, yearly: Math.round(24000 * 12 * 0.9) };
     if (planName === "PREMIUM") return { monthly: 120000, yearly: Math.round(120000 * 12 * 0.9) };
