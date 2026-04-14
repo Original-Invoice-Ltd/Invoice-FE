@@ -30,13 +30,16 @@ const DashboardPricingPageContent = () => {
   const [plans, setPlans] = useState<any[]>([]);
 
   useEffect(() => {
-    ApiClient.get("/api/admin/system-config/plans").then(res => {
+    ApiClient.get("/api/subscriptions/plans").then(res => {
+      console.log('[Pricing] API response:', res.status, res.data, res.error);
       if (res.status === 200 && res.data) {
         const data = res.data as any;
         const list = Array.isArray(data) ? data : data.content ?? data.data ?? [];
         console.log('[Pricing] plans from API:', list);
         setPlans(list);
       }
+    }).catch(err => {
+      console.error('[Pricing] API error:', err);
     });
   }, []);
 
