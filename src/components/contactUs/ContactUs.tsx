@@ -1,11 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from "next/image";
 import Header from "@/components/header";
 import Footer from "@/components/footer/Footer";
+import Toast from '@/components/ui/Toast';
+import { useToast } from '@/hooks/useToast';
 
 export default function ContactUs() {
+  const { toast, showSuccess, showError, hideToast } = useToast();
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -16,6 +20,24 @@ export default function ContactUs() {
   });
   
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
   
   const subjectOptions = [
     'General Inquiry',
@@ -25,9 +47,62 @@ export default function ContactUs() {
     'Feedback'
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement form submission
+    
+    // Validation
+    if (!formData.fullName.trim()) {
+      showError('Please enter your full name');
+      return;
+    }
+    if (!formData.email.trim()) {
+      showError('Please enter your email address');
+      return;
+    }
+    if (!formData.phone.trim()) {
+      showError('Please enter your phone number');
+      return;
+    }
+    if (!formData.message.trim()) {
+      showError('Please enter your message');
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+      
+      const response = await fetch(`${API_BASE_URL}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        showSuccess(data.data || 'Your message has been sent successfully. We\'ll get back to you soon!');
+        // Reset form
+        setFormData({
+          fullName: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: '',
+          agreeToComms: false
+        });
+      } else {
+        showError(data.data || 'Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      console.error('Contact form error:', error);
+      showError('An error occurred while sending your message. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -129,7 +204,7 @@ export default function ContactUs() {
                   />
                 </div>
 
-                <div className="mb-[12px] relative">
+                <div className="mb-[12px] relative" ref={dropdownRef}>
                   <label className="block text-[14px] font-medium text-[#000] mb-[8px]">
                     Subject <span className="text-[#6B7280]">(optional)</span>
                   </label>
@@ -202,9 +277,10 @@ export default function ContactUs() {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#2F80ED] text-white py-[14px] rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB]"
+                  disabled={loading}
+                  className="w-full bg-[#2F80ED] text-white py-[14px] rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Send Message
+                  {loading ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
             </div>
@@ -282,6 +358,16 @@ export default function ContactUs() {
       </div>
 
       <Footer />
+      
+      {/* Toast Notification */}
+      {toast.isVisible && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          isVisible={toast.isVisible}
+          onClose={hideToast}
+        />
+      )}
     </div>
   );
 }
