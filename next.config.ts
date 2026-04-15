@@ -8,7 +8,6 @@ const nextConfig: NextConfig = {
     workerThreads: false,
   },
   productionBrowserSourceMaps: false,
-  swcMinify: false,
   images: {
     remotePatterns: [
       {
