@@ -17,6 +17,7 @@ const AdminSystemConfigPage = () => {
     const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
     const [deletingPlan, setDeletingPlan] = useState<Plan | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [syncing, setSyncing] = useState<string | null>(null);
     const { toast, showSuccess, showError, hideToast } = useToast();
 
     const fetchPlans = async () => {
@@ -64,6 +65,20 @@ const AdminSystemConfigPage = () => {
         }
         setDeletingPlan(null);
         setShowDeleteModal(false);
+    };
+
+    const handleSyncPaystack = async (plan: Plan) => {
+        if (!plan.id) return;
+        setSyncing(plan.id);
+        const res = await AdminApi.syncPlanToPaystack(plan.id);
+        if (res.status === 200) {
+            const code = (res.data as any)?.paystackPlanCode ?? "synced";
+            showSuccess(`Synced to Paystack: ${code}`);
+            await fetchPlans();
+        } else {
+            showError(res.error || "Paystack sync failed");
+        }
+        setSyncing(null);
     };
 
     return (
@@ -137,6 +152,20 @@ const AdminSystemConfigPage = () => {
                                     </button>
                                 </div>
                             </div>
+
+                            {!(plan as any).paystackPlanCode ? (
+                                <button
+                                    onClick={() => handleSyncPaystack(plan)}
+                                    disabled={syncing === plan.id}
+                                    className="w-full px-3 py-1.5 bg-orange-50 text-orange-600 border border-orange-200 rounded-lg text-xs font-medium hover:bg-orange-100 flex items-center justify-center gap-1 disabled:opacity-50"
+                                >
+                                    {syncing === plan.id ? "Syncing..." : "\u26A1 Sync to Paystack"}
+                                </button>
+                            ) : (
+                                <p className="text-xs text-green-600 text-center flex items-center justify-center gap-1">
+                                    <CheckCircle size={12} /> Paystack: {(plan as any).paystackPlanCode}
+                                </p>
+                            )}
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="bg-gray-50 rounded-lg p-3">
