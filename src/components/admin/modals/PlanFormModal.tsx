@@ -14,6 +14,7 @@ export interface Plan {
     features: string[];
     isActive: boolean;
     active?: boolean;
+    paystackPlanCode?: string | null;
 }
 
 interface PlanFormModalProps {
@@ -29,11 +30,7 @@ const PlanFormModal = ({ plan, onClose, onSave }: PlanFormModalProps) => {
             monthlyPrice: 0, annualPrice: 0, features: [], isActive: true,
         };
         const p = plan as any;
-        return {
-            ...plan,
-            features: Array.isArray(plan.features) ? plan.features : [],
-            isActive: p.isActive ?? p.active ?? true,
-        };
+        return { ...plan, features: Array.isArray(plan.features) ? plan.features : [], isActive: p.isActive ?? p.active ?? true };
     });
     const [newFeature, setNewFeature] = useState("");
 
@@ -91,12 +88,12 @@ const PlanFormModal = ({ plan, onClose, onSave }: PlanFormModalProps) => {
                                 className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-900 mb-1">Monthly Price (₦)</label>
+                            <label className="block text-sm font-medium text-gray-900 mb-1">Monthly Price (&#x20A6;)</label>
                             <input type="number" name="monthlyPrice" value={form.monthlyPrice} onChange={handleChange} min={0}
                                 className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-900 mb-1">Annual Price (₦)</label>
+                            <label className="block text-sm font-medium text-gray-900 mb-1">Annual Price (&#x20A6;)</label>
                             <input type="number" name="annualPrice" value={form.annualPrice} onChange={handleChange} min={0}
                                 className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
                         </div>

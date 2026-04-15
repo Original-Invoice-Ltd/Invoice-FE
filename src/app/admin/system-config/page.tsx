@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, AlertCircle, CheckCircle } from "lucide-react";
-import PlanFormModal, { Plan } from "@/components/admin/modals/PlanFormModal";
 import DeleteConfirmModal from "@/components/admin/modals/DeleteConfirmModal";
 import Toast from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
 import { AdminApi } from "@/lib/adminApi";
+import PlanFormModal, { Plan } from "@/components/admin/modals/PlanFormModal";
 
 const naira = "\u20A6";
 
