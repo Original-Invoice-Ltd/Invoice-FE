@@ -25,6 +25,7 @@ const AdminSystemConfigPage = () => {
         if (res.status === 200 && res.data) {
             const data = res.data as any;
             setPlans(Array.isArray(data) ? data : data.content ?? data.data ?? []);
+            console.log('[SystemConfig] plans:', Array.isArray(data) ? data : data.content ?? data.data ?? []);
         } else {
             setPlans([]);
         }
