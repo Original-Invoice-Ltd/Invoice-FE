@@ -424,6 +424,10 @@ export class AdminApi {
         return ApiClient.delete(`/api/admin/system-config/plans/${id}`);
     }
 
+    static async syncPlanToPaystack(id: string): Promise<ApiResponse<any>> {
+        return ApiClient.post(`/api/admin/system-config/plans/${id}/sync-paystack`);
+    }
+
     static async getSystemConfig(): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/system-config");
     }
