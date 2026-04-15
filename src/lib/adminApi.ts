@@ -428,6 +428,10 @@ export class AdminApi {
         return ApiClient.post(`/api/admin/system-config/plans/${id}/sync-paystack`);
     }
 
+    static async deletePaystackCode(id: string): Promise<ApiResponse<any>> {
+        return ApiClient.delete(`/api/admin/system-config/plans/${id}/paystack-code`);
+    }
+
     static async getSystemConfig(): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/system-config");
     }

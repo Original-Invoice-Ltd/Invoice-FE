@@ -56,6 +56,10 @@ const AdminSystemConfigPage = () => {
 
     const handleDeleteConfirm = async () => {
         if (!deletingPlan?.id) return;
+        // If plan has a Paystack code, remove it from Paystack first
+        if ((deletingPlan as any).paystackPlanCode) {
+            await AdminApi.deletePaystackCode(deletingPlan.id);
+        }
         const res = await AdminApi.deletePlan(deletingPlan.id);
         if (res.status === 200 || res.status === 204) {
             showSuccess(`"${deletingPlan.name}" deleted`);
