@@ -1983,7 +1983,7 @@ const CreateInvoicePage = () => {
                                                 className="border-none bg-transparent text-blue-600 focus:ring-0 p-0 text-[18px] font-medium"
                                                 disabled={!hasAccess('taxCompliance')}
                                             >
-                                                <option value="">No VAT</option>
+                                                <option value="" className="text-md">No VAT</option>
                                                 {availableTaxes.filter(t => t.type === "VAT").map(tax => {
                                                     const selectedClient = clients.find(c => c.id === selectedClientId) as any;
                                                     const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
@@ -2005,12 +2005,12 @@ const CreateInvoicePage = () => {
                                                 className="border-none bg-transparent text-red-600 focus:ring-0 p-0 text-[18px] font-medium"
                                                 disabled={!hasAccess('taxCompliance')}
                                             >
-                                                <option value="">No WHT</option>
+                                                <option value="" className="text-md">No WHT</option>
                                                 {availableTaxes.filter(t => t.type === "WHT").map(tax => {
                                                     const selectedClient = clients.find(c => c.id === selectedClientId) as any;
                                                     const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
                                                     const rate = getApplicableRate(tax, customerType);
-                                                    return <option key={tax.id} value={tax.id}>{tax.name} ({rate}%)</option>
+                                                    return <option key={tax.id} value={tax.id} className="text-md">{tax.name} ({rate}%)</option>
                                                 })}
                                             </select>
                                         </div>
