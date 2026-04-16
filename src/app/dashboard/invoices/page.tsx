@@ -183,6 +183,24 @@ const InvoicesPage = () => {
         }).format(safeAmount);
     };
 
+    const getCurrencySymbol = (currency: string = 'NGN') => {
+        const symbols: { [key: string]: string } = {
+            'NGN': '₦',
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+        };
+        return symbols[currency] || currency;
+    };
+
+    const formatAmount = (amount: number | null | undefined) => {
+        const safeAmount = amount || 0;
+        return new Intl.NumberFormat('en-NG', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(safeAmount);
+    };
+
     const getStatusColor = (status: string | null | undefined) => {
         if (!status) {
             return 'bg-gray-100 text-gray-800'; 
@@ -367,11 +385,13 @@ const InvoicesPage = () => {
                                                 <div className="text-[14px] text-[#101828]">
                                                     {invoice.dueDate ? formatDate(invoice.dueDate) : 'N/A'}
                                                 </div>
-                                                <div className="text-[14px] text-[#101828] font-medium">
-                                                    {formatCurrency(invoice.totalDue || 0, invoice.currency)}
+                                                <div className="text-[14px] text-[#101828] font-medium flex items-center gap-[5px]">
+                                                    <span>{getCurrencySymbol(invoice.currency)}</span>
+                                                    <span>{formatAmount(invoice.totalDue || 0)}</span>
                                                 </div>
-                                                <div className="text-[14px] text-[#101828] font-medium">
-                                                    {formatCurrency(invoice.totalDue || 0, invoice.currency)}
+                                                <div className="text-[14px] text-[#101828] font-medium flex items-center gap-[5px]">
+                                                    <span>{getCurrencySymbol(invoice.currency)}</span>
+                                                    <span>{formatAmount(invoice.totalDue || 0)}</span>
                                                 </div>
                                                 <div className="flex items-center justify-end">
                                                     <button
@@ -529,8 +549,9 @@ const InvoicesPage = () => {
                                                     <div className="text-[14px] text-[#101828]">
                                                         {new Date(invoice.dueDate).toLocaleDateString()}
                                                     </div>
-                                                    <div className="text-[14px] text-[#101828] font-medium">
-                                                        {invoice.currency} {invoice.totalDue.toFixed(2)}
+                                                    <div className="text-[14px] text-[#101828] font-medium flex items-center gap-[5px]">
+                                                        <span>{getCurrencySymbol(invoice.currency)}</span>
+                                                        <span>{formatAmount(invoice.totalDue)}</span>
                                                     </div>
                                                     <div className="flex items-center justify-end">
                                                         <button
