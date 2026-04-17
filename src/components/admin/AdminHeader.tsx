@@ -89,7 +89,7 @@ const AdminHeader = ({ onMenuClick, isSuperAdmin = false }: AdminHeaderProps) =>
                     {showBell && (
                         <>
                             <div className="fixed inset-0 z-40" onClick={() => setShowBell(false)} />
-                            <div className="fixed right-4 top-16 w-[420px] max-w-[95vw] bg-white rounded-2xl shadow-2xl z-50 flex flex-col max-h-[80vh]">
+                            <div className="fixed right-4 top-16 w-[460px] max-w-[95vw] bg-white rounded-2xl shadow-2xl z-50 flex flex-col" style={{maxHeight: 'calc(100vh - 80px)'}}>
                                 {/* Header */}
                                 <div className="px-6 pt-6 pb-4">
                                     <div className="flex items-start justify-between mb-1">
@@ -114,7 +114,7 @@ const AdminHeader = ({ onMenuClick, isSuperAdmin = false }: AdminHeaderProps) =>
                                 </div>
 
                                 {/* Tabs */}
-                                <div className="flex items-center gap-1 px-6 border-b border-[#E4E7EC] overflow-x-auto">
+                                <div className="flex items-center px-6 border-b border-[#E4E7EC]">
                                     {tabs.map(tab => (
                                         <button key={tab} onClick={() => setActiveTab(tab)}
                                             className={`px-3 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === tab ? "border-gray-900 text-gray-900" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
