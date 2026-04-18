@@ -42,7 +42,7 @@ export default function ContactMessagesPage() {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      let url = `${process.env.NEXT_PUBLIC_API_URL}/api/admin/contact?page=${currentPage}&size=10`;
+      let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/contact?page=${currentPage}&size=10`;
       if (statusFilter) url += `&status=${statusFilter}`;
       if (searchQuery) {
         // Send search query to both name and email params
@@ -106,7 +106,7 @@ export default function ContactMessagesPage() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/contact/${messageToDelete.id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/contact/${messageToDelete.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -124,15 +124,15 @@ export default function ContactMessagesPage() {
   };
 
   return (
-    <div className="p-[24px]">
-      <div className="mb-[24px]">
-        <h1 className="text-[24px] font-semibold text-[#101828] mb-[8px]">Contact Messages</h1>
+    <div className="p-[16px] sm:p-[24px] max-w-full overflow-x-hidden">
+      <div className="mb-[16px] sm:mb-[24px]">
+        <h1 className="text-[20px] sm:text-[24px] font-semibold text-[#101828] mb-[8px]">Contact Messages</h1>
         <p className="text-[14px] text-[#667085]">Manage and respond to customer inquiries</p>
       </div>
 
       <div className="mb-[16px]">
-        <div className="flex justify-between items-center gap-[12px]">
-          <div className="relative w-[280px]">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-[12px]">
+          <div className="relative w-full lg:w-[280px]">
             <Search className="absolute left-[12px] top-[10px] text-[#667085]" size={16} />
             <input
               type="text"
@@ -146,14 +146,14 @@ export default function ContactMessagesPage() {
             />
           </div>
 
-          <div className="flex gap-[12px]">
+          <div className="flex flex-col sm:flex-row gap-[12px]">
             <select
               value={statusFilter}
               onChange={(e) => {
                 setStatusFilter(e.target.value);
                 setCurrentPage(0);
               }}
-              className="px-[12px] py-[8px] border border-[#D0D5DD] rounded-[8px] text-[14px] w-[120px]"
+              className="px-[12px] py-[8px] border border-[#D0D5DD] rounded-[8px] text-[14px] w-full sm:w-[120px]"
             >
               <option value="">Status</option>
               <option value="NEW">New</option>
@@ -161,46 +161,48 @@ export default function ContactMessagesPage() {
               <option value="RESPONDED">Responded</option>
             </select>
 
-            <div className="relative">
-              <button
-                onClick={() => startDateRef.current?.showPicker()}
-                className="flex items-center gap-[8px] px-[12px] py-[8px] border border-[#D0D5DD] rounded-[8px] hover:bg-[#F9FAFB] transition-colors"
-                title={startDate ? `Start: ${startDate}` : "Select start date"}
-              >
-                <Calendar size={16} className="text-[#667085]" />
-                <span className="text-[14px] text-[#344054]">Start Date</span>
-              </button>
-              <input
-                ref={startDateRef}
-                type="date"
-                value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                  setCurrentPage(0);
-                }}
-                className="absolute opacity-0 pointer-events-none"
-              />
-            </div>
+            <div className="flex gap-[12px]">
+              <div className="relative flex-1 sm:flex-none">
+                <button
+                  onClick={() => startDateRef.current?.showPicker()}
+                  className="flex items-center justify-center gap-[8px] px-[12px] py-[8px] border border-[#D0D5DD] rounded-[8px] hover:bg-[#F9FAFB] transition-colors w-full sm:w-auto"
+                  title={startDate ? `Start: ${startDate}` : "Select start date"}
+                >
+                  <Calendar size={16} className="text-[#667085]" />
+                  <span className="text-[14px] text-[#344054]">Start Date</span>
+                </button>
+                <input
+                  ref={startDateRef}
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => {
+                    setStartDate(e.target.value);
+                    setCurrentPage(0);
+                  }}
+                  className="absolute opacity-0 pointer-events-none"
+                />
+              </div>
 
-            <div className="relative">
-              <button
-                onClick={() => endDateRef.current?.showPicker()}
-                className="flex items-center gap-[8px] px-[12px] py-[8px] border border-[#D0D5DD] rounded-[8px] hover:bg-[#F9FAFB] transition-colors"
-                title={endDate ? `End: ${endDate}` : "Select end date"}
-              >
-                <Calendar size={16} className="text-[#667085]" />
-                <span className="text-[14px] text-[#344054]">End Date</span>
-              </button>
-              <input
-                ref={endDateRef}
-                type="date"
-                value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                  setCurrentPage(0);
-                }}
-                className="absolute opacity-0 pointer-events-none"
-              />
+              <div className="relative flex-1 sm:flex-none">
+                <button
+                  onClick={() => endDateRef.current?.showPicker()}
+                  className="flex items-center justify-center gap-[8px] px-[12px] py-[8px] border border-[#D0D5DD] rounded-[8px] hover:bg-[#F9FAFB] transition-colors w-full sm:w-auto"
+                  title={endDate ? `End: ${endDate}` : "Select end date"}
+                >
+                  <Calendar size={16} className="text-[#667085]" />
+                  <span className="text-[14px] text-[#344054]">End Date</span>
+                </button>
+                <input
+                  ref={endDateRef}
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => {
+                    setEndDate(e.target.value);
+                    setCurrentPage(0);
+                  }}
+                  className="absolute opacity-0 pointer-events-none"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -212,97 +214,172 @@ export default function ContactMessagesPage() {
         </div>
       ) : (
         <>
-          <div className="bg-white rounded-[12px] border border-[#E4E7EC]">
-            <table className="w-full">
-              <thead className="bg-[#F9FAFB] border-b border-[#E4E7EC]">
-                <tr>
-                  <th className="px-[24px] py-[12px] text-left text-[12px] font-medium text-[#667085] uppercase">Name</th>
-                  <th className="px-[24px] py-[12px] text-left text-[12px] font-medium text-[#667085] uppercase">Email</th>
-                  <th className="px-[24px] py-[12px] text-left text-[12px] font-medium text-[#667085] uppercase">Subject</th>
-                  <th className="px-[24px] py-[12px] text-left text-[12px] font-medium text-[#667085] uppercase">Status</th>
-                  <th className="px-[24px] py-[12px] text-left text-[12px] font-medium text-[#667085] uppercase">Date</th>
-                  <th className="px-[24px] py-[12px] text-left text-[12px] font-medium text-[#667085] uppercase">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {messages.length === 0 ? (
+          {/* Desktop Table View */}
+          <div className="hidden lg:block bg-white rounded-[12px] border border-[#E4E7EC] overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[800px]">
+                <thead className="bg-[#F9FAFB] border-b border-[#E4E7EC]">
                   <tr>
-                    <td colSpan={6} className="px-[24px] py-[32px] text-center text-[#667085]">
-                      No messages found
-                    </td>
+                    <th className="px-[24px] py-[12px] text-left text-[12px] font-medium text-[#667085] uppercase whitespace-nowrap">Name</th>
+                    <th className="px-[24px] py-[12px] text-left text-[12px] font-medium text-[#667085] uppercase whitespace-nowrap">Email</th>
+                    <th className="px-[24px] py-[12px] text-left text-[12px] font-medium text-[#667085] uppercase whitespace-nowrap">Subject</th>
+                    <th className="px-[24px] py-[12px] text-left text-[12px] font-medium text-[#667085] uppercase whitespace-nowrap">Status</th>
+                    <th className="px-[24px] py-[12px] text-left text-[12px] font-medium text-[#667085] uppercase whitespace-nowrap">Date</th>
+                    <th className="px-[24px] py-[12px] text-left text-[12px] font-medium text-[#667085] uppercase whitespace-nowrap">Action</th>
                   </tr>
-                ) : (
-                  messages.map((message) => (
-                    <tr key={message.id} className="border-b border-[#E4E7EC] hover:bg-[#F9FAFB]">
-                      <td className="px-[24px] py-[16px] text-[14px] text-[#101828]">{message.fullName}</td>
-                      <td className="px-[24px] py-[16px] text-[14px] text-[#667085]">{message.email}</td>
-                      <td className="px-[24px] py-[16px] text-[14px] text-[#667085]">{message.subject || 'N/A'}</td>
-                      <td className="px-[24px] py-[16px]">
-                        <span className={`px-[8px] py-[2px] rounded-[12px] text-[12px] font-medium ${getStatusBadge(message.status)}`}>
-                          {message.status}
-                        </span>
-                      </td>
-                      <td className="px-[24px] py-[16px] text-[14px] text-[#667085]">{formatDate(message.createdAt)}</td>
-                      <td className="px-[24px] py-[16px]">
-                        <div className="relative">
-                          <button
-                            onClick={() => setOpenMenuId(openMenuId === message.id ? null : message.id)}
-                            className="p-[4px] hover:bg-gray-100 rounded-[4px]"
-                          >
-                            <MoreVertical size={20} className="text-[#667085]" />
-                          </button>
-                          
-                          {openMenuId === message.id && (
-                            <>
-                              <div 
-                                className="fixed inset-0 z-10" 
-                                onClick={() => setOpenMenuId(null)}
-                              />
-                              <div className="fixed z-20 bg-white border border-[#E4E7EC] rounded-[8px] shadow-lg py-[4px] w-[160px]"
-                                style={{
-                                  top: `${(document.activeElement as HTMLElement)?.getBoundingClientRect().bottom + 4}px`,
-                                  left: `${(document.activeElement as HTMLElement)?.getBoundingClientRect().left - 140}px`
-                                }}
-                              >
-                                <button
-                                  onClick={() => {
-                                    router.push(`/admin/contact-messages/${message.id}`);
-                                    setOpenMenuId(null);
-                                  }}
-                                  className="w-full flex items-center gap-[8px] px-[12px] py-[8px] text-[14px] text-[#344054] hover:bg-[#F9FAFB]"
-                                >
-                                  <Eye size={16} />
-                                  View Details
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteClick(message)}
-                                  className="w-full flex items-center gap-[8px] px-[12px] py-[8px] text-[14px] text-[#D92D20] hover:bg-[#FEF3F2]"
-                                >
-                                  <Trash2 size={16} />
-                                  Delete
-                                </button>
-                              </div>
-                            </>
-                          )}
-                        </div>
+                </thead>
+                <tbody>
+                  {messages.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-[24px] py-[32px] text-center text-[#667085]">
+                        No messages found
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    messages.map((message) => (
+                      <tr key={message.id} className="border-b border-[#E4E7EC] hover:bg-[#F9FAFB]">
+                        <td className="px-[24px] py-[16px] text-[14px] text-[#101828] whitespace-nowrap">{message.fullName}</td>
+                        <td className="px-[24px] py-[16px] text-[14px] text-[#667085] whitespace-nowrap">{message.email}</td>
+                        <td className="px-[24px] py-[16px] text-[14px] text-[#667085] whitespace-nowrap">{message.subject || 'N/A'}</td>
+                        <td className="px-[24px] py-[16px]">
+                          <span className={`px-[8px] py-[2px] rounded-[12px] text-[12px] font-medium whitespace-nowrap ${getStatusBadge(message.status)}`}>
+                            {message.status}
+                          </span>
+                        </td>
+                        <td className="px-[24px] py-[16px] text-[14px] text-[#667085] whitespace-nowrap">{formatDate(message.createdAt)}</td>
+                        <td className="px-[24px] py-[16px]">
+                          <div className="relative">
+                            <button
+                              onClick={() => setOpenMenuId(openMenuId === message.id ? null : message.id)}
+                              className="p-[4px] hover:bg-gray-100 rounded-[4px]"
+                            >
+                              <MoreVertical size={20} className="text-[#667085]" />
+                            </button>
+                            
+                            {openMenuId === message.id && (
+                              <>
+                                <div 
+                                  className="fixed inset-0 z-10" 
+                                  onClick={() => setOpenMenuId(null)}
+                                />
+                                <div className="fixed z-20 bg-white border border-[#E4E7EC] rounded-[8px] shadow-lg py-[4px] w-[160px]"
+                                  style={{
+                                    top: `${(document.activeElement as HTMLElement)?.getBoundingClientRect().bottom + 4}px`,
+                                    left: `${(document.activeElement as HTMLElement)?.getBoundingClientRect().left - 140}px`
+                                  }}
+                                >
+                                  <button
+                                    onClick={() => {
+                                      router.push(`/admin/contact-messages/${message.id}`);
+                                      setOpenMenuId(null);
+                                    }}
+                                    className="w-full flex items-center gap-[8px] px-[12px] py-[8px] text-[14px] text-[#344054] hover:bg-[#F9FAFB]"
+                                  >
+                                    <Eye size={16} />
+                                    View Details
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteClick(message)}
+                                    className="w-full flex items-center gap-[8px] px-[12px] py-[8px] text-[14px] text-[#D92D20] hover:bg-[#FEF3F2]"
+                                  >
+                                    <Trash2 size={16} />
+                                    Delete
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden space-y-[12px]">
+            {messages.length === 0 ? (
+              <div className="bg-white rounded-[12px] border border-[#E4E7EC] p-[24px] text-center text-[#667085]">
+                No messages found
+              </div>
+            ) : (
+              messages.map((message) => (
+                <div key={message.id} className="bg-white rounded-[12px] border border-[#E4E7EC] p-[16px]">
+                  <div className="flex justify-between items-start mb-[12px]">
+                    <div className="flex-1">
+                      <h3 className="text-[16px] font-semibold text-[#101828] mb-[4px]">{message.fullName}</h3>
+                      <p className="text-[14px] text-[#667085] break-all">{message.email}</p>
+                    </div>
+                    <div className="relative ml-[8px]">
+                      <button
+                        onClick={() => setOpenMenuId(openMenuId === message.id ? null : message.id)}
+                        className="p-[4px] hover:bg-gray-100 rounded-[4px]"
+                      >
+                        <MoreVertical size={20} className="text-[#667085]" />
+                      </button>
+                      
+                      {openMenuId === message.id && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-10" 
+                            onClick={() => setOpenMenuId(null)}
+                          />
+                          <div className="absolute right-0 top-[32px] z-20 bg-white border border-[#E4E7EC] rounded-[8px] shadow-lg py-[4px] w-[160px]">
+                            <button
+                              onClick={() => {
+                                router.push(`/admin/contact-messages/${message.id}`);
+                                setOpenMenuId(null);
+                              }}
+                              className="w-full flex items-center gap-[8px] px-[12px] py-[8px] text-[14px] text-[#344054] hover:bg-[#F9FAFB]"
+                            >
+                              <Eye size={16} />
+                              View Details
+                            </button>
+                            <button
+                              onClick={() => handleDeleteClick(message)}
+                              className="w-full flex items-center gap-[8px] px-[12px] py-[8px] text-[14px] text-[#D92D20] hover:bg-[#FEF3F2]"
+                            >
+                              <Trash2 size={16} />
+                              Delete
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-[8px] mb-[12px]">
+                    <div>
+                      <span className="text-[12px] text-[#667085]">Subject: </span>
+                      <span className="text-[14px] text-[#101828]">{message.subject || 'N/A'}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-[12px] text-[#667085]">Date: </span>
+                        <span className="text-[14px] text-[#101828]">{formatDate(message.createdAt)}</span>
+                      </div>
+                      <span className={`px-[8px] py-[2px] rounded-[12px] text-[12px] font-medium ${getStatusBadge(message.status)}`}>
+                        {message.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
 
           {totalPages > 1 && (
-            <div className="mt-[16px] flex items-center justify-between">
-              <div className="text-[14px] text-[#667085]">
+            <div className="mt-[16px] flex flex-col sm:flex-row items-center justify-between gap-[12px]">
+              <div className="text-[14px] text-[#667085] text-center sm:text-left">
                 Showing {messages.length === 0 ? 0 : currentPage * 10 + 1} to {Math.min((currentPage + 1) * 10, totalItems)} of {totalItems} messages
               </div>
-              <div className="flex items-center gap-[8px]">
+              <div className="flex flex-wrap items-center justify-center gap-[8px]">
                 <button
                   onClick={() => setCurrentPage(0)}
                   disabled={currentPage === 0}
-                  className="px-[12px] py-[8px] border border-[#D0D5DD] rounded-[8px] text-[14px] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F9FAFB]"
+                  className="px-[12px] py-[8px] border border-[#D0D5DD] rounded-[8px] text-[14px] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F9FAFB] hidden sm:block"
                 >
                   First
                 </button>
@@ -353,7 +430,7 @@ export default function ContactMessagesPage() {
                 <button
                   onClick={() => setCurrentPage(totalPages - 1)}
                   disabled={currentPage >= totalPages - 1}
-                  className="px-[12px] py-[8px] border border-[#D0D5DD] rounded-[8px] text-[14px] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F9FAFB]"
+                  className="px-[12px] py-[8px] border border-[#D0D5DD] rounded-[8px] text-[14px] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F9FAFB] hidden sm:block"
                 >
                   Last
                 </button>
