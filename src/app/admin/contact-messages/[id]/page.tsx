@@ -34,7 +34,7 @@ export default function ContactMessageDetailPage() {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/contact/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/contact/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -61,7 +61,7 @@ export default function ContactMessageDetailPage() {
       const token = localStorage.getItem('token');
       
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/contact/${id}/status?status=${newStatus}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/contact/${id}/status?status=${newStatus}`,
         {
           method: 'PATCH',
           headers: {
@@ -102,71 +102,71 @@ export default function ContactMessageDetailPage() {
   }
 
   return (
-    <div className="p-[24px]">
+    <div className="p-[16px] sm:p-[24px]">
       <button
         onClick={() => router.push('/admin/contact-messages')}
-        className="flex items-center gap-[8px] text-[#667085] hover:text-[#101828] mb-[24px]"
+        className="flex items-center gap-[8px] text-[#667085] hover:text-[#101828] mb-[16px] sm:mb-[24px]"
       >
         <ArrowLeft size={20} />
         <span className="text-[14px]">Back to Messages</span>
       </button>
 
-      <div className="bg-white rounded-[12px] border border-[#E4E7EC] p-[32px]">
-        <div className="mb-[24px]">
-          <h1 className="text-[24px] font-semibold text-[#101828] mb-[8px]">Message Details</h1>
+      <div className="bg-white rounded-[12px] border border-[#E4E7EC] p-[16px] sm:p-[24px] lg:p-[32px]">
+        <div className="mb-[16px] sm:mb-[24px]">
+          <h1 className="text-[20px] sm:text-[24px] font-semibold text-[#101828] mb-[8px]">Message Details</h1>
         </div>
 
-        <div className="space-y-[24px]">
+        <div className="space-y-[16px] sm:space-y-[24px]">
           <div>
             <label className="block text-[14px] font-medium text-[#344054] mb-[8px]">Subject:</label>
-            <div className="text-[16px] text-[#101828]">{message.subject || 'N/A'}</div>
+            <div className="text-[14px] sm:text-[16px] text-[#101828] break-words">{message.subject || 'N/A'}</div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-[24px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-[16px] sm:gap-[24px]">
             <div>
               <label className="block text-[14px] font-medium text-[#344054] mb-[8px]">Name:</label>
-              <div className="text-[16px] text-[#101828]">{message.fullName}</div>
+              <div className="text-[14px] sm:text-[16px] text-[#101828] break-words">{message.fullName}</div>
             </div>
 
             <div>
               <label className="block text-[14px] font-medium text-[#344054] mb-[8px]">Email:</label>
-              <div className="text-[16px] text-[#101828]">{message.email}</div>
+              <div className="text-[14px] sm:text-[16px] text-[#101828] break-all">{message.email}</div>
             </div>
 
             <div>
               <label className="block text-[14px] font-medium text-[#344054] mb-[8px]">Phone:</label>
-              <div className="text-[16px] text-[#101828]">{message.phone}</div>
+              <div className="text-[14px] sm:text-[16px] text-[#101828]">{message.phone}</div>
             </div>
 
             <div>
               <label className="block text-[14px] font-medium text-[#344054] mb-[8px]">Date:</label>
-              <div className="text-[16px] text-[#101828]">{formatDate(message.createdAt)}</div>
+              <div className="text-[14px] sm:text-[16px] text-[#101828]">{formatDate(message.createdAt)}</div>
             </div>
           </div>
 
           <div>
             <label className="block text-[14px] font-medium text-[#344054] mb-[8px]">Message:</label>
-            <div className="bg-[#F9FAFB] border border-[#E4E7EC] rounded-[8px] p-[16px]">
-              <p className="text-[14px] text-[#101828] whitespace-pre-wrap leading-relaxed">
+            <div className="bg-[#F9FAFB] border border-[#E4E7EC] rounded-[8px] p-[12px] sm:p-[16px]">
+              <p className="text-[14px] text-[#101828] whitespace-pre-wrap leading-relaxed break-words">
                 {message.message}
               </p>
             </div>
           </div>
 
-          <div className="border-t border-[#E4E7EC] pt-[24px]">
-            <h3 className="text-[16px] font-semibold text-[#101828] mb-[16px]">Actions</h3>
-            <div className="flex flex-wrap gap-[12px]">
+          <div className="border-t border-[#E4E7EC] pt-[16px] sm:pt-[24px]">
+            <h3 className="text-[16px] font-semibold text-[#101828] mb-[12px] sm:mb-[16px]">Actions</h3>
+            <div className="flex flex-col sm:flex-row gap-[12px]">
               <button
                 onClick={() => updateStatus('RESPONDED')}
                 disabled={updating || message.status === 'RESPONDED'}
-                className="px-[16px] py-[10px] bg-[#2F80ED] text-white rounded-[8px] text-[14px] font-medium hover:bg-[#1E5FBF] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto px-[16px] py-[10px] bg-[#2F80ED] text-white rounded-[8px] text-[14px] font-medium hover:bg-[#1E5FBF] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {message.status === 'RESPONDED' ? 'Marked as Resolved' : 'Mark as Resolved'}
               </button>
 
               <a
                 href={`mailto:${message.email}`}
-                className="flex items-center gap-[8px] px-[16px] py-[10px] bg-white border border-[#D0D5DD] text-[#344054] rounded-[8px] text-[14px] font-medium hover:bg-[#F9FAFB]"
+                className="w-full sm:w-auto flex items-center justify-center gap-[8px] px-[16px] py-[10px] bg-white border border-[#D0D5DD] text-[#344054] rounded-[8px] text-[14px] font-medium hover:bg-[#F9FAFB]"
               >
                 <Mail size={16} />
                 Reply via Email
