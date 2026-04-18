@@ -19,6 +19,7 @@ const AdminHeader = ({ onMenuClick, isSuperAdmin = false }: AdminHeaderProps) =>
     const [messages, setMessages] = useState<ContactMessage[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [search, setSearch] = useState("");
+    const [selected, setSelected] = useState<ContactMessage | null>(null);
 
     const fetchData = () => {
         AdminApi.getUnreadContactMessages().then(res => {
@@ -107,21 +108,44 @@ const AdminHeader = ({ onMenuClick, isSuperAdmin = false }: AdminHeaderProps) =>
                                     </div>
                                 </div>
 
-                                {/* List */}
+                                {/* List or Detail */}
                                 <div className="overflow-y-auto flex-1 border-t border-[#E4E7EC]">
-                                    {filtered.length === 0 ? (
+                                    {selected ? (
+                                        <div className="p-6 space-y-4">
+                                            <button onClick={() => setSelected(null)} className="text-xs text-[#2F80ED] hover:underline flex items-center gap-1">
+                                                ← Back
+                                            </button>
+                                            <div>
+                                                <p className="text-base font-bold text-gray-900">{selected.subject || "No subject"}</p>
+                                                <p className="text-xs text-gray-400 mt-1">{formatDate(selected.createdAt)}</p>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                <span className="font-medium text-gray-900">{selected.fullName}</span>
+                                                <span className="text-gray-400">·</span>
+                                                <span>{selected.email}</span>
+                                            </div>
+                                            {selected.phone && <p className="text-sm text-gray-500">{selected.phone}</p>}
+                                            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap bg-gray-50 rounded-lg p-4">{selected.message}</p>
+                                            <button onClick={() => { handleMarkRead(selected); setSelected(null); }}
+                                                className="w-full py-2 bg-[#2F80ED] text-white rounded-lg text-sm font-medium hover:bg-[#2868C7]">
+                                                Mark as Read
+                                            </button>
+                                        </div>
+                                    ) : filtered.length === 0 ? (
                                         <p className="text-sm text-gray-500 text-center py-10">No new messages</p>
                                     ) : filtered.map((msg, i) => (
-                                        <div key={msg.id ?? i} className="flex items-start gap-3 px-6 py-4 border-b border-[#F2F4F7] hover:bg-[#F9FAFB] transition-colors">
+                                        <div key={msg.id ?? i} onClick={() => setSelected(msg)}
+                                            className="flex items-start gap-3 px-6 py-4 border-b border-[#F2F4F7] hover:bg-[#F9FAFB] transition-colors cursor-pointer">
                                             <div className="w-9 h-9 bg-[#EBF5FF] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                                                 <Bell size={16} className="text-[#2F80ED]" />
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-semibold text-gray-900">{msg.fullName}</p>
-                                                <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{msg.subject || msg.message || "—"}</p>
+                                                <p className="text-xs text-gray-600 mt-0.5 font-medium">{msg.subject || "No subject"}</p>
+                                                <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{msg.message}</p>
                                                 <p className="text-xs text-gray-400 mt-1">{formatDate(msg.createdAt)}</p>
                                             </div>
-                                            <button onClick={() => handleMarkRead(msg)} className="text-[#2F80ED] flex-shrink-0 mt-1" title="Mark as read">
+                                            <button onClick={e => { e.stopPropagation(); handleMarkRead(msg); }} className="text-[#2F80ED] flex-shrink-0 mt-1" title="Mark as read">
                                                 <Check size={16} />
                                             </button>
                                         </div>
