@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AuthService } from "@/lib/auth";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { AdminApi, AdminNotification } from "@/lib/adminApi";
+import { AdminApi, ContactMessage } from "@/lib/adminApi";
 
 interface AdminHeaderProps {
     onMenuClick: () => void;
@@ -16,50 +16,47 @@ const AdminHeader = ({ onMenuClick, isSuperAdmin = false }: AdminHeaderProps) =>
     const { user } = useAuth();
     const [showUserMenu, setShowUserMenu] = useState(false);
     const [showBell, setShowBell] = useState(false);
-    const [notifications, setNotifications] = useState<AdminNotification[]>([]);
+    const [messages, setMessages] = useState<ContactMessage[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [search, setSearch] = useState("");
-    const [activeTab, setActiveTab] = useState("All");
 
-    const tabs = ["All", "Invoices", "Payments", "Clients", "System"];
-
-    const fetchNotifications = () => {
-        AdminApi.getMyNotifications().then(res => {
+    const fetchData = () => {
+        AdminApi.getUnreadContactMessages().then(res => {
             if (res.status === 200 && res.data) {
                 const d = res.data as any;
-                const list: AdminNotification[] = Array.isArray(d) ? d : d.content ?? d.data ?? [];
-                setNotifications(list);
+                const list: ContactMessage[] = Array.isArray(d) ? d : d.data?.content ?? d.content ?? d.data ?? [];
+                setMessages(list);
             }
         });
-        AdminApi.getUnreadNotifications().then(res => {
+        AdminApi.getUnreadContactCount().then(res => {
             if (res.status === 200 && res.data) {
                 const d = res.data as any;
-                const list = Array.isArray(d) ? d : d.content ?? d.data ?? [];
-                setUnreadCount(list.length);
+                setUnreadCount(d.data ?? d.count ?? d ?? 0);
             }
         });
     };
 
-    useEffect(() => { fetchNotifications(); }, []);
+    useEffect(() => { fetchData(); }, []);
 
-    const handleMarkAllRead = async () => {
-        await AdminApi.markAllNotificationsRead();
-        setUnreadCount(0);
-        fetchNotifications();
+    const handleMarkRead = async (msg: ContactMessage) => {
+        await AdminApi.updateContactStatus(msg.id, "READ");
+        setMessages(prev => prev.filter(m => m.id !== msg.id));
+        setUnreadCount(prev => Math.max(0, prev - 1));
     };
 
-    const filteredNotifications = notifications.filter(n => {
-        const matchSearch = !search ||
-            n.title?.toLowerCase().includes(search.toLowerCase()) ||
-            n.message?.toLowerCase().includes(search.toLowerCase());
-        const matchTab = activeTab === "All" || n.type?.toLowerCase().includes(activeTab.toLowerCase());
-        return matchSearch && matchTab;
-    });
+    const filtered = messages.filter(m =>
+        !search ||
+        m.fullName?.toLowerCase().includes(search.toLowerCase()) ||
+        m.subject?.toLowerCase().includes(search.toLowerCase()) ||
+        m.message?.toLowerCase().includes(search.toLowerCase())
+    );
 
-    const formatDate = (dateStr: string | null) => {
+    const formatDate = (dateStr: string) => {
         if (!dateStr) return "";
-        const d = new Date(dateStr);
-        return d.toLocaleString("en-GB", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).replace(",", "");
+        return new Date(dateStr).toLocaleString("en-GB", {
+            year: "numeric", month: "2-digit", day: "2-digit",
+            hour: "2-digit", minute: "2-digit"
+        }).replace(",", "");
     };
 
     const handleLogout = async () => { await AuthService.logout(); };
@@ -89,9 +86,9 @@ const AdminHeader = ({ onMenuClick, isSuperAdmin = false }: AdminHeaderProps) =>
                     {showBell && (
                         <>
                             <div className="fixed inset-0 z-40" onClick={() => setShowBell(false)} />
-                            <div className="fixed right-4 top-16 w-[460px] max-w-[95vw] bg-white rounded-2xl shadow-2xl z-50 flex flex-col" style={{maxHeight: 'calc(100vh - 80px)'}}>
+                            <div className="fixed right-4 top-16 w-[460px] max-w-[95vw] bg-white rounded-2xl shadow-2xl z-50 flex flex-col" style={{ maxHeight: "calc(100vh - 80px)" }}>
                                 {/* Header */}
-                                <div className="px-6 pt-6 pb-4">
+                                <div className="px-6 pt-6 pb-4 flex-shrink-0">
                                     <div className="flex items-start justify-between mb-1">
                                         <h2 className="text-xl font-bold text-gray-900">Notifications</h2>
                                         <button onClick={() => setShowBell(false)} className="p-1 hover:bg-gray-100 rounded-lg text-gray-400">
@@ -99,48 +96,31 @@ const AdminHeader = ({ onMenuClick, isSuperAdmin = false }: AdminHeaderProps) =>
                                         </button>
                                     </div>
                                     <p className="text-sm text-gray-500">Stay updated on invoice activity, payments, reminders, and account alerts.</p>
-
-                                    {/* Search */}
                                     <div className="relative mt-4">
                                         <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
-                                        <input
-                                            type="text"
-                                            value={search}
-                                            onChange={e => setSearch(e.target.value)}
+                                        <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                                             placeholder="search_notifications"
-                                            className="w-full pl-9 pr-4 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                        />
+                                            className="w-full pl-9 pr-4 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
                                     </div>
                                 </div>
 
-                                {/* Tabs */}
-                                <div className="flex items-center px-6 border-b border-[#E4E7EC]">
-                                    {tabs.map(tab => (
-                                        <button key={tab} onClick={() => setActiveTab(tab)}
-                                            className={`px-3 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === tab ? "border-gray-900 text-gray-900" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
-                                            {tab}
-                                        </button>
-                                    ))}
-                                    <button onClick={handleMarkAllRead} className="ml-auto text-sm text-[#2F80ED] font-medium whitespace-nowrap pb-2.5 hover:underline">
-                                        Mark all as Read
-                                    </button>
-                                </div>
-
                                 {/* List */}
-                                <div className="overflow-y-auto flex-1">
-                                    {filteredNotifications.length === 0 ? (
-                                        <p className="text-sm text-gray-500 text-center py-10">No notifications</p>
-                                    ) : filteredNotifications.map((n, i) => (
-                                        <div key={n.id ?? i} className="flex items-start gap-3 px-6 py-4 border-b border-[#F2F4F7] hover:bg-[#F9FAFB] transition-colors">
-                                            <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${n.type === "payment" ? "bg-green-100" : "bg-[#EBF5FF]"}`}>
-                                                <Bell size={16} className={n.type === "payment" ? "text-green-600" : "text-[#2F80ED]"} />
+                                <div className="overflow-y-auto flex-1 border-t border-[#E4E7EC]">
+                                    {filtered.length === 0 ? (
+                                        <p className="text-sm text-gray-500 text-center py-10">No new messages</p>
+                                    ) : filtered.map((msg, i) => (
+                                        <div key={msg.id ?? i} className="flex items-start gap-3 px-6 py-4 border-b border-[#F2F4F7] hover:bg-[#F9FAFB] transition-colors">
+                                            <div className="w-9 h-9 bg-[#EBF5FF] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                                <Bell size={16} className="text-[#2F80ED]" />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-semibold text-gray-900">{n.title}</p>
-                                                <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{n.message}</p>
-                                                <p className="text-xs text-gray-400 mt-1">{formatDate(n.sentAt ?? (n as any).createdAt)}</p>
+                                                <p className="text-sm font-semibold text-gray-900">{msg.fullName}</p>
+                                                <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{msg.subject}</p>
+                                                <p className="text-xs text-gray-400 mt-1">{formatDate(msg.createdAt)}</p>
                                             </div>
-                                            <Check size={16} className="text-[#2F80ED] flex-shrink-0 mt-1" />
+                                            <button onClick={() => handleMarkRead(msg)} className="text-[#2F80ED] flex-shrink-0 mt-1" title="Mark as read">
+                                                <Check size={16} />
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
