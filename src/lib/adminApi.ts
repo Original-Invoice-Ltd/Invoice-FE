@@ -458,6 +458,14 @@ export class AdminApi {
         return ApiClient.get(`/api/admin/contact/${id}`);
     }
 
+    static async getUnreadContactMessages(): Promise<ApiResponse<any>> {
+        return ApiClient.get("/api/admin/contact/unread");
+    }
+
+    static async getUnreadContactCount(): Promise<ApiResponse<any>> {
+        return ApiClient.get("/api/admin/contact/unread-count");
+    }
+
     static async updateContactStatus(id: number, status: "NEW" | "READ" | "RESPONDED"): Promise<ApiResponse<any>> {
         return ApiClient.patch(`/api/admin/contact/${id}/status?status=${status}`);
     }
