@@ -22,13 +22,16 @@ const AdminHeader = ({ onMenuClick, isSuperAdmin = false }: AdminHeaderProps) =>
 
     const fetchData = () => {
         AdminApi.getUnreadContactMessages().then(res => {
+            console.log('[Bell] unread contacts response:', res.status, res.data, res.error);
             if (res.status === 200 && res.data) {
                 const d = res.data as any;
                 const list: ContactMessage[] = Array.isArray(d) ? d : d.data?.content ?? d.content ?? d.data ?? [];
+                console.log('[Bell] messages list:', list);
                 setMessages(list);
             }
         });
         AdminApi.getUnreadContactCount().then(res => {
+            console.log('[Bell] unread count response:', res.status, res.data);
             if (res.status === 200 && res.data) {
                 const d = res.data as any;
                 setUnreadCount(d.data ?? d.count ?? d ?? 0);
@@ -115,7 +118,7 @@ const AdminHeader = ({ onMenuClick, isSuperAdmin = false }: AdminHeaderProps) =>
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-semibold text-gray-900">{msg.fullName}</p>
-                                                <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{msg.subject}</p>
+                                                <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{msg.subject || msg.message || "—"}</p>
                                                 <p className="text-xs text-gray-400 mt-1">{formatDate(msg.createdAt)}</p>
                                             </div>
                                             <button onClick={() => handleMarkRead(msg)} className="text-[#2F80ED] flex-shrink-0 mt-1" title="Mark as read">
