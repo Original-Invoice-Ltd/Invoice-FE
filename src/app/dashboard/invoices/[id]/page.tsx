@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useState, useEffect} from "react";
+import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Eye, X, ChevronDown } from "lucide-react";
-import Link from "next/link";
 import { ApiClient } from "@/lib/api";
 import { InvoiceResponse } from "@/types/invoice";
 import { useTranslation } from "react-i18next";
 import { UploadReceiptModal } from "@/components/modals";
+import { formatCurrency as formatCurrencyUtil, CurrencyCode } from "@/lib/currencyFormatter";
+import Link from "next/link";
 
 const InvoiceViewPage = () => {
     const params = useParams();
+    const router = useRouter();
     const { t } = useTranslation();
     const [invoice, setInvoice] = useState<InvoiceResponse | null>(null);
     const [loading, setLoading] = useState(true);
@@ -18,6 +20,7 @@ const InvoiceViewPage = () => {
     const [selectedDescription, setSelectedDescription] = useState<string | null>(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
 
     useEffect(() => {
         if (params.id) {
@@ -31,7 +34,7 @@ const InvoiceViewPage = () => {
             const response = await ApiClient.getInvoiceById(invoiceId);
             
             if (response.status === 200 && response.data) {
-                setInvoice(response.data as InvoiceResponse);
+                setInvoice(response.data);
             } else {
                 setError(response.error || response.message || t('error_loading_invoices'));
             }
@@ -52,19 +55,17 @@ const InvoiceViewPage = () => {
     };
 
     const formatCurrency = (amount: number | null | undefined, currency: string = 'NGN') => {
-        const safeAmount = amount || 0;
-        return new Intl.NumberFormat('en-NG', {
-            style: 'currency',
-            currency: currency || 'NGN',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(safeAmount);
+        return formatCurrencyUtil(amount || 0, { currency: currency as CurrencyCode });
     };
 
     const handleMarkAsPaid = async () => {
+        const { toast } = await import("@/lib/toast");
         const response = await ApiClient.markInvoiceAsPaid(params.id as string);
         if (response.status === 200) {
-            window.location.reload();
+            toast.show({ type: 'success', message: 'Successfully marked as paid' });
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         }
     };
 
@@ -386,6 +387,7 @@ const InvoiceViewPage = () => {
                 invoiceId={params.id as string}
                 mode="incomplete"
                 invoiceTotalDue={invoice?.totalDue}
+                isDashboardUser={true}
             />
 
             {isDropdownOpen && (
