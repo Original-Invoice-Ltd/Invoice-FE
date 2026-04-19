@@ -49,7 +49,11 @@ const AdminUsersPage = () => {
             const filtered = list.filter(u => {
                 const matchSearch = !searchTerm || u.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || u.email?.toLowerCase().includes(searchTerm.toLowerCase());
                 const matchStatus = statusFilter === "all" || u.status?.toUpperCase() === statusFilter.toUpperCase();
-                const matchRole = roleFilter === "all" || u.role?.toUpperCase() === roleFilter.toUpperCase();
+                const matchRole = roleFilter === "all" || (() => {
+                    const roles = u.roles ?? [];
+                    const effective = roles.includes("SUPER_ADMIN") ? "SUPER_ADMIN" : roles.includes("ADMIN") ? "ADMIN" : u.role;
+                    return effective?.toUpperCase() === roleFilter.toUpperCase();
+                })();
                 const matchPlan = planFilter === "all" || (u.currentPlan ?? u.plan)?.toUpperCase() === planFilter.toUpperCase();
                 return matchSearch && matchStatus && matchRole && matchPlan;
             });
@@ -109,6 +113,13 @@ const AdminUsersPage = () => {
         const a = document.createElement("a");
         a.href = url; a.download = "users.csv"; a.click();
         URL.revokeObjectURL(url);
+    };
+
+    const getEffectiveRole = (user: AdminUser) => {
+        const roles = user.roles ?? [];
+        if (roles.includes("SUPER_ADMIN")) return "SUPER_ADMIN";
+        if (roles.includes("ADMIN")) return "ADMIN";
+        return user.role;
     };
 
     const getRoleColor = (role: string) => {
@@ -214,7 +225,7 @@ const AdminUsersPage = () => {
                                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(user.status)}`}>{user.status}</span>
                                     </td>
                                     <td className="hidden md:table-cell px-6 py-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getRoleColor(user.role)}`}>{user.role}</span>
+                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getRoleColor(getEffectiveRole(user))}`}>{getEffectiveRole(user)}</span>
                                     </td>
                                     <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-900">{user.plan}</td>
                                     <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-900">{user.invoiceCount}</td>
