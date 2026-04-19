@@ -154,6 +154,12 @@ const AdminManagementPage = () => {
         }
     };
 
+    const getEffectiveRole = (admin: AdminManagementUser) => {
+        const roles = admin.roles ?? [];
+        if (roles.includes("SUPER_ADMIN")) return "SUPER_ADMIN";
+        if (roles.includes("ADMIN")) return "ADMIN";
+        return admin.role;
+    };
     const getRoleColor = (role: string) => role === "SUPER_ADMIN" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700";
     const getStatusColor = (status: string) => {
         const s = status?.toUpperCase();
@@ -276,7 +282,7 @@ const AdminManagementPage = () => {
                                                     <p className="text-xs text-gray-500">{admin.email}</p>
                                                 </td>
                                                 <td className="hidden sm:table-cell px-6 py-4">
-                                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getRoleColor(admin.role)}`}>{admin.role}</span>
+                                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getRoleColor(getEffectiveRole(admin))}`}>{getEffectiveRole(admin)}</span>
                                                 </td>
                                                 <td className="hidden md:table-cell px-6 py-4">
                                                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(admin.status)}`}>{admin.status}</span>
