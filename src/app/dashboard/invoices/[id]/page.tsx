@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Eye, X, ChevronDown } from "lucide-react";
+import { ArrowLeft, Eye, X } from "lucide-react";
 import { downloadInvoiceAsPDF } from "@/lib/pdfUtils";
 import Link from "next/link";
 import { ApiClient } from "@/lib/api";
@@ -19,7 +19,6 @@ const InvoiceViewPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedDescription, setSelectedDescription] = useState<string | null>(null);
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
     const invoiceRef = useRef<HTMLDivElement>(null);
@@ -129,42 +128,7 @@ const InvoiceViewPage = () => {
                         </p>
                     </div>
                 </div>
-                <div className="flex items-center gap-3">
-                    <div className="relative">
-                        <button
-                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                            className="flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
-                        >
-                            Mark
-                            <ChevronDown size={16} />
-                        </button>
-                        
-                        {isDropdownOpen && (
-                            <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                                <div className="py-1">
-                                    <button
-                                        onClick={() => {
-                                            setIsDropdownOpen(false);
-                                            handleMarkAsPaid();
-                                        }}
-                                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                                    >
-                                        Mark as Paid
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setIsDropdownOpen(false);
-                                            setIsUploadModalOpen(true);
-                                        }}
-                                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                                    >
-                                        Mark as Incomplete
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
+
             </div>
 
             <div className="bg-white rounded-lg border border-[#E4E7EC] overflow-hidden mx-6" ref={invoiceRef}>
@@ -437,12 +401,7 @@ const InvoiceViewPage = () => {
                 isDashboardUser={true}
             />
 
-            {isDropdownOpen && (
-                <div
-                    className="fixed inset-0 z-0"
-                    onClick={() => setIsDropdownOpen(false)}
-                />
-            )}
+
         </div>
     );
 };
