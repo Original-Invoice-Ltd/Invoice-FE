@@ -541,7 +541,7 @@ export class ApiClient {
   }
 
   static async getInvoiceById(id: string) {
-    return this.request("GET", `/api/invoices/public/${id}`);
+    return this.request<InvoiceResponse>("GET", `/api/invoices/public/${id}`);
   }
 
   static async getPublicInvoiceByUuid(uuid: string): Promise<ApiResponse<any>> {
