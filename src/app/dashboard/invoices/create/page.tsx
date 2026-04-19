@@ -1980,10 +1980,10 @@ const CreateInvoicePage = () => {
                                             <select
                                                 value={selectedVatId || ""}
                                                 onChange={(e) => setSelectedVatId(e.target.value || null)}
-                                                className="border-none bg-transparent text-blue-600 focus:ring-0 p-0 text-[18px] font-medium"
+                                                className="border-none bg-transparent text-blue-600 focus:ring-0 p-0 text-sm font-medium"
                                                 disabled={!hasAccess('taxCompliance')}
                                             >
-                                                <option value="" className="text-md">No VAT</option>
+                                                <option value="" className="pl-4 pb-3">No VAT</option>
                                                 {availableTaxes.filter(t => t.type === "VAT").map(tax => {
                                                     const selectedClient = clients.find(c => c.id === selectedClientId) as any;
                                                     const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
@@ -2002,10 +2002,10 @@ const CreateInvoicePage = () => {
                                             <select
                                                 value={selectedWhtId || ""}
                                                 onChange={(e) => setSelectedWhtId(e.target.value || null)}
-                                                className="border-none bg-transparent text-red-600 focus:ring-0 p-0 text-[18px] font-medium"
+                                                className="border-none bg-transparent text-red-600 focus:ring-0 p-0 text-sm font-medium"
                                                 disabled={!hasAccess('taxCompliance')}
                                             >
-                                                <option value="" className="text-md">No WHT</option>
+                                                <option value="" className="pl-4 pb-3">No WHT</option>
                                                 {availableTaxes.filter(t => t.type === "WHT").map(tax => {
                                                     const selectedClient = clients.find(c => c.id === selectedClientId) as any;
                                                     const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
