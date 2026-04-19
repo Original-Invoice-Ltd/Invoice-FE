@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Eye, X, ChevronDown } from "lucide-react";
+import { downloadInvoiceAsPDF } from "@/lib/pdfUtils";
 import Link from "next/link";
 import { ApiClient } from "@/lib/api";
 import { InvoiceResponse } from "@/types/invoice";
@@ -20,6 +21,8 @@ const InvoiceViewPage = () => {
     const [selectedDescription, setSelectedDescription] = useState<string | null>(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
+    const invoiceRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (params.id) {
@@ -33,7 +36,7 @@ const InvoiceViewPage = () => {
             const response = await ApiClient.getInvoiceById(invoiceId);
             
             if (response.status === 200 && response.data) {
-                setInvoice(response.data);
+                setInvoice(response.data as InvoiceResponse);
             } else {
                 setError(response.error || response.message || t('error_loading_invoices'));
             }
@@ -65,6 +68,19 @@ const InvoiceViewPage = () => {
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
+        }
+    };
+
+    const handleDownloadPDF = async () => {
+        if (!invoiceRef.current || !invoice) return;
+        setIsDownloadingPDF(true);
+        try {
+            await downloadInvoiceAsPDF(invoiceRef.current, invoice.invoiceNumber || invoice.title);
+        } catch (err) {
+            console.error('Failed to download PDF:', err);
+            alert('Failed to download PDF. Please try again.');
+        } finally {
+            setIsDownloadingPDF(false);
         }
     };
 
@@ -151,7 +167,7 @@ const InvoiceViewPage = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-lg border border-[#E4E7EC] overflow-hidden mx-6">
+            <div className="bg-white rounded-lg border border-[#E4E7EC] overflow-hidden mx-6" ref={invoiceRef}>
                 <div className="relative">
                     <div className="relative z-0 p-4 sm:p-6 md:p-8 bg-white">
                         <div className="mb-8">
@@ -299,7 +315,7 @@ const InvoiceViewPage = () => {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="mt-3 px-4 py-3 rounded" style={{ backgroundColor: invoice.color ? `${invoice.color}20` : '#EBF5FF' }}>
+                                <div className="mt-3 px-4 py-3 rounded" style={{ backgroundColor: invoice.invoiceColor ? `${invoice.invoiceColor}20` : '#EBF5FF' }}>
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm font-semibold text-[#101828]">Balance Due</span>
                                         <span className="text-base font-bold text-[#101828]">
@@ -351,6 +367,38 @@ const InvoiceViewPage = () => {
                         )}
                     </div>
                 </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 mt-4 mx-6">
+                <button
+                    onClick={() => setIsUploadModalOpen(true)}
+                    className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors text-sm md:text-base font-medium"
+                >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    Upload Receipt
+                </button>
+                <button
+                    onClick={handleDownloadPDF}
+                    disabled={isDownloadingPDF}
+                    className="flex cursor-pointer items-center justify-center gap-2 px-4 md:px-6 py-3 border bg-white border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {isDownloadingPDF ? (
+                        <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700"></div>
+                            Generating PDF...
+                        </>
+                    ) : (
+                        <>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Download PDF
+                        </>
+                    )}
+                </button>
             </div>
 
             {selectedDescription && (
