@@ -17,8 +17,8 @@ interface CustomerLayoutProps {
     showEmailProfile?: boolean;
 }
 
-const CustomerLayout = ({ 
-    children, 
+const CustomerLayout = ({
+    children,
     userProfile,
     showHeader = true,
     showEmailProfile = false
@@ -33,10 +33,10 @@ const CustomerLayout = ({
 
     return (
         <div className="flex h-screen overflow-hidden bg-gray-50">
-            {/* Desktop Sidebar - fixed position */}
+            {/* Desktop Sidebar - fixed */}
             <div className="hidden md:block fixed left-0 top-0 h-full z-30">
-                <Sidebar 
-                    userProfile={userProfile} 
+                <Sidebar
+                    userProfile={userProfile}
                     onSignOutClick={() => setIsSignOutModalOpen(true)}
                     showEmailProfile={showEmailProfile}
                 />
@@ -44,18 +44,18 @@ const CustomerLayout = ({
 
             {/* Mobile Sidebar Overlay */}
             {isSidebarOpen && (
-                <div 
+                <div
                     className="fixed inset-0 bg-black/50 z-40 md:hidden"
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
 
-            {/* Mobile Sidebar - slides in from left */}
+            {/* Mobile Sidebar */}
             <div className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
                 isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
             }`}>
-                <Sidebar 
-                    userProfile={userProfile} 
+                <Sidebar
+                    userProfile={userProfile}
                     onClose={() => setIsSidebarOpen(false)}
                     isMobile={true}
                     onSignOutClick={() => setIsSignOutModalOpen(true)}
@@ -63,27 +63,23 @@ const CustomerLayout = ({
                 />
             </div>
 
-            {/* Main Content - with left margin to account for fixed sidebar */}
+            {/* Main Content */}
             <div className="flex-1 flex flex-col w-full md:ml-64 overflow-hidden">
                 {showHeader && (
-                    <CustomerHeader 
-                        onMenuClick={() => setIsSidebarOpen(true)} 
+                    <CustomerHeader
+                        onMenuClick={() => setIsSidebarOpen(true)}
                     />
                 )}
                 <main className="flex-1 overflow-y-auto">
                     {children}
-                )} */}
-                {/* <main className="flex-1 overflow-y-auto"> */}
-                    {children}
-                {/* </main>
-            </div> */}
+                </main>
+            </div>
 
-            {/* Sign Out Modal - appears across entire screen */}
-            {/* <SignOutModal
+            <SignOutModal
                 isOpen={isSignOutModalOpen}
                 onClose={() => setIsSignOutModalOpen(false)}
                 onConfirm={handleSignOut}
-            /> */}
+            />
         </div>
     );
 };
