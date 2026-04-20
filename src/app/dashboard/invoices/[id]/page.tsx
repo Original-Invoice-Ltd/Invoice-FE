@@ -2,13 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Eye, X } from "lucide-react";
+import { ArrowLeft, Eye, X, ChevronDown } from "lucide-react";
 import { ApiClient } from "@/lib/api";
 import { InvoiceResponse } from "@/types/invoice";
 import { useTranslation } from "react-i18next";
 import { UploadReceiptModal } from "@/components/modals";
 import { formatCurrency as formatCurrencyUtil, CurrencyCode } from "@/lib/currencyFormatter";
-import { downloadInvoiceAsPDF } from "@/lib/pdfUtils";
 import Link from "next/link";
 
 const InvoiceViewPage = () => {
@@ -19,9 +18,8 @@ const InvoiceViewPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedDescription, setSelectedDescription] = useState<string | null>(null);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-    const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
-    const invoiceRef = useRef<HTMLDivElement>(null);
 
 
     useEffect(() => {
@@ -60,15 +58,14 @@ const InvoiceViewPage = () => {
         return formatCurrencyUtil(amount || 0, { currency: currency as CurrencyCode });
     };
 
-    const handleDownloadPDF = async () => {
-        if (!invoiceRef.current || !invoice) return;
-        setIsDownloadingPDF(true);
-        try {
-            await downloadInvoiceAsPDF(invoiceRef.current, invoice.invoiceNumber || 'invoice');
-        } catch (err) {
-            console.error('Failed to download PDF:', err);
-        } finally {
-            setIsDownloadingPDF(false);
+    const handleMarkAsPaid = async () => {
+        const { toast } = await import("@/lib/toast");
+        const response = await ApiClient.markInvoiceAsPaid(params.id as string);
+        if (response.status === 200) {
+            toast.show({ type: 'success', message: 'Successfully marked as paid' });
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         }
     };
 
@@ -118,38 +115,44 @@ const InvoiceViewPage = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => setIsUploadModalOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2 border border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-blue-50 transition-colors font-medium text-sm"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                        Upload Receipt
-                    </button>
-                    <button
-                        onClick={handleDownloadPDF}
-                        disabled={isDownloadingPDF}
-                        className="flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {isDownloadingPDF ? (
-                            <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                Generating...
-                            </>
-                        ) : (
-                            <>
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                Download PDF
-                            </>
+                    <div className="relative">
+                        <button
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#2F80ED] text-white rounded-lg hover:bg-[#2563EB] transition-colors"
+                        >
+                            Mark
+                            <ChevronDown size={16} />
+                        </button>
+
+                        {isDropdownOpen && (
+                            <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                                <div className="py-1">
+                                    <button
+                                        onClick={() => {
+                                            setIsDropdownOpen(false);
+                                            handleMarkAsPaid();
+                                        }}
+                                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                    >
+                                        Mark as Paid
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setIsDropdownOpen(false);
+                                            setIsUploadModalOpen(true);
+                                        }}
+                                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                    >
+                                        Mark as Incomplete
+                                    </button>
+                                </div>
+                            </div>
                         )}
-                    </button>
+                    </div>
                 </div>
             </div>
 
-            <div className="bg-white rounded-lg border border-[#E4E7EC] overflow-hidden mx-6" ref={invoiceRef}>
+            <div className="bg-white rounded-lg border border-[#E4E7EC] overflow-hidden mx-6">
                 <div className="relative">
                     <div className="relative z-0 p-4 sm:p-6 md:p-8 bg-white">
                         <div className="mb-8">
@@ -382,8 +385,16 @@ const InvoiceViewPage = () => {
                 isOpen={isUploadModalOpen}
                 onClose={() => setIsUploadModalOpen(false)}
                 invoiceId={params.id as string}
-                mode="upload"
+                mode="incomplete"
+                invoiceTotalDue={invoice?.totalDue}
             />
+
+            {isDropdownOpen && (
+                <div
+                    className="fixed inset-0 z-0"
+                    onClick={() => setIsDropdownOpen(false)}
+                />
+            )}
         </div>
     );
 };
