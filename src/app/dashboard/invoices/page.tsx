@@ -656,7 +656,7 @@ const InvoicesPage = () => {
                             const invoice = receivedInvoices.find(inv => inv.id === openDropdown)!;
                             return (
                                 <Link
-                                    href={`/dashboard/invoices/${invoice.id}`}
+                                    href={`/dashboard/invoices/received/${invoice.id}`}
                                     className="flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors"
                                     onClick={() => {
                                         setOpenDropdown(null);
