@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { CustomerLayout } from "@/components/customerSection";
 import { UploadReceiptModal } from "@/components/modals";
 import { ApiClient } from "@/lib/api";
 import { Eye, X } from "lucide-react";
 import { formatCurrency as formatCurrencyUtil, CurrencyCode } from "@/lib/currencyFormatter";
+import { downloadInvoiceAsPDF } from "@/lib/pdfUtils";
 
 const InvoiceDetailPage = () => {
     const params = useParams();
@@ -16,6 +17,8 @@ const InvoiceDetailPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedDescription, setSelectedDescription] = useState<string | null>(null);
+    const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
+    const invoiceRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (params.id) {
@@ -48,6 +51,18 @@ const InvoiceDetailPage = () => {
 
     const handleModalClose = () => {
         setIsUploadModalOpen(false);
+    };
+
+    const handleDownloadPDF = async () => {
+        if (!invoiceRef.current || !invoice) return;
+        setIsDownloadingPDF(true);
+        try {
+            await downloadInvoiceAsPDF(invoiceRef.current, invoice.invoiceNumber || 'invoice');
+        } catch (err) {
+            console.error('Failed to download PDF:', err);
+        } finally {
+            setIsDownloadingPDF(false);
+        }
     };
 
     const formatCurrency = (amount: number) => {
@@ -139,7 +154,7 @@ const InvoiceDetailPage = () => {
                 </div>
 
                 {/* Invoice Content */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm relative overflow-hidden my-4 sm:my-8">
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm relative overflow-hidden my-4 sm:my-8" ref={invoiceRef}>
                     {invoice?.status?.toLowerCase() !== 'paid' && (
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
                             <div
@@ -394,11 +409,33 @@ const InvoiceDetailPage = () => {
 
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-[#E4E7EC] mt-12">
-                        <button className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors text-sm md:text-base font-medium">
+                        <button
+                            onClick={() => setIsUploadModalOpen(true)}
+                            className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 border border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-blue-50 transition-colors text-sm md:text-base font-medium"
+                        >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
-                            Download PDF
+                            Upload Receipt
+                        </button>
+                        <button
+                            onClick={handleDownloadPDF}
+                            disabled={isDownloadingPDF}
+                            className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors text-sm md:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isDownloadingPDF ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                    Generating PDF...
+                                </>
+                            ) : (
+                                <>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Download PDF
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>
