@@ -25,9 +25,16 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
     const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
     const [amountPaid, setAmountPaid] = useState<string>("");
     const [amountError, setAmountError] = useState<string>("");
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    
     const { uploadReceipt, uploading, progress, error: uploadError, success, reset } = useReceiptUpload();
+    
+    const formatNumberWithCommas = (value: string) => {
+        const numericValue = value.replace(/[^\d]/g, '');
+        return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    };
+
+    const parseFormattedNumber = (value: string) => {
+        return value.replace(/,/g, '');
+    };
 
     // Sync upload state with hook state
     useEffect(() => {
@@ -169,7 +176,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
     };
 
     const handleSubmitIncomplete = async () => {
-        const amount = parseFloat(amountPaid);
+        const amount = parseFloat(parseFormattedNumber(amountPaid));
         if (!amountPaid || isNaN(amount) || amount < 0) {
             setAmountError("Please enter a valid amount (0 or more)");
             return;
@@ -250,10 +257,11 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                                 Balance Left {invoiceTotalDue && `(Total Due: ₦${invoiceTotalDue.toLocaleString()})`}
                             </label>
                             <input
-                                type="number"
-                                value={amountPaid}
+                                type="text"
+                                value={formatNumberWithCommas(amountPaid)}
                                 onChange={(e) => {
-                                    setAmountPaid(e.target.value);
+                                    const rawValue = parseFormattedNumber(e.target.value);
+                                    setAmountPaid(rawValue);
                                     setAmountError("");
                                 }}
                                 placeholder="Enter balance left"

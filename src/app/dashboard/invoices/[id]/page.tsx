@@ -128,12 +128,20 @@ const InvoiceViewPage = () => {
                                 <div className="py-1">
                                     <button
                                         onClick={() => {
-                                            setIsDropdownOpen(false);
-                                            handleMarkAsPaid();
+                                            if (invoice.status !== 'PAID') {
+                                                setIsDropdownOpen(false);
+                                                handleMarkAsPaid();
+                                            }
                                         }}
-                                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                        disabled={invoice.status === 'PAID'}
+                                        className={`w-full text-left px-4 py-3 text-sm transition-colors ${
+                                            invoice.status === 'PAID'
+                                                ? 'text-gray-400 bg-gray-50 cursor-not-allowed'
+                                                : 'text-gray-700 hover:bg-gray-50 cursor-pointer'
+                                        }`}
                                     >
                                         Mark as Paid
+                    
                                     </button>
                                     <button
                                         onClick={() => {

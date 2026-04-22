@@ -23,7 +23,7 @@ import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { useSubscription } from "@/hooks/useSubscription";
 import { formatCurrency, CURRENCY_SYMBOLS, CurrencyCode } from "@/lib/currencyFormatter";
 
-const CreateInvoicePage = () => {
+export default function CreateInvoicePage () {
     const { t } = useTranslation();
     const { subscription } = useSubscription();
     const {
@@ -103,25 +103,25 @@ const CreateInvoicePage = () => {
     const [bankSearchQuery, setBankSearchQuery] = useState("");
 
     const nigerianBanks = [
-        { 
-            category: "Commercial Banks (Tier 1)", 
-            banks: ["Access Bank", "Zenith Bank", "GTBank", "First Bank", "UBA"] 
+        {
+            category: "Commercial Banks (Tier 1)",
+            banks: ["Access Bank", "Zenith Bank", "GTBank", "First Bank", "UBA"]
         },
-        { 
-            category: "Commercial Banks (Tier 2 & Others)", 
-            banks: ["Fidelity Bank", "Union Bank", "Sterling Bank", "Stanbic IBTC", "Wema Bank", "Polaris Bank", "Keystone Bank", "Heritage Bank", "Jaiz Bank", "SunTrust Bank", "Titan Trust Bank", "Providus Bank", "Premium Trust Bank", "Globus Bank", "Parallex Bank", "Ecobank", "FCMB", "Unity Bank"] 
+        {
+            category: "Commercial Banks (Tier 2 & Others)",
+            banks: ["Fidelity Bank", "Union Bank", "Sterling Bank", "Stanbic IBTC", "Wema Bank", "Polaris Bank", "Keystone Bank", "Heritage Bank", "Jaiz Bank", "SunTrust Bank", "Titan Trust Bank", "Providus Bank", "Premium Trust Bank", "Globus Bank", "Parallex Bank", "Ecobank", "FCMB", "Unity Bank"]
         },
-        { 
-            category: "Digital / Microfinance Banks", 
-            banks: ["Kuda Bank", "OPay", "PalmPay", "Moniepoint", "VFD Microfinance Bank", "ALAT by Wema", "Carbon", "Eyowo", "Rubies Bank", "Sparkle Microfinance Bank", "Raven Bank", "Fairmoney"] 
+        {
+            category: "Digital / Microfinance Banks",
+            banks: ["Kuda Bank", "OPay", "PalmPay", "Moniepoint", "VFD Microfinance Bank", "ALAT by Wema", "Carbon", "Eyowo", "Rubies Bank", "Sparkle Microfinance Bank", "Raven Bank", "Fairmoney"]
         },
-        { 
-            category: "Merchant / Specialized Banks", 
-            banks: ["FSDH Merchant Bank", "Coronation Merchant Bank", "FBNQuest Merchant Bank", "Nova Merchant Bank", "Rand Merchant Bank"] 
+        {
+            category: "Merchant / Specialized Banks",
+            banks: ["FSDH Merchant Bank", "Coronation Merchant Bank", "FBNQuest Merchant Bank", "Nova Merchant Bank", "Rand Merchant Bank"]
         },
-        { 
-            category: "Development Finance Institutions", 
-            banks: ["Bank of Agriculture", "Bank of Industry", "Development Bank of Nigeria", "Federal Mortgage Bank of Nigeria", "Nigerian Export-Import Bank"] 
+        {
+            category: "Development Finance Institutions",
+            banks: ["Bank of Agriculture", "Bank of Industry", "Development Bank of Nigeria", "Federal Mortgage Bank of Nigeria", "Nigerian Export-Import Bank"]
         }
     ];
 
@@ -146,16 +146,16 @@ const CreateInvoicePage = () => {
 
     const loadBusinessProfiles = async () => {
         if (businessProfilesLoaded || isLoadingBusinessProfiles) return;
-        
+
         // Only load business profiles for Premium users
         if (!hasAccess('multipleCompanyProfiles')) {
             setBusinessProfilesLoaded(true);
             return;
         }
-        
+
         try {
             setIsLoadingBusinessProfiles(true);
-            
+
             // Premium users: fetch active business profiles from API
             const response = await ApiClient.getActiveBusinessProfiles();
             if (response.status === 200 && response.data && response.data.length > 0) {
@@ -266,12 +266,12 @@ const CreateInvoicePage = () => {
             } else if (isPremium && !selectedBusinessProfileId) {
                 // Premium user but no business profile selected - fetch default
                 const profilesResponse = await ApiClient.getAllBusinessProfiles();
-                
+
                 if (profilesResponse.status === 200 && profilesResponse.data && profilesResponse.data.length > 0) {
                     // Find default profile or use first one
                     const defaultProfile = profilesResponse.data.find((p: any) => p.isDefault) || profilesResponse.data[0];
                     const businessProfileId = defaultProfile.id;
-                    
+
                     // Use business profile endpoint for premium users
                     response = await ApiClient.post(
                         `/api/client/business-profile/${businessProfileId}`,
@@ -1215,7 +1215,7 @@ const CreateInvoicePage = () => {
                     invoicesRemaining={invoicesRemaining}
                     totalInvoices={totalInvoices}
                 />
-                <section className ={"flex w-full flex-col md:flex-row gap-2 md:pr-3 w-full"}>
+                <section className={"flex w-full flex-col md:flex-row gap-2 md:pr-3 w-full"}>
                     <div className="flex flex-col md:flex-row md:gap-[22px] md:mb-14 md:w-[65%]">
                         <div className="w-full">
                             <div className="lg:col-span-3 bg-white rounded-lg p-4 space-y-6">
@@ -1478,8 +1478,8 @@ const CreateInvoicePage = () => {
                                                                     key={client.id}
                                                                     onClick={() => {
                                                                         const selectedClient = clients.find(c => c.id === client.id);
-                                                                        setBillTo({ 
-                                                                            ...billTo, 
+                                                                        setBillTo({
+                                                                            ...billTo,
                                                                             customer: client.fullName,
                                                                             email: selectedClient?.email || ""
                                                                         });
@@ -1734,7 +1734,7 @@ const CreateInvoicePage = () => {
                                 </div>
 
                                 <div className="bg-white rounded-lg border border-[#E4E7EC] p-4 space-y-6">
-                                    <div>
+                                    {/* <div>
                                         <label className="block text-[16px] font-medium text-[#101828] mb-3">
                                             Customer Note
                                         </label>
@@ -1757,7 +1757,7 @@ const CreateInvoicePage = () => {
                                             onChange={(e) => setTermsAndConditions(e.target.value)}
                                             className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] resize-none"
                                         />
-                                    </div>
+                                    </div> */}
                                     {/* Signature */}
                                     <div>
                                         <div className={`flex md:flex-row flex-col items-center gap-4 mb-3`}>
@@ -1949,17 +1949,22 @@ const CreateInvoicePage = () => {
                             </div>
 
                             {/* Color Selection */}
-                            <div 
-                                className="bg-white rounded-lg px-4 border-2 transition-colors"
+                            <div className="px-4">
+                                 <div
+                                className="bg-white flex justify-between items-center rounded-lg px-4 py-2 border-2 transition-colors"
                                 style={{ borderColor: color }}
                             >
-                                <h3 className="font-medium text-[16px] mb-2">Select Color</h3>
-                                <ColorPicker
-                                    initialColor={color}
-                                    onColorChange={(newColor) => {
-                                        setColor(newColor);
-                                    }}
-                                />
+                                <h3 className="font-medium text-[16px]">Select Color</h3>
+                                <section>
+                                    <ColorPicker
+                                        initialColor={color}
+                                        onColorChange={(newColor) => {
+                                            setColor(newColor);
+                                        }}
+                                    />
+                                </section>
+
+                            </div>
                             </div>
                             {/* Template Selection */}
                             <TemplateSelector
@@ -2445,4 +2450,3 @@ const CreateInvoicePage = () => {
         </>
     )
 };
-export default CreateInvoicePage;

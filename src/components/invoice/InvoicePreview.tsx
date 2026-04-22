@@ -271,25 +271,6 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                 </div>
 
                 <div className="bg-white mb-4 rounded-lg shadow-sm relative overflow-hidden " ref={invoiceRef}>
-                    {isFreePlan && (
-                        <div
-                            className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
-                            style={{
-                                transform: 'rotate(-45deg)',
-                            }}
-                        >
-                            <div
-                                className="text-gray-300 font-bold select-none"
-                                style={{
-                                    fontSize: '3rem',
-                                    opacity: 0.15,
-                                    letterSpacing: '0.1em',
-                                }}
-                            >
-                                www.originalinvoice.com
-                            </div>
-                        </div>
-                    )}
 
                     {data.template === 'simple' && <SimpleTemplate data={data} isFreePlan={isFreePlan} />}
                     {data.template === 'standard' && <StandardTemplate data={data} isFreePlan={isFreePlan} />}
@@ -299,16 +280,15 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                             {/* Watermark - Only for Free Plan */}
                             {isFreePlan && (
                                 <div
-                                    className="absolute left-4 sm:left-8 top-2/3 -translate-y-2/3 pointer-events-none select-none z-0"
+                                    className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0"
                                     style={{
-                                        transform: 'translateY(-50%) rotate(-22deg)',
-                                        transformOrigin: 'center',
+                                        transform: 'rotate(-45deg)',
                                     }}
                                 >
                                     <span
-                                        className="text-blue-200 font-bold whitespace-nowrap text-[1.5rem] sm:text-[2rem] md:text-[4rem]"
+                                        className="text-blue-400 font-bold whitespace-nowrap text-[2rem] sm:text-[2.5rem] md:text-[3.5rem] lg:text-[4.5rem] px-2"
                                         style={{
-                                            opacity: 0.3,
+                                            opacity: 0.20,
                                             letterSpacing: '0.1em'
                                         }}
                                     >
