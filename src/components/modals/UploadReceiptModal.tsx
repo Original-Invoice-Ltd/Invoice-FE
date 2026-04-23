@@ -14,20 +14,43 @@ interface UploadReceiptModalProps {
     mode?: "upload" | "incomplete";
     invoiceTotalDue?: number;
     isDashboardUser?: boolean;
+    invoiceCurrency?: string;
 }
 
 type UploadState = 'idle' | 'uploading' | 'completed' | 'failed';
 
-const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "upload", invoiceTotalDue, isDashboardUser = false }: UploadReceiptModalProps) => {
+const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "upload", invoiceTotalDue = 650000, isDashboardUser = false, invoiceCurrency = "NGN" }: UploadReceiptModalProps) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
     const [uploadState, setUploadState] = useState<UploadState>('idle');
     const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
-    const [amountPaid, setAmountPaid] = useState<string>("");
+    const [amountPaid, setAmountPaid] = useState<string>("150000");
     const [amountError, setAmountError] = useState<string>("");
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    
     const { uploadReceipt, uploading, progress, error: uploadError, success, reset } = useReceiptUpload();
+    
+    const formatNumberWithCommas = (value: string) => {
+        const numericValue = value.replace(/[^\d]/g, '');
+        return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    };
+
+    const parseFormattedNumber = (value: string) => {
+        return value.replace(/,/g, '');
+    };
+
+    const getCurrencySymbol = (currency: string) => {
+        const symbols: { [key: string]: string } = {
+            'NGN': '₦',
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+        };
+        return symbols[currency] || currency;
+    };
+
+    const formatCurrencyAmount = (amount: string) => {
+        if (!amount) return '';
+        return `${getCurrencySymbol(invoiceCurrency)}${formatNumberWithCommas(amount)}`;
+    };
 
     // Sync upload state with hook state
     useEffect(() => {
@@ -169,7 +192,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
     };
 
     const handleSubmitIncomplete = async () => {
-        const amount = parseFloat(amountPaid);
+        const amount = parseFloat(parseFormattedNumber(amountPaid));
         if (!amountPaid || isNaN(amount) || amount < 0) {
             setAmountError("Please enter a valid amount (0 or more)");
             return;
@@ -245,28 +268,47 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                     </p>
 
                     {mode === "incomplete" && (
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Balance Left {invoiceTotalDue && `(Total Due: ₦${invoiceTotalDue.toLocaleString()})`}
-                            </label>
-                            <input
-                                type="number"
-                                value={amountPaid}
-                                onChange={(e) => {
-                                    setAmountPaid(e.target.value);
-                                    setAmountError("");
-                                }}
-                                placeholder="Enter balance left"
-                                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${
-                                    amountError 
-                                        ? "border-red-500 focus:ring-red-500" 
-                                        : "border-gray-300 focus:ring-blue-500"
-                                }`}
-                                disabled={uploadState === "uploading"}
-                            />
-                            {amountError && (
-                                <p className="text-red-500 text-sm mt-1">{amountError}</p>
+                        <div className="mb-4 space-y-3">
+                            {invoiceTotalDue && (
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm font-medium text-gray-700">Total Amount Due:</span>
+                                        <span className="text-base font-semibold text-gray-900">
+                                            {getCurrencySymbol(invoiceCurrency)}{invoiceTotalDue.toLocaleString()}
+                                        </span>
+                                    </div>
+                                </div>
                             )}
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Balance Left <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                                        {getCurrencySymbol(invoiceCurrency)}
+                                    </span>
+                                    <input
+                                        type="text"
+                                        value={formatNumberWithCommas(amountPaid)}
+                                        onChange={(e) => {
+                                            const rawValue = parseFormattedNumber(e.target.value);
+                                            setAmountPaid(rawValue);
+                                            setAmountError("");
+                                        }}
+                                        placeholder="0"
+                                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${
+                                            amountError 
+                                                ? "border-red-500 focus:ring-red-500" 
+                                                : "border-gray-300 focus:ring-blue-500"
+                                        }`}
+                                        disabled={uploadState === "uploading"}
+                                    />
+                                </div>
+                                {amountError && (
+                                    <p className="text-red-500 text-sm mt-1">{amountError}</p>
+                                )}
+                            </div>
                         </div>
                     )}
 
