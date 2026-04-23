@@ -302,7 +302,7 @@ const AdminManagementPage = () => {
                                                 <td className="hidden md:table-cell px-6 py-4">
                                                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(admin.status)}`}>{admin.status}</span>
                                                 </td>
-                                                <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">{admin.lastLoginAt ?? admin.lastLogin ?? "—"}</td>
+                                                <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">{(admin.lastLoginAt ?? admin.lastLogin) ? new Date((admin.lastLoginAt ?? admin.lastLogin)!).toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}</td>
                                                 <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">{admin.createdAt ? new Date(admin.createdAt).toLocaleDateString() : admin.createdDate ?? "—"}</td>
                                                 <td className="px-3 sm:px-6 py-4">
                                                     <button
