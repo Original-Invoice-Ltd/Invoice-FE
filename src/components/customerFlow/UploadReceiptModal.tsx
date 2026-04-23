@@ -30,7 +30,7 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
   invoiceId,
   testMode = false,
   mode = "upload",
-  invoiceTotalDue,
+    invoiceTotalDue,
 }) => {
   const [modalState, setModalState] = useState<ModalState>("initial");
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
@@ -272,7 +272,7 @@ const UploadReceiptModal: React.FC<UploadReceiptModalProps> = ({
           {mode === "incomplete" && (
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Balance Left {invoiceTotalDue && `(Total Due: ₦${invoiceTotalDue.toLocaleString()})`}
+                Balance Left:  {invoiceTotalDue && `(Total Due: ₦${invoiceTotalDue.toLocaleString()})`}
               </label>
               <input
                 type="number"

@@ -394,6 +394,7 @@ const InvoiceViewPage = () => {
                 invoiceId={params.id as string}
                 mode="incomplete"
                 invoiceTotalDue={invoice?.totalDue}
+                invoiceCurrency={invoice?.currency}
                 isDashboardUser={true}
             />
 
