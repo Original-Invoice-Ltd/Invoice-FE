@@ -49,10 +49,14 @@ export interface AdminSubscriptionListResponse {
 export interface TaxType {
   id: string;
   name: string;
-  type: string; // MUST match uppercase enum
+  type: string;
+  taxType?: string;
+  description?: string;
   individualRate: number;
   businessRate: number;
   baseTaxRate: number;
+  active?: boolean;
+  isActive?: boolean;
 }
 
 export interface TaxRules {
@@ -117,12 +121,18 @@ export interface ContactMessage {
 }
 
 export interface AuditLog {
-    id: string;
-    admin: string;
+    id: number;
+    adminId: string;
+    adminEmail: string;
     action: string;
-    target: string;
+    targetUserId: string;
+    targetResourceType: string;
+    targetResourceId: number;
+    beforeValue: string | null;
+    afterValue: string | null;
     timestamp: string;
-    details: string;
+    ipAddress: string | null;
+    userAgent: string | null;
 }
 
 export interface ContactMessage {

@@ -6,7 +6,7 @@ import TaxFormModal from "@/components/admin/modals/TaxFormModal";
 import DeleteConfirmModal from "@/components/admin/modals/DeleteConfirmModal";
 import Toast from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
-import { AdminApi, TaxType, TaxRules } from "@/lib/adminApi";
+import { AdminApi, TaxType } from "@/lib/adminApi";
 
 const AdminTaxConfigPage = () => {
     const [taxTypes, setTaxTypes] = useState<TaxType[]>([]);
@@ -23,26 +23,15 @@ const AdminTaxConfigPage = () => {
         setDropdownPos({ top: rect.bottom + window.scrollY, right: window.innerWidth - rect.right });
         setOpenDropdown(prev => prev === id ? null : id);
     };
-    const [taxRules, setTaxRules] = useState<TaxRules>({
-        defaultIndividualTaxId: "",
-        defaultBusinessTaxId: "",
-        calculationMethod: "exclusive",
-    });
-    const [savingRules, setSavingRules] = useState(false);
-    const [rulesSaved, setRulesSaved] = useState(false);
     const { toast, showSuccess, showError, hideToast } = useToast();
 
     const fetchTaxTypes = async () => {
         setLoading(true);
-        const [typesRes, rulesRes] = await Promise.all([
-            AdminApi.getTaxTypes(),
-            AdminApi.getTaxRules(),
-        ]);
+        const typesRes = await AdminApi.getTaxTypes();
         if (typesRes.status === 200 && typesRes.data) {
             console.log('[TaxConfig] fetched tax types:', typesRes.data);
             setTaxTypes(typesRes.data);
         }
-        if (rulesRes.status === 200 && rulesRes.data) setTaxRules(rulesRes.data);
         setLoading(false);
     };
 
@@ -75,18 +64,7 @@ const AdminTaxConfigPage = () => {
         setShowDeleteModal(false);
     };
 
-    const handleSaveRules = async () => {
-        setSavingRules(true);
-        const res = await AdminApi.updateTaxRules(taxRules);
-        if (res.status === 200) {
-            showSuccess("Tax rules saved successfully");
-            setRulesSaved(true);
-            setTimeout(() => setRulesSaved(false), 3000);
-        } else {
-            showError(res.error || "Failed to save tax rules");
-        }
-        setSavingRules(false);
-    };
+    
 
     return (
         <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
@@ -166,60 +144,6 @@ const AdminTaxConfigPage = () => {
                         </tbody>
                     </table>
                 </div>
-            </div>
-
-            <div className="bg-white border border-[#E4E7EC] rounded-xl p-4 sm:p-6">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Tax Rules</h2>
-                {rulesSaved && (
-                    <div className="mb-4 bg-green-50 border border-green-200 rounded-lg p-3">
-                        <p className="text-sm text-green-700 font-medium">Tax rules saved successfully</p>
-                    </div>
-                )}
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">Default Tax for Individual Customers</label>
-                        <select
-                            value={taxRules.defaultIndividualTaxId}
-                            onChange={(e) => setTaxRules(prev => ({ ...prev, defaultIndividualTaxId: e.target.value }))}
-                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm"
-                        >
-                            <option value="">Select a tax type</option>
-                            {taxTypes.map(tax => <option key={tax.id} value={tax.id}>{tax.name}</option>)}
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">Default Tax for Business Customers</label>
-                        <select
-                            value={taxRules.defaultBusinessTaxId}
-                            onChange={(e) => setTaxRules(prev => ({ ...prev, defaultBusinessTaxId: e.target.value }))}
-                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm"
-                        >
-                            <option value="">Select a tax type</option>
-                            {taxTypes.map(tax => <option key={tax.id} value={tax.id}>{tax.name}</option>)}
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">Tax Calculation Method</label>
-                        <select
-                            value={taxRules.calculationMethod}
-                            onChange={(e) => setTaxRules(prev => ({ ...prev, calculationMethod: e.target.value as "inclusive" | "exclusive" }))}
-                            className="w-full px-4 py-2 border border-[#E4E7EC] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2F80ED] text-sm"
-                        >
-                            <option value="inclusive">Inclusive (Tax included in price)</option>
-                            <option value="exclusive">Exclusive (Tax added to price)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div className="flex justify-end">
-                <button
-                    onClick={handleSaveRules}
-                    disabled={savingRules}
-                    className="w-full sm:w-auto px-6 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] disabled:opacity-50 text-sm"
-                >
-                    {savingRules ? "Saving..." : "Save Tax Rules"}
-                </button>
             </div>
 
             {showModal && (
