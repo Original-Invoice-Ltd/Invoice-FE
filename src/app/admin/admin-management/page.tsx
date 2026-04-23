@@ -173,11 +173,23 @@ const AdminManagementPage = () => {
     const paginatedAdmins = admins.slice(startIndex, startIndex + itemsPerPage);
 
     const filteredAuditLogs = auditLogs.filter(log =>
-        !auditSearch || [log.admin, log.action, log.target, log.details].some(f => f?.toLowerCase().includes(auditSearch.toLowerCase()))
+        !auditSearch || [log.adminEmail, log.action, log.targetUserId, log.targetResourceType, log.beforeValue, log.afterValue].some(f => f?.toLowerCase().includes(auditSearch.toLowerCase()))
     );
 
     const handleDownloadAdmins = () => downloadCSV(admins, "admins.csv");
-    const handleDownloadAudit = () => downloadCSV(filteredAuditLogs, "audit-logs.csv");
+    const handleDownloadAudit = () => downloadCSV(
+        filteredAuditLogs.map(l => ({
+            id: l.id,
+            adminEmail: l.adminEmail,
+            action: l.action,
+            targetResourceType: l.targetResourceType,
+            targetUserId: l.targetUserId,
+            beforeValue: l.beforeValue ?? "",
+            afterValue: l.afterValue ?? "",
+            timestamp: l.timestamp,
+        })),
+        "audit-logs.csv"
+    );
 
     return (
         <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
@@ -359,7 +371,7 @@ const AdminManagementPage = () => {
                                     <th className="px-3 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">Admin</th>
                                     <th className="hidden sm:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">Action</th>
                                     <th className="hidden md:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">Target</th>
-                                    <th className="hidden lg:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">Details</th>
+                                    <th className="hidden lg:table-cell px-6 py-3 text-left text-sm font-semibold text-gray-900">Before → After</th>
                                     <th className="px-3 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">Time</th>
                                 </tr>
                             </thead>
@@ -382,18 +394,29 @@ const AdminManagementPage = () => {
                                     filteredAuditLogs.map((log) => (
                                         <tr key={log.id} className="hover:bg-gray-50">
                                             <td className="px-3 sm:px-6 py-4">
-                                                <p className="font-medium text-gray-900 text-sm">{log.admin}</p>
+                                                <p className="font-medium text-gray-900 text-sm">{log.adminEmail}</p>
                                             </td>
                                             <td className="hidden sm:table-cell px-6 py-4">
                                                 <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">{log.action}</span>
                                             </td>
-                                            <td className="hidden md:table-cell px-6 py-4 text-sm text-gray-600">{log.target}</td>
-                                            <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">{log.details}</td>
+                                            <td className="hidden md:table-cell px-6 py-4">
+                                                <p className="text-sm text-gray-700">{log.targetResourceType}</p>
+                                                <p className="text-xs text-gray-400 truncate max-w-[160px]">{log.targetUserId}</p>
+                                            </td>
+                                            <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-600">
+                                                {log.beforeValue || log.afterValue ? (
+                                                    <span>
+                                                        <span className="text-red-500">{log.beforeValue ?? "—"}</span>
+                                                        <span className="mx-1 text-gray-400">→</span>
+                                                        <span className="text-green-600">{log.afterValue ?? "—"}</span>
+                                                    </span>
+                                                ) : "—"}
+                                            </td>
                                             <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-500">
                                                 <div className="flex items-center gap-1">
                                                     <Clock size={14} />
-                                                    <span className="hidden sm:inline">{log.timestamp}</span>
-                                                    <span className="sm:hidden">{log.timestamp?.split(" ")[0]}</span>
+                                                    <span className="hidden sm:inline">{new Date(log.timestamp).toLocaleString()}</span>
+                                                    <span className="sm:hidden">{new Date(log.timestamp).toLocaleDateString()}</span>
                                                 </div>
                                             </td>
                                         </tr>

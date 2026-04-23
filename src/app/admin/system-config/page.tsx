@@ -136,65 +136,71 @@ const AdminSystemConfigPage = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {plans.map((plan) => (
-                        <div key={plan.id ?? plan.name} className={`bg-white border rounded-xl p-5 flex flex-col gap-4 ${plan.isActive ? "border-[#E4E7EC]" : "border-gray-200 opacity-60"}`}>
-                            <div className="flex items-start justify-between">
-                                <div>
-                                    <div className="flex items-center gap-2">
-                                        <h3 className="text-base font-bold text-gray-900">{plan.name}</h3>
-                                        <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${plan.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-                                            {plan.isActive ? "Active" : "Inactive"}
-                                        </span>
-                                    </div>
-                                    {plan.description && <p className="text-xs text-gray-500 mt-1">{plan.description}</p>}
+                        <div key={plan.id ?? plan.name} className={`bg-white border rounded-xl flex flex-col ${plan.isActive ? "border-[#E4E7EC]" : "border-gray-200 opacity-60"}`}>
+                            {/* Header */}
+                            <div className="flex items-center justify-between px-5 pt-5 pb-4">
+                                <div className="flex items-center gap-2">
+                                    <h3 className="text-base font-bold text-gray-900">{plan.name}</h3>
+                                    <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${plan.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                                        {plan.isActive ? "Active" : "Inactive"}
+                                    </span>
                                 </div>
                                 <div className="flex gap-1">
-                                    <button onClick={() => { setEditingPlan(plan); setShowModal(true); }} className="p-1.5 hover:bg-[#EBF5FF] rounded-lg">
+                                    <button onClick={() => { setEditingPlan(plan); setShowModal(true); }} className="p-1.5 hover:bg-[#EBF5FF] rounded-lg transition-colors">
                                         <Edit2 size={15} className="text-[#2F80ED]" />
                                     </button>
-                                    <button onClick={() => { setDeletingPlan(plan); setShowDeleteModal(true); }} className="p-1.5 hover:bg-red-50 rounded-lg">
+                                    <button onClick={() => { setDeletingPlan(plan); setShowDeleteModal(true); }} className="p-1.5 hover:bg-red-50 rounded-lg transition-colors">
                                         <Trash2 size={15} className="text-red-500" />
                                     </button>
                                 </div>
                             </div>
 
-                            {!(plan as any).paystackPlanCode ? (
-                                <button
-                                    onClick={() => handleSyncPaystack(plan)}
-                                    disabled={syncing === plan.id}
-                                    className="w-full px-3 py-1.5 bg-orange-50 text-orange-600 border border-orange-200 rounded-lg text-xs font-medium hover:bg-orange-100 flex items-center justify-center gap-1 disabled:opacity-50"
-                                >
-                                    {syncing === plan.id ? "Syncing..." : "\u26A1 Sync to Paystack"}
-                                </button>
-                            ) : (
-                                <p className="text-xs text-green-600 text-center flex items-center justify-center gap-1">
-                                    <CheckCircle size={12} /> Paystack: {(plan as any).paystackPlanCode}
-                                </p>
-                            )}
-
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="bg-gray-50 rounded-lg p-3">
-                                    <p className="text-xs text-gray-500">Max Invoices</p>
-                                    <p className="text-lg font-bold text-gray-900">{plan.maxInvoices >= 999 ? "\u221E" : plan.maxInvoices}</p>
-                                </div>
-                                <div className="bg-gray-50 rounded-lg p-3">
-                                    <p className="text-xs text-gray-500">Max Logos</p>
-                                    <p className="text-lg font-bold text-gray-900">{plan.maxLogos >= 999 ? "\u221E" : plan.maxLogos}</p>
-                                </div>
+                            {/* Paystack status */}
+                            <div className="px-5 pb-4">
+                                {!(plan as any).paystackPlanCode ? (
+                                    <button
+                                        onClick={() => handleSyncPaystack(plan)}
+                                        disabled={syncing === plan.id}
+                                        className="w-full px-3 py-1.5 bg-orange-50 text-orange-600 border border-orange-200 rounded-lg text-xs font-medium hover:bg-orange-100 flex items-center justify-center gap-1 disabled:opacity-50 transition-colors"
+                                    >
+                                        {syncing === plan.id ? "Syncing..." : "⚡ Sync to Paystack"}
+                                    </button>
+                                ) : (
+                                    <div className="flex items-center gap-1.5 text-xs text-green-600 bg-green-50 border border-green-100 rounded-lg px-3 py-1.5">
+                                        <CheckCircle size={12} />
+                                        <span className="font-medium">Paystack:</span>
+                                        <span className="truncate text-green-700">{(plan as any).paystackPlanCode}</span>
+                                    </div>
+                                )}
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="border border-[#E4E7EC] rounded-lg p-3">
-                                    <p className="text-xs text-gray-500">Monthly</p>
+                            {/* Pricing row */}
+                            <div className="grid grid-cols-2 divide-x divide-[#E4E7EC] border-t border-[#E4E7EC]">
+                                <div className="px-5 py-3">
+                                    <p className="text-xs text-gray-400 mb-0.5">Monthly</p>
                                     <p className="text-sm font-bold text-gray-900">{plan.monthlyPrice === 0 ? "Free" : `${naira}${plan.monthlyPrice.toLocaleString()}`}</p>
                                 </div>
-                                <div className="border border-[#E4E7EC] rounded-lg p-3">
-                                    <p className="text-xs text-gray-500">Annual</p>
+                                <div className="px-5 py-3">
+                                    <p className="text-xs text-gray-400 mb-0.5">Annual</p>
                                     <p className="text-sm font-bold text-gray-900">{plan.annualPrice === 0 ? "Free" : `${naira}${plan.annualPrice.toLocaleString()}`}</p>
                                 </div>
                             </div>
 
+                            {/* Limits row */}
+                            <div className="grid grid-cols-2 divide-x divide-[#E4E7EC] border-t border-[#E4E7EC]">
+                                <div className="px-5 py-3">
+                                    <p className="text-xs text-gray-400 mb-0.5">Max Invoices</p>
+                                    <p className="text-sm font-bold text-gray-900">{plan.maxInvoices >= 999 ? "∞" : plan.maxInvoices}</p>
+                                </div>
+                                <div className="px-5 py-3">
+                                    <p className="text-xs text-gray-400 mb-0.5">Max Logos</p>
+                                    <p className="text-sm font-bold text-gray-900">{plan.maxLogos >= 999 ? "∞" : plan.maxLogos}</p>
+                                </div>
+                            </div>
+
+                            {/* Features */}
                             {plan.features?.length > 0 && (
-                                <div className="space-y-1.5">
+                                <div className="border-t border-[#E4E7EC] px-5 py-4 space-y-2">
                                     {plan.features.map((f, i) => (
                                         <div key={i} className="flex items-center gap-2 text-xs text-gray-600">
                                             <CheckCircle size={13} className="text-green-500 flex-shrink-0" />
