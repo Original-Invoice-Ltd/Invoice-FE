@@ -105,6 +105,7 @@ export interface AdminManagementUser {
     createdAt?: string;
     updatedAt?: string;
     lastLogin?: string;
+    lastLoginAt?: string;
     createdDate?: string;
 }
 
