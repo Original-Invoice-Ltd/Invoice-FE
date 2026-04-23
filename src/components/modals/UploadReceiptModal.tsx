@@ -19,15 +19,16 @@ interface UploadReceiptModalProps {
 
 type UploadState = 'idle' | 'uploading' | 'completed' | 'failed';
 
-const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "upload", invoiceTotalDue = 650000, isDashboardUser = false, invoiceCurrency = "NGN" }: UploadReceiptModalProps) => {
+const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "upload", invoiceTotalDue , isDashboardUser = false, invoiceCurrency = "NGN" }: UploadReceiptModalProps) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
     const [uploadState, setUploadState] = useState<UploadState>('idle');
     const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
-    const [amountPaid, setAmountPaid] = useState<string>("150000");
+    const [amountPaid, setAmountPaid] = useState<string>("");
     const [amountError, setAmountError] = useState<string>("");
     const { uploadReceipt, uploading, progress, error: uploadError, success, reset } = useReceiptUpload();
-    
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const formatNumberWithCommas = (value: string) => {
         const numericValue = value.replace(/[^\d]/g, '');
         return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
