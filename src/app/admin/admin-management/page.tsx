@@ -57,9 +57,12 @@ const AdminManagementPage = () => {
             role: roleFilter !== "all" ? roleFilter : undefined,
             status: statusFilter !== "all" ? statusFilter : undefined,
         });
+        console.log('[fetchAdmins] status:', res.status, '| data:', res.data, '| error:', res.error);
         if (res.status === 200 && res.data) {
             const data = res.data as any;
-            setAdmins(Array.isArray(data) ? data : data.content ?? data.data ?? []);
+            const admins = Array.isArray(data) ? data : data.content ?? data.data ?? [];
+            console.log('[fetchAdmins] parsed admins:', admins);
+            setAdmins(admins);
         }
         setLoadingAdmins(false);
     }, [searchTerm, roleFilter, statusFilter]);
