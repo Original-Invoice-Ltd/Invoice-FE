@@ -307,11 +307,11 @@ const InvoiceViewPage = () => {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="mt-3 px-4 py-3 rounded" style={{ backgroundColor: invoice.color ? `${invoice.color}20` : '#EBF5FF' }}>
+                                <div className="mt-3 px-4 py-3 rounded" style={{ backgroundColor: invoice.invoiceColor ? `${invoice.invoiceColor}/20` : '#EBF5FF' }}>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-sm font-semibold text-[#101828]">Balance Due</span>
+                                        <span className="text-sm font-semibold text-[#101828]">Balance</span>
                                         <span className="text-base font-bold text-[#101828]">
-                                            {formatCurrency(invoice.totalDue, invoice.currency)}
+                                            {formatCurrency(Number(invoice.outstandingBalance ?? 0), invoice.currency)}
                                         </span>
                                     </div>
                                 </div>
