@@ -462,7 +462,7 @@ export class AdminApi {
         page?: number;
         size?: number;
     }): Promise<ApiResponse<any>> {
-        return ApiClient.get("/api/admin/contact", params);
+        return ApiClient.get("/api/admin/contact-messages", params);
     }
 
     static async getContactMessage(id: number): Promise<ApiResponse<any>> {
