@@ -77,24 +77,24 @@ export default function VerifyCodeForm({ email, onCodeComplete, onResendCode, on
   return (
     <form 
       onSubmit={handleSubmit} 
-      className="w-full max-w-[518px] mx-auto py-8 px-6 flex flex-col gap-10"
+      className="w-full mx-auto py-4 sm:py-8 px-4 sm:px-6 flex flex-col gap-6 sm:gap-10"
     >
       {/* Header and Code Input Container */}
-      <div className="w-[470px] h-[167px] rotate-0 opacity-100 flex flex-col gap-[32px]">
+      <div className="w-full flex flex-col gap-6 sm:gap-8">
         {/* Header */}
-        <div className="w-[470px] h-[87px] rotate-0 opacity-100 flex flex-col gap-[8px]">
-          <h2 className="w-[470px] h-[29px] rotate-0 opacity-100 font-['Inter_Tight'] font-medium text-[24px] leading-[120%] tracking-[0] text-center text-[#000000]">
+        <div className="w-full flex flex-col gap-2">
+          <h2 className="font-['Inter_Tight'] font-medium text-xl sm:text-2xl leading-tight text-center text-[#000000]">
             Input the verification code
           </h2>
-          <p className="w-[470px] h-[50px] rotate-0 opacity-100 font-['Inter_Tight'] font-normal text-[18px] leading-[140%] tracking-[0.01em] text-center text-[#444444]">
+          <p className="font-['Inter_Tight'] font-normal text-sm sm:text-lg leading-relaxed text-center text-[#444444] px-2">
             We have sent a verification code to the email address{' '}
-            <span className="font-medium">{email}</span>
+            <span className="font-medium break-all">{email}</span>
           </p>
         </div>
 
-        {/* Code Input Boxes - Verification State Placeholder */}
-        <div className="w-[470px] h-[48px] rotate-0 opacity-100 flex gap-[24px] justify-center">
-          <div className="w-[368px] h-[48px] rotate-0 opacity-100 flex gap-[16px]">
+        {/* Code Input Boxes */}
+        <div className="w-full flex justify-center">
+          <div className="flex gap-2 sm:gap-4 justify-center flex-wrap max-w-full">
             {code.map((digit, index) => (
               <input
                 key={index}
@@ -106,7 +106,7 @@ export default function VerifyCodeForm({ email, onCodeComplete, onResendCode, on
                 onChange={(e) => handleChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 onPaste={handlePaste}
-                className="w-[48px] h-[48px] rotate-0 opacity-100 rounded-md gap-[10px] border border-[#E5E5E5] bg-[#FFFFFF] text-center text-xl font-bold focus:outline-none focus:ring-2 focus:ring-[#0B62F6] focus:border-[#0B62F6]"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-md border border-[#E5E5E5] bg-[#FFFFFF] text-center text-lg sm:text-xl font-bold focus:outline-none focus:ring-2 focus:ring-[#0B62F6] focus:border-[#0B62F6]"
                 required
               />
             ))}
@@ -117,36 +117,36 @@ export default function VerifyCodeForm({ email, onCodeComplete, onResendCode, on
       {/* Continue Button */}
       <button
         type="submit"
-        className="w-[470px] h-[46px] rotate-0 opacity-100 rounded-md pt-[12px] pr-[16px] pb-[12px] pl-[16px] gap-[8px] bg-[#2F80ED] text-white font-['Inter_Tight'] font-medium text-[16px] flex items-center justify-center focus:outline-none hover:bg-[#2670d4] transition-none duration-0"
+        className="w-full h-11 sm:h-12 rounded-md py-3 px-4 bg-[#2F80ED] text-white font-['Inter_Tight'] font-medium text-sm sm:text-base flex items-center justify-center focus:outline-none hover:bg-[#2670d4] active:bg-[#1e5bb8] transition-colors"
       >
         Continue
       </button>
 
       {/* Helper Links */}
-      <div className="w-[470px] h-[46px] rotate-0 opacity-100 flex flex-col gap-[4px] items-center">
-        <p className="w-[470px] h-[22px] rotate-0 opacity-100 font-['Inter_Tight'] font-normal text-[16px] leading-[140%] tracking-[0.01em] text-center text-[#7D7F81]">
+      <div className="w-full flex flex-col gap-2 sm:gap-3 items-center">
+        <p className="font-['Inter_Tight'] font-normal text-sm sm:text-base leading-relaxed text-center text-[#7D7F81] px-2">
           Experiencing issues receiving the code?
         </p>
         <button
           type="button"
           onClick={onResendCode}
-          className="w-[86px] h-[20px] rotate-0 opacity-100 gap-[4px] font-['Inter_Tight'] font-semibold text-[14px] leading-[140%] tracking-[0.01em] underline decoration-solid text-[#2F80ED] hover:opacity-80"
+          className="font-['Inter_Tight'] font-semibold text-xs sm:text-sm leading-relaxed underline decoration-solid text-[#2F80ED] hover:opacity-80 active:opacity-60"
         >
           Resend Code
         </button>
-        <div className="w-[226px] h-[22px] rotate-0 opacity-100 flex items-center gap-[8px]">
-          <span className="w-[140px] h-[22px] rotate-0 opacity-100 font-['Inter_Tight'] font-medium text-[16px] leading-[140%] tracking-[0.01em] text-right text-[#333436]">
+        <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 mt-2">
+          <span className="font-['Inter_Tight'] font-medium text-sm sm:text-base leading-relaxed text-center text-[#333436]">
             Change your mind?
           </span>
           <button
             type="button"
             onClick={onGoBack}
-            className="flex items-center gap-1 hover:opacity-80"
+            className="flex items-center gap-1 hover:opacity-80 active:opacity-60"
           >
-            <svg className="w-[20px] h-[20px] rotate-0 opacity-100" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M16.6667 10H3.33333M3.33333 10L8.33333 15M3.33333 10L8.33333 5" stroke="#2F80ED" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="w-[54px] h-[20px] rotate-0 opacity-100 font-['Inter_Tight'] font-semibold text-[14px] leading-[140%] tracking-[0.01em] underline decoration-solid text-[#2F80ED]">
+            <span className="font-['Inter_Tight'] font-semibold text-xs sm:text-sm leading-relaxed underline decoration-solid text-[#2F80ED]">
               Go Back
             </span>
           </button>
