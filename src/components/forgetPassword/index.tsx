@@ -161,17 +161,19 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="h-screen bg-gray-100 flex flex-col lg:flex-row w-full">
+    <div className="min-h-screen bg-white lg:bg-gray-100 flex flex-col lg:flex-row w-full">
       {/* Left Side - Illustration Panel (Desktop only) */}
-      <div className='w-1/2'>
+      <div className='hidden lg:block lg:w-1/2'>
         <LeftIllustrationPanel />
       </div>
 
       {/* Right Side - Form Section */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-4 py-2 sm:p-6 lg:p-12">
-        <div className="w-full max-w-md lg:pr-10">
+      <div className="w-full lg:w-1/2 min-h-screen bg-white flex items-center justify-center px-4 py-6 sm:px-6 sm:py-8 lg:p-12">
+        <div className="w-full max-w-md lg:max-w-lg lg:pr-10">
           {/* Logo */}
-          <Logo />
+          <div className="mb-6 sm:mb-8">
+            <Logo />
+          </div>
 
           {/* Conditional Rendering: Current Screen */}
           {currentScreen === 'forgot-password' && (
