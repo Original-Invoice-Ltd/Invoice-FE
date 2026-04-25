@@ -63,7 +63,7 @@ interface InvoicePreviewProps {
     data: InvoiceData;
     onEdit: () => void;
     onEmailInvoice: () => void;
-    onSendInvoice: () => Promise<{ success: boolean; error?: string }>;
+    onSendInvoice: (email: string) => Promise<{ success: boolean; error?: string }>;
     onSendWhatsApp?: (phoneNumber: string, message?: string) => Promise<{ success: boolean; error?: string }>;
     validationMessage: string | null;
     hasDraft?: boolean;
@@ -146,7 +146,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
         setIsSubmitting(true);
         setSubmitError(null);
         try {
-            const result = await onSendInvoice();
+            const result = await onSendInvoice(emailTo);
             if (result.success) {
                 setSubmitSuccess(true);
                 setShowEmailModal(false);

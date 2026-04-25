@@ -238,6 +238,7 @@ export interface BillTo {
   paymentTerms: string;
   invoiceDate: string;     // Format: YYYY-MM-DD
   dueDate: string;         // Format: YYYY-MM-DD
+  email?: string;          // Recipient email (can be edited in send modal)
 }
 
 export interface PaymentDetails {
@@ -315,6 +316,11 @@ export function buildInvoiceFormData(data: CreateInvoiceData): FormData {
     formData.append('dueDate', data.billTo.dueDate);
   }
   formData.append('paymentTerms', data.billTo.paymentTerms || '');
+  
+  // Add receiver email if provided (for sending invoice notification)
+  if (data.billTo.email) {
+    formData.append('receiverEmail', data.billTo.email);
+  }
 
   // Settings
   formData.append('currency', data.currency);
