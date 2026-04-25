@@ -489,7 +489,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
 
                         {/* Send Dropdown */}
                         {showSendDropdown && (
-                            <div className="absolute bottom-full right-0 mb-2 bg-white rounded-xl shadow-lg border border-gray-200 py-2 min-w-[180px] z-50">
+                            <div className="absolute bottom-full right-0 mb-2 bg-white rounded-xl shadow-lg border border-gray-200 py-2 min-w-[185px] z-50">
                                 <p className="px-4 py-2 text-gray-400 text-sm">Send</p>
 
                                 {/* Email Option */}
@@ -516,23 +516,11 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                                         </svg>
                                         <span className="text-gray-900 font-medium">WhatsApp</span>
                                     </div>
-                                    <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Coming Soon</span>
+                                    <span className="text-[10px] text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Coming Soon</span>
 
                                 </button>
 
-                                {/* Telegram Option - Disabled */}
-                                <button
-                                    disabled
-                                    className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 cursor-not-allowed opacity-60"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M12 0C5.376 0 0 5.376 0 12C0 18.624 5.376 24 12 24C18.624 24 24 18.624 24 12C24 5.376 18.624 0 12 0ZM17.568 8.16C17.388 10.056 16.608 14.664 16.212 16.788C16.044 17.688 15.708 17.988 15.396 18.024C14.7 18.084 14.172 17.568 13.5 17.124C12.444 16.428 11.844 15.996 10.824 15.324C9.636 14.544 10.404 14.112 11.088 13.404C11.268 13.224 14.34 10.428 14.4 10.176C14.4084 10.1327 14.4058 10.088 14.3925 10.0459C14.3792 10.0038 14.3557 9.96579 14.324 9.936C14.244 9.876 14.136 9.9 14.052 9.912C13.932 9.936 12.252 11.04 8.988 13.224C8.508 13.548 8.076 13.704 7.692 13.692C7.26 13.68 6.444 13.452 5.832 13.26C5.076 13.02 4.488 12.9 4.536 12.48C4.56 12.264 4.86 12.048 5.424 11.82C8.928 10.296 11.268 9.3 12.444 8.832C15.78 7.44 16.464 7.2 16.92 7.2C17.016 7.2 17.244 7.224 17.388 7.344C17.508 7.44 17.544 7.572 17.556 7.668C17.544 7.74 17.58 7.956 17.568 8.16Z" fill="#9CA3AF" />
-                                        </svg>
-                                        <span className="text-gray-500 font-medium">Telegram</span>
-                                    </div>
-                                    <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Coming Soon</span>
-                                </button>
+                               
                             </div>
                         )}
                     </div>
@@ -670,70 +658,6 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                 </div>
             )}
 
-            {showTelegramModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg w-full max-w-md mx-4 p-6">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-lg font-semibold text-gray-900">Send via Telegram</h2>
-                            <button
-                                onClick={() => setShowTelegramModal(false)}
-                                className="text-gray-400 hover:text-gray-600"
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Phone Number<span className="text-red-500">*</span>
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type="tel"
-                                        value={phoneNumber}
-                                        onChange={(e) => setPhoneNumber(e.target.value)}
-                                        placeholder="Enter client phone number"
-                                        className="w-full px-3 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    />
-                                    <svg className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M18.3333 14.1V16.6C18.3343 16.8321 18.2867 17.0618 18.1937 17.2745C18.1008 17.4871 17.9644 17.678 17.7934 17.8349C17.6224 17.9918 17.4205 18.1113 17.2006 18.1856C16.9808 18.26 16.7478 18.2876 16.5167 18.2667C13.9523 17.9881 11.4892 17.1118 9.32498 15.7083C7.31151 14.4289 5.60443 12.7219 4.32499 10.7083C2.91663 8.53438 2.04019 6.05917 1.76665 3.48334C1.74583 3.25293 1.77321 3.02067 1.84707 2.80139C1.92092 2.58211 2.03963 2.38061 2.19562 2.20972C2.35162 2.03883 2.54149 1.90229 2.75314 1.80881C2.9648 1.71534 3.19348 1.66692 3.42499 1.66667H5.92499C6.32941 1.66273 6.72148 1.80594 7.02812 2.06965C7.33476 2.33336 7.53505 2.69958 7.59165 3.10001C7.69717 3.9001 7.89286 4.68565 8.17499 5.44167C8.2871 5.73998 8.31137 6.06414 8.24491 6.37577C8.17844 6.6874 8.02404 6.97346 7.79998 7.20001L6.74165 8.25834C7.92795 10.3446 9.65536 12.072 11.7417 13.2583L12.8 12.2C13.0265 11.976 13.3126 11.8216 13.6242 11.7551C13.9359 11.6886 14.26 11.7129 14.5583 11.825C15.3144 12.1071 16.0999 12.3028 16.9 12.4083C17.3048 12.4655 17.6745 12.6694 17.9388 12.9813C18.203 13.2932 18.3435 13.6914 18.3333 14.1Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Message
-                                </label>
-                                <textarea
-                                    value={message}
-                                    onChange={(e) => setMessage(e.target.value)}
-                                    placeholder="Optional message to your client"
-                                    rows={4}
-                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex justify-between mt-6">
-                            <button
-                                onClick={() => setShowTelegramModal(false)}
-                                className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleSendWhatsappInvoice}
-                                disabled={isSubmitting || !ApiClient.isValidPhone(phoneNumber.trim().startsWith('0') ? '+234' + phoneNumber.trim().substring(1) : phoneNumber.trim())}
-                                className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {isSubmitting ? 'Sending...' : 'Send Invoice'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Success Modal */}
             {showSuccessModal && (
