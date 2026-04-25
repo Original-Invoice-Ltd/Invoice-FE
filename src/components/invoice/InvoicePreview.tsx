@@ -63,7 +63,7 @@ interface InvoicePreviewProps {
     data: InvoiceData;
     onEdit: () => void;
     onEmailInvoice: () => void;
-    onSendInvoice: (email: string) => Promise<{ success: boolean; error?: string }>;
+    onSendInvoice: () => Promise<{ success: boolean; error?: string }>;
     onSendWhatsApp?: (phoneNumber: string, message?: string) => Promise<{ success: boolean; error?: string }>;
     validationMessage: string | null;
     hasDraft?: boolean;
@@ -146,7 +146,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
         setIsSubmitting(true);
         setSubmitError(null);
         try {
-            const result = await onSendInvoice(emailTo);
+            const result = await onSendInvoice();
             if (result.success) {
                 setSubmitSuccess(true);
                 setShowEmailModal(false);
@@ -514,7 +514,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M17.472 14.382C17.22 14.256 15.996 13.656 15.768 13.572C15.54 13.488 15.372 13.446 15.204 13.698C15.036 13.95 14.562 14.508 14.418 14.676C14.274 14.844 14.13 14.868 13.878 14.742C13.626 14.616 12.834 14.352 11.892 13.512C11.16 12.858 10.668 12.048 10.524 11.796C10.38 11.544 10.506 11.406 10.632 11.28C10.746 11.166 10.884 10.98 11.01 10.836C11.136 10.692 11.178 10.59 11.262 10.422C11.346 10.254 11.304 10.11 11.238 9.984C11.172 9.858 10.674 8.634 10.47 8.13C10.272 7.638 10.068 7.704 9.918 7.698C9.774 7.692 9.606 7.692 9.438 7.692C9.27 7.692 8.994 7.758 8.766 8.01C8.538 8.262 7.896 8.862 7.896 10.086C7.896 11.31 8.79 12.492 8.916 12.66C9.042 12.828 10.668 15.348 13.194 16.404C13.794 16.662 14.262 16.818 14.628 16.932C15.228 17.124 15.774 17.094 16.206 17.028C16.686 16.956 17.682 16.428 17.886 15.846C18.09 15.264 18.09 14.76 18.024 14.658C17.958 14.556 17.79 14.49 17.538 14.364L17.472 14.382ZM12.006 21.6C10.326 21.6 8.694 21.15 7.266 20.304L6.936 20.106L3.006 21.138L4.056 17.304L3.834 16.962C2.904 15.486 2.412 13.776 2.412 12.006C2.412 6.708 6.708 2.412 12.006 2.412C14.568 2.412 16.974 3.408 18.786 5.22C20.598 7.032 21.6 9.438 21.6 12.006C21.6 17.304 17.304 21.6 12.006 21.6ZM20.52 3.486C18.246 1.212 15.222 0 12.006 0C5.442 0 0.012 5.43 0.012 11.994C0.012 14.106 0.564 16.164 1.614 17.976L0 24L6.168 22.416C7.914 23.376 9.888 23.886 11.898 23.886H11.904C18.462 23.886 24 18.456 24 11.892C24 8.676 22.788 5.652 20.52 3.486Z" fill="#1D1D1D" />
                                         </svg>
-                                        <span className="text-gray-900 font-medium">WhatsApp</span>
+                                        <span className="text-gray-900 font-[14px]">WhatsApp</span>
                                     </div>
                                     <span className="text-[10px] text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Coming Soon</span>
 
