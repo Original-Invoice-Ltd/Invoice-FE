@@ -489,7 +489,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
 
                         {/* Send Dropdown */}
                         {showSendDropdown && (
-                            <div className="absolute bottom-full right-0 mb-2 bg-white rounded-xl shadow-lg border border-gray-200 py-2 min-w-[180px] z-50">
+                            <div className="absolute bottom-full right-0 mb-2 bg-white rounded-xl shadow-lg border border-gray-200 py-2 min-w-[185px] z-50">
                                 <p className="px-4 py-2 text-gray-400 text-sm">Send</p>
 
                                 {/* Email Option */}
@@ -516,23 +516,11 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                                         </svg>
                                         <span className="text-gray-900 font-medium">WhatsApp</span>
                                     </div>
-                                    <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Coming Soon</span>
+                                    <span className="text-[10px] text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Coming Soon</span>
 
                                 </button>
 
-                                {/* Telegram Option - Disabled */}
-                                <button
-                                    disabled
-                                    className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 cursor-not-allowed opacity-60"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M12 0C5.376 0 0 5.376 0 12C0 18.624 5.376 24 12 24C18.624 24 24 18.624 24 12C24 5.376 18.624 0 12 0ZM17.568 8.16C17.388 10.056 16.608 14.664 16.212 16.788C16.044 17.688 15.708 17.988 15.396 18.024C14.7 18.084 14.172 17.568 13.5 17.124C12.444 16.428 11.844 15.996 10.824 15.324C9.636 14.544 10.404 14.112 11.088 13.404C11.268 13.224 14.34 10.428 14.4 10.176C14.4084 10.1327 14.4058 10.088 14.3925 10.0459C14.3792 10.0038 14.3557 9.96579 14.324 9.936C14.244 9.876 14.136 9.9 14.052 9.912C13.932 9.936 12.252 11.04 8.988 13.224C8.508 13.548 8.076 13.704 7.692 13.692C7.26 13.68 6.444 13.452 5.832 13.26C5.076 13.02 4.488 12.9 4.536 12.48C4.56 12.264 4.86 12.048 5.424 11.82C8.928 10.296 11.268 9.3 12.444 8.832C15.78 7.44 16.464 7.2 16.92 7.2C17.016 7.2 17.244 7.224 17.388 7.344C17.508 7.44 17.544 7.572 17.556 7.668C17.544 7.74 17.58 7.956 17.568 8.16Z" fill="#9CA3AF" />
-                                        </svg>
-                                        <span className="text-gray-500 font-medium">Telegram</span>
-                                    </div>
-                                    <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Coming Soon</span>
-                                </button>
+                            
                             </div>
                         )}
                     </div>
@@ -670,7 +658,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                 </div>
             )}
 
-            {showTelegramModal && (
+            {/* {showTelegramModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg w-full max-w-md mx-4 p-6">
                         <div className="flex justify-between items-center mb-6">
@@ -733,7 +721,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                         </div>
                     </div>
                 </div>
-            )}
+            )} */}
 
             {/* Success Modal */}
             {showSuccessModal && (
