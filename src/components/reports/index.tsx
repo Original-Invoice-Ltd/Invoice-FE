@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import ReportsHeader from "./ReportsHeader";
 import KPICards from "./KPICards";
 import RevenueChart, { StatusChart } from "./RevenueChart";
