@@ -115,6 +115,7 @@ export interface InvoiceResponse {
   totalTaxAmount: number;
   totalDue: number;
   note?: string;
+  outstandingBalance: number;
   termsAndConditions?: string;
   paymentTerms?: string;
   accountNumber?: string;

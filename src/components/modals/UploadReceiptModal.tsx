@@ -15,7 +15,7 @@ interface UploadReceiptModalProps {
     invoiceTotalDue?: number;
     isDashboardUser?: boolean;
     invoiceCurrency?: string;
-    outstandingBalance?: number
+    outstandingBalance?: string
 }
 
 type UploadState = 'idle' | 'uploading' | 'completed' | 'failed';
