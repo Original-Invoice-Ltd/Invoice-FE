@@ -391,7 +391,7 @@ const InvoicesPage = () => {
                                                 </div>
                                                 <div className="text-[14px] text-[#101828] font-medium flex items-center gap-[5px]">
                                                     <span>{getCurrencySymbol(invoice.currency)}</span>
-                                                    <span>{formatAmount(invoice.totalDue || 0)}</span>
+                                                    <span>{formatAmount(invoice.outstandingBalance || 0)}</span>
                                                 </div>
                                                 <div className="flex items-center justify-end">
                                                     <button
