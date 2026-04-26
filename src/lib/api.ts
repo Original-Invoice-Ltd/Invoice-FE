@@ -24,6 +24,23 @@ const axiosInstance = axios.create({
   },
 });
 
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value?: any) => void;
+  reject: (reason?: any) => void;
+}> = [];
+
+const processQueue = (error: any = null) => {
+  failedQueue.forEach((promise) => {
+    if (error) {
+      promise.reject(error);
+    } else {
+      promise.resolve();
+    }
+  });
+  failedQueue = [];
+};
+
 // Add request interceptor for debugging
 axiosInstance.interceptors.request.use(
   (config) => {
@@ -34,12 +51,13 @@ axiosInstance.interceptors.request.use(
   },
 );
 
-// Add response interceptor for better error handling and debugging
 axiosInstance.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
+
     if (error.response?.status === 401) {
       // Skip redirect for certain API endpoints that may return 401 for empty data
       const skipRedirectEndpoints = [
@@ -49,7 +67,7 @@ axiosInstance.interceptors.response.use(
         "/api/notifications/",
         "/api/invoices/all-user",
       ];
-      const requestUrl = error.config?.url || "";
+      const requestUrl = originalRequest?.url || "";
       const shouldSkipRedirect = skipRedirectEndpoints.some((endpoint) =>
         requestUrl.includes(endpoint),
       );
@@ -58,23 +76,81 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      // Only redirect if we're on protected pages (dashboard routes)
-      if (typeof window !== "undefined") {
-        const currentPath = window.location.pathname;
-        const isProtectedRoute =
-          currentPath.startsWith("/dashboard") ||
-          currentPath.startsWith("/complete-profile");
+      if (
+        requestUrl.includes("/api/auth/refresh") ||
+        requestUrl.includes("/api/auth/login")
+      ) {
+        if (typeof window !== "undefined") {
+          const currentPath = window.location.pathname;
+          const isProtectedRoute =
+            currentPath.startsWith("/dashboard") ||
+            currentPath.startsWith("/complete-profile");
 
-        // Only redirect if we're on a protected route and not already on auth pages
-        if (
-          isProtectedRoute &&
-          !currentPath.includes("/signIn") &&
-          !currentPath.includes("/signUp")
-        ) {
-          window.location.href = "/signIn";
+          if (
+            isProtectedRoute &&
+            !currentPath.includes("/signIn") &&
+            !currentPath.includes("/signUp")
+          ) {
+            window.location.href = "/signIn";
+          }
+        }
+        return Promise.reject(error);
+      }
+
+      // If this is the first 401 and we haven't tried refreshing yet
+      if (!originalRequest._retry) {
+        // If a refresh is already in progress, queue this request
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+            .then(() => {
+              return axiosInstance(originalRequest);
+            })
+            .catch((err) => {
+              return Promise.reject(err);
+            });
+        }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        try {
+          // Attempt to refresh the token
+          await axiosInstance.post("/api/auth/refresh");
+
+          // Refresh successful, process queued requests
+          processQueue();
+          isRefreshing = false;
+
+          // Retry the original request
+          return axiosInstance(originalRequest);
+        } catch (refreshError) {
+          // Refresh failed, reject all queued requests
+          processQueue(refreshError);
+          isRefreshing = false;
+
+          // Redirect to sign-in only if on protected route
+          if (typeof window !== "undefined") {
+            const currentPath = window.location.pathname;
+            const isProtectedRoute =
+              currentPath.startsWith("/dashboard") ||
+              currentPath.startsWith("/complete-profile");
+
+            if (
+              isProtectedRoute &&
+              !currentPath.includes("/signIn") &&
+              !currentPath.includes("/signUp")
+            ) {
+              window.location.href = "/signIn";
+            }
+          }
+
+          return Promise.reject(refreshError);
         }
       }
     }
+
     return Promise.reject(error);
   },
 );
@@ -465,7 +541,7 @@ export class ApiClient {
   }
 
   static async getInvoiceById(id: string) {
-    return this.request("GET", `/api/invoices/public/${id}`);
+    return this.request<InvoiceResponse>("GET", `/api/invoices/public/${id}`);
   }
 
   static async getPublicInvoiceByUuid(uuid: string): Promise<ApiResponse<any>> {
@@ -1000,22 +1076,28 @@ export class ApiClient {
 
   static getDropdownOptions(
     status: string,
+    role: 'admin' | 'customer' = 'customer'
   ): Array<{ label: string; action: string }> {
     const baseOptions = [{ label: "View Detail", action: "view" }];
-
     const statusLower = status.toLowerCase();
+
+    if (role === 'customer') {
+      if (statusLower === 'paid') {
+        return [...baseOptions, { label: "View Receipt", action: "receipt" }];
+      }
+      return [...baseOptions, { label: "Upload Receipt", action: "upload" }];
+    }
+
     if (statusLower === "pending" || statusLower === "outstanding") {
       return [
         ...baseOptions,
-        { label: "Upload Receipt", action: "upload" },
+        { label: "Mark as Paid", action: "paid" },
         { label: "Mark as Incomplete", action: "incomplete" },
       ];
-    } else if (statusLower === "paid") {
-      return [...baseOptions, { label: "View Receipt", action: "receipt" }];
-    } else {
-      return [...baseOptions, { label: "Upload Receipt", action: "upload" }];
     }
+    return baseOptions;
   }
+  
   static isValidPhone = (phone: string) => {
     return /^\+\d{7,15}$/.test(phone);
   };

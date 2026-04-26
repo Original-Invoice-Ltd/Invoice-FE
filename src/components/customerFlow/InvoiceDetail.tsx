@@ -7,6 +7,7 @@ import { downloadInvoiceAsPDF } from "@/lib/pdfUtils";
 import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
 import { useSubscription } from "@/hooks/useSubscription";
+import { formatCurrency as formatCurrencyUtil, CurrencyCode } from "@/lib/currencyFormatter";
 
 interface InvoiceItem {
   id: number;
@@ -108,6 +109,10 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
     } finally {
       setIsDownloadingPDF(false);
     }
+  };
+
+  const formatCurrency = (amount: number, currency: string = 'NGN') => {
+    return formatCurrencyUtil(amount, { currency: currency as CurrencyCode });
   };
 
   return (
@@ -222,7 +227,7 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
               </div>
               <div className="text-sm text-gray-600">Balance Due</div>
               <div className="text-2xl font-bold text-gray-900">
-                {mockInvoiceData.balanceDue}
+                {formatCurrency(mockInvoiceData.total, 'NGN')}
               </div>
             </div>
           </div>
@@ -273,9 +278,9 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
                     <td className="py-4 text-gray-700">{item.id}</td>
                     <td className="py-4 text-gray-700">{item.description}</td>
                     <td className="py-4 text-right text-gray-700">{item.qty}</td>
-                    <td className="py-4 text-right text-gray-700">{item.rate}</td>
+                    <td className="py-4 text-right text-gray-700">{formatCurrency(item.rate, 'NGN')}</td>
                     <td className="py-4 text-right text-gray-700">
-                      ₦{item.amount.toLocaleString()}
+                      {formatCurrency(item.amount, 'NGN')}
                     </td>
                   </tr>
                 ))}
@@ -288,23 +293,23 @@ const InvoiceDetail: React.FC<InvoiceDetailProps> = ({ onBack }) => {
             <div className="w-full md:w-1/2 space-y-2">
               <div className="flex justify-between text-gray-700">
                 <span>Sub Total</span>
-                <span>{mockInvoiceData.subTotal.toLocaleString()}</span>
+                <span>{formatCurrency(mockInvoiceData.subTotal, 'NGN')}</span>
               </div>
               <div className="flex justify-between text-gray-700">
                 <span>VAT (7.5%)</span>
-                <span>{mockInvoiceData.vat.toLocaleString()}</span>
+                <span>{formatCurrency(mockInvoiceData.vat, 'NGN')}</span>
               </div>
               <div className="flex justify-between text-gray-700">
                 <span>WHT (5%)</span>
-                <span>{mockInvoiceData.wht}</span>
+                <span>{formatCurrency(mockInvoiceData.wht || 0, 'NGN')}</span>
               </div>
               <div className="flex justify-between font-bold text-gray-900 text-lg border-t pt-2">
                 <span>Total</span>
-                <span>₦{mockInvoiceData.total.toLocaleString()}</span>
+                <span>{formatCurrency(mockInvoiceData.total, 'NGN')}</span>
               </div>
               <div className="bg-blue-600 text-white p-4 rounded-lg flex justify-between items-center font-bold">
                 <span>Balance Due</span>
-                <span>₦{mockInvoiceData.total.toLocaleString()}</span>
+                <span>{formatCurrency(mockInvoiceData.total, 'NGN')}</span>
               </div>
             </div>
           </div>

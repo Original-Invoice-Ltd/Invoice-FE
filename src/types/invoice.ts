@@ -112,6 +112,9 @@ export interface InvoiceResponse {
   subtotal: number;
   totalTaxAmount: number;
   totalDue: number;
+  amountPaid: string;
+  outstandingBalance: string;
+  lastPartialPaymentAt: string;
   note?: string;
   termsAndConditions?: string;
   paymentTerms?: string;

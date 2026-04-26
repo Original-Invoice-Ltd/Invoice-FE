@@ -4,6 +4,7 @@ import ActivityTracker from "@/components/ActivityTracker";
 import { AuthProvider } from "@/contexts/AuthContext";
 import i18n from "@/lib/i18ns";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 export const metadata: Metadata = {
     title: "Original Invoice",
@@ -29,12 +30,14 @@ export default function RootLayout({
                 />
             </head>
             <body className="antialiased">
-                <AuthProvider>
-                    <LanguageProvider>
-                        <ActivityTracker />
-                        {children}
-                    </LanguageProvider>
-                </AuthProvider>
+                <ErrorBoundary>
+                    <AuthProvider>
+                        <LanguageProvider>
+                            <ActivityTracker />
+                            {children}
+                        </LanguageProvider>
+                    </AuthProvider>
+                </ErrorBoundary>
             </body>
         </html >
     );

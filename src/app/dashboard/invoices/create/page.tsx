@@ -21,8 +21,9 @@ import { useDraft } from "@/hooks/useDraft";
 import { useTranslation } from "react-i18next";
 import { usePlanAccess } from "@/hooks/usePlanAccess";
 import { useSubscription } from "@/hooks/useSubscription";
+import { formatCurrency, CURRENCY_SYMBOLS, CurrencyCode } from "@/lib/currencyFormatter";
 
-const CreateInvoicePage = () => {
+export default function CreateInvoicePage () {
     const { t } = useTranslation();
     const { subscription } = useSubscription();
     const {
@@ -50,6 +51,9 @@ const CreateInvoicePage = () => {
     const [isLoadingClients, setIsLoadingClients] = useState(false);
     const [clientsLoaded, setClientsLoaded] = useState(false);
     const [isSavingClient, setIsSavingClient] = useState(false);
+    const [availableTaxes, setAvailableTaxes] = useState<any[]>([]);
+    const [selectedVatId, setSelectedVatId] = useState<string | null>(null);
+    const [selectedWhtId, setSelectedWhtId] = useState<string | null>(null);
 
     // New client form state
     const [newClientForm, setNewClientForm] = useState({
@@ -99,25 +103,25 @@ const CreateInvoicePage = () => {
     const [bankSearchQuery, setBankSearchQuery] = useState("");
 
     const nigerianBanks = [
-        { 
-            category: "Commercial Banks (Tier 1)", 
-            banks: ["Access Bank", "Zenith Bank", "GTBank", "First Bank", "UBA"] 
+        {
+            category: "Commercial Banks (Tier 1)",
+            banks: ["Access Bank", "Zenith Bank", "GTBank", "First Bank", "UBA"]
         },
-        { 
-            category: "Commercial Banks (Tier 2 & Others)", 
-            banks: ["Fidelity Bank", "Union Bank", "Sterling Bank", "Stanbic IBTC", "Wema Bank", "Polaris Bank", "Keystone Bank", "Heritage Bank", "Jaiz Bank", "SunTrust Bank", "Titan Trust Bank", "Providus Bank", "Premium Trust Bank", "Globus Bank", "Parallex Bank", "Ecobank", "FCMB", "Unity Bank"] 
+        {
+            category: "Commercial Banks (Tier 2 & Others)",
+            banks: ["Fidelity Bank", "Union Bank", "Sterling Bank", "Stanbic IBTC", "Wema Bank", "Polaris Bank", "Keystone Bank", "Heritage Bank", "Jaiz Bank", "SunTrust Bank", "Titan Trust Bank", "Providus Bank", "Premium Trust Bank", "Globus Bank", "Parallex Bank", "Ecobank", "FCMB", "Unity Bank"]
         },
-        { 
-            category: "Digital / Microfinance Banks", 
-            banks: ["Kuda Bank", "OPay", "PalmPay", "Moniepoint", "VFD Microfinance Bank", "ALAT by Wema", "Carbon", "Eyowo", "Rubies Bank", "Sparkle Microfinance Bank", "Raven Bank", "Fairmoney"] 
+        {
+            category: "Digital / Microfinance Banks",
+            banks: ["Kuda Bank", "OPay", "PalmPay", "Moniepoint", "VFD Microfinance Bank", "ALAT by Wema", "Carbon", "Eyowo", "Rubies Bank", "Sparkle Microfinance Bank", "Raven Bank", "Fairmoney"]
         },
-        { 
-            category: "Merchant / Specialized Banks", 
-            banks: ["FSDH Merchant Bank", "Coronation Merchant Bank", "FBNQuest Merchant Bank", "Nova Merchant Bank", "Rand Merchant Bank"] 
+        {
+            category: "Merchant / Specialized Banks",
+            banks: ["FSDH Merchant Bank", "Coronation Merchant Bank", "FBNQuest Merchant Bank", "Nova Merchant Bank", "Rand Merchant Bank"]
         },
-        { 
-            category: "Development Finance Institutions", 
-            banks: ["Bank of Agriculture", "Bank of Industry", "Development Bank of Nigeria", "Federal Mortgage Bank of Nigeria", "Nigerian Export-Import Bank"] 
+        {
+            category: "Development Finance Institutions",
+            banks: ["Bank of Agriculture", "Bank of Industry", "Development Bank of Nigeria", "Federal Mortgage Bank of Nigeria", "Nigerian Export-Import Bank"]
         }
     ];
 
@@ -142,16 +146,16 @@ const CreateInvoicePage = () => {
 
     const loadBusinessProfiles = async () => {
         if (businessProfilesLoaded || isLoadingBusinessProfiles) return;
-        
+
         // Only load business profiles for Premium users
         if (!hasAccess('multipleCompanyProfiles')) {
             setBusinessProfilesLoaded(true);
             return;
         }
-        
+
         try {
             setIsLoadingBusinessProfiles(true);
-            
+
             // Premium users: fetch active business profiles from API
             const response = await ApiClient.getActiveBusinessProfiles();
             if (response.status === 200 && response.data && response.data.length > 0) {
@@ -262,12 +266,12 @@ const CreateInvoicePage = () => {
             } else if (isPremium && !selectedBusinessProfileId) {
                 // Premium user but no business profile selected - fetch default
                 const profilesResponse = await ApiClient.getAllBusinessProfiles();
-                
+
                 if (profilesResponse.status === 200 && profilesResponse.data && profilesResponse.data.length > 0) {
                     // Find default profile or use first one
                     const defaultProfile = profilesResponse.data.find((p: any) => p.isDefault) || profilesResponse.data[0];
                     const businessProfileId = defaultProfile.id;
-                    
+
                     // Use business profile endpoint for premium users
                     response = await ApiClient.post(
                         `/api/client/business-profile/${businessProfileId}`,
@@ -347,6 +351,10 @@ const CreateInvoicePage = () => {
     const [wht, setWht] = useState(5);
     const [invoiceTaxRate, setInvoiceTaxRate] = useState(7.5);
 
+    const getCurrencySymbol = (code: string) => {
+        return CURRENCY_SYMBOLS[code as CurrencyCode] || code;
+    };
+
     const hasFormChanges = () => {
         const hasBillFromChanges = billFrom.fullName.trim() !== "" ||
             billFrom.email.trim() !== "" ||
@@ -423,21 +431,33 @@ const CreateInvoicePage = () => {
         return items.reduce((sum, item) => sum + item.amount, 0);
     };
 
+    function getApplicableRate(tax: any, customerType: "INDIVIDUAL" | "BUSINESS") {
+        return customerType === "BUSINESS" ? tax.businessRate : tax.individualRate;
+    }
+
     const calculateTax = () => {
         const subtotal = calculateSubtotal();
-        return subtotal * invoiceTaxRate / 100;
-    };
-    const calculateWht = () => {
-        const subtotal = calculateSubtotal();
-        return subtotal * 5 / 100;
+        const selectedClient = clients.find(c => c.id === selectedClientId) as any;
+        const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
+        const selectedVat = availableTaxes.find(t => t.id === selectedVatId);
+        const vatRate = selectedVat ? getApplicableRate(selectedVat, customerType) : 0;
+        return subtotal * (vatRate / 100);
     };
 
+    const calculateWht = () => {
+        const subtotal = calculateSubtotal();
+        const selectedClient = clients.find(c => c.id === selectedClientId) as any;
+        const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
+        const selectedWht = availableTaxes.find(t => t.id === selectedWhtId);
+        const whtRate = selectedWht ? getApplicableRate(selectedWht, customerType) : 0;
+        return subtotal * (whtRate / 100);
+    };
 
     const calculateTotal = () => {
         const subtotal = calculateSubtotal();
         const tax = hasAccess('taxCompliance') ? calculateTax() : 0;
         const wht = hasAccess('taxCompliance') ? calculateWht() : 0;
-        return subtotal + tax + wht;
+        return subtotal + tax - wht;
     };
 
     // const isFormValid = () => {
@@ -513,7 +533,6 @@ const CreateInvoicePage = () => {
             newFieldErrors.billToDueDate = "Due date is required";
         }
         else if (new Date(billTo.dueDate) < new Date(billTo.invoiceDate)) {
-            console.log(new Date(billTo.dueDate) < new Date(billTo.invoiceDate), " s")
             errors.billTo = "Due date must be on or after invoice date";
             newFieldErrors.billToDueDate = "Due date must be on or after invoice date";
         }
@@ -617,7 +636,9 @@ const CreateInvoicePage = () => {
             vat,
             wht,
             selectedClientId,
-            invoiceTaxRate
+            invoiceTaxRate,
+            selectedVatId,
+            selectedWhtId
         };
 
         const result = await saveDraft(draftData);
@@ -629,6 +650,22 @@ const CreateInvoicePage = () => {
             showError(result.error || 'Failed to save draft');
         }
     };
+
+    useEffect(() => {
+        const fetchTaxes = async () => {
+            try {
+                const response = await (ApiClient as any).getTaxTypes ? (ApiClient as any).getTaxTypes() : ApiClient.get("/api/admin/tax-config");
+                const res = await response;
+                if (res.status === 200) {
+                    console.log("data available tax: ", res.data)
+                    setAvailableTaxes(res.data || []);
+                }
+            } catch (error) {
+                console.error("error: ", error);
+            }
+        };
+        fetchTaxes();
+    }, []);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -951,6 +988,7 @@ const CreateInvoicePage = () => {
                     rate: item.rate,
                     amount: item.amount,
                 })),
+                taxIds: [selectedVatId, selectedWhtId].filter((id): id is string => id !== null),
                 note: customerNote,
                 termsAndConditions: termsAndConditions,
                 signature: signatureFile,
@@ -1178,7 +1216,7 @@ const CreateInvoicePage = () => {
                     invoicesRemaining={invoicesRemaining}
                     totalInvoices={totalInvoices}
                 />
-                <section className ={"flex w-full flex-col md:flex-row gap-2 md:pr-3 w-full"}>
+                <section className={"flex w-full flex-col md:flex-row gap-2 md:pr-3 w-full"}>
                     <div className="flex flex-col md:flex-row md:gap-[22px] md:mb-14 md:w-[65%]">
                         <div className="w-full">
                             <div className="lg:col-span-3 bg-white rounded-lg p-4 space-y-6">
@@ -1441,8 +1479,8 @@ const CreateInvoicePage = () => {
                                                                     key={client.id}
                                                                     onClick={() => {
                                                                         const selectedClient = clients.find(c => c.id === client.id);
-                                                                        setBillTo({ 
-                                                                            ...billTo, 
+                                                                        setBillTo({
+                                                                            ...billTo,
                                                                             customer: client.fullName,
                                                                             email: selectedClient?.email || ""
                                                                         });
@@ -1564,8 +1602,8 @@ const CreateInvoicePage = () => {
                                                     <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] w-[150px] border-r border-[#E4E7EC]">Item Detail</th>
                                                     <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] w-[200px] border-r border-[#E4E7EC]">Description</th>
                                                     <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">Quantity</th>
-                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">Rate</th>
-                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">Amount</th>
+                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">Rate ({getCurrencySymbol(currency)})</th>
+                                                    <th className="text-left py-3 px-4 text-[14px] font-normal text-[#667085] border-r border-[#E4E7EC]">Amount ({getCurrencySymbol(currency)})</th>
                                                     <th className="w-10"></th>
                                                 </tr>
                                             </thead>
@@ -1686,7 +1724,7 @@ const CreateInvoicePage = () => {
                                                             </div>
                                                             <div className="flex-1">
                                                                 <p className="font-medium text-gray-900">{product.itemName}</p>
-                                                                <p className="text-sm text-gray-600">₦{product.rate?.toLocaleString() || 0}</p>
+                                                                <p className="text-sm text-gray-600">{getCurrencySymbol(currency)}{product.rate?.toLocaleString() || 0}</p>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -1697,7 +1735,7 @@ const CreateInvoicePage = () => {
                                 </div>
 
                                 <div className="bg-white rounded-lg border border-[#E4E7EC] p-4 space-y-6">
-                                    <div>
+                                    {/* <div>
                                         <label className="block text-[16px] font-medium text-[#101828] mb-3">
                                             Customer Note
                                         </label>
@@ -1720,7 +1758,7 @@ const CreateInvoicePage = () => {
                                             onChange={(e) => setTermsAndConditions(e.target.value)}
                                             className="w-full px-4 py-3 border border-[#D0D5DD] rounded-lg text-[14px] placeholder:text-[#98A2B3] focus:outline-none focus:ring-2 focus:ring-[#2F80ED] resize-none"
                                         />
-                                    </div>
+                                    </div> */}
                                     {/* Signature */}
                                     <div>
                                         <div className={`flex md:flex-row flex-col items-center gap-4 mb-3`}>
@@ -1904,22 +1942,30 @@ const CreateInvoicePage = () => {
                                     onChange={(e) => setCurrency(e.target.value)}
                                     className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg"
                                 >
-                                    <option value="NGN">NGN</option>
+                                    <option value="NGN">NGN (₦)</option>
+                                    <option value="USD">USD ($)</option>
+                                    <option value="EUR">EUR (€)</option>
+                                    <option value="GBP">GBP (£)</option>
                                 </select>
                             </div>
 
                             {/* Color Selection */}
-                            <div 
-                                className="bg-white rounded-lg px-4 border-2 transition-colors"
+                            <div className="px-4">
+                                 <div
+                                className="bg-white flex justify-between items-center rounded-lg px-4 py-2 border-2 transition-colors"
                                 style={{ borderColor: color }}
                             >
-                                <h3 className="font-medium text-[16px] mb-2">Select Color</h3>
-                                <ColorPicker
-                                    initialColor={color}
-                                    onColorChange={(newColor) => {
-                                        setColor(newColor);
-                                    }}
-                                />
+                                <h3 className="font-medium text-[16px]">Select Color</h3>
+                                <section>
+                                    <ColorPicker
+                                        initialColor={color}
+                                        onColorChange={(newColor) => {
+                                            setColor(newColor);
+                                        }}
+                                    />
+                                </section>
+
+                            </div>
                             </div>
                             {/* Template Selection */}
                             <TemplateSelector
@@ -1932,45 +1978,57 @@ const CreateInvoicePage = () => {
                                 <div className="space-y-3">
                                     <div className="flex justify-between">
                                         <h3 className=" text-[16px] font-medium">Subtotal</h3>
-                                        <span className=" text-[18px] font-semibold">₦{calculateSubtotal().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        <span className=" text-[18px] font-semibold">{formatCurrency(calculateSubtotal(), { currency })}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[#667085] text-[18px]">Tax</span>
-                                            <div className="relative inline-flex items-center">
-                                                <select
-                                                    value={invoiceTaxRate}
-                                                    onChange={(e) => setInvoiceTaxRate(parseFloat(e.target.value))}
-                                                    disabled={!hasAccess('taxCompliance')}
-                                                    className={`appearance-none bg-transparent text-[14px] text-[#667085] pr-6 focus:outline-none ${hasAccess('taxCompliance') ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
-                                                        }`}
-                                                    title={!hasAccess('taxCompliance') ? getFeatureUpgradeMessage('taxCompliance') : ''}
-                                                >
-                                                    <option value="0">0%</option>
-                                                    <option value="5">5%</option>
-                                                    <option value="7.5">7.5%</option>
-                                                    <option value="10">10%</option>
-                                                    <option value="15">15%</option>
-                                                    <option value="20">20%</option>
-                                                </select>
-                                                <svg className="absolute right-0 pointer-events-none" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M4 6L8 10L12 6" stroke="#667085" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                                </svg>
-                                            </div>
+                                            <span className="text-[#667085] text-[18px]">VAT</span>
+                                            <select
+                                                value={selectedVatId || ""}
+                                                onChange={(e) => setSelectedVatId(e.target.value || null)}
+                                                className="border-none bg-transparent text-blue-600 focus:ring-0 p-0 text-sm font-medium"
+                                                disabled={!hasAccess('taxCompliance')}
+                                            >
+                                                {availableTaxes.filter(t => String(t.type).toUpperCase() === "VAT").length < 1 ?
+                                                    <option value="" className="pl-4 pb-3">No VAT</option>
+                                                :<option value="" className="pl-4 pb-3">Select Vat</option>}
+                                                {availableTaxes.filter(t => t.type === "VAT").map(tax => {
+                                                    const selectedClient = clients.find(c => c.id === selectedClientId) as any;
+                                                    const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
+                                                    const rate = getApplicableRate(tax, customerType);
+                                                    return <option key={tax.id} value={tax.id}>{tax.name} ({rate}%)</option>
+                                                })}
+                                            </select>
                                         </div>
-                                        <span className=" text-[18px] font-semibold">₦{calculateTax().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        <span className=" text-[18px] font-semibold">{formatCurrency(calculateTax(), { currency })}</span>
                                     </div>
-                                    <div className="flex justify-between">
-                                        <span className={`text-[#667085] text-[18px] ${!hasAccess('taxCompliance') ? 'opacity-50' : ''}`}>
-                                            WHT (5%)
-                                        </span>
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex items-center gap-2">
+                                            <span className={`text-[#667085] text-[18px] ${!hasAccess('taxCompliance') ? 'opacity-50' : ''}`}>
+                                                WHT
+                                            </span>
+                                            <select
+                                                value={selectedWhtId || ""}
+                                                onChange={(e) => setSelectedWhtId(e.target.value || null)}
+                                                className="border-none bg-transparent text-red-600 focus:ring-0 p-0 text-sm font-medium"
+                                                disabled={!hasAccess('taxCompliance')}
+                                            >
+                                                <option value="" className="pl-4 pb-3">No WHT</option>
+                                                {availableTaxes.filter(t => t.type === "WHT").map(tax => {
+                                                    const selectedClient = clients.find(c => c.id === selectedClientId) as any;
+                                                    const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
+                                                    const rate = getApplicableRate(tax, customerType);
+                                                    return <option key={tax.id} value={tax.id} className="text-md">{tax.name} ({rate}%)</option>
+                                                })}
+                                            </select>
+                                        </div>
                                         <span className={`text-[18px] font-semibold ${!hasAccess('taxCompliance') ? 'opacity-50' : ''}`}>
-                                            ₦{hasAccess('taxCompliance') ? calculateWht().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
+                                            {hasAccess('taxCompliance') ? formatCurrency(calculateWht(), { currency }) : formatCurrency(0, { currency })}
                                         </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-[18px] text-[#667085]">Total Due</span>
-                                        <span className=" text-[18px] font-semibold">₦{calculateTotal().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                        <span className=" text-[18px] font-semibold">{formatCurrency(calculateTotal(), { currency })}</span>
                                     </div>
                                 </div>
                             </div>
@@ -2395,4 +2453,3 @@ const CreateInvoicePage = () => {
         </>
     )
 };
-export default CreateInvoicePage;
