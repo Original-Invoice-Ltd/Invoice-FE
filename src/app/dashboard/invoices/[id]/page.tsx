@@ -393,6 +393,7 @@ const InvoiceViewPage = () => {
                 onClose={() => setIsUploadModalOpen(false)}
                 invoiceId={params.id as string}
                 mode="incomplete"
+                outstandingBalance={invoice?.outstandingBalance}
                 invoiceTotalDue={invoice?.totalDue}
                 invoiceCurrency={invoice?.currency}
                 isDashboardUser={true}

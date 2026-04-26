@@ -657,10 +657,11 @@ export default function CreateInvoicePage () {
                 const response = await (ApiClient as any).getTaxTypes ? (ApiClient as any).getTaxTypes() : ApiClient.get("/api/admin/tax-config");
                 const res = await response;
                 if (res.status === 200) {
+                    console.log("data available tax: ", res.data)
                     setAvailableTaxes(res.data || []);
                 }
             } catch (error) {
-                // fail silently
+                console.error("error: ", error);
             }
         };
         fetchTaxes();
@@ -1988,7 +1989,9 @@ export default function CreateInvoicePage () {
                                                 className="border-none bg-transparent text-blue-600 focus:ring-0 p-0 text-sm font-medium"
                                                 disabled={!hasAccess('taxCompliance')}
                                             >
-                                                <option value="" className="pl-4 pb-3">No VAT</option>
+                                                {availableTaxes.filter(t => String(t.type).toUpperCase() === "VAT").length < 1 ?
+                                                    <option value="" className="pl-4 pb-3">No VAT</option>
+                                                :<option value="" className="pl-4 pb-3">Select Vat</option>}
                                                 {availableTaxes.filter(t => t.type === "VAT").map(tax => {
                                                     const selectedClient = clients.find(c => c.id === selectedClientId) as any;
                                                     const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
