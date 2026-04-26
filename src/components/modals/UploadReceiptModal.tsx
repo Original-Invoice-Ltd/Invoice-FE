@@ -15,11 +15,12 @@ interface UploadReceiptModalProps {
     invoiceTotalDue?: number;
     isDashboardUser?: boolean;
     invoiceCurrency?: string;
+    outstandingBalance?: number
 }
 
 type UploadState = 'idle' | 'uploading' | 'completed' | 'failed';
 
-const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "upload", invoiceTotalDue , isDashboardUser = false, invoiceCurrency = "NGN" }: UploadReceiptModalProps) => {
+const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "upload", invoiceTotalDue, outstandingBalance, isDashboardUser = false, invoiceCurrency = "NGN" }: UploadReceiptModalProps) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
     const [uploadState, setUploadState] = useState<UploadState>('idle');
@@ -83,7 +84,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
         if (selectedFile) {
             const url = URL.createObjectURL(selectedFile);
             setFilePreviewUrl(url);
-            
+
             // Cleanup URL when component unmounts or file changes
             return () => {
                 URL.revokeObjectURL(url);
@@ -114,7 +115,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
     const handleDrop = (e: React.DragEvent) => {
         e.preventDefault();
         setIsDragOver(false);
-        
+
         const files = Array.from(e.dataTransfer.files);
         if (files.length > 0) {
             handleFileSelect(files[0]);
@@ -148,7 +149,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
         // If invoiceId is provided, use the API
         if (invoiceId) {
             const uploadSuccess = await uploadReceipt(invoiceId, selectedFile);
-            
+
             if (!uploadSuccess) {
                 setUploadState('failed');
             }
@@ -156,7 +157,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
         } else {
             // Fallback to callback if no invoiceId (backward compatibility)
             setUploadState('uploading');
-            
+
             // Simulate upload progress for callback mode
             const progressInterval = setInterval(() => {
                 setUploadState((prev) => {
@@ -167,7 +168,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                     return prev;
                 });
             }, 200);
-            
+
             try {
                 if (onUpload) {
                     onUpload(selectedFile);
@@ -217,7 +218,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
             }
 
             const response = await ApiClient.markInvoiceAsIncomplete(invoiceId, amount);
-            
+
             if (response.status === 200) {
                 setUploadState("completed");
                 toast.show({ type: 'success', message: 'Successfully marked as incomplete' });
@@ -263,24 +264,31 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                 {/* Content */}
                 <div className="px-6 py-4">
                     <p className="text-gray-600 text-sm mb-4">
-                        {mode === "incomplete" 
+                        {mode === "incomplete"
                             ? "Enter the balance left. The invoice will remain outstanding until fully paid."
                             : "Please upload proof of your payment so the business can review and confirm it. Supported files: JPG, PNG, PDF (max 10MB)."}
                     </p>
 
                     {mode === "incomplete" && (
                         <div className="mb-4 space-y-3">
-                            {invoiceTotalDue && (
-                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                    <div className="flex justify-between items-center">
+                            <div className="flex flex-col gap-2">
+                                {invoiceTotalDue && (
+                                    <div className="flex justify-between items-center bg-blue-50 border border-blue-200 rounded-lg p-3">
                                         <span className="text-sm font-medium text-gray-700">Total Amount Due:</span>
                                         <span className="text-base font-semibold text-gray-900">
                                             {getCurrencySymbol(invoiceCurrency)}{invoiceTotalDue.toLocaleString()}
                                         </span>
+                                    </div>)}
+                                {(outstandingBalance &&
+                                    <div className="flex justify-between items-centerbg-blue-50 border border-blue-200 rounded-lg p-3">
+                                        <span className="text-sm font-medium text-gray-700">Outstanding Amount:</span>
+                                        <span className="text-base font-semibold text-gray-900">
+                                            {getCurrencySymbol(invoiceCurrency)}{outstandingBalance?.toLocaleString()}
+                                        </span>
                                     </div>
-                                </div>
-                            )}
-                            
+                                )}
+                            </div>
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Balance Left <span className="text-red-500">*</span>
@@ -298,11 +306,10 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                                             setAmountError("");
                                         }}
                                         placeholder="0"
-                                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${
-                                            amountError 
-                                                ? "border-red-500 focus:ring-red-500" 
+                                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${amountError
+                                                ? "border-red-500 focus:ring-red-500"
                                                 : "border-gray-300 focus:ring-blue-500"
-                                        }`}
+                                            }`}
                                         disabled={uploadState === "uploading"}
                                     />
                                 </div>
@@ -317,13 +324,12 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                         <>
                             {uploadState === 'idle' && (
                                 <div
-                                    className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
-                                        isDragOver
+                                    className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${isDragOver
                                             ? 'border-blue-400 bg-blue-50'
                                             : selectedFile
-                                            ? 'border-green-400 bg-green-50'
-                                            : 'border-gray-300 bg-gray-50'
-                                    }`}
+                                                ? 'border-green-400 bg-green-50'
+                                                : 'border-gray-300 bg-gray-50'
+                                        }`}
                                     onDrop={handleDrop}
                                     onDragOver={handleDragOver}
                                     onDragLeave={handleDragLeave}
@@ -384,9 +390,9 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                                             </div>
                                         ) : (
                                             <div className="relative w-full h-full flex items-center justify-center p-4">
-                                                <img 
-                                                    src={filePreviewUrl} 
-                                                    alt="Receipt preview" 
+                                                <img
+                                                    src={filePreviewUrl}
+                                                    alt="Receipt preview"
                                                     className="max-w-full max-h-[280px] object-contain rounded"
                                                 />
                                                 <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2">
@@ -396,7 +402,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                                             </div>
                                         )}
                                     </div>
-                                    
+
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center flex-shrink-0">
                                             <span className="text-white text-xs font-medium">PDF</span>
@@ -417,7 +423,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                                                 </div>
                                             </div>
                                             <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
-                                                <div 
+                                                <div
                                                     className="bg-blue-500 h-1 rounded-full transition-all duration-300"
                                                     style={{ width: `${progress}%` }}
                                                 ></div>
@@ -452,9 +458,9 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                                             </div>
                                         ) : (
                                             <div className="relative w-full h-full flex items-center justify-center p-4">
-                                                <img 
-                                                    src={filePreviewUrl} 
-                                                    alt="Receipt preview" 
+                                                <img
+                                                    src={filePreviewUrl}
+                                                    alt="Receipt preview"
                                                     className="max-w-full max-h-[280px] object-contain rounded"
                                                 />
                                                 <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2">
@@ -468,7 +474,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                                             </div>
                                         )}
                                     </div>
-                                    
+
                                     {/* File Completed */}
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center flex-shrink-0">
@@ -505,7 +511,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                                 <div className="space-y-4">
                                     <div className="border-2 border-dashed border-gray-300 rounded-xl p-12 bg-gray-50">
                                     </div>
-                                    
+
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center flex-shrink-0">
@@ -537,7 +543,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                                         {uploadError && (
                                             <p className="text-red-600 text-sm mt-2">{uploadError}</p>
                                         )}
-                                        <button 
+                                        <button
                                             onClick={handleRetry}
                                             className="text-red-500 text-sm font-medium hover:text-red-600 transition-colors"
                                         >
@@ -565,7 +571,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                     >
                         Cancel
                     </button>
-                    
+
                     {uploadState === 'completed' ? (
                         <button
                             onClick={handleSave}
@@ -577,11 +583,10 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                         <button
                             onClick={handleSubmitIncomplete}
                             disabled={uploadState === 'uploading'}
-                            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                                uploadState !== 'uploading'
+                            className={`px-6 py-2 rounded-lg font-medium transition-colors ${uploadState !== 'uploading'
                                     ? 'bg-blue-600 text-white hover:bg-blue-700'
                                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            }`}
+                                }`}
                         >
                             {uploadState === 'uploading' ? 'Submitting...' : 'Submit'}
                         </button>
@@ -589,11 +594,10 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                         <button
                             onClick={handleUpload}
                             disabled={!selectedFile || uploadState === 'uploading'}
-                            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                                selectedFile && uploadState !== 'uploading'
+                            className={`px-6 py-2 rounded-lg font-medium transition-colors ${selectedFile && uploadState !== 'uploading'
                                     ? 'bg-blue-600 text-white hover:bg-blue-700'
                                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            }`}
+                                }`}
                         >
                             {uploadState === 'uploading' ? 'Uploading...' : 'Upload Receipt'}
                         </button>

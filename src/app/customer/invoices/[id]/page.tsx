@@ -349,7 +349,7 @@ const InvoiceDetailPage = () => {
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm font-semibold text-[#101828]">Balance Due</span>
                                     <span className="text-base font-bold text-[#101828]">
-                                        {formatCurrency(invoice?.totalDue || 0)}
+                                        {formatCurrency(invoice?.outstandingBalance  || 0)}
                                     </span>
                                 </div>
                             </div>
