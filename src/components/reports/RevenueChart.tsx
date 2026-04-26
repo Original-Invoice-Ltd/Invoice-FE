@@ -209,7 +209,7 @@ export const StatusChart = ({ data, isEmpty }: StatusChartProps) => {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                  <Tooltip formatter={(value) => formatCurrency(value as number)} />
                 </PieChart>
               </ResponsiveContainer>
             )}
