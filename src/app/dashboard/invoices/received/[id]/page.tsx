@@ -117,7 +117,13 @@ const ReceivedInvoiceViewPage = () => {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => setIsUploadModalOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2 border border-[#2F80ED] text-[#2F80ED] rounded-lg hover:bg-blue-50 transition-colors font-medium text-sm"
+                        disabled={invoice?.status?.toUpperCase() === 'PAID'}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                            invoice?.status?.toUpperCase() === 'PAID'
+                                ? 'border border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed opacity-60'
+                                : 'border border-[#2F80ED] text-[#2F80ED] hover:bg-blue-50'
+                        }`}
+                        title={invoice?.status?.toUpperCase() === 'PAID' ? 'Receipt upload is not available for paid invoices' : 'Upload payment receipt'}
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
