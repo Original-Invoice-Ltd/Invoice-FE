@@ -241,6 +241,7 @@ const BillingPage = () => {
 
           {/* Billing History */}
           <div className="bg-white border border-[#E4E7EC] rounded-lg p-6">
+            
             <h3 className="text-lg font-semibold text-[#101828] mb-4">{t("billing_history")}</h3>
             <div className="text-center py-8">
               <div className="w-12 h-12 bg-[#F9FAFB] rounded-full flex items-center justify-center mx-auto mb-3">

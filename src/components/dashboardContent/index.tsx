@@ -408,7 +408,7 @@ const DashboardContent = () => {
                                     <YAxis 
                                         tick={{ fill: '#667085', fontSize: 10 }}
                                         axisLine={{ stroke: '#E4E7EC' }}
-                                        tickFormatter={(value) => `₦${value / 1000}k`}
+                                        tickFormatter={(value) => formatCurrency(value)}
                                     />
                                     <Tooltip 
                                         formatter={(value: any) => [formatCurrencyUtil(value, { currency: 'NGN', maximumFractionDigits: 0 }), 'Amount']}
@@ -490,7 +490,7 @@ const DashboardContent = () => {
                                     <YAxis 
                                         tick={{ fill: '#667085', fontSize: 12 }}
                                         axisLine={{ stroke: '#E4E7EC' }}
-                                        tickFormatter={(value) => `₦${value / 1000}k`}
+                                        tickFormatter={(value) => formatCurrency(value)}
                                     />
                                     <Tooltip 
                                         formatter={(value: any) => [formatCurrencyUtil(value, { currency: 'NGN', maximumFractionDigits: 0 }), 'Amount']}
@@ -539,6 +539,7 @@ const DashboardContent = () => {
                                             <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
                                     </Pie>
+                                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
                                 </PieChart>
                             </ResponsiveContainer>
                         )}
@@ -590,6 +591,7 @@ const DashboardContent = () => {
                                                 <Cell key={`cell-${index}`} fill={entry.color} />
                                             ))}
                                         </Pie>
+                                        <Tooltip formatter={(value: number) => formatCurrency(value)} />
                                     </PieChart>
                                 </ResponsiveContainer>
                             )}
