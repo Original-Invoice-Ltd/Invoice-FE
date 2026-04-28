@@ -29,7 +29,12 @@ const AdminContactPage = () => {
             page: currentPage,
             size: 10,
         });
-        console.log('[fetchMessages] status:', res.status, '| data:', res.data, '| error:', res.error);
+        console.log('[fetchMessages] Full response:', {
+            status: res.status,
+            data: res.data,
+            error: res.error,
+            message: res.message
+        });
         if (res.status === 200 && res.data) {
             const d = res.data as any;
             const list: ContactMessage[] = d.data?.content ?? d.content ?? [];
@@ -37,8 +42,11 @@ const AdminContactPage = () => {
             setTotalPages(d.data?.totalPages ?? d.totalPages ?? 1);
             setTotalItems(d.data?.totalItems ?? d.totalElements ?? list.length);
         } else if (res.status === 401) {
-            showError("Unauthorized - please sign in again");
+            console.error('[fetchMessages] 401 Unauthorized - Error details:', res.error);
+            showError("Unauthorized - please check your admin permissions");
+            setPermissionDenied(true);
         } else if (res.error) {
+            console.error('[fetchMessages] Error:', res.error);
             showError(res.error);
         }
         setLoading(false);
