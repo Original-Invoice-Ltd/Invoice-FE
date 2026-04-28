@@ -29,12 +29,17 @@ const AdminContactPage = () => {
             page: currentPage,
             size: 10,
         });
+        console.log('[fetchMessages] status:', res.status, '| data:', res.data, '| error:', res.error);
         if (res.status === 200 && res.data) {
             const d = res.data as any;
             const list: ContactMessage[] = d.data?.content ?? d.content ?? [];
             setMessages(list);
             setTotalPages(d.data?.totalPages ?? d.totalPages ?? 1);
             setTotalItems(d.data?.totalItems ?? d.totalElements ?? list.length);
+        } else if (res.status === 401) {
+            showError("Unauthorized - please sign in again");
+        } else if (res.error) {
+            showError(res.error);
         }
         setLoading(false);
     }, [search, statusFilter, startDate, endDate, currentPage]);
