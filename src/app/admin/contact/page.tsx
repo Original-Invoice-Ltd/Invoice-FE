@@ -29,27 +29,27 @@ const AdminContactPage = () => {
             page: currentPage,
             size: 10,
         });
-        console.log('[fetchMessages] Full response:', {
-            status: res.status,
-            data: res.data,
-            error: res.error,
-            message: res.message
-        });
-        // Backend returns 401 but with valid data - check for data first
-        if (res.data && (res.data as any).success) {
+        console.log('[fetchMessages] Full response:', res);
+        console.log('[fetchMessages] res.data type:', typeof res.data);
+        console.log('[fetchMessages] res.data:', res.data);
+        
+        // Check if data exists and has the expected structure
+        if (res.data) {
             const d = res.data as any;
-            const list: ContactMessage[] = d.data?.content ?? d.content ?? [];
+            console.log('[fetchMessages] Parsed data:', d);
+            console.log('[fetchMessages] d.data:', d.data);
+            console.log('[fetchMessages] d.content:', d.content);
+            
+            const list: ContactMessage[] = d.data?.content ?? d.content ?? d.data ?? [];
+            console.log('[fetchMessages] Final list:', list);
+            
             setMessages(list);
             setTotalPages(d.data?.totalPages ?? d.totalPages ?? 1);
-            setTotalItems(d.data?.totalItems ?? d.totalElements ?? list.length);
+            setTotalItems(d.data?.totalItems ?? d.totalElements ?? d.totalItems ?? list.length);
             setPermissionDenied(false);
-        } else if (res.status === 401 && !res.data) {
-            console.error('[fetchMessages] 401 Unauthorized - Error details:', res.error);
-            showError("Unauthorized - please check your admin permissions");
-            setPermissionDenied(true);
-        } else if (res.error) {
-            console.error('[fetchMessages] Error:', res.error);
-            showError(res.error);
+        } else {
+            console.error('[fetchMessages] No data in response');
+            showError("No data received from server");
         }
         setLoading(false);
     }, [search, statusFilter, startDate, endDate, currentPage]);
