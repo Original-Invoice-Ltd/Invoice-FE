@@ -466,19 +466,19 @@ export class AdminApi {
     }
 
     static async getContactMessage(id: number): Promise<ApiResponse<any>> {
-        return ApiClient.get(`/api/admin/contact/${id}`);
+        return ApiClient.get(`/api/admin/contact-messages/${id}`);
     }
 
     static async getUnreadContactMessages(): Promise<ApiResponse<any>> {
-        return ApiClient.get("/api/admin/contact/unread");
+        return ApiClient.get("/api/admin/contact-messages/unread");
     }
 
     static async getUnreadContactCount(): Promise<ApiResponse<any>> {
-        return ApiClient.get("/api/admin/contact/unread-count");
+        return ApiClient.get("/api/admin/contact-messages/unread-count");
     }
 
     static async updateContactStatus(id: number, status: "NEW" | "READ" | "RESPONDED"): Promise<ApiResponse<any>> {
-        return ApiClient.patch(`/api/admin/contact/${id}/status?status=${status}`);
+        return ApiClient.patch(`/api/admin/contact-messages/${id}/status?status=${status}`);
     }
 
     static async updateAdminProfile(data: {
