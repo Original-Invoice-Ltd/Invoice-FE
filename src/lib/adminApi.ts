@@ -462,23 +462,23 @@ export class AdminApi {
         page?: number;
         size?: number;
     }): Promise<ApiResponse<any>> {
-        return ApiClient.get("/api/admin/contact-messages", params);
+        return ApiClient.get("/api/admin/contact", params);
     }
 
     static async getContactMessage(id: number): Promise<ApiResponse<any>> {
-        return ApiClient.get(`/api/admin/contact-messages/${id}`);
+        return ApiClient.get(`/api/admin/contact/${id}`);
     }
 
     static async getUnreadContactMessages(): Promise<ApiResponse<any>> {
-        return ApiClient.get("/api/admin/contact-messages/unread");
+        return ApiClient.get("/api/admin/contact/unread");
     }
 
     static async getUnreadContactCount(): Promise<ApiResponse<any>> {
-        return ApiClient.get("/api/admin/contact-messages/unread-count");
+        return ApiClient.get("/api/admin/contact/unread-count");
     }
 
     static async updateContactStatus(id: number, status: "NEW" | "READ" | "RESPONDED"): Promise<ApiResponse<any>> {
-        return ApiClient.patch(`/api/admin/contact-messages/${id}/status?status=${status}`);
+        return ApiClient.patch(`/api/admin/contact/${id}/status?status=${status}`);
     }
 
     static async updateAdminProfile(data: {
