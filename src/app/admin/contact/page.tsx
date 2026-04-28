@@ -35,13 +35,15 @@ const AdminContactPage = () => {
             error: res.error,
             message: res.message
         });
-        if (res.status === 200 && res.data) {
+        // Backend returns 401 but with valid data - check for data first
+        if (res.data && (res.data as any).success) {
             const d = res.data as any;
             const list: ContactMessage[] = d.data?.content ?? d.content ?? [];
             setMessages(list);
             setTotalPages(d.data?.totalPages ?? d.totalPages ?? 1);
             setTotalItems(d.data?.totalItems ?? d.totalElements ?? list.length);
-        } else if (res.status === 401) {
+            setPermissionDenied(false);
+        } else if (res.status === 401 && !res.data) {
             console.error('[fetchMessages] 401 Unauthorized - Error details:', res.error);
             showError("Unauthorized - please check your admin permissions");
             setPermissionDenied(true);
