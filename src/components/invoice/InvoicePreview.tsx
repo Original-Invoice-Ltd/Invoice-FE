@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
 import dynamic from 'next/dynamic';
 import { useSubscription } from "@/hooks/useSubscription";
-import { formatCurrency as formatCurrencyUtil } from "@/lib/currencyFormatter";
+import { CurrencyCode, formatCurrency as formatCurrencyUtil } from "@/lib/currencyFormatter";
 
 interface InvoiceItem {
     id: number;
@@ -222,7 +222,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
     };
 
     const formatCurrency = (amount: number) => {
-        return formatCurrencyUtil(amount, { currency: data.currency });
+        return formatCurrencyUtil(amount, { currency: data.currency as CurrencyCode });
     };
 
     const formatDate = (dateString: string) => {
@@ -517,14 +517,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                                         <span className="text-gray-900 font-[14px]">WhatsApp</span>
                                     </div>
                                     <span className="text-[10px] text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Coming Soon</span>
-
                                 </button>
-
-<<<<<<< HEAD
-                            
-=======
-                               
->>>>>>> bf1876207730bcdbef5d0c3be24fbac78c2965b8
                             </div>
                         )}
                     </div>
@@ -661,75 +654,6 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                     </div>
                 </div>
             )}
-
-<<<<<<< HEAD
-            {/* {showTelegramModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg w-full max-w-md mx-4 p-6">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-lg font-semibold text-gray-900">Send via Telegram</h2>
-                            <button
-                                onClick={() => setShowTelegramModal(false)}
-                                className="text-gray-400 hover:text-gray-600"
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Phone Number<span className="text-red-500">*</span>
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type="tel"
-                                        value={phoneNumber}
-                                        onChange={(e) => setPhoneNumber(e.target.value)}
-                                        placeholder="Enter client phone number"
-                                        className="w-full px-3 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    />
-                                    <svg className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M18.3333 14.1V16.6C18.3343 16.8321 18.2867 17.0618 18.1937 17.2745C18.1008 17.4871 17.9644 17.678 17.7934 17.8349C17.6224 17.9918 17.4205 18.1113 17.2006 18.1856C16.9808 18.26 16.7478 18.2876 16.5167 18.2667C13.9523 17.9881 11.4892 17.1118 9.32498 15.7083C7.31151 14.4289 5.60443 12.7219 4.32499 10.7083C2.91663 8.53438 2.04019 6.05917 1.76665 3.48334C1.74583 3.25293 1.77321 3.02067 1.84707 2.80139C1.92092 2.58211 2.03963 2.38061 2.19562 2.20972C2.35162 2.03883 2.54149 1.90229 2.75314 1.80881C2.9648 1.71534 3.19348 1.66692 3.42499 1.66667H5.92499C6.32941 1.66273 6.72148 1.80594 7.02812 2.06965C7.33476 2.33336 7.53505 2.69958 7.59165 3.10001C7.69717 3.9001 7.89286 4.68565 8.17499 5.44167C8.2871 5.73998 8.31137 6.06414 8.24491 6.37577C8.17844 6.6874 8.02404 6.97346 7.79998 7.20001L6.74165 8.25834C7.92795 10.3446 9.65536 12.072 11.7417 13.2583L12.8 12.2C13.0265 11.976 13.3126 11.8216 13.6242 11.7551C13.9359 11.6886 14.26 11.7129 14.5583 11.825C15.3144 12.1071 16.0999 12.3028 16.9 12.4083C17.3048 12.4655 17.6745 12.6694 17.9388 12.9813C18.203 13.2932 18.3435 13.6914 18.3333 14.1Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Message
-                                </label>
-                                <textarea
-                                    value={message}
-                                    onChange={(e) => setMessage(e.target.value)}
-                                    placeholder="Optional message to your client"
-                                    rows={4}
-                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex justify-between mt-6">
-                            <button
-                                onClick={() => setShowTelegramModal(false)}
-                                className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleSendWhatsappInvoice}
-                                disabled={isSubmitting || !ApiClient.isValidPhone(phoneNumber.trim().startsWith('0') ? '+234' + phoneNumber.trim().substring(1) : phoneNumber.trim())}
-                                className="px-6 py-2.5 bg-[#2F80ED] text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {isSubmitting ? 'Sending...' : 'Send Invoice'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )} */}
-=======
->>>>>>> bf1876207730bcdbef5d0c3be24fbac78c2965b8
-
             {/* Success Modal */}
             {showSuccessModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
