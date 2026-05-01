@@ -8,6 +8,7 @@ import { ApiClient } from "@/lib/api";
 import { InvoiceResponse } from "@/types/invoice";
 import { useTranslation } from "react-i18next";
 import { UploadReceiptModal } from "@/components/modals";
+import { formatCurrency as formatCurrencyUtil, CurrencyCode } from "@/lib/currencyFormatter";
 
 const InvoiceViewPage = () => {
     const params = useParams();
@@ -53,19 +54,17 @@ const InvoiceViewPage = () => {
     };
 
     const formatCurrency = (amount: number | null | undefined, currency: string = 'NGN') => {
-        const safeAmount = amount || 0;
-        return new Intl.NumberFormat('en-NG', {
-            style: 'currency',
-            currency: currency || 'NGN',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(safeAmount);
+        return formatCurrencyUtil(amount || 0, { currency: currency as CurrencyCode });
     };
 
     const handleMarkAsPaid = async () => {
+        const { toast } = await import("@/lib/toast");
         const response = await ApiClient.markInvoiceAsPaid(params.id as string);
         if (response.status === 200) {
-            window.location.reload();
+            toast.show({ type: 'success', message: 'Successfully marked as paid' });
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         }
     };
 
@@ -129,12 +128,20 @@ const InvoiceViewPage = () => {
                                 <div className="py-1">
                                     <button
                                         onClick={() => {
-                                            setIsDropdownOpen(false);
-                                            handleMarkAsPaid();
+                                            if (invoice.status !== 'PAID') {
+                                                setIsDropdownOpen(false);
+                                                handleMarkAsPaid();
+                                            }
                                         }}
-                                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                        disabled={invoice.status === 'PAID'}
+                                        className={`w-full text-left px-4 py-3 text-sm transition-colors ${
+                                            invoice.status === 'PAID'
+                                                ? 'text-gray-400 bg-gray-50 cursor-not-allowed'
+                                                : 'text-gray-700 hover:bg-gray-50 cursor-pointer'
+                                        }`}
                                     >
                                         Mark as Paid
+                    
                                     </button>
                                     <button
                                         onClick={() => {
@@ -300,11 +307,11 @@ const InvoiceViewPage = () => {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="mt-3 px-4 py-3 rounded" style={{ backgroundColor: invoice.color ? `${invoice.color}20` : '#EBF5FF' }}>
+                                <div className="mt-3 px-4 py-3 rounded" style={{ backgroundColor: invoice.invoiceColor ? `${invoice.invoiceColor}/20` : '#EBF5FF' }}>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-sm font-semibold text-[#101828]">Balance Due</span>
+                                        <span className="text-sm font-semibold text-[#101828]">Balance</span>
                                         <span className="text-base font-bold text-[#101828]">
-                                            {formatCurrency(invoice.totalDue, invoice.currency)}
+                                            {formatCurrency(Number(invoice.outstandingBalance ?? 0), invoice.currency)}
                                         </span>
                                     </div>
                                 </div>
@@ -386,7 +393,10 @@ const InvoiceViewPage = () => {
                 onClose={() => setIsUploadModalOpen(false)}
                 invoiceId={params.id as string}
                 mode="incomplete"
+                outstandingBalance={invoice?.outstandingBalance}
                 invoiceTotalDue={invoice?.totalDue}
+                invoiceCurrency={invoice?.currency}
+                isDashboardUser={true}
             />
 
             {isDropdownOpen && (

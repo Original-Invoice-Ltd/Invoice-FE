@@ -115,6 +115,7 @@ export interface InvoiceResponse {
   totalTaxAmount: number;
   totalDue: number;
   note?: string;
+  outstandingBalance: number;
   termsAndConditions?: string;
   paymentTerms?: string;
   accountNumber?: string;
@@ -333,7 +334,7 @@ export function buildInvoiceFormData(data: CreateInvoiceData): FormData {
   // Tax IDs (for invoice-level taxes)
   if (data.taxIds && data.taxIds.length > 0) {
     data.taxIds.forEach((taxId) => {
-      formData.append('taxIds', taxId);
+      formData.append('taxIds[]', taxId);
     });
   }
 

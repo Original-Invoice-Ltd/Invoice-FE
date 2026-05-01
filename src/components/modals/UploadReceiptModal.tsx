@@ -4,28 +4,55 @@ import { useState, useRef, useEffect } from "react";
 import { X } from "lucide-react";
 import { useReceiptUpload } from "@/hooks/useReceiptUpload";
 import { ApiClient } from "@/lib/api";
+import { toast } from "@/lib/toast";
 
 interface UploadReceiptModalProps {
     isOpen: boolean;
     onClose: () => void;
     onUpload?: (file: File) => void;
-    invoiceId?: string; // Invoice ID for API upload
+    invoiceId?: string;
     mode?: "upload" | "incomplete";
     invoiceTotalDue?: number;
+    isDashboardUser?: boolean;
+    invoiceCurrency?: string;
+    outstandingBalance?: string
 }
 
 type UploadState = 'idle' | 'uploading' | 'completed' | 'failed';
 
-const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "upload", invoiceTotalDue }: UploadReceiptModalProps) => {
+const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "upload", invoiceTotalDue, outstandingBalance, isDashboardUser = false, invoiceCurrency = "NGN" }: UploadReceiptModalProps) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
     const [uploadState, setUploadState] = useState<UploadState>('idle');
     const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
     const [amountPaid, setAmountPaid] = useState<string>("");
     const [amountError, setAmountError] = useState<string>("");
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    
     const { uploadReceipt, uploading, progress, error: uploadError, success, reset } = useReceiptUpload();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const formatNumberWithCommas = (value: string) => {
+        const numericValue = value.replace(/[^\d]/g, '');
+        return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    };
+
+    const parseFormattedNumber = (value: string) => {
+        return value.replace(/,/g, '');
+    };
+
+    const getCurrencySymbol = (currency: string) => {
+        const symbols: { [key: string]: string } = {
+            'NGN': '₦',
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+        };
+        return symbols[currency] || currency;
+    };
+
+    const formatCurrencyAmount = (amount: string) => {
+        if (!amount) return '';
+        return `${getCurrencySymbol(invoiceCurrency)}${formatNumberWithCommas(amount)}`;
+    };
 
     // Sync upload state with hook state
     useEffect(() => {
@@ -57,7 +84,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
         if (selectedFile) {
             const url = URL.createObjectURL(selectedFile);
             setFilePreviewUrl(url);
-            
+
             // Cleanup URL when component unmounts or file changes
             return () => {
                 URL.revokeObjectURL(url);
@@ -88,7 +115,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
     const handleDrop = (e: React.DragEvent) => {
         e.preventDefault();
         setIsDragOver(false);
-        
+
         const files = Array.from(e.dataTransfer.files);
         if (files.length > 0) {
             handleFileSelect(files[0]);
@@ -122,7 +149,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
         // If invoiceId is provided, use the API
         if (invoiceId) {
             const uploadSuccess = await uploadReceipt(invoiceId, selectedFile);
-            
+
             if (!uploadSuccess) {
                 setUploadState('failed');
             }
@@ -130,7 +157,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
         } else {
             // Fallback to callback if no invoiceId (backward compatibility)
             setUploadState('uploading');
-            
+
             // Simulate upload progress for callback mode
             const progressInterval = setInterval(() => {
                 setUploadState((prev) => {
@@ -141,7 +168,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                     return prev;
                 });
             }, 200);
-            
+
             try {
                 if (onUpload) {
                     onUpload(selectedFile);
@@ -167,17 +194,45 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
     };
 
     const handleSubmitIncomplete = async () => {
-        const value = parseFloat(amountPaid);
-        if (isNaN(value)) return;
+        const amount = parseFloat(parseFormattedNumber(amountPaid));
+        if (!amountPaid || isNaN(amount) || amount < 0) {
+            setAmountError("Please enter a valid amount (0 or more)");
+            return;
+        }
+        setAmountError("");
+
+        if (!invoiceId) {
+            console.error("No invoice ID provided");
+            return;
+        }
 
         setUploadState("uploading");
 
-        const response = await ApiClient.markInvoiceAsIncomplete(invoiceId!, value);
-        
-        if (response.status === 200) {
-            setUploadState("completed");
-            window.location.reload();
-        } else {
+        try {
+            if (!isDashboardUser && selectedFile) {
+                const uploadSuccess = await uploadReceipt(invoiceId, selectedFile);
+                if (!uploadSuccess) {
+                    setUploadState("failed");
+                    return;
+                }
+            }
+
+            const response = await ApiClient.markInvoiceAsIncomplete(invoiceId, amount);
+
+            if (response.status === 200) {
+                setUploadState("completed");
+                toast.show({ type: 'success', message: 'Successfully marked as incomplete' });
+                setTimeout(() => {
+                    onClose();
+                    window.location.reload();
+                }, 1500);
+            } else {
+                setUploadState("failed");
+                const errorMsg = response.error || (typeof response.data === 'string' ? response.data : 'Error marking invoice as incomplete');
+                toast.show({ type: 'error', message: errorMsg });
+            }
+        } catch (error) {
+            console.error("Error marking invoice as incomplete:", error);
             setUploadState("failed");
         }
     };
@@ -191,7 +246,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto border border-gray-200">
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-100">
@@ -209,280 +264,297 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                 {/* Content */}
                 <div className="px-6 py-4">
                     <p className="text-gray-600 text-sm mb-4">
-                        {mode === "incomplete" 
-                            ? "Enter the amount you've paid so far and optionally upload a receipt. The invoice will remain outstanding until fully paid."
+                        {mode === "incomplete"
+                            ? "Enter the balance left. The invoice will remain outstanding until fully paid."
                             : "Please upload proof of your payment so the business can review and confirm it. Supported files: JPG, PNG, PDF (max 10MB)."}
                     </p>
 
                     {mode === "incomplete" && (
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Balance Left {invoiceTotalDue && `(Total Due: ₦${invoiceTotalDue.toLocaleString()})`}
-                            </label>
-                            <input
-                                type="number"
-                                value={amountPaid}
-                                onChange={(e) => {
-                                    setAmountPaid(e.target.value);
-                                    setAmountError("");
-                                }}
-                                placeholder="Enter balance left"
-                                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${
-                                    amountError 
-                                        ? "border-red-500 focus:ring-red-500" 
-                                        : "border-gray-300 focus:ring-blue-500"
-                                }`}
-                                disabled={uploadState === "uploading"}
-                            />
-                            {amountError && (
-                                <p className="text-red-500 text-sm mt-1">{amountError}</p>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Upload States */}
-                    {uploadState === 'idle' && (
-                        /* Upload Area */
-                        <div
-                            className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
-                                isDragOver
-                                    ? 'border-blue-400 bg-blue-50'
-                                    : selectedFile
-                                    ? 'border-green-400 bg-green-50'
-                                    : 'border-gray-300 bg-gray-50'
-                            }`}
-                            onDrop={handleDrop}
-                            onDragOver={handleDragOver}
-                            onDragLeave={handleDragLeave}
-                        >
-                            {selectedFile ? (
-                                <div className="space-y-2">
-                                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                                        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-900">File Selected</p>
-                                        <p className="text-sm text-gray-600">{selectedFile.name}</p>
-                                        <p className="text-xs text-gray-500">
-                                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                                        </p>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-                                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-900 mb-1">
-                                            {mode === "incomplete" ? "Upload Receipt (Optional)" : "Upload Receipt"}
-                                        </p>
-                                        <p className="text-sm text-gray-500 mb-3">Drag & drop or click to upload</p>
-                                        <button
-                                            onClick={handleBrowseClick}
-                                            className="px-6 py-2 border border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
-                                        >
-                                            Browse File
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Uploading State */}
-                    {uploadState === 'uploading' && selectedFile && filePreviewUrl && (
-                        <div className="space-y-4">
-                            {/* Receipt Preview - Actual Uploaded File */}
-                            <div className="border-2 border-dashed border-gray-300 rounded-xl bg-white overflow-hidden" style={{ minHeight: '280px' }}>
-                                {selectedFile.type === 'application/pdf' ? (
-                                    <div className="flex flex-col items-center justify-center h-full p-8">
-                                        <div className="w-20 h-20 bg-red-100 rounded-lg flex items-center justify-center mb-3">
-                                            <svg className="w-10 h-10 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
-                                                <path d="M8 10a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                                                <path d="M8 13a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                                            </svg>
-                                        </div>
-                                        <p className="text-sm font-medium text-gray-900 mb-1">{selectedFile.name}</p>
-                                        <p className="text-xs text-gray-500">PDF Document - Uploading...</p>
-                                    </div>
-                                ) : (
-                                    <div className="relative w-full h-full flex items-center justify-center p-4">
-                                        <img 
-                                            src={filePreviewUrl} 
-                                            alt="Receipt preview" 
-                                            className="max-w-full max-h-[280px] object-contain rounded"
-                                        />
-                                        <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2">
-                                            <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                                            <span className="text-gray-700 text-sm">Uploading...</span>
-                                        </div>
+                        <div className="mb-4 space-y-3">
+                            <div className="flex flex-col gap-2">
+                                {invoiceTotalDue && (
+                                    <div className="flex justify-between items-center bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                        <span className="text-sm font-medium text-gray-700">Total Amount Due:</span>
+                                        <span className="text-base font-semibold text-gray-900">
+                                            {getCurrencySymbol(invoiceCurrency)}{invoiceTotalDue.toLocaleString()}
+                                        </span>
+                                    </div>)}
+                                {(outstandingBalance &&
+                                    <div className="flex justify-between items-centerbg-blue-50 border border-blue-200 rounded-lg p-3">
+                                        <span className="text-sm font-medium text-gray-700">Outstanding Amount:</span>
+                                        <span className="text-base font-semibold text-gray-900">
+                                            {getCurrencySymbol(invoiceCurrency)}{outstandingBalance?.toLocaleString()}
+                                        </span>
                                     </div>
                                 )}
                             </div>
-                            
-                            {/* File Upload Progress */}
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center flex-shrink-0">
-                                    <span className="text-white text-xs font-medium">PDF</span>
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <span className="text-sm font-medium text-gray-900">{selectedFile.name}</span>
-                                        <button className="text-gray-400 hover:text-gray-600">
-                                            <X size={16} />
-                                        </button>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                                        <span>{Math.round((selectedFile.size * progress) / 100 / 1024)} KB of {Math.round(selectedFile.size / 1024)} KB</span>
-                                        <span>•</span>
-                                        <div className="flex items-center gap-1">
-                                            <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                                            <span>Uploading...</span>
-                                        </div>
-                                    </div>
-                                    <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
-                                        <div 
-                                            className="bg-blue-500 h-1 rounded-full transition-all duration-300"
-                                            style={{ width: `${progress}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
 
-                    {/* Completed State */}
-                    {uploadState === 'completed' && selectedFile && filePreviewUrl && (
-                        <div className="space-y-4">
-                            {/* Receipt Preview - Actual Uploaded File */}
-                            <div className="border-2 border-dashed border-gray-300 rounded-xl bg-white overflow-hidden" style={{ minHeight: '280px' }}>
-                                {selectedFile.type === 'application/pdf' ? (
-                                    <div className="flex flex-col items-center justify-center h-full p-8">
-                                        <div className="w-20 h-20 bg-red-100 rounded-lg flex items-center justify-center mb-3">
-                                            <svg className="w-10 h-10 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
-                                                <path d="M8 10a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                                                <path d="M8 13a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                                            </svg>
-                                        </div>
-                                        <p className="text-sm font-medium text-gray-900 mb-1">{selectedFile.name}</p>
-                                        <p className="text-xs text-gray-500 mb-3">PDF Document</p>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                                                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </div>
-                                            <span className="text-green-500 font-medium text-sm">Upload Successful</span>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="relative w-full h-full flex items-center justify-center p-4">
-                                        <img 
-                                            src={filePreviewUrl} 
-                                            alt="Receipt preview" 
-                                            className="max-w-full max-h-[280px] object-contain rounded"
-                                        />
-                                        <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2">
-                                            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                                                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </div>
-                                            <span className="text-green-500 font-medium text-sm">Upload Successful</span>
-                                        </div>
-                                    </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Balance Left <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                                        {getCurrencySymbol(invoiceCurrency)}
+                                    </span>
+                                    <input
+                                        type="text"
+                                        value={formatNumberWithCommas(amountPaid)}
+                                        onChange={(e) => {
+                                            const rawValue = parseFormattedNumber(e.target.value);
+                                            setAmountPaid(rawValue);
+                                            setAmountError("");
+                                        }}
+                                        placeholder="0"
+                                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${amountError
+                                                ? "border-red-500 focus:ring-red-500"
+                                                : "border-gray-300 focus:ring-blue-500"
+                                            }`}
+                                        disabled={uploadState === "uploading"}
+                                    />
+                                </div>
+                                {amountError && (
+                                    <p className="text-red-500 text-sm mt-1">{amountError}</p>
                                 )}
                             </div>
-                            
-                            {/* File Completed */}
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center flex-shrink-0">
-                                    <span className="text-white text-xs font-medium">PDF</span>
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <span className="text-sm font-medium text-gray-900">{selectedFile.name}</span>
-                                        <button className="text-gray-400 hover:text-gray-600">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                                        <span>{Math.round(selectedFile.size / 1024)} KB of {Math.round(selectedFile.size / 1024)} KB</span>
-                                        <span>•</span>
-                                        <div className="flex items-center gap-1">
-                                            <div className="w-3 h-3 bg-green-500 rounded-full flex items-center justify-center">
-                                                <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </div>
-                                            <span className="text-green-600">Completed</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     )}
 
-                    {/* Failed State */}
-                    {uploadState === 'failed' && selectedFile && (
-                        <div className="space-y-4">
-                            {/* Empty Upload Area */}
-                            <div className="border-2 border-dashed border-gray-300 rounded-xl p-12 bg-gray-50">
-                                {/* Empty space to match the layout */}
-                            </div>
-                            
-                            {/* File Failed */}
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center flex-shrink-0">
-                                        <span className="text-white text-xs font-medium">PDF</span>
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="flex items-center justify-between mb-1">
-                                            <span className="text-sm font-medium text-gray-900">{selectedFile.name}</span>
-                                            <button className="text-red-400 hover:text-red-600">
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    {!isDashboardUser && (
+                        <>
+                            {uploadState === 'idle' && (
+                                <div
+                                    className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${isDragOver
+                                            ? 'border-blue-400 bg-blue-50'
+                                            : selectedFile
+                                                ? 'border-green-400 bg-green-50'
+                                                : 'border-gray-300 bg-gray-50'
+                                        }`}
+                                    onDrop={handleDrop}
+                                    onDragOver={handleDragOver}
+                                    onDragLeave={handleDragLeave}
+                                >
+                                    {selectedFile ? (
+                                        <div className="space-y-2">
+                                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                                                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                                 </svg>
-                                            </button>
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-gray-900">File Selected</p>
+                                                <p className="text-sm text-gray-600">{selectedFile.name}</p>
+                                                <p className="text-xs text-gray-500">
+                                                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div className="flex items-center gap-2 text-xs text-gray-500">
-                                            <span>0 KB of {Math.round(selectedFile.size / 1024)} KB</span>
-                                            <span>•</span>
-                                            <div className="flex items-center gap-1">
-                                                <div className="w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
-                                                    <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="6 18L18 6M6 6l12 12" />
+                                    ) : (
+                                        <div className="space-y-3">
+                                            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+                                                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-gray-900 mb-1">
+                                                    {mode === "incomplete" ? "Upload Receipt (Optional)" : "Upload Receipt"}
+                                                </p>
+                                                <p className="text-sm text-gray-500 mb-3">Drag & drop or click to upload</p>
+                                                <button
+                                                    onClick={handleBrowseClick}
+                                                    className="px-6 py-2 border border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                                                >
+                                                    Browse File
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {uploadState === 'uploading' && selectedFile && filePreviewUrl && (
+                                <div className="space-y-4">
+                                    <div className="border-2 border-dashed border-gray-300 rounded-xl bg-white overflow-hidden" style={{ minHeight: '280px' }}>
+                                        {selectedFile.type === 'application/pdf' ? (
+                                            <div className="flex flex-col items-center justify-center h-full p-8">
+                                                <div className="w-20 h-20 bg-red-100 rounded-lg flex items-center justify-center mb-3">
+                                                    <svg className="w-10 h-10 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                                                        <path d="M8 10a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                                                        <path d="M8 13a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
                                                     </svg>
                                                 </div>
-                                                <span className="text-red-600">Failed</span>
+                                                <p className="text-sm font-medium text-gray-900 mb-1">{selectedFile.name}</p>
+                                                <p className="text-xs text-gray-500">PDF Document - Uploading...</p>
+                                            </div>
+                                        ) : (
+                                            <div className="relative w-full h-full flex items-center justify-center p-4">
+                                                <img
+                                                    src={filePreviewUrl}
+                                                    alt="Receipt preview"
+                                                    className="max-w-full max-h-[280px] object-contain rounded"
+                                                />
+                                                <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2">
+                                                    <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                                    <span className="text-gray-700 text-sm">Uploading...</span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center flex-shrink-0">
+                                            <span className="text-white text-xs font-medium">PDF</span>
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <span className="text-sm font-medium text-gray-900">{selectedFile.name}</span>
+                                                <button className="text-gray-400 hover:text-gray-600">
+                                                    <X size={16} />
+                                                </button>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                                                <span>{Math.round((selectedFile.size * progress) / 100 / 1024)} KB of {Math.round(selectedFile.size / 1024)} KB</span>
+                                                <span>•</span>
+                                                <div className="flex items-center gap-1">
+                                                    <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                                    <span>Uploading...</span>
+                                                </div>
+                                            </div>
+                                            <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
+                                                <div
+                                                    className="bg-blue-500 h-1 rounded-full transition-all duration-300"
+                                                    style={{ width: `${progress}%` }}
+                                                ></div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                {uploadError && (
-                                    <p className="text-red-600 text-sm mt-2">{uploadError}</p>
-                                )}
-                                <button 
-                                    onClick={handleRetry}
-                                    className="text-red-500 text-sm font-medium hover:text-red-600 transition-colors"
-                                >
-                                    Try Again
-                                </button>
-                            </div>
-                        </div>
+                            )}
+
+                            {uploadState === 'completed' && selectedFile && filePreviewUrl && (
+                                <div className="space-y-4">
+                                    <div className="border-2 border-dashed border-gray-300 rounded-xl bg-white overflow-hidden" style={{ minHeight: '280px' }}>
+                                        {selectedFile.type === 'application/pdf' ? (
+                                            <div className="flex flex-col items-center justify-center h-full p-8">
+                                                <div className="w-20 h-20 bg-red-100 rounded-lg flex items-center justify-center mb-3">
+                                                    <svg className="w-10 h-10 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                                                        <path d="M8 10a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                                                        <path d="M8 13a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                                                    </svg>
+                                                </div>
+                                                <p className="text-sm font-medium text-gray-900 mb-1">{selectedFile.name}</p>
+                                                <p className="text-xs text-gray-500 mb-3">PDF Document</p>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    </div>
+                                                    <span className="text-green-500 font-medium text-sm">Upload Successful</span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="relative w-full h-full flex items-center justify-center p-4">
+                                                <img
+                                                    src={filePreviewUrl}
+                                                    alt="Receipt preview"
+                                                    className="max-w-full max-h-[280px] object-contain rounded"
+                                                />
+                                                <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2">
+                                                    <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    </div>
+                                                    <span className="text-green-500 font-medium text-sm">Upload Successful</span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* File Completed */}
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center flex-shrink-0">
+                                            <span className="text-white text-xs font-medium">PDF</span>
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <span className="text-sm font-medium text-gray-900">{selectedFile.name}</span>
+                                                <button className="text-gray-400 hover:text-gray-600">
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                                                <span>{Math.round(selectedFile.size / 1024)} KB of {Math.round(selectedFile.size / 1024)} KB</span>
+                                                <span>•</span>
+                                                <div className="flex items-center gap-1">
+                                                    <div className="w-3 h-3 bg-green-500 rounded-full flex items-center justify-center">
+                                                        <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    </div>
+                                                    <span className="text-green-600">Completed</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Failed State */}
+                            {uploadState === 'failed' && selectedFile && (
+                                <div className="space-y-4">
+                                    <div className="border-2 border-dashed border-gray-300 rounded-xl p-12 bg-gray-50">
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center flex-shrink-0">
+                                                <span className="text-white text-xs font-medium">PDF</span>
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="text-sm font-medium text-gray-900">{selectedFile.name}</span>
+                                                    <button className="text-red-400 hover:text-red-600">
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-xs text-gray-500">
+                                                    <span>0 KB of {Math.round(selectedFile.size / 1024)} KB</span>
+                                                    <span>•</span>
+                                                    <div className="flex items-center gap-1">
+                                                        <div className="w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
+                                                            <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </div>
+                                                        <span className="text-red-600">Failed</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {uploadError && (
+                                            <p className="text-red-600 text-sm mt-2">{uploadError}</p>
+                                        )}
+                                        <button
+                                            onClick={handleRetry}
+                                            className="text-red-500 text-sm font-medium hover:text-red-600 transition-colors"
+                                        >
+                                            Try Again
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </>
                     )}
 
-                    {/* Hidden file input */}
                     <input
                         ref={fileInputRef}
                         type="file"
@@ -492,7 +564,6 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                     />
                 </div>
 
-                {/* Footer */}
                 <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100">
                     <button
                         onClick={handleCancel}
@@ -500,7 +571,7 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                     >
                         Cancel
                     </button>
-                    
+
                     {uploadState === 'completed' ? (
                         <button
                             onClick={handleSave}
@@ -512,11 +583,10 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                         <button
                             onClick={handleSubmitIncomplete}
                             disabled={uploadState === 'uploading'}
-                            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                                uploadState !== 'uploading'
+                            className={`px-6 py-2 rounded-lg font-medium transition-colors ${uploadState !== 'uploading'
                                     ? 'bg-blue-600 text-white hover:bg-blue-700'
                                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            }`}
+                                }`}
                         >
                             {uploadState === 'uploading' ? 'Submitting...' : 'Submit'}
                         </button>
@@ -524,11 +594,10 @@ const UploadReceiptModal = ({ isOpen, onClose, onUpload, invoiceId, mode = "uplo
                         <button
                             onClick={handleUpload}
                             disabled={!selectedFile || uploadState === 'uploading'}
-                            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                                selectedFile && uploadState !== 'uploading'
+                            className={`px-6 py-2 rounded-lg font-medium transition-colors ${selectedFile && uploadState !== 'uploading'
                                     ? 'bg-blue-600 text-white hover:bg-blue-700'
                                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            }`}
+                                }`}
                         >
                             {uploadState === 'uploading' ? 'Uploading...' : 'Upload Receipt'}
                         </button>

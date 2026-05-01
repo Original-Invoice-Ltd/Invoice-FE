@@ -14,6 +14,7 @@ import { ApiClient } from '@/lib/api';
 import { usePlanAccess } from '@/hooks/usePlanAccess';
 import { useInvoiceLimit } from '@/contexts/InvoiceLimitContext';
 import InvoiceLimitWarning from '@/components/ui/InvoiceLimitWarning';
+import { formatCurrency as formatCurrencyUtil, formatCurrencyCompact, CurrencyCode } from '@/lib/currencyFormatter';
 
 const DashboardContent = () => {
     const { user, loading: userLoading } = useAuth();
@@ -114,24 +115,8 @@ const DashboardContent = () => {
     };
 
     // Format currency with abbreviations for large numbers
-    const formatCurrency = (amount: number) => {
-        const absAmount = Math.abs(amount);
-        
-        if (absAmount >= 1_000_000_000) {
-            // Billions
-            const billions = amount / 1_000_000_000;
-            return `₦${billions.toFixed(billions >= 10 ? 0 : 1)}B`;
-        } else if (absAmount >= 1_000_000) {
-            // Millions
-            const millions = amount / 1_000_000;
-            return `₦${millions.toFixed(millions >= 10 ? 0 : 1)}M`;
-        } else if (absAmount >= 1_000) {
-            // Thousands
-            const thousands = amount / 1_000;
-            return `₦${thousands.toFixed(thousands >= 10 ? 0 : 1)}K`;
-        }
-        
-        return `₦${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    const formatCurrency = (amount: number, currency: string = 'NGN') => {
+        return formatCurrencyCompact(amount, { currency: currency as CurrencyCode });
     };
 
     // Format date
@@ -423,10 +408,10 @@ const DashboardContent = () => {
                                     <YAxis 
                                         tick={{ fill: '#667085', fontSize: 10 }}
                                         axisLine={{ stroke: '#E4E7EC' }}
-                                        tickFormatter={(value) => `₦${value / 1000}k`}
+                                        tickFormatter={(value) => formatCurrency(value)}
                                     />
                                     <Tooltip 
-                                        formatter={(value: any) => [`₦${value.toLocaleString()}`, 'Amount']}
+                                        formatter={(value: any) => [formatCurrencyUtil(value, { currency: 'NGN', maximumFractionDigits: 0 }), 'Amount']}
                                         contentStyle={{ borderRadius: '8px', border: '1px solid #E4E7EC', fontSize: '12px' }}
                                     />
                                     <Line 
@@ -505,10 +490,10 @@ const DashboardContent = () => {
                                     <YAxis 
                                         tick={{ fill: '#667085', fontSize: 12 }}
                                         axisLine={{ stroke: '#E4E7EC' }}
-                                        tickFormatter={(value) => `₦${value / 1000}k`}
+                                        tickFormatter={(value) => formatCurrency(value)}
                                     />
                                     <Tooltip 
-                                        formatter={(value: any) => [`₦${value.toLocaleString()}`, 'Amount']}
+                                        formatter={(value: any) => [formatCurrencyUtil(value, { currency: 'NGN', maximumFractionDigits: 0 }), 'Amount']}
                                         contentStyle={{ borderRadius: '8px', border: '1px solid #E4E7EC' }}
                                     />
                                     <Line 
@@ -554,6 +539,7 @@ const DashboardContent = () => {
                                             <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
                                     </Pie>
+                                    <Tooltip formatter={(value) => formatCurrency(value as number)} />
                                 </PieChart>
                             </ResponsiveContainer>
                         )}
@@ -605,6 +591,7 @@ const DashboardContent = () => {
                                                 <Cell key={`cell-${index}`} fill={entry.color} />
                                             ))}
                                         </Pie>
+                                        <Tooltip formatter={(value) => formatCurrency(value as number)} />
                                     </PieChart>
                                 </ResponsiveContainer>
                             )}

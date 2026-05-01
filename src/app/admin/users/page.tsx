@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Search, Filter, Eye, ChevronDown, Download } from "lucide-react";
+import { Search, Filter, MoreVertical, Download } from "lucide-react";
 import UserDetailModal from "@/components/admin/modals/UserDetailModal";
 import UserActionModal from "@/components/admin/modals/UserActionModal";
 import { AdminApi, AdminUser } from "@/lib/adminApi";
@@ -21,7 +21,16 @@ const AdminUsersPage = () => {
     const [showActionModal, setShowActionModal] = useState(false);
     const [actionType, setActionType] = useState<"deactivate" | "role" | "reset" | "delete">("deactivate");
 
+    const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+    const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
+
     const PAGE_SIZE = 10;
+
+    const handleOpenDropdown = (userId: string, e: React.MouseEvent<HTMLButtonElement>) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setDropdownPos({ top: rect.bottom + window.scrollY, right: window.innerWidth - rect.right });
+        setOpenDropdown(prev => prev === userId ? null : userId);
+    };
 
     const fetchUsers = useCallback(async () => {
         setLoading(true);
@@ -34,9 +43,19 @@ const AdminUsersPage = () => {
             plan: planFilter !== "all" ? planFilter : undefined,
         });
         if (res.data) {
-            setUsers(res.data.content);
-            setTotalPages(res.data.totalPages);
-            setTotalElements(res.data.totalElements);
+            const data = res.data as any;
+            const list: AdminUser[] = Array.isArray(data) ? data : data.content ?? data.data ?? [];
+            // Client-side filter as fallback in case backend ignores params
+            const filtered = list.filter(u => {
+                const matchSearch = !searchTerm || u.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || u.email?.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchStatus = statusFilter === "all" || u.status?.toUpperCase() === statusFilter.toUpperCase();
+                const matchRole = roleFilter === "all" || u.role?.toUpperCase() === roleFilter.toUpperCase();
+                const matchPlan = planFilter === "all" || (u.currentPlan ?? u.plan)?.toUpperCase() === planFilter.toUpperCase();
+                return matchSearch && matchStatus && matchRole && matchPlan;
+            });
+            setUsers(filtered);
+            setTotalPages((data.totalPages ?? Math.ceil(filtered.length / PAGE_SIZE)) || 1);
+            setTotalElements(data.totalElements ?? filtered.length);
         }
         setLoading(false);
     }, [currentPage, searchTerm, statusFilter, roleFilter, planFilter]);
@@ -72,14 +91,30 @@ const AdminUsersPage = () => {
         fetchUsers();
     };
 
-    const handleExport = async () => {
-        await AdminApi.exportUsers();
+    const handleExport = () => {
+        const rows = users.map(u => ({
+            fullName: u.fullName,
+            email: u.email,
+            status: u.status,
+            role: u.role,
+            plan: u.currentPlan ?? u.plan,
+            invoiceCount: u.invoiceCount,
+            createdAt: u.createdAt ?? u.registeredDate ?? ""
+        }));
+        if (!rows.length) return;
+        const headers = Object.keys(rows[0]);
+        const csv = [headers.join(","), ...rows.map(r => headers.map(h => `"${(r as any)[h] ?? ""}"`).join(","))].join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = "users.csv"; a.click();
+        URL.revokeObjectURL(url);
     };
 
     const getRoleColor = (role: string) => {
         switch (role) {
             case "SUPER_ADMIN": return "bg-purple-100 text-purple-700";
-            case "ADMIN": return "bg-blue-100 text-blue-700";
+            case "ADMIN": return "bg-[#E8F2FE] text-[#2F80ED]";
             default: return "bg-gray-100 text-gray-700";
         }
     };
@@ -96,7 +131,7 @@ const AdminUsersPage = () => {
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">User Management</h1>
                     <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage platform users and permissions</p>
                 </div>
-                <button onClick={handleExport} className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center justify-center gap-2">
+                <button onClick={handleExport} className="w-full sm:w-auto px-4 py-2 bg-[#2F80ED] text-white rounded-lg font-medium hover:bg-[#2868C7] flex items-center justify-center gap-2">
                     <Download size={18} />
                     Export Users
                 </button>
@@ -183,25 +218,15 @@ const AdminUsersPage = () => {
                                     </td>
                                     <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-900">{user.plan}</td>
                                     <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-900">{user.invoiceCount}</td>
-                                    <td className="hidden lg:table-cell px-6 py-4 text-xs text-gray-500">{user.registeredDate}</td>
+                                    <td className="hidden lg:table-cell px-6 py-4 text-xs text-gray-500">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : user.registeredDate ?? "—"}</td>
                                     <td className="px-3 sm:px-6 py-4">
-                                        <div className="flex items-center gap-1">
-                                            <button onClick={() => handleViewUser(user)} className="p-2 hover:bg-gray-100 rounded-lg" title="View">
-                                                <Eye size={16} className="text-gray-600" />
+                                        <div className="relative flex justify-start">
+                                            <button
+                                                onClick={(e) => handleOpenDropdown(user.id, e)}
+                                                className="p-2 hover:bg-[#EBF5FF] rounded-lg transition-colors"
+                                            >
+                                                <MoreVertical size={18} className="text-[#2F80ED]" />
                                             </button>
-                                            <div className="relative group">
-                                                <button className="p-2 hover:bg-gray-100 rounded-lg">
-                                                    <ChevronDown size={16} className="text-gray-600" />
-                                                </button>
-                                                <div className="hidden group-hover:block absolute right-0 mt-1 w-44 bg-white border border-[#E4E7EC] rounded-lg shadow-lg z-10">
-                                                    <button onClick={() => handleAction(user, "role")} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">Change Role</button>
-                                                    <button onClick={() => handleAction(user, "reset")} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">Reset Password</button>
-                                                    <button onClick={() => handleAction(user, "deactivate")} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">
-                                                        {user.status === "active" ? "Deactivate" : "Activate"}
-                                                    </button>
-                                                    <button onClick={() => handleAction(user, "delete")} className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-gray-50">Delete Account</button>
-                                                </div>
-                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -226,6 +251,30 @@ const AdminUsersPage = () => {
             {showActionModal && selectedUser && (
                 <UserActionModal user={selectedUser} actionType={actionType} onClose={handleActionComplete} />
             )}
+
+            {/* Fixed dropdown portal */}
+            {openDropdown && (() => {
+                const user = users.find(u => u.id === openDropdown);
+                if (!user) return null;
+                return (
+                    <>
+                        <div className="fixed inset-0 z-40" onClick={() => setOpenDropdown(null)} />
+                        <div
+                            className="fixed z-50 w-48 bg-white border border-[#E4E7EC] rounded-xl shadow-xl overflow-hidden"
+                            style={{ top: dropdownPos.top, right: dropdownPos.right }}
+                        >
+                            <button onClick={() => { handleViewUser(user); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-[#2F80ED] font-medium hover:bg-[#EBF5FF]">View Details</button>
+                            <div className="border-t border-[#E4E7EC]" />
+                            <button onClick={() => { handleAction(user, "role"); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">Change Role</button>
+                            <button onClick={() => { handleAction(user, "deactivate"); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">
+                                {["ACTIVE","VERIFIED"].includes(user.status?.toUpperCase()) ? "Deactivate" : "Activate"}
+                            </button>
+                            <div className="border-t border-[#E4E7EC]" />
+                            <button onClick={() => { handleAction(user, "delete"); setOpenDropdown(null); }} className="w-full text-left px-4 py-2.5 text-xs text-red-600 hover:bg-red-50">Delete Account</button>
+                        </div>
+                    </>
+                );
+            })()}
         </div>
     );
 };

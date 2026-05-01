@@ -69,7 +69,6 @@ const InvoicesPage = () => {
         try {
             setReceivedLoading(true);
             const response = await ApiClient.getReceivedInvoices();
-            console.log("Received invoices from invoice page: ", response.data);
             if (response.status === 200 && response.data) {
                 setReceivedInvoices(Array.isArray(response.data) ? response.data : []);
             }
@@ -179,6 +178,24 @@ const InvoicesPage = () => {
         return new Intl.NumberFormat('en-NG', {
             style: 'currency',
             currency: currency || 'NGN',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(safeAmount);
+    };
+
+    const getCurrencySymbol = (currency: string = 'NGN') => {
+        const symbols: { [key: string]: string } = {
+            'NGN': '₦',
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+        };
+        return symbols[currency] || currency;
+    };
+
+    const formatAmount = (amount: number | null | undefined) => {
+        const safeAmount = amount || 0;
+        return new Intl.NumberFormat('en-NG', {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0
         }).format(safeAmount);
@@ -368,11 +385,13 @@ const InvoicesPage = () => {
                                                 <div className="text-[14px] text-[#101828]">
                                                     {invoice.dueDate ? formatDate(invoice.dueDate) : 'N/A'}
                                                 </div>
-                                                <div className="text-[14px] text-[#101828] font-medium">
-                                                    {formatCurrency(invoice.totalDue || 0, invoice.currency)}
+                                                <div className="text-[14px] text-[#101828] font-medium flex items-center gap-[5px]">
+                                                    <span>{getCurrencySymbol(invoice.currency)}</span>
+                                                    <span>{formatAmount(invoice.totalDue || 0)}</span>
                                                 </div>
-                                                <div className="text-[14px] text-[#101828] font-medium">
-                                                    {formatCurrency(invoice.totalDue || 0, invoice.currency)}
+                                                <div className="text-[14px] text-[#101828] font-medium flex items-center gap-[5px]">
+                                                    <span>{getCurrencySymbol(invoice.currency)}</span>
+                                                    <span>{formatAmount(invoice.outstandingBalance || 0)}</span>
                                                 </div>
                                                 <div className="flex items-center justify-end">
                                                     <button
@@ -458,9 +477,23 @@ const InvoicesPage = () => {
             </div>
 
             <div className="bg-white rounded-lg border border-[#E4E7EC] mt-8">
-                <div className="px-6 py-4 border-b border-[#E4E7EC]">
-                    <h2 className="text-[18px] font-semibold text-[#101828]">Received Invoices</h2>
-                    <p className="text-[14px] text-[#667085] mt-1">View invoices you have received from other businesses</p>
+                <div className="px-6 py-4 border-b border-[#E4E7EC] flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 className="text-[18px] font-semibold text-[#101828]">Received Invoices</h2>
+                        <p className="text-[14px] text-[#667085] mt-1">View invoices you have received from other businesses</p>
+                    </div>
+                    {!receivedLoading && receivedInvoices.length > 0 && (
+                        <div className="relative w-full md:w-64">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#98A2B3]" size={18} />
+                            <input
+                                type="text"
+                                placeholder="Search invoice"
+                                value={receivedSearchTerm}
+                                onChange={(e) => setReceivedSearchTerm(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#667085] placeholder:text-[#98A2B3] bg-white focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {receivedLoading ? (
@@ -473,19 +506,6 @@ const InvoicesPage = () => {
                     </div>
                 ) : (
                     <>
-                        <div className="px-6 py-4 border-b border-[#E4E7EC]">
-                            <div className="relative w-64 ml-auto">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#98A2B3]" size={18} />
-                                <input
-                                    type="text"
-                                    placeholder="Search invoice"
-                                    value={receivedSearchTerm}
-                                    onChange={(e) => setReceivedSearchTerm(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2.5 border border-[#D0D5DD] rounded-lg text-[14px] text-[#667085] placeholder:text-[#98A2B3] bg-white focus:outline-none focus:ring-2 focus:ring-[#2F80ED]"
-                                />
-                            </div>
-                        </div>
-
                         <div className="overflow-x-auto overflow-y-visible relative">
                             <div className="min-w-[800px]">
                                 <div className="px-6 py-3 bg-[#F9FAFB] border-b border-[#E4E7EC]">
@@ -529,8 +549,9 @@ const InvoicesPage = () => {
                                                     <div className="text-[14px] text-[#101828]">
                                                         {new Date(invoice.dueDate).toLocaleDateString()}
                                                     </div>
-                                                    <div className="text-[14px] text-[#101828] font-medium">
-                                                        {invoice.currency} {invoice.totalDue.toFixed(2)}
+                                                    <div className="text-[14px] text-[#101828] font-medium flex items-center gap-[5px]">
+                                                        <span>{getCurrencySymbol(invoice.currency)}</span>
+                                                        <span>{formatAmount(invoice.totalDue)}</span>
                                                     </div>
                                                     <div className="flex items-center justify-end">
                                                         <button
@@ -635,7 +656,7 @@ const InvoicesPage = () => {
                             const invoice = receivedInvoices.find(inv => inv.id === openDropdown)!;
                             return (
                                 <Link
-                                    href={`/customer/invoices/${invoice.id}`}
+                                    href={`/dashboard/invoices/received/${invoice.id}`}
                                     className="flex items-center gap-2 px-4 py-2 text-[14px] text-[#344054] hover:bg-[#F9FAFB] transition-colors"
                                     onClick={() => {
                                         setOpenDropdown(null);

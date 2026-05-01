@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Area, AreaChart } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Area, AreaChart, Tooltip } from "recharts";
 import { RevenueDataPoint, StatusDistribution } from "./types";
 import { useTranslation } from "react-i18next";
+import { formatCurrency } from "@/lib/currencyFormatter";
 
 interface RevenueChartProps {
   data: RevenueDataPoint[];
@@ -101,9 +102,12 @@ const RevenueChart = ({ data, isEmpty, period = 'month', onPeriodChange, loading
                 tick={{ fill: '#333436', fontSize: 10 }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={(value) => `₦${value / 1000}k`}
-                domain={[0, 500000]}
-                ticks={[0, 100000, 200000, 300000, 400000, 500000]}
+                tickFormatter={(value) => formatCurrency(value)}
+              />
+              <Tooltip 
+                formatter={(value: number) => [formatCurrency(value), 'Revenue']}
+                labelStyle={{ color: '#333436' }}
+                contentStyle={{ borderRadius: '8px', border: '1px solid #E4E7EC', fontSize: '12px' }}
               />
               {!isEmpty && (
                 <>
@@ -135,6 +139,8 @@ export const StatusChart = ({ data, isEmpty }: StatusChartProps) => {
   const [isClient, setIsClient] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+  // Format currency moved to top of file
 
   useEffect(() => {
     setIsClient(true);
@@ -191,18 +197,19 @@ export const StatusChart = ({ data, isEmpty }: StatusChartProps) => {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={data}
+                    data={data.filter(item => item.value > 0)} // Only show segments with values > 0
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
                     outerRadius={90}
-                    paddingAngle={5}
+                    paddingAngle={data.filter(item => item.value > 0).length > 1 ? 5 : 0} // Only add padding if multiple segments
                     dataKey="value"
                   >
-                    {data.map((entry, index) => (
+                    {data.filter(item => item.value > 0).map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
+                  <Tooltip formatter={(value) => formatCurrency(value as number)} />
                 </PieChart>
               </ResponsiveContainer>
             )}
@@ -216,13 +223,13 @@ export const StatusChart = ({ data, isEmpty }: StatusChartProps) => {
                     className="w-3 h-3 rounded-full flex-shrink-0" 
                     style={{ backgroundColor: item.color }}
                   ></div>
-                  <span className="text-xs text-[#333436] font-medium">{item.name}</span>
+                  <span className="text-[0.75rem] md:text-xs text-[#333436] font-medium">{item.name}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="text-sm font-semibold text-[#101828]">
-                    ₦{item.value.toLocaleString()}
+                  <span className="text-xs font-semibold text-[#101828]">
+                    {formatCurrency(item.value)}
                   </span>
-                  <span className={`text-xs font-medium ${
+                  <span className={`text-sm font-medium ${
                     item.change.startsWith('+') ? 'text-[#40C4AA]' : 'text-[#F04438]'
                   }`}>
                     {item.change}

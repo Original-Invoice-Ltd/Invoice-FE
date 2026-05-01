@@ -26,7 +26,7 @@ const ReceivedInvoices = () => {
       try {
         setIsLoading(true);
         const response = await ApiClient.getReceivedInvoices();
-        console.log("Received invoices(payment made to other business) response payment page:", response);
+        // console.log("Received invoices(payment made to other business) response payment page:", response);
 
         if (response.status === 200 && response.data) {
           setInvoices(Array.isArray(response.data) ? response.data : []);
@@ -234,7 +234,7 @@ const ReceivedInvoices = () => {
                               <button
                                 onClick={() => {
                                   setOpenDropdown(null);
-                                  router.push(`/dashboard/invoices/${invoice.id}`);
+                                  router.push(`/dashboard/invoices/received/${invoice.id}`);
                                 }}
                                 className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                               >
@@ -334,7 +334,7 @@ const ReceivedInvoices = () => {
                         <button
                           onClick={() => {
                             setOpenDropdown(null);
-                            router.push(`/dashboard/invoices/${invoice.id}`);
+                            router.push(`/dashboard/invoices/received/${invoice.id}`);
                           }}
                           className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                         >

@@ -24,30 +24,30 @@ export default function ForgotPasswordForm({ email, onEmailChange, onSubmit }: F
   return (
     <form 
       onSubmit={onSubmit} 
-      className="w-full max-w-[518px] mx-auto pt-8 px-6 pb-8 flex flex-col gap-8"
+      className="w-full mx-auto pt-4 sm:pt-8 px-4 sm:px-6 pb-6 sm:pb-8 flex flex-col gap-6 sm:gap-8"
     >
       {/* Header */}
-      <div>
-        <h2 className="w-[470px] h-[29px] rotate-0 opacity-100 font-['Inter_Tight'] font-medium text-[24px] leading-[120%] tracking-[0] text-center text-[#000000] mb-2">
+      <div className="space-y-2">
+        <h2 className="font-['Inter_Tight'] font-medium text-xl sm:text-2xl leading-tight text-center text-[#000000]">
           Reset your password
         </h2>
-        <p className="w-[470px] h-[50px] rotate-0 opacity-100 font-['Inter_Tight'] font-normal text-[18px] leading-[140%] tracking-[0.01em] text-center text-[#444444]">
+        <p className="font-['Inter_Tight'] font-normal text-base sm:text-lg leading-relaxed text-center text-[#444444] px-2">
           Enter your email, we'll send you a code to reset your password
         </p>
       </div>
 
       {/* Email Input */}
-      <div className="w-[470px] h-[70px] rotate-0 opacity-100 flex flex-col gap-[24px]">
+      <div className="w-full flex flex-col gap-2">
         {/* Label */}
         <label 
           htmlFor="email"
-          className="w-[102px] h-[22px] rotate-0 opacity-100 flex items-center gap-1 font-['Inter_Tight'] font-medium text-[16px] leading-[140%] tracking-[0.01em] text-[#000000]"
+          className="font-['Inter_Tight'] font-medium text-sm sm:text-base leading-relaxed text-[#000000]"
         >
           Email Address
         </label>
         
         {/* Input wrapper */}
-        <div className="relative w-[470px] h-[40px]">
+        <div className="relative w-full">
           <input
             id="email"
             type="email"
@@ -55,12 +55,12 @@ export default function ForgotPasswordForm({ email, onEmailChange, onSubmit }: F
             value={email}
             onChange={onEmailChange}
             placeholder="Enter your email address"
-            className="w-[470px] h-[40px] rotate-0 opacity-100 rounded-lg pt-[8px] pr-[10px] pb-[8px] pl-[12px] border border-[#E5E5E5] bg-[#FFFFFF] font-['Inter_Tight'] text-[16px] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
+            className="w-full h-10 sm:h-12 rounded-lg py-2 pr-10 pl-3 sm:pl-4 border border-[#E5E5E5] bg-[#FFFFFF] font-['Inter_Tight'] text-sm sm:text-base placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2F80ED] focus:border-transparent"
             required
           />
           
           {/* Icon */}
-          <div className="absolute right-[12px] top-1/2 -translate-y-1/2 flex items-center">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
             {emailIcon}
           </div>
         </div>
@@ -69,7 +69,7 @@ export default function ForgotPasswordForm({ email, onEmailChange, onSubmit }: F
       {/* Continue Button */}
       <button
         type="submit"
-        className="w-[470px] h-[46px] rotate-0 opacity-100 rounded-md pt-[12px] pr-[16px] pb-[12px] pl-[16px] gap-[8px] bg-[#2F80ED] text-white font-['Inter_Tight'] font-medium text-[16px] flex items-center justify-center focus:outline-none hover:bg-[#2670d4] transition-none duration-0"
+        className="w-full h-11 sm:h-12 rounded-md py-3 px-4 bg-[#2F80ED] text-white font-['Inter_Tight'] font-medium text-sm sm:text-base flex items-center justify-center focus:outline-none hover:bg-[#2670d4] active:bg-[#1e5bb8] transition-colors"
       >
         Continue
       </button>
