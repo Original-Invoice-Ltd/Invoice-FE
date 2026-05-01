@@ -915,7 +915,7 @@ export default function CreateInvoicePage () {
         setShowPreview(false);
     };
 
-    const handleSendInvoice = async (): Promise<{ success: boolean; error?: string }> => {
+    const handleSendInvoice = async (email: string): Promise<{ success: boolean; error?: string }> => {
 
         const error = getFirstValidationError();
         if (!canCreateInvoice) {
@@ -929,6 +929,12 @@ export default function CreateInvoicePage () {
         }
         setFormValidationError(null);
         setShowPreview(true);
+
+        // Update billTo with the possibly edited email from modal
+        const updatedBillTo = {
+            ...billTo,
+            email: email
+        };
 
         try {
             setIsSendingInvoice(true);
@@ -973,14 +979,7 @@ export default function CreateInvoicePage () {
                     phoneNumber: billFrom.phoneNumber.startsWith('+234') ? billFrom.phoneNumber : `+234${billFrom.phoneNumber.replace(/^0/, '')}`,
                     businessName: billFrom.businessName,
                 },
-                billTo: {
-                    clientId: selectedClientId,
-                    title: billTo.title,
-                    invoiceNumber: billTo.invoiceNumber,
-                    paymentTerms: billTo.paymentTerms,
-                    invoiceDate: billTo.invoiceDate,
-                    dueDate: billTo.dueDate,
-                },
+                billTo: updatedBillTo,
                 items: items.map(item => ({
                     id: item.id,
                     itemName: item.itemName,

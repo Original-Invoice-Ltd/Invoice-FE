@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
 import dynamic from 'next/dynamic';
 import { useSubscription } from "@/hooks/useSubscription";
-import { formatCurrency as formatCurrencyUtil } from "@/lib/currencyFormatter";
+import { CurrencyCode, formatCurrency as formatCurrencyUtil } from "@/lib/currencyFormatter";
 
 interface InvoiceItem {
     id: number;
@@ -222,7 +222,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
     };
 
     const formatCurrency = (amount: number) => {
-        return formatCurrencyUtil(amount, { currency: data.currency });
+        return formatCurrencyUtil(amount, { currency: data.currency as CurrencyCode });
     };
 
     const formatDate = (dateString: string) => {
@@ -517,10 +517,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                                         <span className="text-gray-900 font-[14px]">WhatsApp</span>
                                     </div>
                                     <span className="text-[10px] text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Coming Soon</span>
-
                                 </button>
-
-                               
                             </div>
                         )}
                     </div>
@@ -657,8 +654,6 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                     </div>
                 </div>
             )}
-
-
             {/* Success Modal */}
             {showSuccessModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
