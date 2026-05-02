@@ -43,9 +43,12 @@ export interface DraftData {
   vat: number;
   wht: number;
   selectedClientId: string;
-  invoiceTaxRate: number;
-  selectedVatId?: string | null;
-  selectedWhtId?: string | null;
+  appliedTaxes: Array<{
+    id: string;
+    name: string;
+    rate: number;
+    taxType: string;
+  }>;
 }
 
 export const useDraft = () => {
@@ -105,12 +108,27 @@ export const useDraft = () => {
               accountName: draftResponse.accountName || '',
               accountNumber: draftResponse.accountNumber || '',
             },
-            vat: 0,
-            wht: 0,
             selectedClientId: draftResponse.billTo?.id || '',
-            invoiceTaxRate: 0,
-            selectedVatId: (draftResponse as any).selectedVatId || null,
-            selectedWhtId: (draftResponse as any).selectedWhtId || null,
+            appliedTaxes: draftResponse.appliedTaxes?.map(t => ({
+              id: String(t.taxId || (t as any).id),
+              name: t.taxName,
+              rate: t.appliedRate || (t as any).taxRate || (t as any).rate,
+              taxType: t.taxType || (t.taxName.toUpperCase().includes('WHT') ? 'WHT' : 'VAT'),
+            })) || [
+              // Fallback for legacy drafts
+              ...((draftResponse as any).vatId ? [{ 
+                id: String((draftResponse as any).vatId), 
+                name: 'Value Added Tax', 
+                rate: (draftResponse as any).vatRate || (draftResponse as any).vat || 7.5, 
+                taxType: 'VAT' 
+              }] : []),
+              ...((draftResponse as any).whtId ? [{ 
+                id: String((draftResponse as any).whtId), 
+                name: 'Withholding Tax', 
+                rate: (draftResponse as any).whtRate || (draftResponse as any).wht || 5, 
+                taxType: 'WHT' 
+              }] : []),
+            ],
           };
           
           // console.log('Transformed draft data:', loadedDraftData);
@@ -151,9 +169,7 @@ export const useDraft = () => {
       data1.vat !== data2.vat ||
       data1.wht !== data2.wht ||
       data1.selectedClientId !== data2.selectedClientId ||
-      data1.invoiceTaxRate !== data2.invoiceTaxRate ||
-      data1.selectedVatId !== data2.selectedVatId ||
-      data1.selectedWhtId !== data2.selectedWhtId
+      JSON.stringify(data1.appliedTaxes) !== JSON.stringify(data2.appliedTaxes)
     ) {
       return false;
     }
@@ -243,7 +259,18 @@ export const useDraft = () => {
       }
 
       const subtotal = draftData.items.reduce((sum, item) => sum + item.amount, 0);
-      const totalDue = subtotal;
+      let totalDue = subtotal;
+      
+      if (draftData.appliedTaxes) {
+        draftData.appliedTaxes.forEach(tax => {
+          const amount = subtotal * (tax.rate / 100);
+          if (tax.taxType?.toUpperCase() === 'WHT' || tax.name?.toUpperCase().includes('WHT')) {
+            totalDue -= amount;
+          } else {
+            totalDue += amount;
+          }
+        });
+      }
 
       const invoiceData: CreateInvoiceData = {
         logo: logoFile,
@@ -278,6 +305,7 @@ export const useDraft = () => {
         invoiceColor: draftData.color,
         subtotal: subtotal,
         totalDue: totalDue,
+        taxIds: draftData.appliedTaxes.map(t => t.id),
         paymentDetails: {
           accountNumber: draftData.paymentDetails.accountNumber,
           accountName: draftData.paymentDetails.accountName,
@@ -321,7 +349,7 @@ export const useDraft = () => {
       }
     } catch (error) {
       return { success: false, error: 'Failed to send draft' };
-    }
+      }
   }, []);
 
   return {

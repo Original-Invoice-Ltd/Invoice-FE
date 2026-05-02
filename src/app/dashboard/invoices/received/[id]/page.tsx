@@ -268,12 +268,33 @@ const ReceivedInvoiceViewPage = () => {
                                     <span className="text-[#667085]">Sub Total</span>
                                     <span className="text-[#101828] font-medium">{formatCurrency(invoice.subtotal, invoice.currency)}</span>
                                 </div>
-                                {invoice.appliedTaxes?.map((tax, index) => (
-                                    <div key={index} className="flex justify-between text-sm">
-                                        <span className="text-[#667085]">{tax.taxName} ({tax.appliedRate}%)</span>
-                                        <span className="text-[#101828] font-medium">{formatCurrency(tax.taxAmount, invoice.currency)}</span>
-                                    </div>
-                                ))}
+                                {invoice.appliedTaxes && invoice.appliedTaxes.length > 0 ? (
+                                    invoice.appliedTaxes.map((tax, index) => (
+                                        <div key={index} className="flex justify-between text-sm">
+                                            <span className="text-[#667085]">{tax.taxName} ({tax.appliedRate}%)</span>
+                                            <span className="text-[#101828] font-medium">{formatCurrency(tax.taxAmount, invoice.currency)}</span>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <>
+                                        {((invoice as any).vatRate > 0 || (invoice as any).vat > 0) && (
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-[#667085]">VAT ({(invoice as any).vatRate || (invoice as any).vat}%)</span>
+                                                <span className="text-[#101828] font-medium">
+                                                    +{formatCurrency(invoice.subtotal * (((invoice as any).vatRate || (invoice as any).vat) / 100), invoice.currency)}
+                                                </span>
+                                            </div>
+                                        )}
+                                        {((invoice as any).whtRate > 0 || (invoice as any).wht > 0) && (
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-[#667085]">WHT ({(invoice as any).whtRate || (invoice as any).wht}%)</span>
+                                                <span className="text-[#101828] font-medium">
+                                                    -{formatCurrency(invoice.subtotal * (((invoice as any).whtRate || (invoice as any).wht) / 100), invoice.currency)}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
                                 <div className="flex justify-between text-sm pt-2 border-t border-[#E4E7EC]">
                                     <span className="text-[#101828] font-semibold">Total</span>
                                     <span className="text-[#101828] font-semibold">{formatCurrency(invoice.totalDue, invoice.currency)}</span>
