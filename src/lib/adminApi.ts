@@ -46,7 +46,7 @@ export interface AdminSubscriptionListResponse {
 export interface TaxType {
   id: string;
   name: string;
-  type: string; // MUST match uppercase enum
+  type: string;
   individualRate: number;
   businessRate: number;
   baseTaxRate: number;

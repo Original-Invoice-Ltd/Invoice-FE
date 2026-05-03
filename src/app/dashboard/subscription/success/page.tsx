@@ -25,24 +25,30 @@ const SubscriptionSuccessContent = () => {
     }
 
     const verifyPayment = async () => {
+      console.log(`[Success Page] Starting payment verification for reference: ${reference}`);
       try {
         const result = await verifySubscription(reference);
+        console.log(`[Success Page] Verification result:=>  `, result);
         
         if (result.success) {
+          console.log(`[Success Page] Subscription activated successfully. Plan: ${result.plan}`);
           setStatus("success");
           setPlan(result.plan as "ESSENTIALS" | "PREMIUM" || "ESSENTIALS");
           setMessage(result.message || "Subscription activated successfully!");
           
+          console.log(`[Success Page] Dispatching subscription-updated event.`);
           window.dispatchEvent(new CustomEvent('subscription-updated'));
-                  setTimeout(() => {
+          setTimeout(() => {
+            console.log(`[Success Page] Redirecting to dashboard overview.`);
             router.push("/dashboard/overview");
           }, 3000);
         } else {
+          console.error(`[Success Page] Payment verification failed: ${result.message}`);
           setStatus("failed");
           setErrorMessage(result.message || "Payment verification failed");
         }
       } catch (error) {
-        console.error("Error verifying payment:", error);
+        console.error("[Success Page] Unexpected error during verification:", error);
         setStatus("failed");
         setErrorMessage("An error occurred while verifying your payment");
       }
