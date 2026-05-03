@@ -58,10 +58,12 @@ const PricingContent = ()=>{
 
     // Handle subscription for paid plans
     const handleSubscribe = async (plan: "ESSENTIALS" | "PREMIUM") => {
+        console.log(`[Pricing] User clicked subscribe for plan: ${plan}`);
         try {
             setIsLoading(plan);
             
             // Initialize transaction with plan
+            console.log(`[Pricing] Initializing transaction for ${plan}...`);
             const result = await initializeTransactionWithPlan(
                 plan,
                 'yearly', // Default to yearly, can be made dynamic
@@ -70,13 +72,15 @@ const PricingContent = ()=>{
             );
 
             if (result.success && result.authorizationUrl) {
+                console.log(`[Pricing] Transaction initialized. Redirecting to Paystack (auth url == ): ${result.authorizationUrl}`);
                 // Redirect to Paystack checkout
                 window.location.href = result.authorizationUrl;
             } else {
-                console.error("Failed to initialize subscription:", result.message);
+                console.error(`[Pricing] Failed to initialize subscription. Message: ${result.message}`);
                 
                 // Check if it's an authentication error
                 if (result.message?.includes("authentication") || result.message?.includes("unauthorized")) {
+                    console.warn(`[Pricing] Unauthorized access. Redirecting to signIn with returnUrl.`);
                     // Redirect to sign in with return URL
                     const returnUrl = encodeURIComponent(`/pricing?plan=${plan}`);
                     router.push(`/signIn?returnUrl=${returnUrl}`);
@@ -85,10 +89,11 @@ const PricingContent = ()=>{
                 }
             }
         } catch (error: any) {
-            console.error("Error starting subscription:", error);
+            console.error("[Pricing] Unexpected error starting subscription:", error);
             
             // Check if it's an authentication error
             if (error.response?.status === 401) {
+                console.warn(`[Pricing] 401 Unauthorized. Redirecting to signIn.`);
                 const returnUrl = encodeURIComponent(`/pricing?plan=${plan}`);
                 router.push(`/signIn?returnUrl=${returnUrl}`);
             } else {

@@ -724,6 +724,26 @@
 //             setWht(loadedDraftData.wht);
 //             setInvoiceTaxRate(loadedDraftData.invoiceTaxRate);
 
+//             // Populate tax IDs from appliedTaxes
+//             if (loadedDraftData.appliedTaxes && loadedDraftData.appliedTaxes.length > 0) {
+//                 const vatTax = loadedDraftData.appliedTaxes.find(t => 
+//                     t.taxType?.toUpperCase() === 'VAT' || 
+//                     t.name?.toUpperCase().includes('VAT') ||
+//                     (!t.taxType?.toUpperCase().includes('WHT') && !t.name?.toUpperCase().includes('WHT'))
+//                 );
+//                 const whtTax = loadedDraftData.appliedTaxes.find(t => 
+//                     t.taxType?.toUpperCase() === 'WHT' || 
+//                     t.name?.toUpperCase().includes('WHT')
+//                 );
+//                 
+//                 if (vatTax) {
+//                     setSelectedVatId(vatTax.id);
+//                 }
+//                 if (whtTax) {
+//                     setSelectedWhtId(whtTax.id);
+//                 }
+//             }
+
 //             if (loadedDraftData.logo) {
 //                 setLogo(loadedDraftData.logo);
 //             }
@@ -2876,7 +2896,15 @@ export default function CreateInvoicePage () {
     };
 
     function getApplicableRate(tax: any, customerType: "INDIVIDUAL" | "BUSINESS") {
-        return customerType === "BUSINESS" ? tax.businessRate : tax.individualRate;
+        // If tax has businessRate/individualRate, use those
+        if (tax.businessRate !== undefined || tax.individualRate !== undefined) {
+            const rate = customerType === "BUSINESS" ? tax.businessRate : tax.individualRate;
+            console.log(`getApplicableRate for ${tax.name}: customerType=${customerType}, businessRate=${tax.businessRate}, individualRate=${tax.individualRate}, returning=${rate}`);
+            return rate;
+        }
+        // Fallback to rate field (for loaded draft taxes)
+        console.log(`getApplicableRate for ${tax.name}: using fallback rate=${tax.rate}`);
+        return tax.rate || 0;
     }
 
     const calculateTaxAmount = (tax: any) => {
@@ -2891,17 +2919,25 @@ export default function CreateInvoicePage () {
         const subtotal = calculateSubtotal();
         let total = subtotal;
         
-        if (hasAccess('taxCompliance')) {
-            selectedTaxes.forEach(tax => {
-                const amount = calculateTaxAmount(tax);
-                if (tax.taxType?.toUpperCase() === 'WHT' || tax.type?.toUpperCase() === 'WHT') {
-                    total -= amount;
-                } else {
-                    total += amount;
-                }
-            });
-        }
+        console.log("Calculating total - Subtotal:", subtotal);
+        console.log("Selected taxes:", selectedTaxes);
+        console.log("Has tax compliance access:", hasAccess('taxCompliance'));
         
+        // Always calculate taxes if they are selected, regardless of access level
+        // The access check should only control whether users can ADD taxes
+        selectedTaxes.forEach(tax => {
+            const amount = calculateTaxAmount(tax);
+            const isWHT = tax.taxType?.toUpperCase() === 'WHT' || tax.type?.toUpperCase() === 'WHT';
+            console.log(`Tax: ${tax.name}, Type: ${tax.taxType || tax.type}, Amount: ${amount}, Is WHT: ${isWHT}`);
+            
+            if (isWHT) {
+                total -= amount;
+            } else {
+                total += amount;
+            }
+        });
+        
+        console.log("Final total:", total);
         return total;
     };
 
@@ -3059,7 +3095,9 @@ export default function CreateInvoicePage () {
             signature,
             paymentDetails,
             selectedClientId,
-            appliedTaxes: selectedTaxes
+            appliedTaxes: selectedTaxes,
+            vat: 0, // Legacy field, kept for compatibility
+            wht: 0  // Legacy field, kept for compatibility
         };
 
         const result = await saveDraft(draftData);
@@ -3141,8 +3179,21 @@ export default function CreateInvoicePage () {
 
             setPaymentDetails(loadedDraftData.paymentDetails);
 
-            if (loadedDraftData.appliedTaxes) {
-                setSelectedTaxes(loadedDraftData.appliedTaxes);
+            if (loadedDraftData.appliedTaxes && loadedDraftData.appliedTaxes.length > 0) {
+                // Match applied taxes with available taxes to get full tax objects
+                if (availableTaxes.length > 0) {
+                    const matchedTaxes = loadedDraftData.appliedTaxes
+                        .map(appliedTax => {
+                            const fullTax = availableTaxes.find(t => t.id === appliedTax.id);
+                            return fullTax || appliedTax;
+                        })
+                        .filter(Boolean);
+                    setSelectedTaxes(matchedTaxes);
+                } else {
+                    // If availableTaxes not loaded yet, set the applied taxes as-is
+                    // They will be matched when availableTaxes loads
+                    setSelectedTaxes(loadedDraftData.appliedTaxes);
+                }
             }
 
             if (loadedDraftData.logo) {
@@ -3152,7 +3203,7 @@ export default function CreateInvoicePage () {
                 setSignature(loadedDraftData.signature);
             }
         }
-    }, [loadedDraftData, isLoadingDraft]);
+    }, [loadedDraftData, isLoadingDraft, availableTaxes]);
 
     useEffect(() => {
         if (loadedDraftData?.selectedClientId && !clientsLoaded) {

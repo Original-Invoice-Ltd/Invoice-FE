@@ -144,6 +144,7 @@ export const initializeTransactionWithPlan = async (
   channels?: string[], 
   callbackUrl?: string
 ): Promise<PaystackInitializeResponse> => {
+  console.log(`[Subscription] Initializing transaction for plan: ${plan}, duration: ${duration}`);
   try {
     const response = await ApiClient.initializeTransactionWithPlan({
       plan,
@@ -151,12 +152,16 @@ export const initializeTransactionWithPlan = async (
       channels,
       callbackUrl
     });
+    
     if (response.status === 200) {
+      console.log(`[Subscription] Transaction initialized successfully`, response.data);
       return response.data;
     }
+    
+    console.error(`[Subscription] Failed to initialize transaction. Status: ${response.status}`, response.error);
     return { success: false, message: response.error || "Failed to initialize transaction" };
   } catch (error) {
-    console.error("Error initializing transaction with plan:", error);
+    console.error("[Subscription] Error during transaction initialization:", error);
     return { success: false, message: "Error initializing transaction" };
   }
 };
@@ -181,14 +186,19 @@ export const cancelSubscription = async (): Promise<{ success: boolean; message:
  * Verify subscription payment
  */
 export const verifySubscription = async (reference: string): Promise<{ success: boolean; message: string; plan?: string; planDisplayName?: string }> => {
+  console.log(`[Subscription] Verifying payment with reference: ${reference}`);
   try {
     const response = await ApiClient.verifySubscription(reference);
+    
     if (response.status === 200) {
+      console.log(`[Subscription] Payment verified successfully`, response.data);
       return response.data;
     }
+    
+    console.error(`[Subscription] Payment verification failed. Status: ${response.status}`, response.error);
     return { success: false, message: response.error || "Failed to verify subscription" };
   } catch (error) {
-    console.error("Error verifying subscription:", error);
+    console.error("[Subscription] Error during payment verification:", error);
     return { success: false, message: "Error verifying subscription" };
   }
 };

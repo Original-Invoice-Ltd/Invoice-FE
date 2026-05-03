@@ -32,16 +32,16 @@ const DashboardPricingPageContent = () => {
 
   useEffect(() => {
     ApiClient.get("/api/admin/system-config/plans/public").then(res => {
-      console.log('[Pricing] API response:', res.status, res.data, res.error);
+      // console.log('[Pricing] API response:', res.status, res.data, res.error);
       if (res.status === 200 && res.data) {
         const data = res.data as any;
         const list = Array.isArray(data) ? data : data.content ?? data.data ?? [];
-        console.log('[Pricing] plans from API:', list);
+        // console.log('[Pricing] plans from API:', list);
         setPlans(list);
       }
       setPlansLoading(false);
     }).catch(err => {
-      console.error('[Pricing] API error:', err);
+      // console.error('[Pricing] API error:', err);
       setPlansLoading(false);
     });
   }, []);
@@ -53,7 +53,7 @@ const DashboardPricingPageContent = () => {
       p.type?.toUpperCase() === planName.toUpperCase()
     );
     if (plan) {
-      console.log(`[Pricing] found plan for ${planName}:`, plan);
+      // console.log(`[Pricing] found plan for ${planName}:`, plan);
       return {
         monthly: plan.monthlyPrice ?? plan.monthly_price ?? plan.priceMonthly ?? 0,
         yearly: plan.annualPrice ?? plan.annual_price ?? plan.priceYearly ?? plan.yearlyPrice ?? 0
@@ -89,26 +89,32 @@ const DashboardPricingPageContent = () => {
   };
 
   const handleSubscribe = async (plan: "ESSENTIALS" | "PREMIUM") => {
+    console.log(`[Dashboard Pricing] User clicked upgrade to plan: ${plan}`);
     try {
       setIsLoading(plan);
       // Initialize transaction with plan and selected billing cycle
+      console.log(`[Dashboard Pricing] Initializing transaction for ${plan} (${billingCycle})...`);
       const result = await initializeTransactionWithPlan(
         plan,
         billingCycle,
         ["card", "bank_transfer"],
         `${window.location.origin}/dashboard/subscription/success`
       );
-      console.log("Payment result : ", result)
+      
+      console.log("[Dashboard Pricing] Initialization response:", result);
+      
       if (result.success && result.authorizationUrl) {
+        console.log(`[Dashboard Pricing] Redirecting to Paystack (payment url): ${result.authorizationUrl}`);
         window.location.href = result.authorizationUrl;
       } else {
-        console.error("Failed to initialize subscription:", result.message);
+        console.error(`[Dashboard Pricing] Failed to initialize subscription: ${result.message}`);
         showError("Failed to start subscription process. Please try again.");
       }
     } catch (error: any) {
-      console.error("Error starting subscription:", error);
+      console.error("[Dashboard Pricing] Unexpected error starting subscription:", error);
       
       if (error.response?.status === 401) {
+        console.warn("[Dashboard Pricing] 401 Unauthorized. Redirecting to signIn.");
         const returnUrl = encodeURIComponent(`/dashboard/pricing?plan=${plan}`);
         router.push(`/signIn?returnUrl=${returnUrl}`);
       } else {
