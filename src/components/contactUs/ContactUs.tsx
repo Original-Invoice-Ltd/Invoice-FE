@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Image from "next/image";
+import Link from "next/link";
 import Header from "@/components/header";
 import Footer from "@/components/footer/Footer";
 import Toast from '@/components/ui/Toast';
@@ -153,9 +154,11 @@ export default function ContactUs() {
             <p className="text-[16px] md:text-[18px] text-[#333436] max-w-[800px] mx-auto leading-relaxed mb-[24px] md:mb-[26px] px-[16px]">
               Whether you have questions, feedback, partnership requests, or need support—our team is always <br />ready to assis you.
             </p>
-            <button className="bg-[#2F80ED] px-[20px] md:px-[24px] py-[8px] md:py-[8px] text-white rounded-[8px] font-medium text-[14px] md:text-[16px] hover:bg-[#2563EB]">
-              Start Your Free Trial Today
-            </button>
+            <Link href="/signIn">
+              <button className="bg-[#2F80ED] px-[20px] md:px-[24px] py-[8px] md:py-[8px] text-white rounded-[8px] font-medium text-[14px] md:text-[16px] hover:bg-[#2563EB]">
+                Start Your Free Trial Today
+              </button>
+            </Link>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-[40px] lg:gap-[60px] xl:gap-[100px] items-start">

@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const HeroSection: React.FC = () => {
   return (
@@ -29,9 +30,11 @@ const HeroSection: React.FC = () => {
             </p>
             
             {/* CTA Button */}
-            <button className="bg-blue-600 text-white rounded-md hover:bg-blue-700 transition px-4 py-3 font-medium text-sm md:text-base w-fit">
-              Start Your Free Trial Today
-            </button>
+            <Link href="/signIn">
+              <button className="bg-blue-600 text-white rounded-md hover:bg-blue-700 transition px-4 py-3 font-medium text-sm md:text-base w-fit">
+                Start Your Free Trial Today
+              </button>
+            </Link>
           </div>
           
           {/* Right Column - Image */}
