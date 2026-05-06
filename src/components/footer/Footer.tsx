@@ -44,7 +44,7 @@ export default function Footer() {
               </ul>
             </div>
 
-            <div>
+            {/* <div>
               <h3 className="text-white text-[14px] font-semibold mb-[16px]">Solutions</h3>
               <ul className="space-y-[8px]">
                 <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Freelancers</a></li>
@@ -52,7 +52,7 @@ export default function Footer() {
                 <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Enterprises</a></li>
                 <li><a href="#" className="text-white text-[14px] font-normal hover:text-gray-200">Agencies</a></li>
               </ul>
-            </div>
+            </div> */}
 
             <div className="col-span-2 lg:col-span-1">
               <h3 className="text-white text-[14px] font-semibold mb-[16px]">Company</h3>
