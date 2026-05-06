@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const VisionMissionSection: React.FC = () => {
   return (
@@ -56,9 +57,11 @@ const VisionMissionSection: React.FC = () => {
               </p>
             </div>
             
-            <button className="bg-[#2F80ED] text-white hover:bg-blue-700 transition font-medium rounded-lg px-4 py-3 w-full md:w-[180px]">
-              Create Invoice
-            </button>
+            <Link href="/signIn">
+              <button className="bg-[#2F80ED] text-white hover:bg-blue-700 transition font-medium rounded-lg px-4 py-3 w-full md:w-[180px]">
+                Create Invoice
+              </button>
+            </Link>
           </div>
         </div>
       </div>
