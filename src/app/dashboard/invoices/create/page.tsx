@@ -4536,7 +4536,7 @@ export default function CreateInvoicePage () {
                                     <div className="space-y-4">
                                         <div>
                                             <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Bank Account <span className="text-red-500">*</span>
+                                                Bank <span className="text-red-500">*</span>
                                             </label>
                                             <div className="relative">
                                                 <input
