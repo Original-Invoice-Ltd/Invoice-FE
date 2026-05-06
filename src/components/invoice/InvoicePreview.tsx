@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/ui/Toast";
 import dynamic from 'next/dynamic';
 import { useSubscription } from "@/hooks/useSubscription";
-import { formatCurrency as formatCurrencyUtil } from "@/lib/currencyFormatter";
+import { CurrencyCode, formatCurrency as formatCurrencyUtil } from "@/lib/currencyFormatter";
 
 interface InvoiceItem {
     id: number;
@@ -53,10 +53,11 @@ interface InvoiceData {
         accountName: string;
         accountNumber: string;
     };
-    vat: number;
-    wht: number;
-    selectedClientId: string;
-    invoiceTaxRate: number;
+    appliedTaxes?: Array<{
+        name: string;
+        rate: number;
+        taxType: string;
+    }>;
 }
 
 interface InvoicePreviewProps {
@@ -209,20 +210,28 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
         return data.items.reduce((sum, item) => sum + item.amount, 0);
     };
 
-    const calculateVAT = () => {
-        return calculateSubtotal() * (data.vat / 100);
-    };
-
-    const calculateWHT = () => {
-        return calculateSubtotal() * (data.wht / 100);
-    };
-
     const calculateTotal = () => {
-        return calculateSubtotal() + calculateVAT() + calculateWHT();
+        let total = calculateSubtotal();
+        if (data.appliedTaxes && data.appliedTaxes.length > 0) {
+            data.appliedTaxes.forEach(tax => {
+                const amount = calculateSubtotal() * (tax.rate / 100);
+                if (tax.taxType?.toUpperCase() === 'WHT' || tax.name?.toUpperCase().includes('WHT')) {
+                    total -= amount;
+                } else {
+                    total += amount;
+                }
+            });
+        } else {
+            // Backward compatibility for legacy invoices
+            const vat = (data as any).vat || 0;
+            const wht = (data as any).wht || 0;
+            total = total + (total * (vat / 100)) - (total * (wht / 100));
+        }
+        return total;
     };
 
     const formatCurrency = (amount: number) => {
-        return formatCurrencyUtil(amount, { currency: data.currency });
+        return formatCurrencyUtil(amount, { currency: data.currency as CurrencyCode });
     };
 
     const formatDate = (dateString: string) => {
@@ -385,14 +394,35 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                                             <span className="text-gray-600">Sub Total</span>
                                             <span className="text-gray-900">{formatCurrency(calculateSubtotal())}</span>
                                         </div>
-                                        <div className="flex justify-between py-1">
-                                            <span className="text-gray-600">VAT ({data.vat}%)</span>
-                                            <span className="text-gray-900">{formatCurrency(calculateVAT())}</span>
-                                        </div>
-                                        <div className="flex justify-between py-1">
-                                            <span className="text-gray-600">WHT ({data.wht}%)</span>
-                                            <span className="text-gray-900">{formatCurrency(calculateWHT())}</span>
-                                        </div>
+                                        {data.appliedTaxes && data.appliedTaxes.length > 0 ? (
+                                            data.appliedTaxes.map((tax, index) => {
+                                                const amount = calculateSubtotal() * (tax.rate / 100);
+                                                const isDeduction = tax.taxType?.toUpperCase() === 'WHT' || tax.name?.toUpperCase().includes('WHT');
+                                                return (
+                                                    <div key={index} className="flex justify-between py-1">
+                                                        <span className="text-gray-600">{tax.name} ({tax.rate}%)</span>
+                                                        <span className="text-gray-900">
+                                                            {isDeduction ? '-' : ''}{formatCurrency(amount)}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })
+                                        ) : (
+                                            <>
+                                                {((data as any).vat > 0) && (
+                                                    <div className="flex justify-between py-1">
+                                                        <span className="text-gray-600">VAT ({(data as any).vat}%)</span>
+                                                        <span className="text-gray-900">+{formatCurrency(calculateSubtotal() * ((data as any).vat / 100))}</span>
+                                                    </div>
+                                                )}
+                                                {((data as any).wht > 0) && (
+                                                    <div className="flex justify-between py-1">
+                                                        <span className="text-gray-600">WHT ({(data as any).wht}%)</span>
+                                                        <span className="text-gray-900">-{formatCurrency(calculateSubtotal() * ((data as any).wht / 100))}</span>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
                                         <div className="flex justify-between py-2">
                                             <span className="text-gray-900 font-medium">Total</span>
                                             <span className="text-gray-900 font-medium">{formatCurrency(calculateTotal())}</span>
@@ -517,10 +547,7 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                                         <span className="text-gray-900 font-[14px]">WhatsApp</span>
                                     </div>
                                     <span className="text-[10px] text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Coming Soon</span>
-
                                 </button>
-
-                               
                             </div>
                         )}
                     </div>
@@ -657,8 +684,6 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                     </div>
                 </div>
             )}
-
-
             {/* Success Modal */}
             {showSuccessModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

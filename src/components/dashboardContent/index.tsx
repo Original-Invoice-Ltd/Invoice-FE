@@ -517,8 +517,12 @@ const DashboardContent = () => {
                 <div className="w-[392px] bg-white p-4 rounded-xl border border-[#E4E7EC] flex flex-col">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-[#101828]">{t('status')}</h3>
-                        <button className="flex items-center gap-2 text-sm text-[#667085]">
-                            {t('monthly')}
+                        <button 
+                            onClick={handleTrendsPeriodChange}
+                            disabled={loading.trends}
+                            className="flex items-center gap-2 text-sm text-[#667085] hover:text-[#2F80ED] disabled:opacity-50"
+                        >
+                            {trendsPeriod === 'month' ? t('monthly') : t('annually')}
                             <ChevronDown size={16} />
                         </button>
                     </div>
@@ -539,7 +543,7 @@ const DashboardContent = () => {
                                             <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
                                     </Pie>
-                                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                                    <Tooltip formatter={(value) => formatCurrency(value as number)} />
                                 </PieChart>
                             </ResponsiveContainer>
                         )}
@@ -567,8 +571,12 @@ const DashboardContent = () => {
             <div className="lg:hidden bg-white p-4 rounded-xl border border-[#E4E7EC] mb-6">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-base font-semibold text-[#101828]">{t('status')}</h3>
-                    <button className="flex items-center gap-2 text-xs text-[#667085]">
-                        {t('monthly')}
+                    <button 
+                        onClick={handleTrendsPeriodChange}
+                        disabled={loading.trends}
+                        className="flex items-center gap-2 text-xs text-[#667085] hover:text-[#2F80ED] disabled:opacity-50"
+                    >
+                        {trendsPeriod === 'month' ? t('monthly') : t('annually')}
                         <ChevronDown size={16} />
                     </button>
                 </div>
@@ -591,7 +599,7 @@ const DashboardContent = () => {
                                                 <Cell key={`cell-${index}`} fill={entry.color} />
                                             ))}
                                         </Pie>
-                                        <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                                        <Tooltip formatter={(value) => formatCurrency(value as number)} />
                                     </PieChart>
                                 </ResponsiveContainer>
                             )}

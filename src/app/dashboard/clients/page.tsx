@@ -82,14 +82,12 @@ const ClientsPage = () => {
         loadClients();
     }, []);
 
-    // Close dropdowns when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target as Node)) {
                 setShowSortDropdown(false);
             }
             
-            // Close action menus
             Object.entries(actionMenuRefs.current).forEach(([clientId, ref]) => {
                 if (ref && !ref.contains(event.target as Node)) {
                     if (showActionMenu === clientId) {
@@ -107,7 +105,6 @@ const ClientsPage = () => {
         try {
             setIsLoadingClients(true);
             
-            // Try to load from cache first if not forcing refresh
             if (!forceRefresh) {
                 const cachedClients = ClientCache.get();
                 if (cachedClients) {
