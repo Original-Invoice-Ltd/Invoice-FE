@@ -2896,7 +2896,12 @@ export default function CreateInvoicePage () {
     };
 
     function getApplicableRate(tax: any, customerType: "INDIVIDUAL" | "BUSINESS") {
-        // If tax has businessRate/individualRate, use those
+        // If tax has an appliedCustomerType (user explicitly selected), use that
+        if (tax.appliedCustomerType) {
+            return tax.appliedCustomerType === "BUSINESS" ? tax.businessRate : tax.individualRate;
+        }
+        
+        // If tax has businessRate/individualRate, use those based on customer type
         if (tax.businessRate !== undefined || tax.individualRate !== undefined) {
             const rate = customerType === "BUSINESS" ? tax.businessRate : tax.individualRate;
             console.log(`getApplicableRate for ${tax.name}: customerType=${customerType}, businessRate=${tax.businessRate}, individualRate=${tax.individualRate}, returning=${rate}`);
@@ -4366,10 +4371,14 @@ export default function CreateInvoicePage () {
                                         const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
                                         const rate = getApplicableRate(tax, customerType);
                                         const isDeduction = tax.taxType?.toUpperCase() === 'WHT' || tax.type?.toUpperCase() === 'WHT';
+                                        const appliedType = tax.appliedCustomerType || customerType;
                                         return (
                                             <div key={`${tax.id}-${index}`} className="flex justify-between items-center">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-[#667085] text-[14px]">{tax.name} ({rate}%)</span>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[#667085] text-[13px] leading-tight">{tax.name} ({rate}%)</span>
+                                                        <span className="text-[#98A2B3] text-[10px] leading-tight">{appliedType === 'BUSINESS' ? 'Business' : 'Individual'}</span>
+                                                    </div>
                                                     <button
                                                         onClick={() => setSelectedTaxes(prev => prev.filter((_, i) => i !== index))}
                                                         className="text-[#F04438] hover:text-red-700"
@@ -4398,43 +4407,54 @@ export default function CreateInvoicePage () {
                                                 Apply Tax
                                             </button>
                                             {showTaxDropdown && (
-                                                <div className="absolute z-20 left-0 mt-1 w-64 bg-white border border-[#D0D5DD] rounded-lg shadow-lg">
+                                                <div className="absolute z-20 left-0 mt-1 w-64 bg-white border border-[#D0D5DD] rounded-lg shadow-lg max-h-80 overflow-y-auto">
                                                     {availableTaxes.length === 0 ? (
-                                                        <div className="px-4 py-3 text-sm text-[#667085] text-center">No taxes configured</div>
-                                                    ) : (() => {
-                                                    
-                                                        // if (availableTaxes.length === 0) {
-                                                        //     return <div className="px-4 py-3 text-sm text-[#667085] text-center">All taxes applied</div>;
-                                                        // }
-                                                        return (
-                                                            <div className="py-1">
-                                                                {availableTaxes.map(tax => {
-                                                                    const selectedClient = clients.find(c => c.id === selectedClientId) as any;
-                                                                    const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
-                                                                    const rate = getApplicableRate(tax, customerType);
-                                                                    const taxType = tax.taxType || tax.type;
-                                                                    return (
+                                                        <div className="px-3 py-2 text-xs text-[#667085] text-center">No taxes configured</div>
+                                                    ) : (
+                                                        <div className="py-1">
+                                                            {availableTaxes.map(tax => {
+                                                                const taxType = tax.taxType || tax.type;
+                                                                const individualRate = tax.individualRate || 0;
+                                                                const businessRate = tax.businessRate || 0;
+                                                                
+                                                                return (
+                                                                    <div key={tax.id} className="border-b border-[#F2F4F7] last:border-0">
                                                                         <div
-                                                                            key={tax.id}
                                                                             onClick={() => {
-                                                                                setSelectedTaxes(prev => [...prev, tax]);
+                                                                                setSelectedTaxes(prev => [...prev, { ...tax, appliedCustomerType: 'INDIVIDUAL' }]);
                                                                                 setShowTaxDropdown(false);
                                                                             }}
-                                                                            className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-[#F9FAFB] transition-colors border-b border-[#F2F4F7] last:border-0"
+                                                                            className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-[#F9FAFB] transition-colors"
                                                                         >
-                                                                            <div>
-                                                                                <p className="text-[14px] font-medium text-[#344054]">{tax.name}</p>
-                                                                                <p className="text-[12px] text-[#667085]">{taxType} · {rate}%</p>
+                                                                            <div className="flex-1">
+                                                                                <p className="text-[11px] font-medium text-[#344054] leading-tight">{tax.name}</p>
+                                                                                <p className="text-[10px] text-[#667085] leading-tight">Individual · {individualRate}%</p>
                                                                             </div>
-                                                                            <span className={`text-[13px] font-semibold px-2 py-0.5 rounded-full ${taxType === "VAT" ? "bg-green-50 text-green-600" : "bg-red-50 text-red-500"}`}>
-                                                                                {taxType === "VAT" ? "+" : "-"}{rate}%
+                                                                            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${taxType === "VAT" ? "bg-green-50 text-green-600" : "bg-red-50 text-red-500"}`}>
+                                                                                {taxType === "VAT" ? "+" : "-"}{individualRate}%
                                                                             </span>
                                                                         </div>
-                                                                    );
-                                                                })}
-                                                            </div>
-                                                        );
-                                                    })()}
+                                                                        
+                                                                        <div
+                                                                            onClick={() => {
+                                                                                setSelectedTaxes(prev => [...prev, { ...tax, appliedCustomerType: 'BUSINESS' }]);
+                                                                                setShowTaxDropdown(false);
+                                                                            }}
+                                                                            className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-[#F9FAFB] transition-colors"
+                                                                        >
+                                                                            <div className="flex-1">
+                                                                                <p className="text-[11px] font-medium text-[#344054] leading-tight">{tax.name}</p>
+                                                                                <p className="text-[10px] text-[#667085] leading-tight">Business · {businessRate}%</p>
+                                                                            </div>
+                                                                            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${taxType === "VAT" ? "bg-green-50 text-green-600" : "bg-red-50 text-red-500"}`}>
+                                                                                {taxType === "VAT" ? "+" : "-"}{businessRate}%
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
