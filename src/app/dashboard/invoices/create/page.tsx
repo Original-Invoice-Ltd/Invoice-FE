@@ -934,7 +934,7 @@ export default function CreateInvoicePage () {
                     rate: item.rate,
                     amount: item.amount,
                 })),
-                taxIds: [selectedVatId, selectedWhtId].filter((id): id is string => id !== null),
+                taxIds: selectedTaxes.map(t => t.id),
                 note: customerNote,
                 termsAndConditions: termsAndConditions,
                 signature: signatureFile,
