@@ -883,7 +883,12 @@ export default function CreateInvoicePage () {
         setShowPreview(true);
 
         const updatedBillTo = {
-            ...billTo,
+            clientId: selectedClientId,
+            title: billTo.title,
+            invoiceNumber: billTo.invoiceNumber,
+            paymentTerms: billTo.paymentTerms,
+            invoiceDate: billTo.invoiceDate,
+            dueDate: billTo.dueDate,
             email: email
         };
 
