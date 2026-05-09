@@ -2719,7 +2719,7 @@ export default function CreateInvoicePage () {
     const handleSaveNewClient = async () => {
         setClientFormError(null);
         if (!newClientForm.customerType || !newClientForm.title || !newClientForm.fullName ||
-            !newClientForm.businessName || !newClientForm.email || !newClientForm.phone) {
+            !newClientForm.email || !newClientForm.phone) {
             setClientFormError('Please fill in all required fields');
             return;
         }
@@ -4556,7 +4556,7 @@ export default function CreateInvoicePage () {
                                     <div className="space-y-4">
                                         <div>
                                             <label className="block text-sm font-medium text-[#344054] mb-2">
-                                                Bank Account <span className="text-red-500">*</span>
+                                                Bank <span className="text-red-500">*</span>
                                             </label>
                                             <div className="relative">
                                                 <input
@@ -4795,7 +4795,7 @@ export default function CreateInvoicePage () {
 
                             <div>
                                 <label className="block text-[13px] font-medium text-[#344054] mb-1">
-                                    Business Name<span className="text-red-500">*</span>
+                                    Business Name
                                 </label>
                                 <input
                                     type="text"

@@ -1,7 +1,13 @@
+'use client';
+
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
 const VisionMissionSection: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+  
   return (
     <section className="py-10 md:py-20 px-4 md:px-6">
       <div className="max-w-7xl mx-auto">
@@ -56,9 +62,11 @@ const VisionMissionSection: React.FC = () => {
               </p>
             </div>
             
-            <button className="bg-[#2F80ED] text-white hover:bg-blue-700 transition font-medium rounded-lg px-4 py-3 w-full md:w-[180px]">
-              Create Invoice
-            </button>
+            <Link href={isAuthenticated ? "/dashboard/invoices/create" : "/signIn"}>
+              <button className="bg-[#2F80ED] text-white hover:bg-blue-700 transition font-medium rounded-lg px-4 py-3 w-full md:w-[180px]">
+                Create Invoice
+              </button>
+            </Link>
           </div>
         </div>
       </div>

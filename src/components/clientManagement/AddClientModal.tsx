@@ -94,7 +94,7 @@ const AddClientModal = ({ isOpen, formData, onClose, onSave, onChange, isLoading
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-[#344054] mb-2">Business Name*</label>
+                            <label className="block text-sm font-medium text-[#344054] mb-2">Business Name</label>
                             <input
                                 type="text"
                                 placeholder="Enter business name"
