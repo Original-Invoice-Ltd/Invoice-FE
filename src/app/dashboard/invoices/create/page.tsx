@@ -4795,7 +4795,7 @@ export default function CreateInvoicePage () {
 
                             <div>
                                 <label className="block text-[13px] font-medium text-[#344054] mb-1">
-                                    Business  Name
+                                    Business Name
                                 </label>
                                 <input
                                     type="text"
