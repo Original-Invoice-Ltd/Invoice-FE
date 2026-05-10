@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense, useMemo } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -40,30 +40,12 @@ const DashboardPricingPageContent = () => {
         setPlans(list);
       }
       setPlansLoading(false);
-    }).catch(err => {
+    }).catch(() => {
       // console.error('[Pricing] API error:', err);
       setPlansLoading(false);
     });
   }, []);
 
-  const getPlanPricing = (planName: string) => {
-    const plan = plans.find(p =>
-      p.name?.toUpperCase() === planName.toUpperCase() ||
-      p.planName?.toUpperCase() === planName.toUpperCase() ||
-      p.type?.toUpperCase() === planName.toUpperCase()
-    );
-    if (plan) {
-      // console.log(`[Pricing] found plan for ${planName}:`, plan);
-      return {
-        monthly: plan.monthlyPrice ?? plan.monthly_price ?? plan.priceMonthly ?? 0,
-        yearly: plan.annualPrice ?? plan.annual_price ?? plan.priceYearly ?? plan.yearlyPrice ?? 0
-      };
-    }
-    // Fallback defaults commented out — must come from API
-    // if (planName === "ESSENTIALS") return { monthly: 24000, yearly: Math.round(24000 * 12 * 0.9) };
-    // if (planName === "PREMIUM") return { monthly: 120000, yearly: Math.round(120000 * 12 * 0.9) };
-    return { monthly: 0, yearly: 0 };
-  };
   useEffect(() => {
     const urlBillingCycle = searchParams?.get('billingCycle') as 'monthly' | 'yearly';
     if (urlBillingCycle && (urlBillingCycle === 'monthly' || urlBillingCycle === 'yearly')) {
@@ -71,21 +53,8 @@ const DashboardPricingPageContent = () => {
     }
   }, [searchParams]);
 
-  // Plan pricing - fetched from API, with fallback defaults
-  const planPricing = useMemo(() => ({
-    essentials: getPlanPricing("ESSENTIALS"),
-    premium: getPlanPricing("PREMIUM"),
-  }), [plans, billingCycle]);
-
   const formatPrice = (amount: number) => {
     return `₦${amount.toLocaleString()}`;
-  };
-
-  const getYearlyDiscount = (monthly: number, yearly: number) => {
-    const monthlyTotal = monthly * 12;
-    const savings = monthlyTotal - yearly;
-    const percentage = 10; // Fixed 10% discount
-    return { savings, percentage };
   };
 
   const handleSubscribe = async (plan: "ESSENTIALS" | "PREMIUM") => {
@@ -129,16 +98,6 @@ const DashboardPricingPageContent = () => {
     return currentSubscription?.plan === plan;
   };
 
-  const getButtonText = (plan: string) => {
-    if (isCurrentPlan(plan)) {
-      return t("current_plan_label");
-    }
-    if (isLoading === plan) {
-      return t("processing");
-    }
-    return plan === "ESSENTIALS" ? t("upgrade_to_essentials") : t("upgrade_to_premium");
-  };
-
   if (loadingSubscription) {
     return (
       <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
@@ -159,93 +118,24 @@ const DashboardPricingPageContent = () => {
                 onClose={hideToast}
               />
       {/* Header */}
-      <div className="mb-8">
-        {/* Desktop Layout */}
-        <div className="hidden md:flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard/overview" className="p-2 text-[#2F80ED] hover:bg-[#EFF8FF] rounded-lg transition-colors">
-              <ArrowLeft size={24} />
+      <div className="flex flex-col gap-4 mb-6">
+        <div className="flex flex-row items-center gap-4">
+          <div className="flex flex-row justify-center items-center p-3 w-12 h-12">
+            <Link href="/dashboard/overview" className="text-[#2F80ED] hover:opacity-80 transition-opacity">
+              <ArrowLeft size={24} strokeWidth={1.5} />
             </Link>
-            <div>
-              <h1 className="text-[24px] font-semibold text-[#101828]">{t("subscription_plans")}</h1>
-              <p className="text-[#667085]">{t("choose_plan_fits")}</p>
-            </div>
           </div>
-          
-          {/* Billing Cycle Toggle - Right Side */}
-          <div className="flex items-center bg-[#F9FAFB] rounded-lg p-1 border border-[#E4E7EC]">
-            <button
-              onClick={() => setBillingCycle('monthly')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                billingCycle === 'monthly'
-                  ? 'bg-white text-[#2F80ED] shadow-sm border border-[#E4E7EC]'
-                  : 'text-[#667085] hover:text-[#344054]'
-              }`}
-            >
-              {t("monthly") || "Monthly"}
-            </button>
-            <button
-              onClick={() => setBillingCycle('yearly')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 relative ${
-                billingCycle === 'yearly'
-                  ? 'bg-white text-[#2F80ED] shadow-sm border border-[#E4E7EC]'
-                  : 'text-[#667085] hover:text-[#344054]'
-              }`}
-            >
-              {t("yearly") || "Yearly"}
-              <span className="absolute -top-2 -right-1 bg-[#10B981] text-white text-xs px-1.5 py-0.5 rounded-full">
-                {getYearlyDiscount(planPricing.essentials.monthly, planPricing.essentials.yearly).percentage}% {t("off") || "off"}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Layout */}
-        <div className="md:hidden">
-          <div className="flex items-center gap-4 mb-4">
-            <Link href="/dashboard/overview" className="p-2 text-[#2F80ED] hover:bg-[#EFF8FF] rounded-lg transition-colors">
-              <ArrowLeft size={24} />
-            </Link>
-            <div>
-              <h1 className="text-[20px] font-semibold text-[#101828]">{t("subscription_plans")}</h1>
-              <p className="text-[#667085] text-sm">{t("choose_plan_fits")}</p>
-            </div>
-          </div>
-          
-          {/* Billing Cycle Toggle - Centered on Mobile */}
-          <div className="flex justify-center">
-            <div className="flex items-center bg-[#F9FAFB] rounded-lg p-1 border border-[#E4E7EC]">
-              <button
-                onClick={() => setBillingCycle('monthly')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                  billingCycle === 'monthly'
-                    ? 'bg-white text-[#2F80ED] shadow-sm border border-[#E4E7EC]'
-                    : 'text-[#667085] hover:text-[#344054]'
-                }`}
-              >
-                {t("monthly") || "Monthly"}
-              </button>
-              <button
-                onClick={() => setBillingCycle('yearly')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 relative ${
-                  billingCycle === 'yearly'
-                    ? 'bg-white text-[#2F80ED] shadow-sm border border-[#E4E7EC]'
-                    : 'text-[#667085] hover:text-[#344054]'
-                }`}
-              >
-                {t("yearly") || "Yearly"}
-                <span className="absolute -top-2 -right-1 bg-[#10B981] text-white text-xs px-1.5 py-0.5 rounded-full">
-                  {getYearlyDiscount(planPricing.essentials.monthly, planPricing.essentials.yearly).percentage}% {t("off") || "off"}
-                </span>
-              </button>
-            </div>
+          <div className="flex flex-col gap-1">
+            <h1 className="text-[20px] font-semibold leading-[120%] text-[#000000] font-inter-tight">
+              Pricing
+            </h1>
           </div>
         </div>
       </div>
 
       {/* Current Plan Banner */}
       {currentSubscription && currentSubscription.plan !== "FREE" && (
-        <div className="mb-8 bg-white rounded-lg border border-[#E4E7EC] p-6">
+        <div className="mb-8 bg-white rounded-lg border border-[#E4E7EC] p-6 max-w-[1115px] mx-auto">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-[18px] font-semibold text-[#101828] mb-1">
@@ -265,93 +155,195 @@ const DashboardPricingPageContent = () => {
         </div>
       )}
 
-      {/* Pricing Cards */}
-      <div className="max-w-6xl mx-auto">
-        {plansLoading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED]"></div>
-          </div>
-        ) : plans.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-lg border border-[#E4E7EC]">
-            <p className="text-[#667085] text-lg font-medium">No plans available</p>
-            <p className="text-[#98A2B3] text-sm mt-2">Please check back later or contact support.</p>
-          </div>
-        ) : (
-        <div className={`grid grid-cols-1 md:grid-cols-${Math.min(plans.length, 3)} gap-8`}>
-          {plans.map((plan) => {
-            const planKey = plan.name?.toUpperCase();
-            const isFree = plan.monthlyPrice === 0 && plan.annualPrice === 0;
-            const price = billingCycle === 'monthly' ? plan.monthlyPrice : plan.annualPrice;
-            const monthlySavings = plan.monthlyPrice * 12 - plan.annualPrice;
-            const isCurrent = isCurrentPlan(planKey);
-            const features: string[] = Array.isArray(plan.features) ? plan.features : [];
-
-            return (
-              <div key={plan.id ?? plan.name} className="bg-white rounded-lg border border-[#E4E7EC] p-6 relative">
-                {isCurrent && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-[#2F80ED] text-white px-3 py-1 rounded-full text-sm font-medium">
-                      {t("current_plan_label")}
-                    </span>
-                  </div>
-                )}
-
-                <div className="text-center mb-6">
-                  <h3 className="text-[24px] font-semibold text-[#101828] mb-2">{plan.name}</h3>
-                  <div className="text-[36px] font-bold text-[#101828] mb-1">
-                    {isFree ? "₦0" : formatPrice(price ?? 0)}
-                  </div>
-                  {!isFree && (
-                    <p className="text-[#667085]">
-                      {billingCycle === 'monthly' ? (t("per_month") || "per month") : (t("per_year_text") || "per year")}
-                    </p>
-                  )}
-                  {!isFree && billingCycle === 'yearly' && monthlySavings > 0 && (
-                    <p className="text-xs text-[#10B981] mt-1">
-                      {t("save") || "Save"} {formatPrice(monthlySavings)} {t("annually") || "annually"}
-                    </p>
-                  )}
-                  {plan.description && <p className="text-[#667085] text-sm mt-1">{plan.description}</p>}
-                </div>
-
-                {features.length > 0 && (
-                  <ul className="space-y-3 mb-8">
-                    {features.map((f, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <Check size={20} className="text-[#10B981] mt-0.5 flex-shrink-0" />
-                        <span className="text-[#344054]">{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                <div className="grid grid-cols-2 gap-2 mb-6 text-xs text-[#667085]">
-                  <div className="bg-[#F9FAFB] rounded p-2 text-center">
-                    <p className="font-semibold text-[#344054]">{plan.maxInvoices >= 999 ? "∞" : plan.maxInvoices}</p>
-                    <p>Max Invoices</p>
-                  </div>
-                  <div className="bg-[#F9FAFB] rounded p-2 text-center">
-                    <p className="font-semibold text-[#344054]">{plan.maxLogos >= 999 ? "∞" : plan.maxLogos}</p>
-                    <p>Max Logos</p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => !isFree && !isCurrent && handleSubscribe(planKey as "ESSENTIALS" | "PREMIUM")}
-                  disabled={isCurrent || isLoading === planKey || isFree}
-                  className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-                    isCurrent || isFree
-                      ? "bg-[#F9FAFB] text-[#667085] border border-[#E4E7EC] cursor-not-allowed"
-                      : "bg-[#2F80ED] text-white hover:bg-[#1E6FCC] disabled:opacity-50 disabled:cursor-not-allowed"
+      {/* Main Container */}
+      <div className="flex flex-col items-start gap-4 max-w-[1115px] mx-auto">
+        {/* White Container with Border */}
+        <div className="flex flex-col items-center pt-5 gap-6 w-full bg-white border border-[#EDEDED] rounded-lg">
+          {/* Actions - Toggle Section */}
+          <div className="flex flex-row justify-center items-center gap-3 w-full px-4">
+            <div className="flex flex-row items-center gap-6">
+              <span 
+                className={`text-[16px] md:text-[22px] font-medium leading-[120%] text-center font-inter-tight cursor-pointer whitespace-nowrap ${
+                  billingCycle === 'monthly' ? 'text-[#000000]' : 'text-[#7D7F81]'
+                }`}
+                onClick={() => setBillingCycle('monthly')}
+              >
+                Monthly
+              </span>
+              
+              {/* Toggle Switch */}
+              <button
+                onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
+                className={`flex flex-row items-center p-0.5 w-11 h-6 rounded-full relative transition-all ${
+                  billingCycle === 'yearly' ? 'bg-[#2F80ED]' : 'bg-[#E8E9ED]'
+                }`}
+              >
+                <div 
+                  className={`w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${
+                    billingCycle === 'yearly' ? 'translate-x-5' : 'translate-x-0'
                   }`}
-                >
-                  {isCurrent ? t("current_plan_label") : isFree ? t("free") : isLoading === planKey ? t("processing") : `Upgrade to ${plan.name}`}
-                </button>
+                />
+              </button>
+              
+              <span 
+                className={`text-[16px] md:text-[22px] font-medium leading-[120%] text-center font-inter-tight cursor-pointer whitespace-nowrap ${
+                  billingCycle === 'yearly' ? 'text-[#000000]' : 'text-[#7D7F81]'
+                }`}
+                onClick={() => setBillingCycle('yearly')}
+              >
+                Annually
+              </span>
+            </div>
+            
+            {/* Save Chip - Always visible */}
+            <div className="flex flex-row justify-center items-center px-2 gap-1 h-6 bg-[#E7FEF8] border-[0.5px] border-[#40C4AA] rounded-md whitespace-nowrap">
+              <span className="text-[12px] font-medium leading-[140%] tracking-[0.01em] text-[#40C4AA] font-lato">
+                Save up to 17%
+              </span>
+            </div>
+          </div>
+
+          {/* Pricing Cards Container */}
+          <div className="relative w-full pb-8">
+            {plansLoading ? (
+              <div className="flex items-center justify-center py-16">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2F80ED]"></div>
               </div>
-            );
-          })}
+            ) : plans.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-[#667085] text-lg font-medium">No plans available</p>
+                <p className="text-[#98A2B3] text-sm mt-2">Please check back later or contact support.</p>
+              </div>
+            ) : (
+              <div className="flex flex-row items-center justify-center gap-6 flex-wrap px-4">
+                {plans.map((plan) => {
+                  const planKey = plan.name?.toUpperCase();
+                  const isFree = plan.monthlyPrice === 0 && plan.annualPrice === 0;
+                  const price = billingCycle === 'monthly' ? plan.monthlyPrice : plan.annualPrice;
+                  const monthlySavings = plan.monthlyPrice * 12 - plan.annualPrice;
+                  const isCurrent = isCurrentPlan(planKey);
+                  const features: string[] = Array.isArray(plan.features) ? plan.features : [];
+
+                  return (
+                    <div 
+                      key={plan.id ?? plan.name} 
+                      className={`relative flex flex-col items-start w-[344px] bg-white rounded-2xl ${
+                        isFree ? 'border border-[#2F80ED]' : 'border border-[#E9EAEB]'
+                      } shadow-[0px_5px_13px_-5px_rgba(10,9,11,0.05),0px_2px_4px_-1px_rgba(10,9,11,0.02)]`}
+                    >
+                      {/* Call out for Free Plan */}
+                      {isFree && (
+                        <div className="absolute -top-6 right-[85px] flex items-center">
+                          <span className="text-[14px] font-semibold leading-5 text-[#2F80ED] font-sans">
+                            Active Plan
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Header */}
+                      <div className="flex flex-col items-center pt-6 px-8 gap-4 w-full">
+                        {/* Price */}
+                        <div className="text-[48px] font-semibold leading-[60px] tracking-[-0.02em] text-center text-[#000000] font-inter-tight">
+                          {isFree ? "₦0" : formatPrice(price ?? 0)}
+                        </div>
+                        
+                        {/* Heading and supporting text */}
+                        <div className="flex flex-col items-start gap-1 w-full">
+                          <h3 className="text-[20px] font-semibold leading-[30px] text-center text-[#000000] w-full font-inter-tight">
+                            {plan.name}
+                          </h3>
+                          <p className="text-[16px] font-normal leading-[140%] tracking-[0.01em] text-center text-[#333436] w-full font-inter-tight">
+                            {isFree 
+                              ? "for 3 invoices" 
+                              : billingCycle === 'monthly' 
+                                ? "/year" 
+                                : plan.description || "Perfect for small businesses and freelancers"
+                            }
+                          </p>
+                          {!isFree && billingCycle === 'yearly' && monthlySavings > 0 && (
+                            <p className="text-[14px] font-normal leading-[140%] tracking-[0.01em] text-center text-[#2F80ED] w-full font-inter-tight">
+                              Save {formatPrice(monthlySavings)}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex flex-col items-start pt-8 px-8 pb-10 gap-6 w-full">
+                        {/* Check items */}
+                        {features.length > 0 && (
+                          <div className="flex flex-col items-start gap-4 w-full">
+                            {features.slice(0, 6).map((feature, i) => (
+                              <div key={i} className="flex flex-row items-start gap-3 w-full">
+                                {/* Icon */}
+                                <div className="w-6 h-6 flex-shrink-0 relative">
+                                  <Check size={20} className="text-[#2F80ED] absolute top-1 left-1" strokeWidth={1.5} />
+                                </div>
+                                {/* Text */}
+                                <div className="flex flex-col items-start flex-1">
+                                  <span className="text-[16px] font-normal leading-[140%] tracking-[0.01em] text-[#333436] font-inter-tight">
+                                    {feature}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Max Invoices/Logos Grid */}
+                        <div className="grid grid-cols-2 gap-2 w-full text-xs text-[#667085]">
+                          <div className="bg-[#F9FAFB] rounded p-2 text-center">
+                            <p className="font-semibold text-[#344054]">{plan.maxInvoices >= 999 ? "∞" : plan.maxInvoices}</p>
+                            <p>Max Invoices</p>
+                          </div>
+                          <div className="bg-[#F9FAFB] rounded p-2 text-center">
+                            <p className="font-semibold text-[#344054]">{plan.maxLogos >= 999 ? "∞" : plan.maxLogos}</p>
+                            <p>Max Logos</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Footer */}
+                      <div className="flex flex-col items-start px-8 pb-3 gap-3 w-full">
+                        {/* Button */}
+                        <button
+                          onClick={() => !isFree && !isCurrent && handleSubscribe(planKey as "ESSENTIALS" | "PREMIUM")}
+                          disabled={isCurrent || isLoading === planKey || isFree}
+                          className={`flex flex-row justify-center items-center py-3 px-4 gap-2 w-full h-[46px] rounded-lg transition-colors ${
+                            isFree
+                              ? "bg-[#EFF8FF] text-[#3A97F7]"
+                              : isCurrent
+                                ? "bg-[#F9FAFB] text-[#667085] border border-[#E4E7EC] cursor-not-allowed"
+                                : "bg-[#2F80ED] text-white hover:bg-[#1E6FCC] disabled:opacity-50 disabled:cursor-not-allowed"
+                          }`}
+                        >
+                          <span className="text-[16px] font-medium leading-[140%] tracking-[0.01em] text-center font-inter-tight">
+                            {isCurrent 
+                              ? t("current_plan_label") 
+                              : isFree 
+                                ? "Current Plan" 
+                                : isLoading === planKey 
+                                  ? t("processing") 
+                                  : `Upgrade Now`
+                            }
+                          </span>
+                        </button>
+                        
+                        {/* Supporting text */}
+                        <p className="text-[14px] font-normal leading-[140%] tracking-[0.01em] text-center text-[#333436] w-full font-inter-tight">
+                          {isFree 
+                            ? "No credit card required" 
+                            : plan.description || "Perfect for small businesses and freelancers"
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
-        )}
       </div>
     </div>
   );
