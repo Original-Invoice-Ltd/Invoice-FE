@@ -158,7 +158,8 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                 setSubmitError(result.error || 'Failed to send invoice via email');
             }
         } catch (error) {
-            setSubmitError('An unexpected error occurred');
+            console.error("Error sending invoice: ", error);
+            setSubmitError('Something went wrong, Pls try agin later.');
         } finally {
             setIsSubmitting(false);
         }
