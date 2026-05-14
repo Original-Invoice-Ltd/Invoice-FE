@@ -10,6 +10,7 @@ module.exports = {
       fontFamily: {
         'sans': ['Inter Tight', 'sans-serif'],
         'inter-tight': ['Inter Tight', 'sans-serif'],
+        'lato': ['Lato', 'sans-serif'],
       },
     },
   },
