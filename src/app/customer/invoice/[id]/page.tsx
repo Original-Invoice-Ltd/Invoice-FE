@@ -69,7 +69,7 @@ export default function EmailInvoicePage() {
                         <p className="text-gray-600">Loading invoice...</p>
                     </div>
                 </div>
-            {/* </CustomerLayout> */}
+            // </CustomerLayout>
         );
     }
 
