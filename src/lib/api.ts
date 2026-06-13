@@ -13,7 +13,7 @@ import {
   SendDraftErrorResponse,
 } from "@/types/draft";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8089';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 // Single axios instance for direct backend communication with HTTP-only cookies
 const axiosInstance = axios.create({
