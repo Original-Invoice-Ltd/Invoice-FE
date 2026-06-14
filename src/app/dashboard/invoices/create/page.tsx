@@ -338,9 +338,9 @@ export default function CreateInvoicePage () {
         accountNumber: ""
     });
 
-    const [vat, setVat] = useState(7.5);
-    const [wht, setWht] = useState(5);
-    const [invoiceTaxRate, setInvoiceTaxRate] = useState(7.5);
+    const [vat, setVat] = useState(0);
+    const [wht, setWht] = useState(0);
+    const [invoiceTaxRate, setInvoiceTaxRate] = useState(0);
 
     const getCurrencySymbol = (code: string) => {
         return CURRENCY_SYMBOLS[code as CurrencyCode] || code;
@@ -375,8 +375,7 @@ export default function CreateInvoicePage () {
             language !== "English" ||
             color !== "#2F80ED" ||
             template !== "default" ||
-            vat !== 7.5 ||
-            wht !== 5 ||
+            selectedTaxes.length > 0 ||
             invoiceTaxRate !== 0 ||
             selectedClientId.trim() !== "";
 
@@ -1080,6 +1079,19 @@ export default function CreateInvoicePage () {
     };
 
     if (showPreview) {
+        // Transform selectedTaxes to include computed rate for preview
+        const selectedClient = clients.find(c => c.id === selectedClientId) as any;
+        const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
+        
+        const transformedTaxes = selectedTaxes.map(tax => {
+            const rate = getApplicableRate(tax, customerType);
+            return {
+                name: tax.name,
+                rate: rate,
+                taxType: tax.taxType || tax.type
+            };
+        });
+
         return (
             <InvoicePreview
                 data={{
@@ -1095,8 +1107,9 @@ export default function CreateInvoicePage () {
                     color,
                     template,
                     paymentDetails,
-                    vat,
-                    wht,
+                    appliedTaxes: transformedTaxes,
+                    vat: 0,
+                    wht: 0,
                     selectedClientId,
                     invoiceTaxRate
                 }}
