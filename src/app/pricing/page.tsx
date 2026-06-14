@@ -11,6 +11,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { initializeTransactionWithPlan } from "@/lib/subscription";
 import PricingCard, { PricingPlan } from "@/components/pricing/PricingCard";
 import { pricingPlansData, BillingCycle } from "@/data/pricingPlans";
+import { useToast } from "@/hooks/useToast";
+import Toast from "@/components/ui/Toast";
 
 const PricingContent = ()=>{
     const [currentCard, setCurrentCard] = useState(0);
@@ -20,6 +22,7 @@ const PricingContent = ()=>{
     const [billingCycle, setBillingCycle] = useState<BillingCycle>("yearly");
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { toast, showError, hideToast } = useToast();
 
     // Minimum swipe distance (in px)
     const minSwipeDistance = 50;
@@ -88,7 +91,7 @@ const PricingContent = ()=>{
                     const returnUrl = encodeURIComponent(`/pricing?plan=${plan}`);
                     router.push(`/signIn?returnUrl=${returnUrl}`);
                 } else {
-                    alert("Failed to start subscription process. Please try again.");
+                    showError("Failed to start subscription process. Please try again.");
                 }
             }
         } catch (error: any) {
@@ -100,7 +103,7 @@ const PricingContent = ()=>{
                 const returnUrl = encodeURIComponent(`/pricing?plan=${plan}`);
                 router.push(`/signIn?returnUrl=${returnUrl}`);
             } else {
-                alert("An error occurred. Please try again.");
+                showError("An error occurred. Please try again.");
             }
         } finally {
             setIsLoading(null);
@@ -141,6 +144,12 @@ const PricingContent = ()=>{
 
     return(
         <>
+            <Toast
+                message={toast.message}
+                type={toast.type}
+                isVisible={toast.isVisible}
+                onClose={hideToast}
+            />
             <div className="min-h-screen flex flex-col w-full overflow-hidden">
                 <div className="relative overflow-hidden" style={{ backgroundImage: "url('/assets/Background pattern.svg')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
                     {/* Top Right Eclipse - 80% visible inside page */}
