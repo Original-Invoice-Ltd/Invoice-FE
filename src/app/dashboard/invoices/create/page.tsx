@@ -1079,6 +1079,19 @@ export default function CreateInvoicePage () {
     };
 
     if (showPreview) {
+        // Transform selectedTaxes to include computed rate for preview
+        const selectedClient = clients.find(c => c.id === selectedClientId) as any;
+        const customerType = selectedClient?.customerType?.toUpperCase() === "BUSINESS" ? "BUSINESS" : "INDIVIDUAL";
+        
+        const transformedTaxes = selectedTaxes.map(tax => {
+            const rate = getApplicableRate(tax, customerType);
+            return {
+                name: tax.name,
+                rate: rate,
+                taxType: tax.taxType || tax.type
+            };
+        });
+
         return (
             <InvoicePreview
                 data={{
@@ -1094,7 +1107,7 @@ export default function CreateInvoicePage () {
                     color,
                     template,
                     paymentDetails,
-                    appliedTaxes: selectedTaxes,
+                    appliedTaxes: transformedTaxes,
                     vat: 0,
                     wht: 0,
                     selectedClientId,
