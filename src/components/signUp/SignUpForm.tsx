@@ -313,7 +313,14 @@ export default function SignUpForm({ formData, onInputChange, onSubmit, loading 
           <label htmlFor="terms" className="text-[13px] text-[#666666] font-['Inter_Tight'] leading-relaxed">
             By creating an account means you agree to the{' '}
             <span className="text-[#2F80ED]">Terms and Conditions</span>, and our{' '}
-            <span className="text-[#2F80ED]">Privacy Policy</span>
+            <a 
+              href="https://sites.google.com/view/originalinvoice/home" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-[#2F80ED] hover:underline"
+            >
+              Privacy Policy
+            </a>
           </label>
         </div>
         {errors.terms && (
