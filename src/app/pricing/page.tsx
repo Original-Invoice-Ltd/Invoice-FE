@@ -9,14 +9,20 @@ import Testimonials from "@/components/testimonials";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { initializeTransactionWithPlan } from "@/lib/subscription";
+import PricingCard, { PricingPlan } from "@/components/pricing/PricingCard";
+import { pricingPlansData, BillingCycle } from "@/data/pricingPlans";
+import { useToast } from "@/hooks/useToast";
+import Toast from "@/components/ui/Toast";
 
 const PricingContent = ()=>{
     const [currentCard, setCurrentCard] = useState(0);
     const [isLoading, setIsLoading] = useState<string | null>(null); // Track which button is loading
     const [touchStart, setTouchStart] = useState<number | null>(null);
     const [touchEnd, setTouchEnd] = useState<number | null>(null);
+    const [billingCycle, setBillingCycle] = useState<BillingCycle>("yearly");
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { toast, showError, hideToast } = useToast();
 
     // Minimum swipe distance (in px)
     const minSwipeDistance = 50;
@@ -63,10 +69,10 @@ const PricingContent = ()=>{
             setIsLoading(plan);
             
             // Initialize transaction with plan
-            console.log(`[Pricing] Initializing transaction for ${plan}...`);
+            console.log(`[Pricing] Initializing transaction for ${plan} (${billingCycle})...`);
             const result = await initializeTransactionWithPlan(
                 plan,
-                'yearly', // Default to yearly, can be made dynamic
+                billingCycle, // Use the current billing cycle state
                 ["card", "bank_transfer"], // Allow both card and bank transfer
                 `${window.location.origin}/dashboard/subscription/success` // Callback URL
             );
@@ -85,7 +91,7 @@ const PricingContent = ()=>{
                     const returnUrl = encodeURIComponent(`/pricing?plan=${plan}`);
                     router.push(`/signIn?returnUrl=${returnUrl}`);
                 } else {
-                    alert("Failed to start subscription process. Please try again.");
+                    showError("Failed to start subscription process. Please try again.");
                 }
             }
         } catch (error: any) {
@@ -97,7 +103,7 @@ const PricingContent = ()=>{
                 const returnUrl = encodeURIComponent(`/pricing?plan=${plan}`);
                 router.push(`/signIn?returnUrl=${returnUrl}`);
             } else {
-                alert("An error occurred. Please try again.");
+                showError("An error occurred. Please try again.");
             }
         } finally {
             setIsLoading(null);
@@ -109,8 +115,41 @@ const PricingContent = ()=>{
         router.push("/signUp");
     };
 
+    // Map pricing data to PricingPlan with actions
+    const getPricingPlans = (): PricingPlan[] => {
+        return pricingPlansData.map(planData => {
+            // Get pricing based on billing cycle
+            const pricing = billingCycle === "monthly" && planData.pricing.monthly 
+                ? planData.pricing.monthly 
+                : planData.pricing.yearly;
+
+            return {
+                id: planData.id,
+                name: planData.name,
+                price: pricing.price,
+                period: pricing.period,
+                savings: (pricing as any).savings as string | undefined,
+                description: planData.description,
+                features: planData.features,
+                buttonText: planData.buttonText,
+                buttonAction: planData.planType === "FREE" 
+                    ? handleFreeTrial 
+                    : () => handleSubscribe(planData.planType as "ESSENTIALS" | "PREMIUM"),
+                isLoading: isLoading === planData.planType
+            };
+        });
+    };
+
+    const pricingPlans = getPricingPlans();
+
     return(
         <>
+            <Toast
+                message={toast.message}
+                type={toast.type}
+                isVisible={toast.isVisible}
+                onClose={hideToast}
+            />
             <div className="min-h-screen flex flex-col w-full overflow-hidden">
                 <div className="relative overflow-hidden" style={{ backgroundImage: "url('/assets/Background pattern.svg')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
                     {/* Top Right Eclipse - 80% visible inside page */}
@@ -152,26 +191,37 @@ const PricingContent = ()=>{
                         
                         {/* Toggle */}
                         <div className="flex items-center gap-[12px] lg:gap-[16px] mb-[40px] lg:mb-[60px] flex-wrap justify-center">
-                            <span className="text-[16px] lg:text-[20px] font-medium text-[#7D7F81]">Monthly</span>
+                            <span className={`text-[16px] lg:text-[20px] font-medium ${billingCycle === "monthly" ? "text-[#000000]" : "text-[#7D7F81]"}`}>
+                                Monthly
+                            </span>
                             <label className="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" className="sr-only peer" />
+                                <input 
+                                    type="checkbox" 
+                                    className="sr-only peer" 
+                                    checked={billingCycle === "yearly"}
+                                    onChange={(e) => setBillingCycle(e.target.checked ? "yearly" : "monthly")}
+                                />
                                 <div className="w-[44px] h-[24px] bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[20px] after:w-[20px] after:transition-all peer-checked:bg-[#2F80ED]"></div>
                             </label>
-                            <span className="text-[16px] lg:text-[20px] font-medium text-[#000000]">Annually</span>
-                            <span className="h-[24px] px-2 bg-[#E7FEF8] flex items-center justify-center text-[#059669] border-[0.5px] border-[#40C4AA] text-[12px] font-medium rounded-[6px]">
-                                Save up to 17%
-                            </span>
+                            <div className="flex items-center gap-[8px]">
+                                <span className={`text-[16px] lg:text-[20px] font-medium ${billingCycle === "yearly" ? "text-[#000000]" : "text-[#7D7F81]"}`}>
+                                    Annually
+                                </span>
+                                <span className="h-[24px] px-2 bg-[#E7FEF8] flex items-center justify-center text-[#059669] border-[0.5px] border-[#40C4AA] text-[12px] font-medium rounded-[6px]">
+                                    Save up to 17%
+                                </span>
+                            </div>
                         </div>
                         
                         {/* Most Popular Arrow - positioned above cards - Desktop only */}
                         <div className="hidden lg:block relative w-[1254px] mb-[40px]">
-                            <div className="absolute left-[280px] top-[-50px] flex flex-col items-end">
+                            <div className="absolute left-[590px] top-[-50px] flex flex-col items-end">
                                 <span className="text-[#2F80ED] text-[14px] mb-[8px] font-medium">
                                     Most popular!
                                 </span>
                                 <Image
                                     src={arrowDown}
-                                    alt="Arrow pointing to free trial"
+                                    alt="Arrow pointing to essentials"
                                     width={56}
                                     height={20}
                                 />
@@ -189,305 +239,33 @@ const PricingContent = ()=>{
                                     onTouchMove={onTouchMove}
                                     onTouchEnd={onTouchEnd}
                                 >
-                                    {/* Free Trial Card */}
-                                    <div className="w-full flex-shrink-0 flex justify-center px-4">
-                                        <div className="w-full max-w-[343px] bg-white rounded-[16px] border border-[#E9EAEB] shadow-sm p-[24px] flex flex-col">
-                                            <h2 className="text-[40px] text-center font-semibold text-[#000000] mb-[8px]">₦0</h2>
-                                            <h3 className="text-[18px] text-center font-medium text-[#000] mb-[4px]">Free Trial</h3>
-                                            <p className="text-[14px] text-center text-[#333436] mb-[24px]">for 3 Invoices</p>
-                                            
-                                            <div className="flex flex-col gap-[12px] mb-[24px] flex-1">
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">3 Invoices to test the platform</span>
-                                                </div>
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">Tax calculator (VAT, WHT, PAYE)</span>
-                                                </div>
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">Basic invoice templates</span>
-                                                </div>
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">Email & WhatsApp sharing</span>
-                                                </div>
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">Payment tracking</span>
-                                                </div>
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">Email & WhatsApp sharing</span>
-                                                </div>
-                                            </div>
-x
-                                            <button 
-                                                onClick={handleFreeTrial}
-                                                className="w-full h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors"
-                                            >
-                                                Start Free Trial
-                                            </button>
-                                            <p className="text-[12px] text-[#333436] text-center mt-[12px]">No credit card required</p>
+                                    {pricingPlans.map((plan) => (
+                                        <div key={plan.id} className="w-full flex-shrink-0 flex justify-center px-4">
+                                            <PricingCard plan={plan} isMobile={true} />
                                         </div>
-                                    </div>
-
-                                    {/* Essentials Card */}
-                                    <div className="w-full flex-shrink-0 flex justify-center px-4">
-                                        <div className="w-full max-w-[343px] bg-white rounded-[16px] border border-[#E9EAEB] shadow-sm pb-[12px] pt-[24px] px-[24px] flex flex-col">
-                                            <h2 className="text-[40px] text-center font-semibold text-[#000] mb-[8px]">₦24,000</h2>
-                                            <h3 className="text-[18px] text-center font-medium text-[#000] mb-[4px]">Essentials</h3>
-                                            <p className="text-[14px] text-center text-[#333436] mb-[4px]">/year</p>
-                                            <p className="text-[14px] text-center text-[#2F80ED] mb-[24px]">Save ₦9,600</p>
-                                            
-                                            <div className="flex flex-col gap-[12px] mb-[24px] flex-1">
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">Up to 10 invoices per month</span>
-                                                </div>
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">Autofill client & item info</span>
-                                                </div>
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">Tax calculator (VAT, WHT, PAYE)</span>
-                                                </div>
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">1 custom logo upload</span>
-                                                </div>
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">1 company profile</span>
-                                                </div>
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">Top-rated mobile app</span>
-                                                </div>
-                                            </div>
-                                            
-                                            <button 
-                                                onClick={() => handleSubscribe("ESSENTIALS")}
-                                                disabled={isLoading === "ESSENTIALS"}
-                                                className="h-[46px] w-full bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                {isLoading === "ESSENTIALS" ? "Processing..." : "Get Started"}
-
-                                            </button>
-                                            <p className="text-[12px] text-[#333436] text-center mt-[12px]">Perfect for small businesses and freelancers</p>
-                                        </div>
-                                    </div>
-
-                                    {/* Premium Card */}
-                                    <div className="w-full flex-shrink-0 flex justify-center px-4">
-                                        <div className="w-full max-w-[343px] bg-white rounded-[16px] border border-[#E9EAEB] shadow-sm pb-[12px] pt-[24px] px-[24px] flex flex-col">
-                                            <h2 className="text-[40px] text-center font-semibold text-[#000] mb-[8px]">₦120,000</h2>
-                                            <h3 className="text-[18px] text-center font-medium text-[#000] mb-[4px]">Premium</h3>
-                                            <p className="text-[14px] text-center text-[#333436] mb-[4px]">/year</p>
-                                            <p className="text-[14px] text-center text-[#2F80ED] mb-[24px]">Save ₦60,000</p>
-                                            
-                                            <div className="flex flex-col gap-[12px] mb-[24px] flex-1">
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">Everything in Essentials, plus:</span>
-                                                </div>
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">Unlimited invoices per month</span>
-                                                </div>
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">Client signatures</span>
-                                                </div>
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">Multiple custom logos</span>
-                                                </div>
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">Premium invoice templates</span>
-                                                </div>
-                                                <div className="flex items-start gap-[12px]">
-                                                    <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                                    <span className="text-[14px] text-[#333436]">Multiple company profiles</span>
-                                                </div>
-                                            </div>
-                                            
-                                            <button 
-                                                onClick={() => handleSubscribe("PREMIUM")}
-                                                disabled={isLoading === "PREMIUM"}
-                                                className="w-full h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                {isLoading === "PREMIUM" ? "Processing..." : "Start Premium"}
-
-                                            </button>
-                                            <p className="text-[12px] text-[#333436] text-center mt-[12px]">For growing businesses with high invoice volume</p>
-                                        </div>
-                                    </div>
+                                    ))}
                                 </div>
 
                                 {/* Carousel Indicators */}
                                 <div className="flex justify-center gap-[8px] mt-[24px]">
-                                    <button
-                                        onClick={() => setCurrentCard(0)}
-                                        className={`w-[8px] h-[8px] rounded-full transition-all ${
-                                            currentCard === 0 ? 'bg-[#2F80ED] w-[24px]' : 'bg-[#D9D9D9]'
-                                        }`}
-                                        aria-label="View Free Trial plan"
-                                    />
-                                    <button
-                                        onClick={() => setCurrentCard(1)}
-                                        className={`w-[8px] h-[8px] rounded-full transition-all ${
-                                            currentCard === 1 ? 'bg-[#2F80ED] w-[24px]' : 'bg-[#D9D9D9]'
-                                        }`}
-                                        aria-label="View Essentials plan"
-                                    />
-                                    <button
-                                        onClick={() => setCurrentCard(2)}
-                                        className={`w-[8px] h-[8px] rounded-full transition-all ${
-                                            currentCard === 2 ? 'bg-[#2F80ED] w-[24px]' : 'bg-[#D9D9D9]'
-                                        }`}
-                                        aria-label="View Premium plan"
-                                    />
+                                    {pricingPlans.map((_, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => setCurrentCard(index)}
+                                            className={`w-[8px] h-[8px] rounded-full transition-all ${
+                                                currentCard === index ? 'bg-[#2F80ED] w-[24px]' : 'bg-[#D9D9D9]'
+                                            }`}
+                                            aria-label={`View ${pricingPlansData[index].name} plan`}
+                                        />
+                                    ))}
                                 </div>
                             </div>
 
                             {/* Desktop Layout */}
                             <div className="hidden lg:flex items-center justify-center gap-[24px]">
-                                {/* Free Trial Card */}
-                                <div className="w-[384px] h-[564px] bg-white rounded-[16px] border border-[#E9EAEB] shadow-sm p-[32px] flex flex-col">
-                                <h2 className="text-[40px] lg:text-[48px] text-center font-semibold text-[#000000] mb-[8px]">₦0</h2>
-                                <h3 className="text-[18px] lg:text-[20px] text-center font-medium text-[#000] mb-[4px]">Free Trial</h3>
-                                <p className="text-[14px] text-center text-[#333436] mb-[24px] lg:mb-[32px]">for 3 Invoices</p>
-                                
-                                <div className="flex flex-col gap-[12px] lg:gap-[16px] mb-[24px] lg:mb-[32px] flex-1">
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">3 Invoices to test the platform</span>
-                                    </div>
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">Tax calculator (VAT, WHT, PAYE)</span>
-                                    </div>
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">Basic invoice templates</span>
-                                    </div>
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">Email & WhatsApp sharing</span>
-                                    </div>
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">Payment tracking</span>
-                                    </div>
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">Email & WhatsApp sharing</span>
-                                    </div>
-                                </div>
-                                
-                                <button 
-                                    onClick={handleFreeTrial}
-                                    className="w-[320px] h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors"
-                                >
-
-                                    Start Free Trial
-                                </button>
-                                <p className="text-[12px] text-[#333436] text-center mt-[12px]">No credit card required</p>
-                            </div>
-                            
-                            {/* Essentials Card */}
-                            <div className="w-[384px] h-[564px] bg-white rounded-[16px] border border-[#E9EAEB] shadow-sm pb-[12px] pt-[24px] px-[32px] flex flex-col">
-                                <h2 className="text-[40px] lg:text-[48px] text-center font-semibold text-[#000] mb-[8px]">₦24,000</h2>
-                                <h3 className="text-[18px] lg:text-[20px] text-center font-medium text-[#000] mb-[4px]">Essentials</h3>
-                                <p className="text-[14px] text-center text-[#333436] mb-[4px]">/year</p>
-                                <p className="text-[14px] text-center text-[#2F80ED] mb-[24px] lg:mb-[32px]">Save ₦9,600</p>
-                                
-                                <div className="flex flex-col gap-[12px] lg:gap-[16px] mb-[24px] lg:mb-[32px] flex-1">
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">Up to 10 invoices per month</span>
-                                    </div>
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">Autofill client & item info</span>
-                                    </div>
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">Tax calculator (VAT, WHT, PAYE)</span>
-                                    </div>
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">1 custom logo upload</span>
-                                    </div>
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">1 company profile</span>
-                                    </div>
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">Top-rated mobile app</span>
-                                    </div>
-                                </div>
-
-                                <button 
-                                    onClick={() => handleSubscribe("ESSENTIALS")}
-                                    disabled={isLoading === "ESSENTIALS"}
-                                    className="h-[46px] w-[320px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {isLoading === "ESSENTIALS" ? "Processing..." : "Get Started"}
-
-                                </button>
-                                <p className="text-[12px] text-[#333436] text-center mt-[12px]">Perfect for small businesses and freelancers</p>
-                            </div>
-                            
-                            {/* Premium Card */}
-                            <div className="w-[384px] h-[564px] bg-white rounded-[16px] border border-[#E9EAEB] shadow-sm pb-[12px] pt-[24px] px-[32px] flex flex-col">
-                                <h2 className="text-[40px] lg:text-[48px] text-center font-semibold text-[#000] mb-[8px]">₦120,000</h2>
-                                <h3 className="text-[18px] lg:text-[20px] text-center font-medium text-[#000] mb-[4px]">Premium</h3>
-                                <p className="text-[14px] text-center text-[#333436] mb-[4px]">/year</p>
-                                <p className="text-[14px] text-center text-[#2F80ED] mb-[24px] lg:mb-[32px]">Save ₦60,000</p>
-                                
-                                <div className="flex flex-col gap-[12px] lg:gap-[16px] mb-[24px] lg:mb-[32px] flex-1">
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">Everything in Essentials, plus:</span>
-                                    </div>
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">Unlimited invoices per month</span>
-                                    </div>
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">Client signatures</span>
-                                    </div>
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">Multiple custom logos</span>
-                                    </div>
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">Premium invoice templates</span>
-                                    </div>
-                                    <div className="flex items-start gap-[12px]">
-                                        <Image src="/assets/blue tick.svg" alt="" width={20} height={20} className="mt-[2px] flex-shrink-0" />
-                                        <span className="text-[14px] text-[#333436]">Multiple company profiles</span>
-                                    </div>
-                                </div>
-                                
-                                <button 
-                                    onClick={() => handleSubscribe("PREMIUM")}
-                                    disabled={isLoading === "PREMIUM"}
-                                    className="w-full h-[46px] bg-[#2F80ED] text-white rounded-[8px] font-medium text-[16px] hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {isLoading === "PREMIUM" ? "Processing..." : "Start Premium"}
-
-                                </button>
-                                <p className="text-[12px] text-[#333436] text-center mt-[12px]">For growing businesses with high invoice volume</p>
-                            </div>
+                                {pricingPlans.map((plan) => (
+                                    <PricingCard key={plan.id} plan={plan} isMobile={false} />
+                                ))}
                             </div>
                         </div>
                     </div>
