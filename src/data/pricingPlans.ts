@@ -52,9 +52,9 @@ export const pricingPlansData: PricingPlanData[] = [
                 period: "/month"
             },
             yearly: {
-                price: "₦19,920",
+                price: "₦21,600",
                 period: "/year",
-                savings: "Save ₦4,080"
+                savings: "Save ₦2,400"
             }
         },
         description: "Perfect for small businesses and freelancers",
@@ -70,7 +70,7 @@ export const pricingPlansData: PricingPlanData[] = [
         ],
         buttonText: "Get Started",
         planType: "ESSENTIALS",
-        savingsPercentage: "Save up to 17%"
+        savingsPercentage: "Save up to 10%"
     },
     {
         id: "premium",
@@ -81,9 +81,9 @@ export const pricingPlansData: PricingPlanData[] = [
                 period: "/month"
             },
             yearly: {
-                price: "₦49,800",
+                price: "₦54,000",
                 period: "/year",
-                savings: "Save ₦10,200"
+                savings: "Save ₦6,000"
             }
         },
         description: "For growing businesses with high invoice volume",
@@ -98,6 +98,6 @@ export const pricingPlansData: PricingPlanData[] = [
         ],
         buttonText: "Start Premium",
         planType: "PREMIUM",
-        savingsPercentage: "Save up to 17%"
+        savingsPercentage: "Save up to 10%"
     }
 ];
