@@ -111,18 +111,24 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
 
         try {
             let normalizedPhone = phoneNumber.trim();
+            
+            // Convert Nigerian local format to international format
             if (normalizedPhone.startsWith('0')) {
                 normalizedPhone = '+234' + normalizedPhone.substring(1);
+            } else if (!normalizedPhone.startsWith('+')) {
+                // If no country code and doesn't start with 0, assume it's Nigerian and add +234
+                normalizedPhone = '+234' + normalizedPhone;
             }
 
-            if (!ApiClient.isValidPhone(normalizedPhone)) {
-                setErrorMessage('Invalid phone number format. Use +234********** format');
+            // Validate the normalized phone number
+            if (!normalizedPhone.match(/^\+234[0-9]{10}$/)) {
+                setErrorMessage('Invalid phone number. Please enter a valid 11-digit Nigerian number');
                 setIsSubmitting(false);
                 return;
             }
 
             if (onSendWhatsApp) {
-                const result = await onSendWhatsApp(normalizedPhone, message);
+                const result = await onSendWhatsApp(normalizedPhone, "");
                 if (result.success) {
                     setSubmitSuccess(true);
                     setShowWhatsAppModal(false);
@@ -635,29 +641,26 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                                         type="tel"
                                         value={phoneNumber}
                                         onChange={(e) => {
-                                            setPhoneNumber(e.target.value);
+                                            // Remove all non-numeric characters except + at the start
+                                            const cleaned = e.target.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
+                                            setPhoneNumber(cleaned);
                                             setErrorMessage(null);
                                         }}
-                                        placeholder="+234*************"
+                                        onPaste={(e) => {
+                                            e.preventDefault();
+                                            const pastedText = e.clipboardData.getData('text');
+                                            // Clean pasted text: remove spaces, dashes, parentheses, and other non-numeric chars
+                                            const cleaned = pastedText.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
+                                            setPhoneNumber(cleaned);
+                                            setErrorMessage(null);
+                                        }}
+                                        placeholder="07047300083"
                                         className="w-full px-3 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                     <svg className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M18.3333 14.1V16.6C18.3343 16.8321 18.2867 17.0618 18.1937 17.2745C18.1008 17.4871 17.9644 17.678 17.7934 17.8349C17.6224 17.9918 17.4205 18.1113 17.2006 18.1856C16.9808 18.26 16.7478 18.2876 16.5167 18.2667C13.9523 17.9881 11.4892 17.1118 9.32498 15.7083C7.31151 14.4289 5.60443 12.7219 4.32499 10.7083C2.91663 8.53438 2.04019 6.05917 1.76665 3.48334C1.74583 3.25293 1.77321 3.02067 1.84707 2.80139C1.92092 2.58211 2.03963 2.38061 2.19562 2.20972C2.35162 2.03883 2.54149 1.90229 2.75314 1.80881C2.9648 1.71534 3.19348 1.66692 3.42499 1.66667H5.92499C6.32941 1.66273 6.72148 1.80594 7.02812 2.06965C7.33476 2.33336 7.53505 2.69958 7.59165 3.10001C7.69717 3.9001 7.89286 4.68565 8.17499 5.44167C8.2871 5.73998 8.31137 6.06414 8.24491 6.37577C8.17844 6.6874 8.02404 6.97346 7.79998 7.20001L6.74165 8.25834C7.92795 10.3446 9.65536 12.072 11.7417 13.2583L12.8 12.2C13.0265 11.976 13.3126 11.8216 13.6242 11.7551C13.9359 11.6886 14.26 11.7129 14.5583 11.825C15.3144 12.1071 16.0999 12.3028 16.9 12.4083C17.3048 12.4655 17.6745 12.6694 17.9388 12.9813C18.203 13.2932 18.3435 13.6914 18.3333 14.1Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
                                 </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Message
-                                </label>
-                                <textarea
-                                    value={message}
-                                    onChange={(e) => setMessage(e.target.value)}
-                                    placeholder="Optional message to your client"
-                                    rows={4}
-                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                                />
                             </div>
                         </div>
                         <p className={`h-[20px] ${errorMessage && "text-red-400 text-[0.9rem]"}`}> {errorMessage}</p>

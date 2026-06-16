@@ -208,7 +208,7 @@ const PricingContent = ()=>{
                                     Annually
                                 </span>
                                 <span className="h-[24px] px-2 bg-[#E7FEF8] flex items-center justify-center text-[#059669] border-[0.5px] border-[#40C4AA] text-[12px] font-medium rounded-[6px]">
-                                    Save up to 17%
+                                    Save up to 10%
                                 </span>
                             </div>
                         </div>
