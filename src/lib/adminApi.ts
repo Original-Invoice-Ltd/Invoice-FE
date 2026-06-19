@@ -417,7 +417,6 @@ export class AdminApi {
         return ApiClient.get("/api/admin/audit-logs/stats");
     }
 
-    // â”€â”€ System Config / Plans â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     static async getPlans(): Promise<ApiResponse<any>> {
         return ApiClient.get("/api/admin/system-config/plans");

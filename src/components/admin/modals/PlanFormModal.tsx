@@ -7,7 +7,9 @@ export interface Plan {
     id?: string;
     name: string;
     description: string;
-    maxInvoices: number;
+    maxInvoices?: number; // Legacy field for backward compatibility
+    maxInvoicesMonthly: number;
+    maxInvoicesYearly: number;
     maxLogos: number;
     monthlyPrice: number;
     annualPrice: number;
@@ -15,6 +17,7 @@ export interface Plan {
     isActive: boolean;
     active?: boolean;
     paystackPlanCode?: string | null;
+    paystackAnnualPlanCode?: string | null;
 }
 
 interface PlanFormModalProps {
@@ -26,11 +29,21 @@ interface PlanFormModalProps {
 const PlanFormModal = ({ plan, onClose, onSave }: PlanFormModalProps) => {
     const [form, setForm] = useState<Plan>(() => {
         if (!plan) return {
-            name: "", description: "", maxInvoices: 0, maxLogos: 1,
+            name: "", description: "", 
+            maxInvoicesMonthly: 0, 
+            maxInvoicesYearly: 0, 
+            maxLogos: 1,
             monthlyPrice: 0, annualPrice: 0, features: [], isActive: true,
         };
         const p = plan as any;
-        return { ...plan, features: Array.isArray(plan.features) ? plan.features : [], isActive: p.isActive ?? p.active ?? true };
+        return { 
+            ...plan, 
+            features: Array.isArray(plan.features) ? plan.features : [], 
+            isActive: p.isActive ?? p.active ?? true,
+            // Handle backward compatibility with old maxInvoices field
+            maxInvoicesMonthly: p.maxInvoicesMonthly ?? p.maxInvoices ?? 0,
+            maxInvoicesYearly: p.maxInvoicesYearly ?? (p.maxInvoices ? p.maxInvoices * 12 : 0),
+        };
     });
     const [newFeature, setNewFeature] = useState("");
 
@@ -39,7 +52,7 @@ const PlanFormModal = ({ plan, onClose, onSave }: PlanFormModalProps) => {
         setForm(prev => ({
             ...prev,
             [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked :
-                ["maxInvoices", "maxLogos", "monthlyPrice", "annualPrice"].includes(name) ? Number(value) : value
+                ["maxInvoicesMonthly", "maxInvoicesYearly", "maxLogos", "monthlyPrice", "annualPrice"].includes(name) ? Number(value) : value
         }));
     };
 
@@ -76,26 +89,51 @@ const PlanFormModal = ({ plan, onClose, onSave }: PlanFormModalProps) => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-900 mb-1">Max Invoices</label>
-                            <input type="number" name="maxInvoices" value={form.maxInvoices} onChange={handleChange} min={0}
-                                className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-900 mb-1">Max Invoices (Monthly) *</label>
+                                <input type="number" name="maxInvoicesMonthly" value={form.maxInvoicesMonthly} onChange={handleChange} min={0}
+                                    placeholder="e.g. 10"
+                                    className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-900 mb-1">Max Invoices (Yearly) *</label>
+                                <input type="number" name="maxInvoicesYearly" value={form.maxInvoicesYearly} onChange={handleChange} min={0}
+                                    placeholder="e.g. 120"
+                                    className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-900 mb-1">Max Logos</label>
-                            <input type="number" name="maxLogos" value={form.maxLogos} onChange={handleChange} min={0}
-                                className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-900 mb-1">Max Logos *</label>
+                                <input type="number" name="maxLogos" value={form.maxLogos} onChange={handleChange} min={0}
+                                    placeholder="e.g. 5"
+                                    className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                            </div>
+                            <div className="flex items-center">
+                                <div className="text-xs text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-100">
+                                    <span className="font-medium">💡 Tip:</span> Yearly limits are typically 12x monthly limits
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-900 mb-1">Monthly Price (&#x20A6;)</label>
-                            <input type="number" name="monthlyPrice" value={form.monthlyPrice} onChange={handleChange} min={0}
-                                className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-900 mb-1">Annual Price (&#x20A6;)</label>
-                            <input type="number" name="annualPrice" value={form.annualPrice} onChange={handleChange} min={0}
-                                className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-900 mb-1">Monthly Price (&#x20A6;) *</label>
+                                <input type="number" name="monthlyPrice" value={form.monthlyPrice} onChange={handleChange} min={0}
+                                    placeholder="e.g. 500000"
+                                    className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                                <p className="text-xs text-gray-500 mt-1">Price in kobo (500000 = ₦5,000)</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-900 mb-1">Annual Price (&#x20A6;) *</label>
+                                <input type="number" name="annualPrice" value={form.annualPrice} onChange={handleChange} min={0}
+                                    placeholder="e.g. 5400000"
+                                    className="w-full px-3 py-2 border border-[#E4E7EC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2F80ED]" />
+                                <p className="text-xs text-gray-500 mt-1">Typically 10% discount on yearly</p>
+                            </div>
                         </div>
                     </div>
 
