@@ -36,16 +36,13 @@ const AdminSystemConfigPage = () => {
     useEffect(() => { fetchPlans(); }, []);
 
     const handleSave = async (plan: Plan) => {
-        console.log('[Plan] saving payload:', JSON.stringify(plan, null, 2));
         if (editingPlan?.id) {
             const payload = { ...plan, active: plan.isActive, isActive: plan.isActive };
-            console.log('[Plan] update payload:', JSON.stringify(payload, null, 2));
             const res = await AdminApi.updatePlan(editingPlan.id, payload);
             if (res.status === 200) { showSuccess("Plan updated"); await fetchPlans(); }
             else showError(res.error || "Failed to update plan");
         } else {
             const payload = { ...plan, active: plan.isActive, isActive: plan.isActive };
-            console.log('[Plan] create payload:', JSON.stringify(payload, null, 2));
             const res = await AdminApi.createPlan(payload);
             if (res.status === 200 || res.status === 201) { showSuccess("Plan created"); await fetchPlans(); }
             else showError(res.error || "Failed to create plan");
@@ -187,14 +184,18 @@ const AdminSystemConfigPage = () => {
                             </div>
 
                             {/* Limits row */}
-                            <div className="grid grid-cols-2 divide-x divide-[#E4E7EC] border-t border-[#E4E7EC]">
-                                <div className="px-5 py-3">
-                                    <p className="text-xs text-gray-400 mb-0.5">Max Invoices</p>
-                                    <p className="text-sm font-bold text-gray-900">{plan.maxInvoices >= 999 ? "∞" : plan.maxInvoices}</p>
+                            <div className="grid grid-cols-3 divide-x divide-[#E4E7EC] border-t border-[#E4E7EC]">
+                                <div className="px-4 py-3">
+                                    <p className="text-xs text-gray-400 mb-0.5">Monthly Invoices</p>
+                                    <p className="text-sm font-bold text-gray-900">{plan.maxInvoicesMonthly === -1 ? "∞" : plan.maxInvoicesMonthly ?? plan.maxInvoices ?? 0}</p>
                                 </div>
-                                <div className="px-5 py-3">
+                                <div className="px-4 py-3">
+                                    <p className="text-xs text-gray-400 mb-0.5">Yearly Invoices</p>
+                                    <p className="text-sm font-bold text-gray-900">{plan.maxInvoicesYearly === -1 ? "∞" : plan.maxInvoicesYearly ?? (plan.maxInvoices ? plan.maxInvoices * 12 : 0)}</p>
+                                </div>
+                                <div className="px-4 py-3">
                                     <p className="text-xs text-gray-400 mb-0.5">Max Logos</p>
-                                    <p className="text-sm font-bold text-gray-900">{plan.maxLogos >= 999 ? "∞" : plan.maxLogos}</p>
+                                    <p className="text-sm font-bold text-gray-900">{plan.maxLogos === -1 ? "∞" : plan.maxLogos}</p>
                                 </div>
                             </div>
 
