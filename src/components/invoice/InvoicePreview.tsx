@@ -111,18 +111,24 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
 
         try {
             let normalizedPhone = phoneNumber.trim();
+            
+            // Convert Nigerian local format to international format
             if (normalizedPhone.startsWith('0')) {
                 normalizedPhone = '+234' + normalizedPhone.substring(1);
+            } else if (!normalizedPhone.startsWith('+')) {
+                // If no country code and doesn't start with 0, assume it's Nigerian and add +234
+                normalizedPhone = '+234' + normalizedPhone;
             }
 
-            if (!ApiClient.isValidPhone(normalizedPhone)) {
-                setErrorMessage('Invalid phone number format. Use +234********** format');
+            // Validate the normalized phone number
+            if (!normalizedPhone.match(/^\+234[0-9]{10}$/)) {
+                setErrorMessage('Invalid phone number. Please enter a valid 11-digit Nigerian number');
                 setIsSubmitting(false);
                 return;
             }
 
             if (onSendWhatsApp) {
-                const result = await onSendWhatsApp(normalizedPhone, message);
+                const result = await onSendWhatsApp(normalizedPhone, "");
                 if (result.success) {
                     setSubmitSuccess(true);
                     setShowWhatsAppModal(false);
@@ -158,7 +164,8 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                 setSubmitError(result.error || 'Failed to send invoice via email');
             }
         } catch (error) {
-            setSubmitError('An unexpected error occurred');
+            console.error("Error sending invoice: ", error);
+            setSubmitError('Something went wrong, Pls try agin later.');
         } finally {
             setIsSubmitting(false);
         }
@@ -536,17 +543,15 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
 
                                 {/* WhatsApp Option */}
                                 <button
-                                    disabled
-                                    // onClick={handleWhatsAppOptionClick}
-                                    className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 cursor-not-allowed opacity-60"
+                                    onClick={handleWhatsAppOptionClick}
+                                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 cursor-pointer"
                                 >
                                     <div className="flex items-center gap-3">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M17.472 14.382C17.22 14.256 15.996 13.656 15.768 13.572C15.54 13.488 15.372 13.446 15.204 13.698C15.036 13.95 14.562 14.508 14.418 14.676C14.274 14.844 14.13 14.868 13.878 14.742C13.626 14.616 12.834 14.352 11.892 13.512C11.16 12.858 10.668 12.048 10.524 11.796C10.38 11.544 10.506 11.406 10.632 11.28C10.746 11.166 10.884 10.98 11.01 10.836C11.136 10.692 11.178 10.59 11.262 10.422C11.346 10.254 11.304 10.11 11.238 9.984C11.172 9.858 10.674 8.634 10.47 8.13C10.272 7.638 10.068 7.704 9.918 7.698C9.774 7.692 9.606 7.692 9.438 7.692C9.27 7.692 8.994 7.758 8.766 8.01C8.538 8.262 7.896 8.862 7.896 10.086C7.896 11.31 8.79 12.492 8.916 12.66C9.042 12.828 10.668 15.348 13.194 16.404C13.794 16.662 14.262 16.818 14.628 16.932C15.228 17.124 15.774 17.094 16.206 17.028C16.686 16.956 17.682 16.428 17.886 15.846C18.09 15.264 18.09 14.76 18.024 14.658C17.958 14.556 17.79 14.49 17.538 14.364L17.472 14.382ZM12.006 21.6C10.326 21.6 8.694 21.15 7.266 20.304L6.936 20.106L3.006 21.138L4.056 17.304L3.834 16.962C2.904 15.486 2.412 13.776 2.412 12.006C2.412 6.708 6.708 2.412 12.006 2.412C14.568 2.412 16.974 3.408 18.786 5.22C20.598 7.032 21.6 9.438 21.6 12.006C21.6 17.304 17.304 21.6 12.006 21.6ZM20.52 3.486C18.246 1.212 15.222 0 12.006 0C5.442 0 0.012 5.43 0.012 11.994C0.012 14.106 0.564 16.164 1.614 17.976L0 24L6.168 22.416C7.914 23.376 9.888 23.886 11.898 23.886H11.904C18.462 23.886 24 18.456 24 11.892C24 8.676 22.788 5.652 20.52 3.486Z" fill="#1D1D1D" />
+                                            <path d="M17.472 14.382C17.22 14.256 15.996 13.656 15.768 13.572C15.54 13.488 15.372 13.446 15.204 13.698C15.036 13.95 14.562 14.508 14.418 14.676C14.274 14.844 14.13 14.868 13.878 14.742C13.626 14.616 12.834 14.352 11.892 13.512C11.16 12.858 10.668 12.048 10.524 11.796C10.38 11.544 10.506 11.406 10.632 11.28C10.746 11.166 10.884 10.98 11.01 10.836C11.136 10.692 11.178 10.59 11.262 10.422C11.346 10.254 11.304 10.11 11.238 9.984C11.172 9.858 10.674 8.634 10.47 8.13C10.272 7.638 10.068 7.704 9.918 7.698C9.774 7.692 9.606 7.692 9.438 7.692C9.27 7.692 8.994 7.758 8.766 8.01C8.538 8.262 7.896 8.862 7.896 10.086C7.896 11.31 8.79 12.492 8.916 12.66C9.042 12.828 10.668 15.348 13.194 16.404C13.794 16.662 14.262 16.818 14.628 16.932C15.228 17.124 15.774 17.094 16.206 17.028C16.686 16.956 17.682 16.428 17.886 15.846C18.09 15.264 18.09 14.76 18.024 14.658C17.958 14.556 17.79 14.49 17.538 14.364L17.472 14.382ZM12.006 21.6C10.326 21.6 8.694 21.15 7.266 20.304L6.936 20.106L3.006 21.138L4.056 17.304L3.834 16.962C2.904 15.486 2.412 13.776 2.412 12.006C2.412 6.708 6.708 2.412 12.006 2.412C14.568 2.412 16.974 3.408 18.786 5.22C20.598 7.032 21.6 9.438 21.6 12.006C21.6 17.304 17.304 21.6 12.006 21.6ZM20.52 3.486C18.246 1.212 15.222 0 12.006 0C5.442 0 0.012 5.43 0.012 11.994C0.012 14.106 0.564 16.164 1.614 17.976L0 24L6.168 22.416C7.914 23.376 9.888 23.886 11.898 23.886H11.904C18.462 23.886 24 18.456 24 11.892C24 8.676 22.788 5.652 20.52 3.486Z" fill="#25D366" />
                                         </svg>
                                         <span className="text-gray-900 font-[14px]">WhatsApp</span>
                                     </div>
-                                    <span className="text-[10px] text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Coming Soon</span>
                                 </button>
                             </div>
                         )}
@@ -636,29 +641,26 @@ const InvoicePreview = ({ data, onEdit, onEmailInvoice, onSendInvoice, onSendWha
                                         type="tel"
                                         value={phoneNumber}
                                         onChange={(e) => {
-                                            setPhoneNumber(e.target.value);
+                                            // Remove all non-numeric characters except + at the start
+                                            const cleaned = e.target.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
+                                            setPhoneNumber(cleaned);
                                             setErrorMessage(null);
                                         }}
-                                        placeholder="+234*************"
+                                        onPaste={(e) => {
+                                            e.preventDefault();
+                                            const pastedText = e.clipboardData.getData('text');
+                                            // Clean pasted text: remove spaces, dashes, parentheses, and other non-numeric chars
+                                            const cleaned = pastedText.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
+                                            setPhoneNumber(cleaned);
+                                            setErrorMessage(null);
+                                        }}
+                                        placeholder="07047300083"
                                         className="w-full px-3 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                     <svg className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M18.3333 14.1V16.6C18.3343 16.8321 18.2867 17.0618 18.1937 17.2745C18.1008 17.4871 17.9644 17.678 17.7934 17.8349C17.6224 17.9918 17.4205 18.1113 17.2006 18.1856C16.9808 18.26 16.7478 18.2876 16.5167 18.2667C13.9523 17.9881 11.4892 17.1118 9.32498 15.7083C7.31151 14.4289 5.60443 12.7219 4.32499 10.7083C2.91663 8.53438 2.04019 6.05917 1.76665 3.48334C1.74583 3.25293 1.77321 3.02067 1.84707 2.80139C1.92092 2.58211 2.03963 2.38061 2.19562 2.20972C2.35162 2.03883 2.54149 1.90229 2.75314 1.80881C2.9648 1.71534 3.19348 1.66692 3.42499 1.66667H5.92499C6.32941 1.66273 6.72148 1.80594 7.02812 2.06965C7.33476 2.33336 7.53505 2.69958 7.59165 3.10001C7.69717 3.9001 7.89286 4.68565 8.17499 5.44167C8.2871 5.73998 8.31137 6.06414 8.24491 6.37577C8.17844 6.6874 8.02404 6.97346 7.79998 7.20001L6.74165 8.25834C7.92795 10.3446 9.65536 12.072 11.7417 13.2583L12.8 12.2C13.0265 11.976 13.3126 11.8216 13.6242 11.7551C13.9359 11.6886 14.26 11.7129 14.5583 11.825C15.3144 12.1071 16.0999 12.3028 16.9 12.4083C17.3048 12.4655 17.6745 12.6694 17.9388 12.9813C18.203 13.2932 18.3435 13.6914 18.3333 14.1Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
                                 </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Message
-                                </label>
-                                <textarea
-                                    value={message}
-                                    onChange={(e) => setMessage(e.target.value)}
-                                    placeholder="Optional message to your client"
-                                    rows={4}
-                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                                />
                             </div>
                         </div>
                         <p className={`h-[20px] ${errorMessage && "text-red-400 text-[0.9rem]"}`}> {errorMessage}</p>

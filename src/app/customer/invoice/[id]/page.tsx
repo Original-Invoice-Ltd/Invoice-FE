@@ -62,20 +62,20 @@ export default function EmailInvoicePage() {
 
     if (loading) {
         return (
-            <CustomerLayout>
+            // <CustomerLayout>
                 <div className="flex items-center justify-center min-h-screen">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                         <p className="text-gray-600">Loading invoice...</p>
                     </div>
                 </div>
-            </CustomerLayout>
+            // </CustomerLayout>
         );
     }
 
     if (error || !invoice) {
         return (
-            <CustomerLayout>
+            // <CustomerLayout>
                 <div className="flex items-center justify-center min-h-screen">
                     <div className="text-center max-w-md mx-auto px-4">
                         <div className="mb-6">
@@ -90,7 +90,7 @@ export default function EmailInvoicePage() {
                         <h2 className="text-xl font-semibold text-gray-600 mb-2">Invoice Not Found</h2>
                     </div>
                 </div>
-            </CustomerLayout>
+            // </CustomerLayout>
         );
     }
 
@@ -98,7 +98,7 @@ export default function EmailInvoicePage() {
     const balanceDue = invoice.status.toLowerCase() === 'paid' ? 0 : invoice.totalDue;
 
     return (
-        <CustomerLayout>
+        // <CustomerLayout>
         <div className="bg-gray-100 min-h-screen">
             <div className="max-w-5xl mx-auto p-4 md:p-6">
                 {/* Header with Back Button and Upload Button */}
@@ -407,7 +407,7 @@ export default function EmailInvoicePage() {
                 />
             </div>
         </div>
-        </CustomerLayout>
+        // </CustomerLayout>
 
     );
 
