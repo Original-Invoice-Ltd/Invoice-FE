@@ -47,7 +47,7 @@ const VisionMissionSection: React.FC = () => {
                 Our Vision is to be Nigeria's most trusted invoicing and tax-compliant billing 
                 platform. We enable businesses to create professional invoices, stay compliant, 
                 and automate recurring financial operations with simplicity, inclusivity, and 
-                reliability
+                reliability.
               </p>
             </div>
             
@@ -56,9 +56,7 @@ const VisionMissionSection: React.FC = () => {
                 Tax Transparency
               </h3>
               <p className="text-[16px] md:text-[18px] leading-relaxed text-[#333436] font-['Inter_Tight']">
-                To be Nigeria's most trusted invoicing and tax-compliant billing platform - 
-                enabling businesses to create professional invoices, stay compliant, and automate 
-                recurring financial operations with simplicity, inclusivity, and reliability.
+                We automatically calculate VAT and Withholding Tax (WHT) on every invoice, no complex math required. Your clients see clear, transparent breakdowns of all charges, while you stay compliant with Nigerian tax regulations without the manual effort
               </p>
             </div>
             
