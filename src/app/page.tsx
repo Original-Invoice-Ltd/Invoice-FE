@@ -102,7 +102,7 @@ const  Home =()=> {
 
                             {/* Subheading */}
                             <p className="text-[#333436] text-center text-[14px] lg:text-[18px] leading-tight max-w-[358px] lg:max-w-[820px] px-4 lg:px-0">
-                                Create professional invoices with ease and keep all your business details organized. Track payments as they come in and always know what&#39;s outstanding
+                                Create professional invoices with ease and keep all your business details organized. Track payments as they come in and always know what&#39;s outstanding.
                             </p>
                         </div>
 
@@ -176,7 +176,7 @@ const  Home =()=> {
                             <div className="flex flex-col gap-[20px]">
                                 <p className="text-[24px] lg:text-[32px] text-[#000] font-medium">Create your invoice</p>
                                 <p className="text-[14px] lg:text-[18px] leading-tight max-w-[358px] lg:max-w-[553px] text-[#333436]">
-                                    Bring your invoice to life in a clean editor that guides your flow. Add products or services, apply VAT or WHT, and personalize notes—all without breaking your pace.Every change reflects immediately, giving you clarity and confidence in what you’re sending
+                                    Bring your invoice to life in a clean editor that guides your flow. Add products or services, apply VAT or WHT, and personalize notes—all without breaking your pace. Every change reflects immediately, giving you clarity and confidence in what you’re sending
                                 </p>
                             </div>
                             <CTAButton text="Create Invoice" />
@@ -219,7 +219,7 @@ const  Home =()=> {
                             <div className="flex flex-col gap-[20px]">
                                 <p className="text-[24px] lg:text-[32px] text-[#000] font-medium">Send to your client</p>
                                 <p className="text-[14px] lg:text-[18px] leading-tight max-w-[358px] lg:max-w-[553px] text-[#333436]">
-                                    Send your invoice with one click, choose the format that fits your client, and deliver a professional experience every time.Whether you share a link, attach a PDF, or print a copy, everything stays neatly organized on your dashboard.
+                                    Send your invoice with one click, choose the format that fits your client, and deliver a professional experience every time. Whether you share a link, attach a PDF, or print a copy, everything stays neatly organized on your dashboard.
                                 </p>
                             </div>
                             <CTAButton text="Create Invoice" />
@@ -268,7 +268,7 @@ const  Home =()=> {
                             Everything you need to manage your invoices<br className="hidden lg:block" /> in one place
                         </h2>
                         <p className="text-[14px] lg:text-[18px] text-[#333436] max-w-[358px] lg:max-w-[600px] mx-auto leading-relaxed">
-                            A thoughtful set of tools that help you create invoices, stay organized, and keep track of payments.
+                            A professional set of tools that help you create invoices, stay organized, and keep track of payments.
                             Designed to support the everyday rhythm of your business.
                         </p>
                     </div>
